@@ -49,70 +49,64 @@ export const homepageConfig = {
     title: 'papers',
     subtitle: 'Static documentation template',
     description:
-      'A polished docs starter built with React 19, Vite 6, TypeScript, Tailwind CSS, and Pagefind.',
+      'A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.',
     cta: {
       primary: {
-        text: 'Get Started',
-        href: '/docs/getting-started/introduction',
+        text: 'Installation',
+        href: '/docs/getting-started/installation',
       },
       secondary: {
-        text: 'View on GitHub',
-        href: 'https://github.com/thomasjvu/papers',
+        text: 'Quick Start',
+        href: '/docs/getting-started/quick-start',
       },
     },
   },
   features: [
     {
-      title: 'Static-first content pipeline',
-      description:
-        'Write Markdown in src/docs/content and generate a JSON content store, llms.txt files, and a Pagefind index at build time.',
-      icon: 'mingcute:file-export-line',
+      title: 'Install fast',
+      description: 'Clone the repo, install dependencies, and start editing docs in a few minutes.',
+      icon: 'mingcute:flash-line',
     },
     {
-      title: 'Fast search',
-      description: 'Command palette search combines local navigation results with Pagefind full-text matches.',
-      icon: 'mingcute:search-line',
+      title: 'Write in Markdown',
+      description: 'Keep your real documentation in `src/docs/content/` and drive navigation from shared config.',
+      icon: 'mingcute:file-text-line',
     },
     {
-      title: 'Interactive navigation',
-      description: 'Pair the file tree with an interactive documentation map and a generated table of contents.',
-      icon: 'mingcute:git-branch-line',
-    },
-    {
-      title: 'LLM-friendly output',
-      description: 'Generate llms.txt and llms-full.txt automatically so AI tools can ingest your docs cleanly.',
-      icon: 'mingcute:ai-line',
-    },
-    {
-      title: 'Theme and typography controls',
-      description: 'Ship dark mode, reduced-motion support, and font switching without wiring them from scratch.',
-      icon: 'mingcute:palette-line',
-    },
-    {
-      title: 'Deploy anywhere',
-      description: 'Build to dist and deploy to Cloudflare Pages, Vercel, Netlify, or any static host with SPA rewrites.',
+      title: 'Ship static',
+      description: 'Build once and deploy to Cloudflare Pages, Vercel, Netlify, or any host with SPA rewrites.',
       icon: 'mingcute:rocket-line',
+    },
+    {
+      title: 'Search-ready',
+      description: 'Use the command palette locally and Pagefind full-text search in production builds.',
+      icon: 'mingcute:search-line',
     },
   ],
   quickStart: {
-    title: 'Quick Start',
+    title: 'Install In 4 Steps',
     steps: [
       {
-        title: 'Clone the repository',
-        code: 'git clone https://github.com/thomasjvu/papers.git',
+        title: 'Clone the template',
+        code: 'git clone git@github.com:thomasjvu/papers.git',
       },
       {
-        title: 'Install dependencies',
-        code: 'npm install',
+        title: 'Enter the project and install dependencies',
+        code: 'cd papers && npm install',
       },
       {
-        title: 'Start developing',
+        title: 'Start the local docs app',
         code: 'npm run dev',
+      },
+      {
+        title: 'Open the setup docs',
+        code: 'visit /docs/getting-started/installation',
       },
     ],
   },
   footer: {
     links: [
+      { text: 'Installation', href: '/docs/getting-started/installation' },
       { text: 'Documentation', href: '/docs/getting-started/introduction' },
       { text: 'GitHub', href: 'https://github.com/thomasjvu/papers' },
     ],

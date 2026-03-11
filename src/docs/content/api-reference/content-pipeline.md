@@ -70,7 +70,7 @@ The full build runs generators in this order:
 
 ## Related Reading
 
-For a repo-level overview of the same system, see `DOCUMENTATION_API.md` in the project root.
+For the rest of the runtime details, keep following the docs in this app rather than relying on extra root-level markdown files.
 
 ## Next Steps
 
