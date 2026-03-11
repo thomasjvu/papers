@@ -12,38 +12,46 @@ URL: /docs/getting-started/introduction
 
 # Introduction
 
-`papers` is a static documentation template for teams that want a polished docs site without standing up a backend.
+`papers` is a static documentation template for teams that want a polished docs site without standing up a backend or CMS first.
 
-It combines React Router for client-side navigation, generated Markdown content files, Pagefind search, and `llms.txt` exports in a single Vite build.
+It combines React Router navigation, generated Markdown content, Pagefind search, `llms.txt` exports, and a production-ready static build in one project.
 
 ## What You Get
 
-- A homepage and docs layout driven by `shared/documentation-config.js`
+- a homepage and docs framework driven by `shared/documentation-config.js`
 - Markdown source content under `src/docs/content/`
-- Generated `docs-index.json` plus per-page files under `public/docs-content/`
-- Generated `llms.txt` and `llms-full.txt` for AI-friendly discovery
-- Pagefind indexing for fast production search
-- Theme, motion, and font controls out of the box
-- File tree, table of contents, and interactive docs map navigation
+- a generated docs manifest plus per-page JSON files
+- built-in command palette, file tree, table of contents, and interactive map
+- `llms.txt` and `llms-full.txt` output for AI-friendly discovery
+- theme, motion, and font preferences without extra setup
+
+## How To Think About The Template
+
+There are two layers:
+
+1. Configuration: your docs tree, homepage copy, metadata, and shared links.
+2. Content: the Markdown pages your users actually read.
+
+That means most customization happens in a few predictable places instead of across dozens of components.
 
 ## How The Content Pipeline Works
 
-1. Define the docs tree in `shared/documentation-config.js`.
-2. Write Markdown files in `src/docs/content/`.
+1. Define the docs structure in `shared/documentation-config.js`.
+2. Write Markdown pages in `src/docs/content/`.
 3. Run `npm run generate:docs` or `npm run build`.
-4. The app loads `/docs-index.json` once, then fetches individual page files from `/docs-content/` at runtime.
+4. The app loads `/docs-index.json` once, then fetches only the requested page from `/docs-content/`.
 
 ## When This Template Fits Well
 
 Use it when you want:
 
-- product docs
+- product documentation
 - internal engineering handbooks
-- API or SDK documentation
+- API or SDK docs
 - changelog or release-note sites
-- AI-ingestible docs without extra tooling
+- AI-ingestible docs without extra infrastructure
 
-## Core Files To Know Early
+## Files To Learn First
 
 - `shared/documentation-config.js`
 - `src/docs/content/`
@@ -52,11 +60,11 @@ Use it when you want:
 - `scripts/generate-llms.mjs`
 - `scripts/generate-pagefind.mjs`
 
-## Next Steps
+## Recommended First Steps
 
-- Read [Quick Start](/docs/getting-started/quick-start)
-- Review [Installation](/docs/getting-started/installation)
-- Learn the runtime in [Basic Usage](/docs/user-guide/basic-usage)
+- read [Quick Start](/docs/getting-started/quick-start)
+- verify your environment in [Installation](/docs/getting-started/installation)
+- learn the editing workflow in [Basic Usage](/docs/user-guide/basic-usage)
 
 
 ---
@@ -68,19 +76,22 @@ URL: /docs/getting-started/quick-start
 
 # Quick Start
 
-Use this path if you want to get a fork running with minimal setup.
+Use this path if you want to fork the template, replace the sample content, and get your own docs site running as quickly as possible.
 
-## 1. Clone And Install
+## 1. Clone, Install, And Start The App
 
 ```bash
 git clone https://github.com/thomasjvu/papers.git
 cd papers
 npm install
+npm run dev
 ```
 
-## 2. Optional Environment Setup
+Open `http://localhost:3333`.
 
-Create `.env.local` if you want custom titles or GitHub edit links.
+## 2. Set The Basic Site Metadata
+
+Create `.env.local` if you want your own site name, canonical URL, or GitHub edit links.
 
 ```env
 VITE_SITE_NAME="Your Docs"
@@ -89,23 +100,25 @@ VITE_GITHUB_URL="https://github.com/your-org/your-repo"
 VITE_GITHUB_BRANCH="main"
 ```
 
-## 3. Update The Navigation Tree
+## 3. Replace The Docs Tree
 
-Edit `shared/documentation-config.js` and add or rename sections to match your project.
+Edit `shared/documentation-config.js` so the sections, page titles, homepage content, and navigation structure match your project.
 
-## 4. Replace The Markdown Content
+## 4. Replace The Sample Markdown
 
-Write your docs in `src/docs/content/`.
+Write your own content under `src/docs/content/`.
 
-Each entry in the shared docs tree should map to a Markdown file with the same path.
+Every entry in the docs tree should map to a Markdown file with the same path.
 
-## 5. Start The App
+## 5. Check The Main User Flows
 
-```bash
-npm run dev
-```
+Before you ship, make sure these work with your real content:
 
-Open `http://localhost:3333`.
+- homepage links
+- left sidebar navigation
+- `Cmd/Ctrl + K` search
+- right-side table of contents and docs map
+- edit/issue/source links if you enabled GitHub URLs
 
 ## 6. Build The Production Site
 
@@ -119,14 +132,15 @@ That command regenerates docs content, `llms.txt`, and the Pagefind index before
 
 - set your site name and GitHub repo URL
 - replace the homepage hero copy
-- trim unused docs sections from the shared tree
+- trim unused sections from the shared docs tree
 - replace the sample docs in `src/docs/content/`
+- remove any placeholder links you do not want in production
 
 ## Next Steps
 
+- [Installation](/docs/getting-started/installation)
 - [Configuration](/docs/user-guide/configuration)
 - [Deployment Overview](/docs/deployment/overview)
-- [Code Examples](/docs/developer-guides/code-examples)
 
 
 ---
@@ -149,7 +163,9 @@ URL: /docs/getting-started/installation
 npm install
 ```
 
-## Helpful Environment Variables
+## Optional Environment Variables
+
+Use `.env.local` when you want custom metadata or GitHub integration.
 
 ```env
 VITE_SITE_NAME="Your Docs"
@@ -159,13 +175,13 @@ VITE_GITHUB_BRANCH="main"
 VITE_DEBUG_MODE="false"
 ```
 
-## First Run Checklist
+## First-Run Checklist
 
 1. Install dependencies.
 2. Update `shared/documentation-config.js`.
 3. Replace the example Markdown files.
 4. Run `npm run dev`.
-5. Run `npm run build` before deploying.
+5. Run `npm run lint` and `npm run build` before deploying.
 
 ## Common Project Paths
 
@@ -178,17 +194,27 @@ public/_headers                  Cache headers
 public/_redirects                SPA rewrites for supported hosts
 ```
 
-## Verifying The Setup
+## How To Verify The Setup
 
 Run:
 
 ```bash
+npm run test
 npm run lint
-npm run type-check
 npm run build
 ```
 
-If all three pass, the template is ready for customization and deployment.
+If all three pass, the template is in good shape for customization and deployment.
+
+## What A Successful Build Means
+
+A successful production build confirms that:
+
+- docs content was generated correctly
+- the TypeScript app compiled
+- the static assets were bundled
+- Pagefind search assets were generated
+- `llms.txt` outputs were refreshed
 
 ## Next Steps
 
@@ -208,17 +234,17 @@ URL: /docs/user-guide/basic-usage
 
 # Basic Usage
 
-Once the site is running, most of the day-to-day workflow is simple: update Markdown, preview locally, and ship a static build.
+Once the site is running, the normal workflow is simple: edit Markdown, preview locally, and ship a static build.
 
-## Reading The Documentation UI
+## Reading The Docs UI
 
-The docs experience has three main navigation surfaces:
+The docs experience has three primary surfaces:
 
-- the file tree on the left
-- the page content in the center
-- the table of contents or interactive map on the right
+- the file tree on the left for moving between pages
+- the page content in the center for reading and editing docs
+- the table of contents or interactive map on the right for in-page navigation and structure
 
-On mobile, the map opens from the navigation menu.
+On mobile, the sidebar reopens from the floating toggle and the map opens from the sidebar tools.
 
 ## Search And Shortcuts
 
@@ -229,7 +255,28 @@ On mobile, the map opens from the navigation menu.
 
 ## Editing Content
 
-Each docs page can expose these links at the bottom:
+A typical content change looks like this:
+
+1. update the Markdown file under `src/docs/content/`
+2. keep the matching path in `shared/documentation-config.js`
+3. preview the result with `npm run dev`
+4. run `npm run build` before shipping
+
+## Generated Content Behavior
+
+The browser does not read Markdown files directly.
+
+Instead, the app loads a generated docs manifest from `/docs-index.json` and then fetches the requested page from `/docs-content/`, which keeps deployments static-host friendly and avoids loading the whole corpus up front.
+
+## Production Search
+
+Production search is powered by Pagefind.
+
+The index is generated during `npm run build` and must be published with the rest of `dist/`.
+
+## GitHub Editing Links
+
+Each docs page can show these actions at the bottom:
 
 - `edit`
 - `issue`
@@ -237,19 +284,11 @@ Each docs page can expose these links at the bottom:
 
 Those links appear when `VITE_GITHUB_URL` is configured.
 
-## Generated Content Behavior
-
-The site does not read Markdown files directly in the browser. It reads a generated docs manifest from `/docs-index.json` and then loads only the requested page from `/docs-content/`, so local builds and deployments stay static-host friendly without shipping the whole corpus up front.
-
-## Production Search
-
-Production search is powered by Pagefind. The index is generated during `npm run build` and published with the rest of `dist/`.
-
 ## Next Steps
 
-- [Advanced Features](/docs/user-guide/advanced-features)
 - [Command Palette](/docs/user-guide/command-palette)
 - [Interactive Map](/docs/user-guide/interactive-map)
+- [Troubleshooting](/docs/user-guide/troubleshooting)
 
 
 ---
@@ -385,9 +424,9 @@ URL: /docs/user-guide/troubleshooting
 
 ## A Docs Route Returns 404 On Refresh
 
-The host is probably missing an SPA rewrite.
+Your host is probably missing an SPA rewrite.
 
-For this repo, direct requests to `/docs/...` and `/llms` must serve `index.html`.
+Direct requests to `/docs/...` and `/llms` need to serve `index.html`.
 
 Check:
 
@@ -396,24 +435,34 @@ Check:
 
 ## New Markdown Does Not Show Up
 
-Make sure the file path exists in both places:
+Make sure the page exists in both places:
 
 - `shared/documentation-config.js`
 - `src/docs/content/...`
 
 Then rerun `npm run generate:docs` or `npm run build`.
 
+## The Command Palette Does Not Find A Page
+
+The command palette only knows about pages that made it into the generated docs manifest.
+
+If a page is missing from search:
+
+1. confirm the docs tree entry exists
+2. confirm the Markdown path matches it
+3. rerun `npm run build`
+
 ## Search Is Empty In Production
 
-Pagefind only exists after a production build.
+Pagefind is only generated during a production build.
 
-Run `npm run build` and verify the generated `dist/pagefind/` directory is published.
+Run `npm run build` and verify that `dist/pagefind/` is deployed with the rest of the site.
 
 ## Edit / Issue / Source Links Are Missing
 
 Set `VITE_GITHUB_URL` and optionally `VITE_GITHUB_BRANCH` in `.env.local`.
 
-## Theme Does Not Match The OS
+## Theme Or Motion Settings Feel Stuck
 
 The app follows system theme and reduced-motion settings until a user changes them manually.
 
@@ -421,20 +470,23 @@ If you want to reset back to system behavior, clear these local storage keys:
 
 - `darkMode`
 - `prefersReducedMotion`
+- `fontFamily`
 
 ## A Wallet Copy Button Or Icon Looks Wrong
 
-The wallet helpers rely on the Iconify web component loaded from `index.html`. If the icons are missing, make sure that script is still present.
+The wallet helpers rely on the Iconify web component loaded from `index.html`.
+
+If the icons are missing, confirm that script is still present.
 
 ## Debug Checklist
 
 ```bash
+npm run test
 npm run lint
-npm run type-check
 npm run build
 ```
 
-If those pass, the remaining issue is usually host configuration or stale generated output.
+If those pass, the remaining issue is usually host configuration, stale generated output, or a broken docs-tree path.
 
 
 ---

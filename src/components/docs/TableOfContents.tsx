@@ -6,43 +6,119 @@ interface TableOfContentsProps {
   onToggleRightSidebar: () => void;
 }
 
+interface HeadingItem {
+  level: number;
+  text: string;
+  id: string;
+}
+
+function createHeadingId(text: string, counts: Map<string, number>): string {
+  const baseId = text
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '') || 'section';
+
+  const currentCount = counts.get(baseId) ?? 0;
+  counts.set(baseId, currentCount + 1);
+
+  return currentCount === 0 ? baseId : `${baseId}-${currentCount + 1}`;
+}
+
+function buildHeadingsFromMarkdown(content: string): HeadingItem[] {
+  const lines = content.split('\n');
+  const headingRegex = /^(#{1,6})\s+(.+)$/;
+  const counts = new Map<string, number>();
+  const extractedHeadings: HeadingItem[] = [];
+
+  for (const line of lines) {
+    const match = line.match(headingRegex);
+    if (!match) {
+      continue;
+    }
+
+    const level = match[1].length;
+    const text = match[2].trim();
+    const id = createHeadingId(text, counts);
+    extractedHeadings.push({ level, text, id });
+  }
+
+  return extractedHeadings;
+}
+
 const TableOfContents = React.memo(({ content, onToggleRightSidebar }: TableOfContentsProps) => {
-  const headings = React.useMemo(() => {
-    const lines = content.split('\n');
-    const headingRegex = /^(#{1,6})\s+(.+)$/;
-    const extractedHeadings: Array<{ level: number; text: string; id: string }> = [];
+  const headings = React.useMemo(() => buildHeadingsFromMarkdown(content), [content]);
+  const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(
+    headings[0]?.id ?? null
+  );
 
-    lines.forEach((line) => {
-      const match = line.match(headingRegex);
-      if (match) {
-        const level = match[1].length;
-        const text = match[2].trim();
-        const id = text
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-|-$/g, '');
-        extractedHeadings.push({ level, text, id });
+  React.useEffect(() => {
+    setActiveHeadingId(headings[0]?.id ?? null);
+  }, [headings]);
+
+  React.useEffect(() => {
+    if (!headings.length || typeof window === 'undefined') {
+      return undefined;
+    }
+
+    const scrollContainer = document.querySelector('.doc-content-scroll');
+    if (!(scrollContainer instanceof HTMLElement)) {
+      return undefined;
+    }
+
+    const resolveActiveHeading = () => {
+      const rootRect = scrollContainer.getBoundingClientRect();
+      const activationLine = rootRect.top + rootRect.height * 0.3;
+
+      let nextActiveId = headings[0]?.id ?? null;
+
+      for (const heading of headings) {
+        const element = document.getElementById(heading.id);
+        if (!element) {
+          continue;
+        }
+
+        const rect = element.getBoundingClientRect();
+        if (rect.top <= activationLine) {
+          nextActiveId = heading.id;
+        } else {
+          break;
+        }
       }
-    });
 
-    return extractedHeadings;
-  }, [content]);
+      setActiveHeadingId((currentId) => (currentId === nextActiveId ? currentId : nextActiveId));
+    };
 
-  if (headings.length === 0) return null;
+    resolveActiveHeading();
+    const immediateTimer = window.setTimeout(resolveActiveHeading, 0);
+    const settledTimer = window.setTimeout(resolveActiveHeading, 200);
+
+    scrollContainer.addEventListener('scroll', resolveActiveHeading, { passive: true });
+    window.addEventListener('resize', resolveActiveHeading);
+
+    return () => {
+      window.clearTimeout(immediateTimer);
+      window.clearTimeout(settledTimer);
+      scrollContainer.removeEventListener('scroll', resolveActiveHeading);
+      window.removeEventListener('resize', resolveActiveHeading);
+    };
+  }, [headings]);
+
+  if (headings.length === 0) {
+    return null;
+  }
 
   return (
     <div
-      className="rounded-lg border p-4 max-h-96 overflow-hidden flex flex-col"
+      className="flex max-h-[calc(100vh-4rem)] flex-col overflow-hidden rounded-lg border p-4"
       style={{
         backgroundColor: 'var(--toc-bg-color)',
         borderColor: 'var(--toc-border-color)',
       }}
     >
-      <div className="flex items-center justify-between mb-3 flex-shrink-0">
+      <div className="mb-3 flex flex-shrink-0 items-center justify-between">
         <h4
-          className="text-xs font-semibold uppercase tracking-wide"
+          className="ui-caption"
           style={{
-            fontFamily: 'var(--mono-font)',
             color: 'var(--toc-text-color)',
           }}
         >
@@ -50,50 +126,51 @@ const TableOfContents = React.memo(({ content, onToggleRightSidebar }: TableOfCo
         </h4>
         <button
           onClick={onToggleRightSidebar}
-          className="flex items-center justify-center w-6 h-6 rounded-md transition-colors border"
+          className="ui-control flex h-6 w-6 items-center justify-center rounded-md"
           style={{
             backgroundColor: 'var(--toc-button-bg)',
             borderColor: 'var(--toc-border-color)',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--toc-button-hover-bg)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = 'var(--toc-button-bg)';
+            color: 'var(--toc-text-color)',
           }}
           aria-label="Show documentation map"
+          type="button"
         >
-          <Icon
-            icon="mingcute:brain-line"
-            className="w-3.5 h-3.5"
-            style={{
-              color: 'var(--toc-text-color)',
-            }}
-          />
+          <Icon icon="mingcute:brain-line" className="h-3.5 w-3.5" />
         </button>
       </div>
-      <nav className="space-y-1 overflow-y-auto overflow-x-hidden toc-scroll">
-        {headings.map((heading, index) => (
-          <a
-            key={index}
-            href={`#${heading.id}`}
-            className="block text-sm transition-colors py-1"
-            style={{
-              fontFamily: 'var(--mono-font)',
-              paddingLeft: `${(heading.level - 1) * 12}px`,
-              fontSize: heading.level === 1 ? '13px' : '12px',
-              color: 'var(--toc-text-color)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.color = 'var(--toc-text-hover-color)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.color = 'var(--toc-text-color)';
-            }}
-          >
-            {heading.text}
-          </a>
-        ))}
+      <nav className="toc-scroll overflow-x-hidden overflow-y-auto pr-1">
+        {headings.map((heading) => {
+          const isActive = heading.id === activeHeadingId;
+
+          return (
+            <a
+              key={heading.id}
+              href={`#${heading.id}`}
+              className="block py-1 transition-all duration-200"
+              style={{
+                fontFamily: 'var(--mono-font)',
+                paddingLeft: `${(heading.level - 1) * 12}px`,
+                fontSize: heading.level === 1 ? 'var(--text-xs)' : 'var(--text-2xs)',
+                color: isActive ? 'var(--toc-text-hover-color)' : 'var(--toc-text-color)',
+                opacity: isActive ? 1 : 0.58,
+                fontWeight: isActive ? 600 : 500,
+              }}
+              onClick={(event) => {
+                event.preventDefault();
+                const element = document.getElementById(heading.id);
+                if (!element) {
+                  return;
+                }
+
+                setActiveHeadingId(heading.id);
+                element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                window.history.replaceState(null, '', `#${heading.id}`);
+              }}
+            >
+              {heading.text}
+            </a>
+          );
+        })}
       </nav>
     </div>
   );

@@ -82,7 +82,7 @@ export const processMarkdown = async (
     }
 
     const rawRenderState = await buildMarkdownRenderState(normalizedContent);
-    const styledHtml = applyBasicStyles(rawRenderState.html);
+    const styledHtml = applyBasicStyles(addHeadingIds(rawRenderState.html));
     const sanitizedHtml = DOMPurify.sanitize(styledHtml, {
       ALLOWED_TAGS: [
         'h1',
@@ -160,6 +160,29 @@ export const processMarkdown = async (
   }
 };
 
+function createHeadingId(text: string, counts: Map<string, number>): string {
+  const baseId =
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'section';
+
+  const currentCount = counts.get(baseId) ?? 0;
+  counts.set(baseId, currentCount + 1);
+
+  return currentCount === 0 ? baseId : `${baseId}-${currentCount + 1}`;
+}
+
+function addHeadingIds(html: string): string {
+  const headingCounts = new Map<string, number>();
+
+  return html.replace(/<h([1-6])(?![^>]*\sid=)([^>]*)>(.*?)<\/h\1>/g, (_match, level, attributes, innerHtml) => {
+    const textContent = innerHtml.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    const headingId = createHeadingId(textContent, headingCounts);
+    return `<h${level}${attributes} id="${headingId}">${innerHtml}</h${level}>`;
+  });
+}
+
 /**
  * Apply basic styling to HTML elements
  */
@@ -167,44 +190,44 @@ const applyBasicStyles = (html: string): string => {
   const styleReplacements: Array<[RegExp, string]> = [
     [
       /<h1([^>]*)>/g,
-      '<h1$1 class="font-title text-3xl mb-0 mt-8 text-gray-900 dark:text-gray-100" style="padding: 0;">',
+      '<h1$1 class="font-title text-3xl mb-0 mt-8" style="padding: 0;">',
     ],
     [
       /<h2([^>]*)>/g,
-      '<h2$1 class="font-title text-2xl mb-4 mt-6 text-gray-900 dark:text-gray-100">',
+      '<h2$1 class="font-title text-2xl mb-4 mt-6">',
     ],
     [
       /<h3([^>]*)>/g,
-      '<h3$1 class="font-title text-xl mb-3 mt-5 text-gray-900 dark:text-gray-100">',
+      '<h3$1 class="font-title text-xl mb-3 mt-5">',
     ],
     [
       /<h4([^>]*)>/g,
-      '<h4$1 class="font-title text-lg mb-2 mt-4 text-gray-900 dark:text-gray-100">',
+      '<h4$1 class="font-title text-lg mb-2 mt-4">',
     ],
     [
       /<h5([^>]*)>/g,
-      '<h5$1 class="font-title text-base mb-2 mt-3 text-gray-900 dark:text-gray-100">',
+      '<h5$1 class="font-title text-base mb-2 mt-3">',
     ],
     [
       /<h6([^>]*)>/g,
-      '<h6$1 class="font-title text-sm mb-2 mt-3 text-gray-900 dark:text-gray-100">',
+      '<h6$1 class="font-title text-sm mb-2 mt-3">',
     ],
-    [/<p([^>]*)>/g, '<p$1 class="font-body mb-4 text-gray-700 dark:text-gray-300">'],
+    [/<p([^>]*)>/g, '<p$1 class="font-body mb-4">'],
     [/<a([^>]*)>/g, '<a$1 class="markdown-link">'],
-    [/<ul([^>]*)>/g, '<ul$1 class="list-disc pl-6 mb-4 text-gray-700 dark:text-gray-300">'],
-    [/<ol([^>]*)>/g, '<ol$1 class="list-decimal pl-6 mb-4 text-gray-700 dark:text-gray-300">'],
+    [/<ul([^>]*)>/g, '<ul$1 class="list-disc pl-6 mb-4">'],
+    [/<ol([^>]*)>/g, '<ol$1 class="list-decimal pl-6 mb-4">'],
     [/<li([^>]*)>/g, '<li$1 class="mb-1">'],
     [/<blockquote([^>]*)>/g, '<blockquote$1 class="markdown-blockquote">'],
     [/<table([^>]*)>/g, '<table$1 class="w-full border-collapse my-4">'],
     [
       /<th([^>]*)>/g,
-      '<th$1 class="border border-gray-300 dark:border-gray-600 px-4 py-2 bg-gray-100 dark:bg-gray-800 text-left">',
+      '<th$1 class="border px-4 py-2 text-left">',
     ],
-    [/<td([^>]*)>/g, '<td$1 class="border border-gray-300 dark:border-gray-600 px-4 py-2">'],
-    [/<hr([^>]*)>/g, '<hr$1 class="my-8 border-t border-gray-300 dark:border-gray-700">'],
+    [/<td([^>]*)>/g, '<td$1 class="border px-4 py-2">'],
+    [/<hr([^>]*)>/g, '<hr$1 class="my-8 border-t">'],
     [
       /<code(?![^<]*<\/pre>)([^>]*)>/g,
-      '<code$1 class="font-mono text-sm bg-gray-100 dark:bg-gray-800 text-red-600 dark:text-red-400 px-1.5 py-0.5 rounded">',
+      '<code$1 class="font-mono text-sm px-1.5 py-0.5 rounded">',
     ],
   ];
 

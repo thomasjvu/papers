@@ -6,16 +6,16 @@ Papers is a static documentation site template with fast client-side navigation,
 
 ## Getting Started
 
-- [Introduction](/docs/getting-started/introduction): `papers` is a static documentation template for teams that want a polished docs site without standing up a backend.
-- [Quick Start](/docs/getting-started/quick-start): Use this path if you want to get a fork running with minimal setup.
+- [Introduction](/docs/getting-started/introduction): `papers` is a static documentation template for teams that want a polished docs site without standing up a backend or CMS first.
+- [Quick Start](/docs/getting-started/quick-start): Use this path if you want to fork the template, replace the sample content, and get your own docs site running as quickly as possible.
 - [Installation](/docs/getting-started/installation): - Node.js 18 or newer
 
 ## User Guide
 
-- [Basic Usage](/docs/user-guide/basic-usage): Once the site is running, most of the day-to-day workflow is simple: update Markdown, preview locally, and ship a static build.
+- [Basic Usage](/docs/user-guide/basic-usage): Once the site is running, the normal workflow is simple: edit Markdown, preview locally, and ship a static build.
 - [Advanced Features](/docs/user-guide/advanced-features): This template ships with more than a basic Markdown renderer.
 - [Configuration](/docs/user-guide/configuration): Most template changes happen in a small set of files.
-- [Troubleshooting](/docs/user-guide/troubleshooting): The host is probably missing an SPA rewrite.
+- [Troubleshooting](/docs/user-guide/troubleshooting): Your host is probably missing an SPA rewrite.
 - [Command Palette](/docs/user-guide/command-palette): The command palette is the fastest way to move through the site.
 - [Interactive Map](/docs/user-guide/interactive-map): The interactive map renders the documentation tree as a graph in the right sidebar.
 

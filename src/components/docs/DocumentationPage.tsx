@@ -473,8 +473,8 @@ const DocumentationPage = React.memo(
             </div>
 
             {!rightSidebarVisible && (
-              <div className="hidden w-56 flex-shrink-0 xl:block">
-                <div className="sticky top-6">
+              <div className="hidden w-56 flex-shrink-0 items-center justify-center xl:flex">
+                <div className="w-full">
                   <TableOfContents content={content} onToggleRightSidebar={toggleRightSidebar} />
                 </div>
               </div>

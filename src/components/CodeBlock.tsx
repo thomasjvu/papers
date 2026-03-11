@@ -8,7 +8,6 @@ import React, {
 } from 'react';
 
 import { ANIMATION_DURATION } from '../constants/ui';
-import { useTheme } from '../providers/ThemeProvider';
 import { getLanguageDisplay } from '../utils/languageUtils';
 
 import styles from './CodeBlock.module.css';
@@ -67,9 +66,9 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   xml: 'markup',
 };
 
-const minimalLightSyntaxTheme: Record<string, CSSProperties> = {
+const minimalSyntaxTheme: Record<string, CSSProperties> = {
   'pre[class*="language-"]': {
-    color: 'var(--text-color)',
+    color: 'var(--code-text-color)',
     background: 'transparent',
     textShadow: 'none',
     fontFamily: 'var(--mono-font)',
@@ -77,7 +76,7 @@ const minimalLightSyntaxTheme: Record<string, CSSProperties> = {
     lineHeight: '1.65',
   },
   'code[class*="language-"]': {
-    color: 'var(--text-color)',
+    color: 'var(--code-text-color)',
     background: 'transparent',
     textShadow: 'none',
     fontFamily: 'var(--mono-font)',
@@ -85,95 +84,99 @@ const minimalLightSyntaxTheme: Record<string, CSSProperties> = {
     lineHeight: '1.65',
   },
   comment: {
-    color: 'var(--muted-color)',
+    color: 'var(--code-muted-color)',
     fontStyle: 'italic',
   },
   prolog: {
-    color: 'var(--muted-color)',
+    color: 'var(--code-muted-color)',
   },
   doctype: {
-    color: 'var(--muted-color)',
+    color: 'var(--code-muted-color)',
   },
   cdata: {
-    color: 'var(--muted-color)',
+    color: 'var(--code-muted-color)',
   },
   punctuation: {
-    color: 'var(--text-secondary)',
-  },
-  property: {
-    color: 'var(--text-color)',
-  },
-  tag: {
-    color: 'var(--text-color)',
-  },
-  boolean: {
-    color: 'var(--text-secondary)',
-  },
-  number: {
-    color: 'var(--text-secondary)',
-  },
-  constant: {
-    color: 'var(--text-secondary)',
-  },
-  symbol: {
-    color: 'var(--text-secondary)',
-  },
-  deleted: {
-    color: 'var(--text-secondary)',
-  },
-  selector: {
-    color: 'var(--text-color)',
-  },
-  'attr-name': {
-    color: 'var(--text-secondary)',
-  },
-  string: {
-    color: 'var(--text-color)',
-  },
-  char: {
-    color: 'var(--text-color)',
-  },
-  builtin: {
-    color: 'var(--text-secondary)',
-  },
-  inserted: {
-    color: 'var(--text-color)',
+    color: 'var(--code-subtle-color)',
   },
   operator: {
-    color: 'var(--text-secondary)',
+    color: 'var(--code-subtle-color)',
   },
   entity: {
-    color: 'var(--text-secondary)',
+    color: 'var(--code-subtle-color)',
     cursor: 'help',
   },
   url: {
-    color: 'var(--text-secondary)',
+    color: 'var(--code-subtle-color)',
   },
-  atrule: {
-    color: 'var(--text-secondary)',
-  },
-  'attr-value': {
-    color: 'var(--text-color)',
+  namespace: {
+    color: 'var(--code-subtle-color)',
+    opacity: 0.8,
   },
   keyword: {
-    color: 'var(--text-color)',
+    color: 'var(--code-text-color)',
     fontWeight: 600,
-  },
-  function: {
-    color: 'var(--text-color)',
-  },
-  'class-name': {
-    color: 'var(--text-color)',
-  },
-  regex: {
-    color: 'var(--text-secondary)',
   },
   important: {
-    color: 'var(--text-color)',
+    color: 'var(--code-text-color)',
     fontWeight: 600,
   },
+  property: {
+    color: 'var(--code-text-color)',
+  },
+  tag: {
+    color: 'var(--code-text-color)',
+  },
+  selector: {
+    color: 'var(--code-text-color)',
+  },
+  string: {
+    color: 'var(--code-text-color)',
+  },
+  char: {
+    color: 'var(--code-text-color)',
+  },
+  function: {
+    color: 'var(--code-text-color)',
+  },
+  'class-name': {
+    color: 'var(--code-text-color)',
+  },
+  'attr-value': {
+    color: 'var(--code-text-color)',
+  },
+  inserted: {
+    color: 'var(--code-text-color)',
+  },
+  'attr-name': {
+    color: 'var(--code-subtle-color)',
+  },
+  boolean: {
+    color: 'var(--code-subtle-color)',
+  },
+  number: {
+    color: 'var(--code-subtle-color)',
+  },
+  constant: {
+    color: 'var(--code-subtle-color)',
+  },
+  symbol: {
+    color: 'var(--code-subtle-color)',
+  },
+  builtin: {
+    color: 'var(--code-subtle-color)',
+  },
   variable: {
-    color: 'var(--text-secondary)',
+    color: 'var(--code-subtle-color)',
+  },
+  atrule: {
+    color: 'var(--code-subtle-color)',
+  },
+  regex: {
+    color: 'var(--code-subtle-color)',
+  },
+  deleted: {
+    color: 'var(--code-subtle-color)',
   },
   bold: {
     fontWeight: 700,
@@ -181,48 +184,13 @@ const minimalLightSyntaxTheme: Record<string, CSSProperties> = {
   italic: {
     fontStyle: 'italic',
   },
-  namespace: {
-    opacity: 0.8,
-  },
   '.token.line-number': {
-    color: 'var(--muted-color)',
-    opacity: 0.7,
+    color: 'var(--code-line-number-color)',
+    opacity: 0.72,
   },
   '.line-numbers-rows': {
-    borderRight: '1px solid var(--border-unified)',
+    borderRight: '1px solid var(--code-border-color)',
     marginRight: '1rem',
-  },
-};
-
-const minimalDarkSyntaxTheme: Record<string, CSSProperties> = {
-  ...minimalLightSyntaxTheme,
-  'pre[class*="language-"]': {
-    ...minimalLightSyntaxTheme['pre[class*="language-"]'],
-    color: 'var(--text-color)',
-  },
-  'code[class*="language-"]': {
-    ...minimalLightSyntaxTheme['code[class*="language-"]'],
-    color: 'var(--text-color)',
-  },
-  punctuation: {
-    color: 'var(--text-secondary)',
-  },
-  operator: {
-    color: 'var(--text-secondary)',
-  },
-  keyword: {
-    color: 'var(--text-color)',
-    fontWeight: 600,
-  },
-  string: {
-    color: 'var(--text-secondary)',
-  },
-  'attr-value': {
-    color: 'var(--text-secondary)',
-  },
-  comment: {
-    color: 'var(--muted-color)',
-    fontStyle: 'italic',
   },
 };
 
@@ -234,7 +202,6 @@ function normalizeLanguage(language: string): string | undefined {
 
 const CodeBlock: React.FC<CodeBlockProps> = React.memo(
   ({ snippets = [], title, defaultLanguage, showLineNumbers = true, className = '' }) => {
-    const { isDarkMode } = useTheme();
     const [activeTab, setActiveTab] = useState(0);
     const [copied, setCopied] = useState(false);
     const [mounted, setMounted] = useState(false);
@@ -343,7 +310,6 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
 
     const { SyntaxHighlighter } = syntaxModule;
     const normalizedLanguage = normalizeLanguage(currentSnippet.language);
-    const syntaxTheme = isDarkMode ? minimalDarkSyntaxTheme : minimalLightSyntaxTheme;
 
     return (
       <div className={`${styles.codeBlockContainer} ${className}`}>
@@ -396,7 +362,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
           <div className={styles.codeBlockContent}>
             <SyntaxHighlighter
               language={normalizedLanguage}
-              style={syntaxTheme}
+              style={minimalSyntaxTheme}
               showLineNumbers={showLineNumbers}
               wrapLines={true}
               customStyle={{
