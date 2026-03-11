@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 
 import DocumentationPage from '../components/docs/DocumentationPage';
 import { getDocument, resolveDocumentPath } from '../lib/content';
@@ -12,46 +12,64 @@ export default function DocsPage() {
   const params = useParams();
   const [content, setContent] = useState<string>('');
   const [loading, setLoading] = useState(true);
+  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
   const [currentDocPath, setCurrentDocPath] = useState<string>('');
   const [docTitle, setDocTitle] = useState<string>('Documentation');
-  const isInitialMount = useRef(true);
 
   const slug = params['*'] || '';
   const docPath = useMemo(() => resolveDocumentPath(slug), [slug]);
 
   useEffect(() => {
-    if (docPath === currentDocPath && !isInitialMount.current) {
-      return;
-    }
+    let active = true;
 
-    isInitialMount.current = false;
     setLoading(true);
 
-    getDocument(docPath)
+    void getDocument(docPath)
       .then((doc) => {
+        if (!active) {
+          return;
+        }
+
         if (doc) {
           setContent(doc.content);
           setCurrentDocPath(docPath);
           setDocTitle(doc.title);
-        } else {
-          setContent('# Not Found\n\nThe requested documentation page could not be found.');
-          setCurrentDocPath(docPath);
-          setDocTitle('Not Found');
+          return;
         }
+
+        setContent('# Not Found\n\nThe requested documentation page could not be found.');
+        setCurrentDocPath(docPath);
+        setDocTitle('Not Found');
       })
       .catch((error) => {
+        if (!active) {
+          return;
+        }
+
         logger.error('Error loading document:', error);
         setContent('# Error\n\nFailed to load documentation.');
+        setCurrentDocPath(docPath);
         setDocTitle('Error');
       })
-      .finally(() => setLoading(false));
-  }, [docPath, currentDocPath]);
+      .finally(() => {
+        if (!active) {
+          return;
+        }
+
+        setLoading(false);
+        setHasLoadedOnce(true);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [docPath]);
 
   useEffect(() => {
     document.title = `${docTitle} | ${SITE_NAME}`;
   }, [docTitle]);
 
-  if (loading) {
+  if (!hasLoadedOnce && loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="animate-pulse" style={{ color: 'var(--muted-color)' }}>
@@ -61,5 +79,12 @@ export default function DocsPage() {
     );
   }
 
-  return <DocumentationPage initialContent={content} currentPath={currentDocPath} />;
+  return (
+    <DocumentationPage
+      initialContent={content}
+      currentPath={currentDocPath || docPath}
+      isLoading={loading}
+      pendingPath={docPath}
+    />
+  );
 }

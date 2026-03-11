@@ -211,8 +211,8 @@ const LiveExample: React.FC<LiveExampleProps> = ({ code, language, showCode = tr
 
   if (error) {
     return (
-      <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-        <strong className="text-red-700 dark:text-red-400">Render Error:</strong> {error}
+      <div className="ui-panel-danger p-4">
+        <strong className="text-danger">Render Error:</strong> {error}
       </div>
     );
   }
@@ -220,13 +220,11 @@ const LiveExample: React.FC<LiveExampleProps> = ({ code, language, showCode = tr
   return (
     <div className="mb-6">
       {showCode && (
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-mono" style={{ color: 'var(--muted-color)' }}>
-            Live Example
-          </span>
+        <div className="mb-2 flex items-center justify-between">
+          <span className="ui-label">Live Example</span>
           <button
             onClick={() => setShowCodeView(!showCodeView)}
-            className="text-sm flex items-center gap-1 transition-opacity hover:opacity-80"
+            className="ui-label flex items-center gap-1 transition-opacity hover:opacity-80"
             style={{ color: 'var(--primary-color)' }}
             type="button"
           >
@@ -235,13 +233,7 @@ const LiveExample: React.FC<LiveExampleProps> = ({ code, language, showCode = tr
         </div>
       )}
 
-      <div
-        className="p-4 rounded-lg mb-2"
-        style={{
-          backgroundColor: 'var(--card-color)',
-          border: '1px solid var(--border-unified)',
-        }}
-      >
+      <div className="ui-panel mb-2 p-4">
         <div ref={containerRef} />
       </div>
 

@@ -1,4 +1,4 @@
-﻿# Code Examples
+# Code Examples
 
 This section shows accurate examples for the current Vite-based template.
 
@@ -55,8 +55,8 @@ HTML and CSS code fences render as live previews.
 ```ColorPalette
 {
   "colors": [
-    { "name": "Primary", "value": "#678D58" },
-    { "name": "Accent", "value": "#E2C799" }
+    { "name": "Primary", "value": "#111111" },
+    { "name": "Accent", "value": "#52525B" }
   ]
 }
 ```

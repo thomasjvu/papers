@@ -1,6 +1,7 @@
-﻿import { motion, AnimatePresence } from 'framer-motion';
+import { Icon } from '@iconify/react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 import { TIMING_CONSTANTS } from '../../constants/ui';
 import { useDebouncedCallback } from '../../hooks/useDebounce';
@@ -24,20 +25,31 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
 
   const { filteredResults } = useSearchLogic(query);
 
+  const activeFaq = useMemo(() => {
+    const result = filteredResults[selectedIndex];
+    return result?.type === 'faq' ? result : null;
+  }, [filteredResults, selectedIndex]);
+
   const handleInputChange = useDebouncedCallback((value: string) => {
     setQuery(value);
     setSelectedIndex(0);
   }, 100);
 
   const handleSelect = useCallback(
-    (result: SearchResultType) => {
+    (result: SearchResultType, index: number) => {
+      if (result.type === 'faq') {
+        setSelectedIndex(index);
+        return;
+      }
+
       if (result.action) {
         result.action();
         onClose();
-      } else {
-        navigate(result.path);
-        onClose();
+        return;
       }
+
+      navigate(result.path);
+      onClose();
     },
     [navigate, onClose]
   );
@@ -93,7 +105,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
             break;
           case 'Enter':
             if (filteredResults[selectedIndex]) {
-              handleSelect(filteredResults[selectedIndex]);
+              handleSelect(filteredResults[selectedIndex], selectedIndex);
             }
             break;
           case 'Escape':
@@ -105,11 +117,12 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
 
       const key = event.key.toUpperCase();
       const shortcut = event.shiftKey ? `Shift+${key}` : key;
-      const resultWithShortcut = filteredResults.find((result) => result.shortcut === shortcut);
+      const shortcutIndex = filteredResults.findIndex((result) => result.shortcut === shortcut);
+      const resultWithShortcut = shortcutIndex >= 0 ? filteredResults[shortcutIndex] : null;
       if (resultWithShortcut && (event.metaKey || event.ctrlKey)) {
         event.preventDefault();
         event.stopPropagation();
-        handleSelect(resultWithShortcut);
+        handleSelect(resultWithShortcut, shortcutIndex);
       }
     };
 
@@ -154,7 +167,8 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
             variants={backdropVariants}
             transition={{ duration: 0.15 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/50 z-50"
+            className="fixed inset-0 z-50"
+            style={{ backgroundColor: 'var(--overlay-color)' }}
           />
 
           <motion.div
@@ -217,6 +231,48 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                   )}
                 </div>
 
+                {activeFaq?.answer && (
+                  <div
+                    className="px-4 py-4 border-t"
+                    style={{
+                      borderColor: 'var(--border-color)',
+                      backgroundColor: 'var(--hover-color)',
+                    }}
+                  >
+                    <div className="flex items-start gap-3">
+                      <div
+                        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                        style={{
+                          backgroundColor: 'var(--primary-color)',
+                          color: 'var(--selection-text-color)',
+                        }}
+                      >
+                        <Icon icon="mingcute:question-line" className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <div
+                          className="text-xs uppercase tracking-[0.2em] mb-1"
+                          style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
+                        >
+                          FAQ Preview
+                        </div>
+                        <div
+                          className="text-sm font-semibold"
+                          style={{ color: 'var(--text-color)' }}
+                        >
+                          {activeFaq.title}
+                        </div>
+                        <p
+                          className="mt-2 text-sm leading-6"
+                          style={{ color: 'var(--text-secondary)' }}
+                        >
+                          {activeFaq.answer}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div
                   className="px-4 py-2 border-t flex items-center justify-between"
                   style={{
@@ -225,7 +281,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                     color: 'var(--muted-color)',
                   }}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 flex-wrap">
                     <span>
                       <kbd
                         className="px-1.5 py-0.5 rounded border"
@@ -248,7 +304,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                       >
                         enter
                       </kbd>{' '}
-                      <span style={{ fontFamily: 'var(--mono-font)' }}>to select</span>
+                      <span style={{ fontFamily: 'var(--mono-font)' }}>to open or preview</span>
                     </span>
                     <span>
                       <kbd

@@ -1,7 +1,7 @@
-import { Icon } from '@iconify/react';
+﻿import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { processMarkdown, type CodeBlockData } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
@@ -55,13 +55,15 @@ function showCopyToast(message: string): void {
     left: 50%;
     transform: translateX(-50%);
     background-color: var(--primary-color);
-    color: white;
+    color: var(--background-color);
     padding: 8px 16px;
-    border-radius: 4px;
+    border-radius: 9999px;
+    border: 1px solid var(--border-unified);
     z-index: 9999;
     opacity: 0;
     transition: opacity 0.3s ease;
     font-family: var(--mono-font);
+    font-size: var(--text-xs);
     pointer-events: none;
   `;
 
@@ -387,9 +389,19 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const navigate = useNavigate();
   const [processedData, setProcessedData] = useState<ProcessedMarkdownData | null>(null);
   const [isProcessing, setIsProcessing] = useState(true);
+  const hasRenderedContentRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
+
+    if (!content) {
+      hasRenderedContentRef.current = false;
+      setProcessedData(null);
+      setIsProcessing(false);
+      return () => {
+        isMounted = false;
+      };
+    }
 
     const processContent = async () => {
       try {
@@ -399,12 +411,14 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         const result = await processMarkdown(content);
 
         if (isMounted) {
+          hasRenderedContentRef.current = true;
           setProcessedData(result);
           setIsProcessing(false);
         }
       } catch (error) {
         componentLogger.error('Error processing markdown:', error);
         if (isMounted) {
+          hasRenderedContentRef.current = true;
           setProcessedData({
             html: '<p>Error loading content. Please try again.</p>',
             codeBlocks: new Map(),
@@ -414,9 +428,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       }
     };
 
-    if (content) {
-      void processContent();
-    }
+    void processContent();
 
     return () => {
       isMounted = false;
@@ -434,15 +446,15 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
     });
   }, [navigate, processedData]);
 
-  if (isProcessing) {
+  if (!processedData && isProcessing) {
     return (
       <motion.div initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded w-3/4"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6"></div>
-          <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded"></div>
-          <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-4/5"></div>
+          <div className="ui-skeleton-strong h-8 w-3/4 rounded"></div>
+          <div className="ui-skeleton h-4 w-full rounded"></div>
+          <div className="ui-skeleton h-4 w-5/6 rounded"></div>
+          <div className="ui-skeleton h-32 rounded"></div>
+          <div className="ui-skeleton h-4 w-4/5 rounded"></div>
         </div>
       </motion.div>
     );
@@ -451,7 +463,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   if (!processedData || !renderedContent) {
     return (
       <motion.div initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
-        <p className="text-gray-500 dark:text-gray-400">No content available.</p>
+        <p className="ui-meta">No content available.</p>
       </motion.div>
     );
   }
@@ -463,6 +475,18 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
       transition={{ duration: 0.15 }}
       className="w-full"
     >
+      {isProcessing && hasRenderedContentRef.current && (
+        <div
+          className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1 ui-meta"
+          style={{ borderColor: 'var(--border-unified)' }}
+        >
+          <span
+            className="h-1.5 w-1.5 animate-pulse rounded-full"
+            style={{ backgroundColor: 'var(--primary-color)' }}
+          />
+          Updating content...
+        </div>
+      )}
       <div className="markdown-content prose prose-gray dark:prose-invert max-w-none">
         {renderedContent}
       </div>

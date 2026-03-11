@@ -1,4 +1,4 @@
-export const ICON_SIZES = {
+﻿export const ICON_SIZES = {
   xs: 'w-3 h-3',
   sm: 'w-4 h-4',
   md: 'w-5 h-5',
@@ -70,10 +70,9 @@ export const KEYBOARD_KEYS = {
 } as const;
 
 export const UI_CLASSES = {
-  focusRing:
-    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-gray-900 focus:ring-primary-500',
+  focusRing: 'focus:outline-none',
   transition: 'transition-all duration-200 ease-in-out',
   disabled: 'opacity-50 cursor-not-allowed pointer-events-none',
-  link: 'text-primary-600 dark:text-primary-400 hover:underline',
-  button: 'px-3 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors',
+  link: 'text-primary hover:underline',
+  button: 'px-3 py-2 rounded-lg ui-control-ghost',
 } as const;

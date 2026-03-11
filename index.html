@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
-    <meta name="theme-color" content="#678D58" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#678D58" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#090909" media="(prefers-color-scheme: dark)" />
 
     <title>papers | Modern documentation template</title>
     <meta
@@ -18,7 +18,7 @@
     <meta name="author" content="papers" />
     <meta name="application-name" content="papers Documentation" />
     <meta name="apple-mobile-web-app-title" content="papers" />
-    <meta name="msapplication-TileColor" content="#678D58" />
+    <meta name="msapplication-TileColor" content="#090909" />
     <meta name="view-transition" content="same-origin" />
 
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
@@ -51,12 +51,10 @@
       (function () {
         try {
           var storedPreference = localStorage.getItem('darkMode');
-          var prefersDark =
-            window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-          var darkModeEnabled =
-            storedPreference === 'true' || (storedPreference === null && prefersDark);
+          var darkModeEnabled = storedPreference !== 'false';
 
           document.documentElement.classList.toggle('dark', darkModeEnabled);
+          document.documentElement.style.colorScheme = darkModeEnabled ? 'dark' : 'light';
         } catch (error) {
           console.log('Error applying initial theme', error);
         }

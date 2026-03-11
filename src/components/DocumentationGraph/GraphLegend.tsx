@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface GraphLegendProps {
@@ -7,110 +6,68 @@ interface GraphLegendProps {
   isSidebarView: boolean;
 }
 
+const legendTextStyle = { color: 'var(--mindmap-legend-text)', fontFamily: 'var(--mono-font)' };
+
 const GraphLegend: React.FC<GraphLegendProps> = React.memo(
   ({ searchTerm, searchResults, isSidebarView }) => {
+    const sizeClass = isSidebarView ? 'text-2xs' : 'text-xs';
+
     return (
       <>
-        {/* Compact legend */}
         <div
-          className={`graph-legend mt-2 flex flex-wrap justify-center gap-3 text-xs opacity-75 ${
-            isSidebarView ? 'text-xs' : 'text-sm'
-          }`}
+          className={`graph-legend mt-2 flex flex-wrap justify-center gap-3 opacity-75 ${sizeClass}`}
         >
           <div className="flex items-center gap-1">
             <div
-              className="w-2 h-2 rounded-full"
+              className="h-2 w-2 rounded-full"
               style={{ backgroundColor: 'var(--primary-color)' }}
             />
-            <span
-              style={{
-                fontSize: isSidebarView ? '9px' : '11px',
-                fontFamily: 'var(--mono-font)',
-                color: 'var(--mindmap-legend-text)',
-              }}
-            >
+            <span className={sizeClass} style={legendTextStyle}>
               Pages
             </span>
           </div>
           <div className="flex items-center gap-1">
             <div
-              className="w-2 h-2 rounded-full"
+              className="h-2 w-2 rounded-full"
               style={{ backgroundColor: 'var(--mindmap-node-current)' }}
             />
-            <span
-              style={{
-                fontSize: isSidebarView ? '9px' : '11px',
-                fontFamily: 'var(--mono-font)',
-                color: 'var(--mindmap-legend-text)',
-              }}
-            >
+            <span className={sizeClass} style={legendTextStyle}>
               Current
             </span>
           </div>
           <div className="flex items-center gap-1">
             <div
-              className="w-6 h-0"
-              style={{
-                borderTop: `1px solid var(--mindmap-node-connected)`,
-                opacity: 0.6,
-              }}
+              className="h-0 w-6"
+              style={{ borderTop: '1px solid var(--mindmap-node-connected)', opacity: 0.6 }}
             />
-            <span
-              style={{
-                fontSize: isSidebarView ? '9px' : '11px',
-                fontFamily: 'var(--mono-font)',
-                color: 'var(--mindmap-legend-text)',
-              }}
-            >
+            <span className={sizeClass} style={legendTextStyle}>
               Folder
             </span>
           </div>
           <div className="flex items-center gap-1">
             <div
-              className="w-6 h-0"
-              style={{
-                borderTop: `1px dashed var(--accent-color)`,
-                opacity: 0.4,
-              }}
+              className="h-0 w-6"
+              style={{ borderTop: '1px dashed var(--accent-color)', opacity: 0.4 }}
             />
-            <span
-              style={{
-                fontSize: isSidebarView ? '9px' : '11px',
-                fontFamily: 'var(--mono-font)',
-                color: 'var(--mindmap-legend-text)',
-              }}
-            >
+            <span className={sizeClass} style={legendTextStyle}>
               Tags
             </span>
           </div>
           {searchTerm && (
             <div className="flex items-center gap-1">
               <div
-                className="w-2 h-2 rounded-full"
+                className="h-2 w-2 rounded-full"
                 style={{ backgroundColor: 'var(--mindmap-node-search)' }}
               />
-              <span
-                style={{
-                  fontSize: isSidebarView ? '9px' : '11px',
-                  fontFamily: 'var(--mono-font)',
-                  color: 'var(--mindmap-legend-text)',
-                }}
-              >
+              <span className={sizeClass} style={legendTextStyle}>
                 Matches
               </span>
             </div>
           )}
         </div>
 
-        {/* Search results info */}
         {searchTerm && (
-          <div
-            className="mt-1 text-xs text-center opacity-75"
-            style={{
-              color: 'var(--mindmap-legend-text)',
-              fontFamily: 'var(--mono-font)',
-            }}
-          >
+          <div className={`mt-1 text-center opacity-75 ui-meta ${sizeClass}`}>
             {searchResults.hasResults
               ? `${searchResults.nodes.length} result${searchResults.nodes.length !== 1 ? 's' : ''}`
               : 'No matches found'}

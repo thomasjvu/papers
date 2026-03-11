@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useTheme } from '../../providers/ThemeProvider';
 
 interface QuickStartStep {
   title: string;
@@ -14,8 +13,6 @@ interface QuickStartProps {
 }
 
 export function QuickStart({ quickStart }: QuickStartProps) {
-  const { isDarkMode } = useTheme();
-
   return (
     <section className="py-20">
       <div className="container mx-auto px-6">
@@ -51,7 +48,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
                 className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
                 style={{
                   backgroundColor: 'var(--primary-color)',
-                  color: isDarkMode ? '#000' : '#fff',
+                  color: 'var(--selection-text-color)',
                   fontFamily: 'var(--mono-font)',
                 }}
               >
@@ -64,7 +61,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
                 <div
                   className="p-4 rounded-lg font-mono text-sm"
                   style={{
-                    backgroundColor: isDarkMode ? 'rgba(0, 0, 0, 0.3)' : 'rgba(0, 0, 0, 0.05)',
+                    backgroundColor: 'var(--hover-color)',
                     color: 'var(--primary-color)',
                     border: '1px solid var(--border-unified)',
                   }}

@@ -261,17 +261,21 @@ export default function Navigation({
       <div className="max-w-full mx-auto px-5 md:px-8 flex items-center justify-between h-12">
         <Link
           to="/"
-          className="logo-link flex items-center gap-2"
+          className="logo-link flex items-center gap-3"
           style={{ color: 'var(--text-color)' }}
           tabIndex={0}
         >
-          <img
-            src="/icon-matcha.png"
-            alt="papers logo"
-            width={32}
-            height={32}
-            className="h-8 w-auto logo-image"
-          />
+          <span
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-black"
+            style={{
+              borderColor: 'var(--border-unified)',
+              backgroundColor: 'var(--card-color)',
+              color: 'var(--text-color)',
+              fontFamily: 'var(--mono-font)',
+            }}
+          >
+            P
+          </span>
           <span
             className="text-lg tracking-wider uppercase font-black"
             style={{ fontFamily: 'var(--mono-font)' }}
@@ -294,14 +298,15 @@ export default function Navigation({
             ))}
 
             <div
-              className="h-6 w-px bg-gray-300 dark:bg-gray-700 ml-2 mr-2"
+              className="ml-2 mr-2 h-6 w-px"
+              style={{ backgroundColor: 'var(--border-unified)' }}
               aria-hidden="true"
             ></div>
           </nav>
 
           <button
             onClick={openCommandPalette}
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-md text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-800"
+            className="ui-control-ghost hidden items-center gap-2 rounded-md px-3 py-1.5 text-sm md:flex"
             style={{
               color: 'var(--muted-color)',
               fontFamily: 'var(--mono-font)',
@@ -441,10 +446,7 @@ export default function Navigation({
                 style={{ borderColor: 'var(--border-color)' }}
               >
                 <div className="flex items-center gap-3 flex-wrap">
-                  <span
-                    className="text-sm text-gray-500 dark:text-gray-500"
-                    style={{ fontFamily: 'var(--mono-font)' }}
-                  >
+                  <span className="ui-meta text-sm" style={{ fontFamily: 'var(--mono-font)' }}>
                     links:
                   </span>
                   {socialLinks.map((link) => (

@@ -23,6 +23,7 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+const DEFAULT_DARK_MODE = true;
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -37,8 +38,22 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
+function getInitialDarkModePreference(): boolean {
+  const storedThemePreference = safeLocalStorage.getItem('darkMode');
+
+  if (storedThemePreference === 'true') {
+    return true;
+  }
+
+  if (storedThemePreference === 'false') {
+    return false;
+  }
+
+  return DEFAULT_DARK_MODE;
+}
+
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(getInitialDarkModePreference);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const [fontFamily, setFontFamilyState] = useState<FontFamily>('sans-serif');
   const hasExplicitThemePreference = useRef(false);
@@ -48,6 +63,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const html = document.documentElement;
 
     html.classList.toggle('dark', darkMode);
+    html.style.colorScheme = darkMode ? 'dark' : 'light';
 
     if (persist) {
       safeLocalStorage.setItem('darkMode', darkMode.toString());
@@ -76,7 +92,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
     const motionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
     const storedThemePreference = safeLocalStorage.getItem('darkMode');
@@ -86,7 +101,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const darkModeEnabled = hasStoredThemePreference
       ? storedThemePreference === 'true'
-      : darkModeMediaQuery.matches;
+      : DEFAULT_DARK_MODE;
 
     setIsDarkMode(darkModeEnabled);
     applyTheme(darkModeEnabled, hasStoredThemePreference);
@@ -109,23 +124,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setFontFamilyState(selectedFont);
     applyFontFamily(selectedFont);
 
-    const handleDarkModeChange = (event: MediaQueryListEvent) => {
-      if (!hasExplicitThemePreference.current) {
-        setIsDarkMode(event.matches);
-      }
-    };
-
     const handleMotionChange = (event: MediaQueryListEvent) => {
       if (!hasExplicitMotionPreference.current) {
         setPrefersReducedMotion(event.matches);
       }
     };
 
-    darkModeMediaQuery.addEventListener('change', handleDarkModeChange);
     motionMediaQuery.addEventListener('change', handleMotionChange);
 
     return () => {
-      darkModeMediaQuery.removeEventListener('change', handleDarkModeChange);
       motionMediaQuery.removeEventListener('change', handleMotionChange);
     };
   }, [applyTheme, applyMotionPreference, applyFontFamily]);

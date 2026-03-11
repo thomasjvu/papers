@@ -1,7 +1,5 @@
 ﻿import React from 'react';
 
-import { useTheme } from '../../providers/ThemeProvider';
-
 interface GraphControlsProps {
   scale: number;
   canReset: boolean;
@@ -13,66 +11,47 @@ interface GraphControlsProps {
   isSidebarView: boolean;
 }
 
+const controlButtonClass =
+  'ui-control-ghost flex h-6 w-6 items-center justify-center rounded-md text-xs';
+const resetButtonClass =
+  'ui-control-ghost ml-1 rounded-md px-2 py-1 text-2xs uppercase tracking-[0.12em]';
+const monoStyle = { fontFamily: 'var(--mono-font)' };
+
 const GraphControls: React.FC<GraphControlsProps> = React.memo(
   ({ scale, canReset, onZoomIn, onZoomOut, onResetZoom, minScale, maxScale, isSidebarView }) => {
-    const { isDarkMode } = useTheme();
-
-    if (isSidebarView) return null;
+    if (isSidebarView) {
+      return null;
+    }
 
     return (
-      <div className="absolute bottom-2 left-3 flex items-center gap-1 z-10">
+      <div className="absolute bottom-2 left-3 z-10 flex items-center gap-1">
         <button
           onClick={onZoomOut}
-          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-          style={{
-            fontSize: '14px',
-            fontFamily: 'var(--mono-font)',
-            color: isDarkMode ? 'rgba(240, 240, 245, 0.6)' : 'rgba(46, 58, 35, 0.6)',
-            border: '1px solid',
-            borderColor: isDarkMode ? 'rgba(240, 240, 245, 0.2)' : 'rgba(46, 58, 35, 0.2)',
-            width: '24px',
-            height: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className={controlButtonClass}
+          style={monoStyle}
           title="Zoom out"
           disabled={scale <= minScale}
+          type="button"
         >
           -
         </button>
         <button
           onClick={onZoomIn}
-          className="p-1 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-          style={{
-            fontSize: '14px',
-            fontFamily: 'var(--mono-font)',
-            color: isDarkMode ? 'rgba(240, 240, 245, 0.6)' : 'rgba(46, 58, 35, 0.6)',
-            border: '1px solid',
-            borderColor: isDarkMode ? 'rgba(240, 240, 245, 0.2)' : 'rgba(46, 58, 35, 0.2)',
-            width: '24px',
-            height: '24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
+          className={controlButtonClass}
+          style={monoStyle}
           title="Zoom in"
           disabled={scale >= maxScale}
+          type="button"
         >
           +
         </button>
         {canReset && (
           <button
             onClick={onResetZoom}
-            className="px-2 py-1 text-xs rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors ml-1"
-            style={{
-              fontSize: '10px',
-              fontFamily: 'var(--mono-font)',
-              color: isDarkMode ? 'rgba(240, 240, 245, 0.6)' : 'rgba(46, 58, 35, 0.6)',
-              border: '1px solid',
-              borderColor: isDarkMode ? 'rgba(240, 240, 245, 0.2)' : 'rgba(46, 58, 35, 0.2)',
-            }}
+            className={resetButtonClass}
+            style={monoStyle}
             title="Reset view (Ctrl/Cmd + 0)"
+            type="button"
           >
             Reset
           </button>

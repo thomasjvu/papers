@@ -1,4 +1,4 @@
-/**
+﻿/**
  * UI Configuration
  *
  * This file contains UI feature toggles that can be easily customized
@@ -10,9 +10,9 @@ export interface UIConfig {
    * Show floating mobile file tree toggle button
    *
    * When enabled, shows a floating action button on mobile devices
-   * that allows users to toggle the documentation file tree sidebar.
+   * that opens the documentation sidebar.
    *
-   * @default false
+   * @default true
    */
   showMobileFileTreeToggle: boolean;
 
@@ -33,10 +33,10 @@ export interface UIConfig {
  * These settings will apply to all users of the forked project.
  */
 export const uiConfig: UIConfig = {
-  // Disabled by default - users can access file tree via navigation menu
-  showMobileFileTreeToggle: false,
+  // Enabled by default so mobile users can reopen the docs sidebar without a header.
+  showMobileFileTreeToggle: true,
 
-  // Position the toggle button in the bottom-left corner
+  // Position the toggle button in the bottom-left corner.
   mobileTogglePosition: 'bottom-left',
 };
 

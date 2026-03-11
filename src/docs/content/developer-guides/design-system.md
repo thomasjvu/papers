@@ -4,95 +4,95 @@ A comprehensive guide to the design system, color palettes, typography, and comp
 
 ## Color Palettes
 
-Our design system uses two primary color schemes that automatically adapt based on the user's theme preference, providing a cohesive visual experience across light and dark modes.
+The default theme is a neutral black-on-graphite system with a matching light mode for readers who prefer a brighter surface. Both modes stay monochrome so components feel consistent across the app shell, docs content, and generated previews.
 
-### Matcha Green (Light Mode)
+### Neutral Light
 
-The light mode uses a nature-inspired matcha green palette that promotes readability and calmness.
-
-```ColorPalette
-{
-  "colors": [
-    {
-      "name": "Primary",
-      "hex": "#678D58",
-      "rgb": "103, 141, 88",
-      "usage": "Primary actions, links, focus states"
-    },
-    {
-      "name": "Secondary",
-      "hex": "#A3C9A8",
-      "rgb": "163, 201, 168",
-      "usage": "Secondary elements, hover states"
-    },
-    {
-      "name": "Accent",
-      "hex": "#557153",
-      "rgb": "85, 113, 83",
-      "usage": "Accent elements, highlights"
-    }
-  ]
-}
-```
-
-### Sakura Pink (Dark Mode)
-
-The dark mode features a vibrant sakura pink palette that maintains excellent contrast while creating an engaging nighttime experience.
+The light palette keeps the interface clean and restrained, with near-black accents and soft gray surfaces.
 
 ```ColorPalette
 {
   "colors": [
     {
       "name": "Primary",
-      "hex": "#FF85A1",
-      "rgb": "255, 133, 161",
+      "hex": "#111111",
+      "rgb": "17, 17, 17",
       "usage": "Primary actions, links, focus states"
     },
     {
       "name": "Secondary",
-      "hex": "#FFC4DD",
-      "rgb": "255, 196, 221",
-      "usage": "Secondary elements, hover states"
+      "hex": "#E4E4E7",
+      "rgb": "228, 228, 231",
+      "usage": "Muted surfaces, badges, separators"
     },
     {
       "name": "Accent",
-      "hex": "#FF4989",
-      "rgb": "255, 73, 137",
-      "usage": "Accent elements, highlights"
+      "hex": "#52525B",
+      "rgb": "82, 82, 91",
+      "usage": "Subtle emphasis and graph accents"
     }
   ]
 }
 ```
 
-### Neutral Colors
+### Neutral Dark
 
-Supporting colors that work across both themes for backgrounds, text, and borders.
+The default dark palette uses black and graphite surfaces with bright text accents for a sharper, more minimal reading experience.
+
+```ColorPalette
+{
+  "colors": [
+    {
+      "name": "Primary",
+      "hex": "#FFFFFF",
+      "rgb": "255, 255, 255",
+      "usage": "Primary actions, links, focus states"
+    },
+    {
+      "name": "Secondary",
+      "hex": "#27272A",
+      "rgb": "39, 39, 42",
+      "usage": "Muted surfaces, badges, separators"
+    },
+    {
+      "name": "Accent",
+      "hex": "#A1A1AA",
+      "rgb": "161, 161, 170",
+      "usage": "Subtle emphasis and graph accents"
+    }
+  ]
+}
+```
+
+### Shared Neutrals
+
+Supporting colors for backgrounds, text, and borders that keep both themes readable.
 
 ```ColorPalette
 {
   "colors": [
     {
       "name": "Light Background",
-      "hex": "#FAFBF9",
-      "rgb": "250, 251, 249",
+      "hex": "#FFFFFF",
+      "rgb": "255, 255, 255",
       "usage": "Main background in light mode"
     },
     {
       "name": "Dark Background",
-      "hex": "#0B0D0F",
-      "rgb": "11, 13, 15",
+      "hex": "#090909",
+      "rgb": "9, 9, 9",
       "usage": "Main background in dark mode"
     },
     {
       "name": "Text Color",
-      "hex": "#1F2937",
-      "rgb": "31, 41, 55",
-      "usage": "Primary text color"
+      "hex": "#111111",
+      "rgb": "17, 17, 17",
+      "usage": "Primary text color in light mode"
     },
     {
       "name": "Muted Text",
-      "hex": "#6B7280",
-      "rgb": "107, 114, 128",
+      "hex": "#71717A",
+      "rgb": "113, 113, 122",
       "usage": "Secondary text, captions"
     }
   ]
@@ -236,17 +236,17 @@ All colors are available as CSS custom properties that automatically adapt to th
 
 ```css
 /* Primary colors (theme-aware) */
---primary-color: /* #678D58 (light) | #FF85A1 (dark) */ --secondary-color:
-  /* #A3C9A8 (light) | #FFC4DD (dark) */
-  --accent-color: /* #557153 (light) | #FF4989 (dark) */ /* Background colors */
-  --background-color: /* #FAFBF9 (light) | #0B0D0F (dark) */
-  --card-color: /* #FFFFFF (light) | #111317 (dark) */ /* Text colors */
-  --text-color: /* #1F2937 (light) | #F8FAFC (dark) */
-  --text-secondary: /* #374151 (light) | #E2E8F0 (dark) */
-  --muted-color: /* #6B7280 (light) | #94A3B8 (dark) */ /* Border colors */
-  --border-color: /* #222 (light) | #bbb (dark) */
-  --border-soft: /* #f2f2f2 (light) | #23232a (dark) */
-  --border-unified: /* #d1d5db (light) | #374151 (dark) */;
+--primary-color: /* #111111 (light) | #F5F5F5 (dark) */ --secondary-color:
+  /* #E4E4E7 (light) | #27272A (dark) */
+  --accent-color: /* #52525B (light) | #A1A1AA (dark) */ /* Background colors */
+  --background-color: /* #FFFFFF (light) | #090909 (dark) */
+  --card-color: /* #FFFFFF (light) | #111111 (dark) */ /* Text colors */
+  --text-color: /* #111111 (light) | #FAFAFA (dark) */
+  --text-secondary: /* #27272A (light) | #E4E4E7 (dark) */
+  --muted-color: /* #71717A (light) | #A1A1AA (dark) */ /* Border colors */
+  --border-color: /* #111111 (light) | #52525B (dark) */
+  --border-soft: /* #ECECEC (light) | #1A1A1A (dark) */
+  --border-unified: /* #D4D4D8 (light) | #27272A (dark) */;
 ```
 
 ### RGB Values
@@ -255,7 +255,7 @@ For opacity and rgba() usage:
 
 ```css
 /* RGB values for transparency effects */
---primary-color-rgb: /* 103, 141, 88 (light) | 255, 133, 161 (dark) */;
+--primary-color-rgb: /* 17, 17, 17 (light) | 245, 245, 245 (dark) */;
 ```
 
 ## Typography
@@ -421,10 +421,10 @@ The system includes reusable copy button functionality for various use cases:
 >
   <code
     class="wallet-address"
-    data-address="#678D58"
+    data-address="#111111"
     style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3);"
   >
-    #678D58
+    #111111
   </code>
 </div>
 ```

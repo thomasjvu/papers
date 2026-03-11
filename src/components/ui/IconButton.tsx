@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 
 import { Icon } from './Icon';
 import type { IconSize } from './Icon';
@@ -23,11 +23,9 @@ interface IconButtonProps {
 }
 
 const variantClasses = {
-  ghost: 'hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg',
-  solid:
-    'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors rounded-lg',
-  outline:
-    'border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors rounded-lg',
+  ghost: 'ui-control-ghost',
+  solid: 'ui-control-solid',
+  outline: 'ui-control',
 };
 
 const sizeToButtonSize = {

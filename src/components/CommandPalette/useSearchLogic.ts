@@ -24,7 +24,7 @@ const FAQ_ITEMS = [
   {
     question: 'How can I contribute to the documentation?',
     answer:
-      'At the bottom of each documentation page, you\'ll find "edit", "issue", and "source" links. Click "edit" to propose changes directly on GitHub, or "issue" to report problems.',
+      'At the bottom of each documentation page, you will find "edit", "issue", and "source" links. Click "edit" to propose changes directly on GitHub, or "issue" to report problems.',
   },
   {
     question: 'What keyboard shortcuts are available?',
@@ -37,6 +37,31 @@ const FAQ_ITEMS = [
       'Use the file tree on the left sidebar, the interactive mindmap on the right, or the Previous/Next buttons at the bottom of each page. You can also use this command palette to quickly jump to any page.',
   },
 ];
+
+function getFaqPath(question: string): string {
+  return `faq:${question
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')}`;
+}
+
+function getFaqDescription(answer: string): string {
+  const normalizedAnswer = answer.replace(/\s+/g, ' ').trim();
+  return normalizedAnswer.length > 110
+    ? `${normalizedAnswer.slice(0, 107).trimEnd()}...`
+    : normalizedAnswer;
+}
+
+function createFaqResult(faq: (typeof FAQ_ITEMS)[number]): SearchResultType {
+  return {
+    title: faq.question,
+    path: getFaqPath(faq.question),
+    type: 'faq',
+    description: getFaqDescription(faq.answer),
+    answer: faq.answer,
+    icon: createElement(Icon, { icon: 'mingcute:question-line', className: 'w-5 h-5' }),
+  };
+}
 
 export const useSearchLogic = (query: string) => {
   const { isDarkMode, toggleDarkMode } = useTheme();
@@ -66,7 +91,7 @@ export const useSearchLogic = (query: string) => {
           title: result.meta.title,
           path: result.url,
           type: 'page' as const,
-          description: result.excerpt.replace(/<[^>]*>/g, '').slice(0, 100) + '...',
+          description: `${result.excerpt.replace(/<[^>]*>/g, '').slice(0, 100)}...`,
           icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
         }));
         setPagefindResults(formattedResults);
@@ -106,15 +131,8 @@ export const useSearchLogic = (query: string) => {
       shortcut: 'L',
     });
 
-    FAQ_ITEMS.slice(0, 2).forEach((faq, index) => {
-      results.push({
-        title: faq.question,
-        path: `faq-${index}`,
-        type: 'faq',
-        description: 'Frequently Asked Question',
-        answer: faq.answer,
-        icon: createElement(Icon, { icon: 'mingcute:question-line', className: 'w-5 h-5' }),
-      });
+    FAQ_ITEMS.slice(0, 2).forEach((faq) => {
+      results.push(createFaqResult(faq));
     });
 
     function processTree(items: FileItem[], parentPath = '') {
@@ -151,15 +169,8 @@ export const useSearchLogic = (query: string) => {
   const completeSearchIndex = useMemo(() => {
     const allResults = [...searchIndex];
 
-    FAQ_ITEMS.slice(2).forEach((faq, index) => {
-      allResults.push({
-        title: faq.question,
-        path: `faq-${index + 2}`,
-        type: 'faq',
-        description: 'Frequently Asked Question',
-        answer: faq.answer,
-        icon: createElement(Icon, { icon: 'mingcute:question-line', className: 'w-5 h-5' }),
-      });
+    FAQ_ITEMS.slice(2).forEach((faq) => {
+      allResults.push(createFaqResult(faq));
     });
 
     return allResults;

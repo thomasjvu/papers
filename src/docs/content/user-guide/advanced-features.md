@@ -1,4 +1,4 @@
-﻿# Advanced Features
+# Advanced Features
 
 This template ships with more than a basic Markdown renderer.
 
@@ -34,7 +34,7 @@ The UI includes:
 - reduced-motion support
 - font switching for readers who prefer mono or serif content
 
-System preferences are respected until a user explicitly changes them.
+The app defaults to the black theme until a user explicitly changes it.
 
 ## LLM Exports
 

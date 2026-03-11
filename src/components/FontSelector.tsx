@@ -1,22 +1,15 @@
-
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import React, { useMemo, useCallback, useState, useRef, useEffect } from 'react';
 
 import { useTheme } from '../providers/ThemeProvider';
 
-/**
- * Props for the FontSelector component
- */
 type FontSelectorProps = {
   className?: string;
 };
 
 type FontFamily = 'sans-serif' | 'mono' | 'serif';
 
-/**
- * FontSelector component that allows switching between font families
- */
 const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.ReactElement => {
   const { fontFamily, setFontFamily, prefersReducedMotion } = useTheme();
   const [isOpen, setIsOpen] = useState(false);
@@ -28,7 +21,6 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
     { value: 'serif', label: 'Serif', icon: 'mingcute:text-line' },
   ];
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -45,7 +37,6 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
     };
   }, [isOpen]);
 
-  // Memoized animation settings
   const buttonAnimations = useMemo(() => {
     if (prefersReducedMotion) return {};
     return {
@@ -69,7 +60,6 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
     };
   }, [prefersReducedMotion]);
 
-  // Memoized style objects
   const buttonStyle = useMemo(
     () => ({
       color: 'var(--text-color)',
@@ -85,15 +75,12 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
     []
   );
 
-  // Get current font option
   const currentFont = fontOptions.find((option) => option.value === fontFamily) || fontOptions[0];
 
-  // Toggle dropdown
   const toggleDropdown = useCallback(() => {
-    setIsOpen(!isOpen);
-  }, [isOpen]);
+    setIsOpen((open) => !open);
+  }, []);
 
-  // Handle font selection
   const handleFontSelect = useCallback(
     (font: FontFamily) => {
       setFontFamily(font);
@@ -104,16 +91,16 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
 
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
-      {/* Font selector button */}
       {prefersReducedMotion ? (
         <button
           onClick={toggleDropdown}
-          className="p-2 rounded-full flex items-center gap-2"
+          className="flex items-center gap-2 rounded-full p-2"
           style={buttonStyle}
           aria-label={`Current font: ${currentFont.label}. Click to change font`}
           aria-expanded={isOpen}
+          type="button"
         >
-          <Icon icon={currentFont.icon} className="w-5 h-5" aria-hidden="true" />
+          <Icon icon={currentFont.icon} className="h-5 w-5" aria-hidden="true" />
           <span
             className="text-2xs"
             style={{
@@ -131,13 +118,14 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
       ) : (
         <motion.button
           onClick={toggleDropdown}
-          className="p-2 rounded-full flex items-center gap-2"
+          className="flex items-center gap-2 rounded-full p-2"
           style={buttonStyle}
           {...buttonAnimations}
           aria-label={`Current font: ${currentFont.label}. Click to change font`}
           aria-expanded={isOpen}
+          type="button"
         >
-          <Icon icon={currentFont.icon} className="w-5 h-5" aria-hidden="true" />
+          <Icon icon={currentFont.icon} className="h-5 w-5" aria-hidden="true" />
           <span
             className="text-2xs"
             style={{
@@ -154,10 +142,9 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
         </motion.button>
       )}
 
-      {/* Dropdown menu */}
       {isOpen && (
         <motion.div
-          className="absolute top-full right-0 mt-1 py-1 rounded-lg shadow-lg border z-50 min-w-[140px]"
+          className="absolute right-0 top-full z-50 mt-1 min-w-[140px] rounded-lg border py-1 shadow-lg"
           style={dropdownStyle}
           {...dropdownAnimations}
           transition={{ duration: prefersReducedMotion ? 0.01 : 0.15 }}
@@ -166,11 +153,12 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
             <button
               key={option.value}
               onClick={() => handleFontSelect(option.value)}
-              className="w-full px-3 py-2 text-left text-2xs hover:bg-gray-100 dark:hover:bg-gray-800 flex items-center gap-2"
+              className="ui-control-ghost flex w-full items-center gap-2 px-3 py-2 text-left text-2xs"
               style={{
                 backgroundColor:
                   fontFamily === option.value ? 'var(--primary-color)' : 'transparent',
-                color: fontFamily === option.value ? 'white' : 'var(--text-color)',
+                color:
+                  fontFamily === option.value ? 'var(--background-color)' : 'var(--text-color)',
                 fontFamily:
                   option.value === 'mono'
                     ? 'var(--mono-font)'
@@ -178,8 +166,9 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
                       ? 'var(--title-font)'
                       : 'var(--body-font)',
               }}
+              type="button"
             >
-              <Icon icon={option.icon} className="w-4 h-4" />
+              <Icon icon={option.icon} className="h-4 w-4" />
               {option.label}
             </button>
           ))}

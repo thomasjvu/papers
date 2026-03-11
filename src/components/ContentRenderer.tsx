@@ -1,4 +1,4 @@
-﻿import { Icon } from '@iconify/react';
+import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { useMemo, memo } from 'react';
@@ -34,8 +34,15 @@ const ContentRenderer = memo(function ContentRenderer({
         <div className="doc-content pt-8 pb-6 px-6 md:pt-12 md:pb-8 md:px-8 lg:pt-16 lg:pb-12 lg:px-12 max-w-4xl mx-auto">
           {isSynopsisPage && (
             <div className="w-full mb-6 overflow-hidden rounded-lg relative">
-              <div className="w-full h-32 bg-gradient-to-r from-green-100 to-green-200 dark:from-pink-900 dark:to-pink-800 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold" style={{ color: 'var(--primary-color)' }}>
+              <div
+                className="w-full h-32 rounded-lg flex items-center justify-center"
+                style={{
+                  background:
+                    'linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08), rgba(var(--primary-color-rgb), 0.18))',
+                  border: '1px solid var(--border-unified)',
+                }}
+              >
+                <span className="text-2xl font-bold" style={{ color: 'var(--text-color)' }}>
                   Documentation
                 </span>
               </div>

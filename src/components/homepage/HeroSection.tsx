@@ -25,9 +25,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
         <div
           className="absolute inset-0"
           style={{
-            background: isDarkMode
-              ? 'radial-gradient(ellipse at top, rgba(255, 133, 161, 0.15) 0%, transparent 50%)'
-              : 'radial-gradient(ellipse at top, rgba(103, 141, 88, 0.15) 0%, transparent 50%)',
+            background: `radial-gradient(ellipse at top, rgba(var(--primary-color-rgb), ${
+              isDarkMode ? '0.14' : '0.06'
+            }) 0%, transparent 62%)`,
           }}
         />
       </div>
@@ -80,7 +80,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105"
               style={{
                 backgroundColor: 'var(--primary-color)',
-                color: isDarkMode ? '#000' : '#fff',
+                color: 'var(--selection-text-color)',
                 fontFamily: 'var(--mono-font)',
               }}
             >
@@ -88,10 +88,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
               <Icon icon="mingcute:arrow-right-line" width="20" />
             </Link>
 
-            <a
-              href={hero.cta.secondary.href}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              to={hero.cta.secondary.href}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg border transition-all hover:scale-105"
               style={{
                 borderColor: 'var(--border-unified)',
@@ -99,9 +97,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
                 fontFamily: 'var(--mono-font)',
               }}
             >
-              <Icon icon="mingcute:github-line" width="20" />
+              <Icon icon="mingcute:book-2-line" width="20" />
               {hero.cta.secondary.text}
-            </a>
+            </Link>
           </motion.div>
         </motion.div>
       </div>

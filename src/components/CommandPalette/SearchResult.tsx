@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import React from 'react';
 
 export interface SearchResultType {
@@ -16,7 +16,7 @@ interface SearchResultProps {
   result: SearchResultType;
   index: number;
   isSelected: boolean;
-  onSelect: (result: SearchResultType) => void;
+  onSelect: (result: SearchResultType, index: number) => void;
   onMouseEnter: (index: number) => void;
 }
 
@@ -33,7 +33,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
     return (
       <motion.button
         key={result.path}
-        onClick={() => onSelect(result)}
+        onClick={() => onSelect(result, index)}
         onMouseEnter={() => onMouseEnter(index)}
         className="w-full px-4 py-3 flex items-center gap-3 transition-all text-left relative"
         style={{
@@ -45,7 +45,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
         transition={{ duration: 0.2, delay: index * 0.03 }}
       >
         <span className="text-xl">{result.icon}</span>
-        <div className="flex-1">
+        <div className="flex-1 min-w-0">
           <div className="font-medium">{result.title}</div>
           {result.description && (
             <div
@@ -86,10 +86,11 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           )}
           {result.type === 'faq' && (
             <span
-              className="text-xs px-2 py-1 rounded"
+              className="text-xs px-2 py-1 rounded border"
               style={{
-                backgroundColor: 'var(--secondary-color)',
-                color: 'var(--selection-text-color)',
+                backgroundColor: 'var(--hover-color)',
+                borderColor: 'var(--border-unified)',
+                color: 'var(--muted-color)',
                 fontFamily: 'var(--mono-font)',
               }}
             >

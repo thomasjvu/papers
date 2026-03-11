@@ -1,5 +1,11 @@
-﻿import { Icon } from '@iconify/react';
-import React, { useState, useCallback, useEffect, type CSSProperties, type ComponentType } from 'react';
+import { Icon } from '@iconify/react';
+import React, {
+  useState,
+  useCallback,
+  useEffect,
+  type CSSProperties,
+  type ComponentType,
+} from 'react';
 
 import { ANIMATION_DURATION } from '../constants/ui';
 import { useTheme } from '../providers/ThemeProvider';
@@ -39,8 +45,6 @@ type SyntaxHighlighterComponent = ComponentType<SyntaxHighlighterProps> & {
 
 type SyntaxModule = {
   SyntaxHighlighter: SyntaxHighlighterComponent;
-  oneDark: Record<string, CSSProperties>;
-  oneLight: Record<string, CSSProperties>;
 };
 
 const REGISTERED_LANGUAGES = new Set([
@@ -61,6 +65,165 @@ const LANGUAGE_ALIASES: Record<string, string> = {
   md: 'markdown',
   ts: 'typescript',
   xml: 'markup',
+};
+
+const minimalLightSyntaxTheme: Record<string, CSSProperties> = {
+  'pre[class*="language-"]': {
+    color: 'var(--text-color)',
+    background: 'transparent',
+    textShadow: 'none',
+    fontFamily: 'var(--mono-font)',
+    fontSize: 'var(--text-sm)',
+    lineHeight: '1.65',
+  },
+  'code[class*="language-"]': {
+    color: 'var(--text-color)',
+    background: 'transparent',
+    textShadow: 'none',
+    fontFamily: 'var(--mono-font)',
+    fontSize: 'var(--text-sm)',
+    lineHeight: '1.65',
+  },
+  comment: {
+    color: 'var(--muted-color)',
+    fontStyle: 'italic',
+  },
+  prolog: {
+    color: 'var(--muted-color)',
+  },
+  doctype: {
+    color: 'var(--muted-color)',
+  },
+  cdata: {
+    color: 'var(--muted-color)',
+  },
+  punctuation: {
+    color: 'var(--text-secondary)',
+  },
+  property: {
+    color: 'var(--text-color)',
+  },
+  tag: {
+    color: 'var(--text-color)',
+  },
+  boolean: {
+    color: 'var(--text-secondary)',
+  },
+  number: {
+    color: 'var(--text-secondary)',
+  },
+  constant: {
+    color: 'var(--text-secondary)',
+  },
+  symbol: {
+    color: 'var(--text-secondary)',
+  },
+  deleted: {
+    color: 'var(--text-secondary)',
+  },
+  selector: {
+    color: 'var(--text-color)',
+  },
+  'attr-name': {
+    color: 'var(--text-secondary)',
+  },
+  string: {
+    color: 'var(--text-color)',
+  },
+  char: {
+    color: 'var(--text-color)',
+  },
+  builtin: {
+    color: 'var(--text-secondary)',
+  },
+  inserted: {
+    color: 'var(--text-color)',
+  },
+  operator: {
+    color: 'var(--text-secondary)',
+  },
+  entity: {
+    color: 'var(--text-secondary)',
+    cursor: 'help',
+  },
+  url: {
+    color: 'var(--text-secondary)',
+  },
+  atrule: {
+    color: 'var(--text-secondary)',
+  },
+  'attr-value': {
+    color: 'var(--text-color)',
+  },
+  keyword: {
+    color: 'var(--text-color)',
+    fontWeight: 600,
+  },
+  function: {
+    color: 'var(--text-color)',
+  },
+  'class-name': {
+    color: 'var(--text-color)',
+  },
+  regex: {
+    color: 'var(--text-secondary)',
+  },
+  important: {
+    color: 'var(--text-color)',
+    fontWeight: 600,
+  },
+  variable: {
+    color: 'var(--text-secondary)',
+  },
+  bold: {
+    fontWeight: 700,
+  },
+  italic: {
+    fontStyle: 'italic',
+  },
+  namespace: {
+    opacity: 0.8,
+  },
+  '.token.line-number': {
+    color: 'var(--muted-color)',
+    opacity: 0.7,
+  },
+  '.line-numbers-rows': {
+    borderRight: '1px solid var(--border-unified)',
+    marginRight: '1rem',
+  },
+};
+
+const minimalDarkSyntaxTheme: Record<string, CSSProperties> = {
+  ...minimalLightSyntaxTheme,
+  'pre[class*="language-"]': {
+    ...minimalLightSyntaxTheme['pre[class*="language-"]'],
+    color: 'var(--text-color)',
+  },
+  'code[class*="language-"]': {
+    ...minimalLightSyntaxTheme['code[class*="language-"]'],
+    color: 'var(--text-color)',
+  },
+  punctuation: {
+    color: 'var(--text-secondary)',
+  },
+  operator: {
+    color: 'var(--text-secondary)',
+  },
+  keyword: {
+    color: 'var(--text-color)',
+    fontWeight: 600,
+  },
+  string: {
+    color: 'var(--text-secondary)',
+  },
+  'attr-value': {
+    color: 'var(--text-secondary)',
+  },
+  comment: {
+    color: 'var(--muted-color)',
+    fontStyle: 'italic',
+  },
 };
 
 function normalizeLanguage(language: string): string | undefined {
@@ -87,7 +250,6 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
       async function loadSyntaxHighlighter() {
         const [
           { default: PrismLight },
-          prismStyles,
           bash,
           css,
           javascript,
@@ -98,7 +260,6 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
           typescript,
         ] = await Promise.all([
           import('react-syntax-highlighter/dist/esm/prism-light'),
-          import('react-syntax-highlighter/dist/esm/styles/prism'),
           import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
           import('react-syntax-highlighter/dist/esm/languages/prism/css'),
           import('react-syntax-highlighter/dist/esm/languages/prism/javascript'),
@@ -120,11 +281,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
         SyntaxHighlighter.registerLanguage('typescript', typescript.default);
 
         if (!cancelled) {
-          setSyntaxModule({
-            SyntaxHighlighter,
-            oneDark: prismStyles.oneDark,
-            oneLight: prismStyles.oneLight,
-          });
+          setSyntaxModule({ SyntaxHighlighter });
         }
       }
 
@@ -177,21 +334,22 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
       return (
         <div className={`${styles.codeBlockContainer} ${className}`}>
           <div className="animate-pulse">
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-            <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded"></div>
+            <div className="ui-skeleton-strong mb-2 h-4 rounded"></div>
+            <div className="ui-skeleton h-32 rounded"></div>
           </div>
         </div>
       );
     }
 
-    const { SyntaxHighlighter, oneDark, oneLight } = syntaxModule;
+    const { SyntaxHighlighter } = syntaxModule;
     const normalizedLanguage = normalizeLanguage(currentSnippet.language);
+    const syntaxTheme = isDarkMode ? minimalDarkSyntaxTheme : minimalLightSyntaxTheme;
 
     return (
       <div className={`${styles.codeBlockContainer} ${className}`}>
         {title && (
           <div className={styles.codeBlockTitle}>
-            <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-3">{title}</h4>
+            <h4 className="ui-title mb-3">{title}</h4>
           </div>
         )}
 
@@ -223,13 +381,13 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             >
               {copied ? (
                 <>
-                  <Icon icon="mingcute:check-line" className="w-4 h-4" />
-                  <span className="text-xs font-medium">Copied!</span>
+                  <Icon icon="mingcute:check-line" className="h-4 w-4" />
+                  <span className="ui-meta">Copied!</span>
                 </>
               ) : (
                 <>
-                  <Icon icon="mingcute:copy-line" className="w-4 h-4" />
-                  <span className="text-xs font-medium">Copy</span>
+                  <Icon icon="mingcute:copy-line" className="h-4 w-4" />
+                  <span className="ui-meta">Copy</span>
                 </>
               )}
             </button>
@@ -238,15 +396,15 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
           <div className={styles.codeBlockContent}>
             <SyntaxHighlighter
               language={normalizedLanguage}
-              style={isDarkMode ? oneDark : oneLight}
+              style={syntaxTheme}
               showLineNumbers={showLineNumbers}
               wrapLines={true}
               customStyle={{
                 margin: 0,
                 padding: '1.5rem',
                 background: 'transparent',
-                fontSize: '0.875rem',
-                lineHeight: '1.6',
+                fontSize: 'var(--text-sm)',
+                lineHeight: '1.65',
               }}
               codeTagProps={{
                 style: {

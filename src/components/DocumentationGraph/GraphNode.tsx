@@ -1,5 +1,4 @@
-
-import { motion } from 'framer-motion';
+﻿import { motion } from 'framer-motion';
 import React from 'react';
 
 import { useTheme } from '../../providers/ThemeProvider';
@@ -52,6 +51,8 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
     const nodeColor = getNodeColor(node);
     const nodeRadius = getNodeRadius(node);
+    const labelFontSize = isSidebarView ? '0.5rem' : 'var(--text-2xs)';
+    const switchLabelFontSize = isSidebarView ? '0.5rem' : 'var(--text-xs)';
 
     return (
       <motion.g
@@ -83,7 +84,6 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
         whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
         onClick={() => onNodeClick(node)}
       >
-        {/* Node glow */}
         <motion.circle
           cx={node.x}
           cy={node.y}
@@ -93,17 +93,15 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           filter="url(#glow)"
         />
 
-        {/* Main node */}
         <motion.circle
           cx={node.x}
           cy={node.y}
           r={nodeRadius}
           fill={nodeColor}
-          stroke="white"
+          stroke={themeColors.background}
           strokeWidth={node.id === currentPath ? 2 : 1}
         />
 
-        {/* Node gradient overlay */}
         <circle
           cx={node.x}
           cy={node.y}
@@ -112,15 +110,16 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           pointerEvents="none"
         />
 
-        {/* Node label */}
         <motion.text
           x={node.x}
           y={node.y + nodeRadius + (isSidebarView ? 8 : 12)}
           textAnchor="middle"
-          className="text-xs fill-current text-gray-700 dark:text-gray-300 font-medium pointer-events-none"
+          className="pointer-events-none"
           style={{
-            fontSize: isSidebarView ? '8px' : '10px',
+            fontSize: labelFontSize,
             fontFamily: 'var(--mono-font)',
+            fill: themeColors.muted,
+            fontWeight: 500,
           }}
         >
           {isSidebarView
@@ -132,7 +131,6 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               : node.title}
         </motion.text>
 
-        {/* Current page indicator */}
         {node.id === currentPath && (
           <motion.circle
             cx={node.x}
@@ -153,10 +151,8 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           />
         )}
 
-        {/* Click confirmation indicator */}
         {node.id === clickedNodeId && (
           <>
-            {/* Expanding confirmation ring */}
             <motion.circle
               cx={node.x}
               cy={node.y}
@@ -172,16 +168,17 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               }}
             />
 
-            {/* Check icon */}
             <motion.text
               x={node.x}
               y={node.y + 2}
               textAnchor="middle"
               className="pointer-events-none"
               style={{
-                fontSize: isSidebarView ? '8px' : '12px',
+                fontSize: isSidebarView ? '0.5rem' : 'var(--text-xs)',
                 fontFamily: 'var(--mono-font)',
                 fill: themeColors.accent,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
               }}
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
@@ -190,12 +187,11 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
                 delay: prefersReducedMotion ? 0 : 0.1,
               }}
             >
-              ✓
+              ok
             </motion.text>
           </>
         )}
 
-        {/* Switch button for pending navigation */}
         {node.id === pendingSwitchNodeId && node.id !== currentPath && (
           <motion.g
             initial={{ scale: 0, opacity: 0 }}
@@ -206,7 +202,6 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               delay: prefersReducedMotion ? 0 : 0.4,
             }}
           >
-            {/* Switch button background */}
             <motion.rect
               x={node.x - (isSidebarView ? 18 : 24)}
               y={node.y - nodeRadius - (isSidebarView ? 20 : 28)}
@@ -214,32 +209,33 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               height={isSidebarView ? 14 : 18}
               rx={isSidebarView ? 7 : 9}
               fill={themeColors.accent}
-              stroke="white"
+              stroke={themeColors.background}
               strokeWidth={1}
               className="cursor-pointer"
               whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
               whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
-              onClick={(e) => {
-                e.stopPropagation();
+              onClick={(event) => {
+                event.stopPropagation();
                 onSwitchClick(node);
               }}
             />
 
-            {/* Switch button text */}
             <motion.text
               x={node.x}
               y={node.y - nodeRadius - (isSidebarView ? 14 : 19)}
               textAnchor="middle"
-              className="cursor-pointer pointer-events-none"
+              className="pointer-events-none"
               style={{
-                fontSize: isSidebarView ? '8px' : '11px',
+                fontSize: switchLabelFontSize,
                 fontFamily: 'var(--mono-font)',
-                fill: 'white',
+                fill: themeColors.background,
                 fontWeight: 'bold',
                 dominantBaseline: 'central',
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
               }}
             >
-              jump?
+              jump
             </motion.text>
           </motion.g>
         )}

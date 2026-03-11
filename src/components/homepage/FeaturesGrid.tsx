@@ -51,10 +51,14 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
                 className="w-12 h-12 rounded-lg flex items-center justify-center mb-4"
                 style={{
                   backgroundColor: 'var(--primary-color)',
-                  opacity: 0.9,
+                  opacity: 0.95,
                 }}
               >
-                <Icon icon={feature.icon} width="24" style={{ color: 'var(--background-color)' }} />
+                <Icon
+                  icon={feature.icon}
+                  width="24"
+                  style={{ color: 'var(--selection-text-color)' }}
+                />
               </div>
               <h3
                 className="text-xl font-semibold mb-2"

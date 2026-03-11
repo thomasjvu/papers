@@ -54,7 +54,7 @@ export default function OptimizedDocumentationGraph({
   const MAX_SCALE = 2;
   const PAN_LIMIT = 200;
 
-  const { isDarkMode, prefersReducedMotion } = useTheme();
+  const { prefersReducedMotion } = useTheme();
 
   // Use the extracted graph logic
   const { graphNodes, graphLinks, searchResults, getNodeColor, getNodeRadius } = useGraphLogic(
@@ -64,18 +64,19 @@ export default function OptimizedDocumentationGraph({
   );
 
   // Theme-aware color scheme - consistent between server and client
-  const themeColors = useMemo(() => {
-    return {
-      primary: isDarkMode ? '#FF85A1' : '#678D58',
-      secondary: isDarkMode ? '#FFC4DD' : '#A3C9A8',
-      accent: isDarkMode ? '#FF4989' : '#2D4A2A',
-      connected: isDarkMode ? '#FFB3C6' : '#8FB287',
-      current: isDarkMode ? '#FF6B9D' : '#4A6B42',
-      search: isDarkMode ? '#FFCC99' : '#B8860B',
-      muted: isDarkMode ? '#9C9CAF' : '#6E7D61',
-      background: isDarkMode ? '#1A1A1F' : '#F3F5F0',
-    };
-  }, [isDarkMode]);
+  const themeColors = useMemo(
+    () => ({
+      primary: 'var(--primary-color)',
+      secondary: 'var(--border-unified)',
+      accent: 'var(--accent-color)',
+      connected: 'var(--mindmap-node-connected)',
+      current: 'var(--mindmap-node-current)',
+      search: 'var(--mindmap-node-search)',
+      muted: 'var(--mindmap-legend-text)',
+      background: 'var(--background-color)',
+    }),
+    []
+  );
 
   // Update node visibility based on current focus and search
   const visibleElements = useMemo(() => {
@@ -326,13 +327,13 @@ export default function OptimizedDocumentationGraph({
           type="text"
           placeholder={isSidebarView ? 'Search docs...' : 'Search documents...'}
           onChange={handleSearchChange}
-          className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 focus:ring-opacity-50 ${
-            isSidebarView ? 'text-xs py-1 px-2' : 'text-sm'
+          className={`w-full rounded-lg border outline-none transition-colors ${
+            isSidebarView ? 'px-2 py-1 text-2xs' : 'px-3 py-2 text-sm'
           }`}
           style={{
             fontFamily: 'var(--mono-font)',
-            backgroundColor: 'var(--toc-bg-color)',
-            borderColor: 'var(--toc-border-color)',
+            backgroundColor: 'var(--control-bg)',
+            borderColor: 'var(--control-border-color)',
             color: 'var(--mindmap-text-color)',
           }}
         />
@@ -340,19 +341,16 @@ export default function OptimizedDocumentationGraph({
 
       {/* Graph Container */}
       <div
-        className={`graph-container border border-gray-300 dark:border-gray-700 rounded overflow-hidden relative ${
+        className={`graph-container ui-panel relative overflow-hidden ${
           isSidebarView ? 'h-48' : 'h-96'
         }`}
       >
         {/* Mind-map label */}
         <div
-          className="absolute top-2 right-3 text-xs pointer-events-none z-10"
-          style={{
-            fontSize: isSidebarView ? '8px' : '10px',
-            fontFamily: 'var(--mono-font)',
-            color: 'var(--toc-text-color)',
-            opacity: 0.4,
-          }}
+          className={`pointer-events-none absolute top-2 right-3 z-10 font-mono opacity-40 ${
+            isSidebarView ? 'text-2xs' : 'text-xs'
+          }`}
+          style={{ color: 'var(--toc-text-color)' }}
         >
           mind-map {scale !== 1 ? `(${Math.round(scale * 100)}%)` : ''}
         </div>

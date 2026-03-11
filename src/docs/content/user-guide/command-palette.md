@@ -1,4 +1,4 @@
-﻿# Command Palette
+# Command Palette
 
 The command palette is the fastest way to move through the site.
 
@@ -20,7 +20,7 @@ The palette can surface:
 ## Keyboard Controls
 
 - `up` / `down` to move
-- `Enter` to open
+- `Enter` to open pages or preview FAQ answers
 - `Esc` to close
 
 ## Related Shortcut
