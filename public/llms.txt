@@ -1,8 +1,8 @@
-# Papers Documentation
+# papers Documentation
 
-> A modern, customizable documentation framework built with React, Vite, TypeScript, and Tailwind CSS.
+> Static documentation template
 
-Papers is a static documentation site template with fast client-side navigation, Pagefind search, interactive documentation maps, and generated llms.txt outputs for AI-friendly discovery.
+A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.
 
 ## Getting Started
 

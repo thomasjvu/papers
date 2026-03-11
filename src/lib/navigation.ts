@@ -10,7 +10,7 @@ export function flattenNavigation(items: FileItem[]): Array<{ path: string; titl
       if (item.type === 'file') {
         result.push({
           path: item.path,
-          title: item.name.replace(/\.md$/, ''),
+          title: item.name.replace(/\.(md|mdx)$/, ''),
         });
       }
       if (item.children) {
@@ -21,6 +21,40 @@ export function flattenNavigation(items: FileItem[]): Array<{ path: string; titl
 
   flatten(items);
   return result;
+}
+
+export function findFirstDocumentPath(items: FileItem[]): string | null {
+  for (const item of items) {
+    if (item.type === 'file') {
+      return item.path;
+    }
+
+    if (item.type === 'directory' && item.children) {
+      const childPath = findFirstDocumentPath(item.children);
+      if (childPath) {
+        return childPath;
+      }
+    }
+  }
+
+  return null;
+}
+
+export function findDirectoryDefaultPath(slug: string, items: FileItem[]): string | null {
+  for (const item of items) {
+    if (item.type === 'directory' && item.path === slug && item.children) {
+      return findFirstDocumentPath(item.children);
+    }
+
+    if (item.type === 'directory' && item.children) {
+      const childMatch = findDirectoryDefaultPath(slug, item.children);
+      if (childMatch) {
+        return childMatch;
+      }
+    }
+  }
+
+  return null;
 }
 
 export function findAdjacentPages(

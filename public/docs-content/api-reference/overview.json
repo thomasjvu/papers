@@ -1,5 +1,6 @@
 {
   "path": "api-reference/overview",
   "title": "API Reference Overview",
+  "frontmatter": {},
   "content": "# API Reference Overview\n\nThis section documents the internal APIs and generated artifacts that power the template.\n\nIt is not a server API. Everything here supports a static docs runtime.\n\n## Main Areas\n\n- content loading in `src/lib/content.ts`\n- navigation helpers in `src/lib/navigation.ts`\n- search integration in `src/hooks/usePagefind.ts`\n- theme and UI providers in `src/providers/`\n- build generators in `scripts/`\n\n## Runtime Entry Points\n\nThe most useful client helpers are:\n\n- `loadDocsContent()`\n- `getDocument(path)`\n- `resolveDocumentPath(slug)`\n- `usePagefind()`\n\n## Build Entry Points\n\nThe important generation scripts are:\n\n- `npm run generate:docs`\n- `npm run generate:llms`\n- `npm run generate:pagefind`\n\n## Output Files\n\nThe runtime depends on:\n\n- `/docs-index.json`\n- `/docs-content/**/*.json`\n- `/llms.txt`\n- `/llms-full.txt`\n- `/pagefind/*`\n\n## Next Steps\n\n- [Content Pipeline](/docs/api-reference/content-pipeline)\n- [Runtime APIs](/docs/api-reference/runtime-apis)\n"
 }

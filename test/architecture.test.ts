@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { createDocsArtifacts } from '../scripts/lib/docsArtifacts.mjs';
 import { combineSearchResults } from '../src/components/CommandPalette/searchUtils.ts';
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
+import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
 
 export interface ArchitectureTestCase {
@@ -24,7 +25,8 @@ export const architectureTests: ArchitectureTestCase[] = [
     run: () => {
       const { index, documents } = createDocsArtifacts(
         {
-          'getting-started/introduction': '\uFEFF# Introduction\n\nHello world',
+          'getting-started/introduction':
+            '\uFEFF---\ntitle: Custom Intro\ndescription: Setup page\n---\n\nHello world',
           'user-guide/no-title': 'Body only',
         },
         '2026-03-11T00:00:00.000Z'
@@ -35,20 +37,64 @@ export const architectureTests: ArchitectureTestCase[] = [
         paths: ['getting-started/introduction', 'user-guide/no-title'],
         count: 2,
         titles: {
-          'getting-started/introduction': 'Introduction',
+          'getting-started/introduction': 'Custom Intro',
           'user-guide/no-title': 'no-title',
         },
       });
 
-      assert.equal(
-        documents['getting-started/introduction'].content.startsWith('# Introduction'),
-        true
-      );
+      assert.deepEqual(documents['getting-started/introduction'], {
+        path: 'getting-started/introduction',
+        title: 'Custom Intro',
+        description: 'Setup page',
+        frontmatter: {
+          title: 'Custom Intro',
+          description: 'Setup page',
+        },
+        content: 'Hello world',
+      });
       assert.deepEqual(documents['user-guide/no-title'], {
         path: 'user-guide/no-title',
         title: 'no-title',
+        description: undefined,
+        frontmatter: {},
         content: 'Body only',
       });
+    },
+  },
+  {
+    name: 'navigation helpers derive default pages from the docs tree structure',
+    run: () => {
+      const items = [
+        {
+          type: 'directory' as const,
+          name: 'Guides',
+          path: 'guides',
+          children: [
+            {
+              type: 'file' as const,
+              name: 'Intro.mdx',
+              path: 'guides/intro',
+            },
+            {
+              type: 'directory' as const,
+              name: 'Advanced',
+              path: 'guides/advanced',
+              children: [
+                {
+                  type: 'file' as const,
+                  name: 'Caching.md',
+                  path: 'guides/advanced/caching',
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      assert.equal(findFirstDocumentPath(items), 'guides/intro');
+      assert.equal(findDirectoryDefaultPath('guides', items), 'guides/intro');
+      assert.equal(findDirectoryDefaultPath('guides/advanced', items), 'guides/advanced/caching');
+      assert.equal(findDirectoryDefaultPath('missing', items), null);
     },
   },
   {

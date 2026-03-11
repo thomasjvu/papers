@@ -1,5 +1,6 @@
 {
   "path": "deployment/overview",
   "title": "Deployment Overview",
+  "frontmatter": {},
   "content": "# Deployment Overview\n\nThis project is a static site build with SPA routing.\n\n## Build Output\n\n`npm run build` produces `dist/` with:\n\n- the Vite app bundle\n- generated docs JSON files\n- `llms.txt` exports\n- Pagefind search assets\n\n## What Hosts Must Support\n\nAt minimum, your host should:\n\n- publish the `dist/` directory\n- serve static assets normally\n- rewrite `/docs/...` and `/llms` to `index.html`\n\n## Included Host Helpers\n\n- `public/_headers`\n- `public/_redirects`\n- `vercel.json`\n- `wrangler.toml`\n\n## Recommended Pre-Deploy Commands\n\n```bash\nnpm run lint\nnpm run type-check\nnpm run build\n```\n\n## Platform Guides\n\n- [Cloudflare](/docs/deployment/platforms/cloudflare)\n- [Vercel](/docs/deployment/platforms/vercel)\n- [Netlify](/docs/deployment/platforms/netlify)\r\n"
 }

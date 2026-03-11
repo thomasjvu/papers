@@ -1,5 +1,10 @@
-import { createLogger } from '../utils/logger';
-import { extractTopLevelMarkdownTitle, stripMarkdownBom } from '../utils/markdown';
+import {
+  documentationTree,
+  findDirectoryDefaultPath,
+  findFirstDocumentPath,
+} from './navigation.ts';
+import { createLogger } from '../utils/logger.ts';
+import { extractTopLevelMarkdownTitle, stripMarkdownBom } from '../utils/markdown.ts';
 
 const logger = createLogger('Content');
 
@@ -130,24 +135,20 @@ export function clearContentCache(): void {
   pendingDocuments.clear();
 }
 
-const DIRECTORY_DEFAULTS: Record<string, string> = {
-  'getting-started': 'getting-started/introduction',
-  'user-guide': 'user-guide/basic-usage',
-  'api-reference': 'api-reference/overview',
-  'developer-guides': 'developer-guides/code-examples',
-  deployment: 'deployment/overview',
-};
+export const DEFAULT_DOCUMENT_PATH =
+  findFirstDocumentPath(documentationTree) || 'getting-started/introduction';
 
 export function resolveDocumentPath(slug: string | undefined): string {
   if (!slug) {
-    return 'getting-started/introduction';
+    return DEFAULT_DOCUMENT_PATH;
   }
 
-  if (DIRECTORY_DEFAULTS[slug]) {
-    return DIRECTORY_DEFAULTS[slug];
+  const directoryDefault = findDirectoryDefaultPath(slug, documentationTree);
+  if (directoryDefault) {
+    return directoryDefault;
   }
 
   return slug;
 }
 
-export { documentationTree } from './navigation';
+export { documentationTree };

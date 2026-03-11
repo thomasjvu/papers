@@ -6,26 +6,39 @@ import { documentationTree } from '../shared/documentation-config.js';
 
 import { createDocsArtifacts } from './lib/docsArtifacts.mjs';
 
+function resolveDocFilePath(docPath) {
+  const extensions = ['.md', '.mdx'];
+
+  for (const extension of extensions) {
+    const filePath = join(process.cwd(), 'src/docs/content', `${docPath}${extension}`);
+    if (existsSync(filePath)) {
+      return filePath;
+    }
+  }
+
+  return null;
+}
+
 async function loadMarkdownContent(docPath) {
   try {
-    const filePath = join(process.cwd(), 'src/docs/content', `${docPath}.md`);
+    const filePath = resolveDocFilePath(docPath);
 
-    if (!existsSync(filePath)) {
-      console.warn(`File not found: ${filePath}`);
-      return `# File Not Found\n\nThe requested documentation file "${docPath}.md" could not be found.`;
+    if (!filePath) {
+      console.warn(`File not found for "${docPath}"`);
+      return `# File Not Found\n\nThe requested documentation file "${docPath}" could not be found.`;
     }
 
     const content = await readFile(filePath, 'utf-8');
 
     if (!content.trim()) {
       console.warn(`Empty file: ${filePath}`);
-      return `# Empty File\n\nThe documentation file "${docPath}.md" appears to be empty.`;
+      return `# Empty File\n\nThe documentation file "${docPath}" appears to be empty.`;
     }
 
     return content;
   } catch (error) {
     console.error(`Error loading ${docPath}:`, error);
-    return `# Error Loading Content\n\nFailed to load "${docPath}.md": ${error.message}`;
+    return `# Error Loading Content\n\nFailed to load "${docPath}": ${error.message}`;
   }
 }
 

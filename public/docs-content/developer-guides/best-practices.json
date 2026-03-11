@@ -1,5 +1,6 @@
 {
   "path": "developer-guides/best-practices",
   "title": "Best Practices",
+  "frontmatter": {},
   "content": "# Best Practices\n\n## Keep One Source Of Truth\n\nTreat `shared/documentation-config.js` as the source of truth for navigation and page tags.\n\nIf a page exists in Markdown but not in the shared tree, it will not show up in generated outputs.\n\n## Prefer Small, Focused Markdown Files\n\nShorter docs pages improve:\n\n- navigation clarity\n- Pagefind excerpts\n- `llms.txt` descriptions\n- maintenance over time\n\n## Validate The Static Build Regularly\n\nRun this before merging meaningful changes:\n\n```bash\nnpm run lint\nnpm run type-check\nnpm run build\n```\n\n## Keep Internal Links Stable\n\nUse `/docs/...` links consistently so the runtime can intercept them and hosts can rewrite them cleanly.\n\n## Configure GitHub Metadata Early\n\nSet `VITE_GITHUB_URL` so contributors can jump straight to edit and issue links from the page footer.\n\n## Avoid Unused Surface Area\n\nIf you remove a docs section from the shared tree, also remove or archive the corresponding Markdown file so the repo stays easy to read.\r\n"
 }

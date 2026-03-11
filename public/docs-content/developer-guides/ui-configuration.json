@@ -1,5 +1,6 @@
 {
   "path": "developer-guides/ui-configuration",
   "title": "UI Configuration",
+  "frontmatter": {},
   "content": "# UI Configuration\n\nThe template keeps content in the docs framework and exposes a few layout controls through code.\n\n## `src/config/ui.ts`\n\nUse this file for mobile docs-shell behavior.\n\nCurrent options include:\n\n- whether to show the floating mobile sidebar toggle\n- where that toggle should appear on screen\n\n## Docs Shell\n\nThe docs experience is centered on the left sidebar now:\n\n- the logo sits at the top of the rail\n- search opens from the sidebar instead of a top header\n- settings live at the bottom of the sidebar\n- the interactive map can be opened from the sidebar utilities\n\nThe main docs layout lives in `src/components/docs/DocumentationPage.tsx`.\n\n## Theme And Font Controls\n\nTheme, reduced motion, and font settings are managed through `ThemeProvider` and surfaced by `src/components/SettingsMenu.tsx`.\n\n## Social Links\n\nFooter social icons come from `src/constants/social.tsx`.\n\n## Styling\n\nGlobal colors, typography, shell spacing, and markdown presentation are defined in `src/globals.css`.\n\nWhen making large visual changes, start there before editing many components individually.\n"
 }

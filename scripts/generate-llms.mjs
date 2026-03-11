@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { documentationTree } from '../shared/documentation-config.js';
+import { documentationTree, homepageConfig } from '../shared/documentation-config.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,12 +14,25 @@ function stripUtf8Bom(content) {
 }
 
 function getDocFilePath(docPath) {
-  return path.join(rootDir, 'src', 'docs', 'content', `${docPath}.md`);
+  const extensions = ['.md', '.mdx'];
+
+  for (const extension of extensions) {
+    const filePath = path.join(rootDir, 'src', 'docs', 'content', `${docPath}${extension}`);
+    if (fs.existsSync(filePath)) {
+      return filePath;
+    }
+  }
+
+  return null;
 }
 
 function getDocUrl(docPath) {
   return docPath === 'llms' ? '/llms' : `/docs/${docPath}`;
 }
+
+const siteName = homepageConfig.hero?.title || 'Documentation';
+const siteSubtitle = homepageConfig.hero?.subtitle || '';
+const siteDescription = homepageConfig.hero?.description || '';
 
 async function generateLLMSTxt() {
   const sections = [];
@@ -38,6 +51,10 @@ async function generateLLMSTxt() {
             let description = '';
 
             try {
+              if (!filePath) {
+                throw new Error('File not found');
+              }
+
               const content = stripUtf8Bom(fs.readFileSync(filePath, 'utf8'));
               const lines = content.split('\n');
               let foundTitle = false;
@@ -52,11 +69,11 @@ async function generateLLMSTxt() {
                 }
               }
             } catch (error) {
-              console.warn(`Could not read file ${filePath}:`, error);
+              console.warn(`Could not read file ${child.path}:`, error);
             }
 
             section.items.push({
-              title: child.name.replace('.md', ''),
+              title: child.name.replace(/\.(md|mdx)$/, ''),
               path: getDocUrl(child.path),
               description,
             });
@@ -74,11 +91,15 @@ async function generateLLMSTxt() {
 
   processTree(documentationTree);
 
-  let content = '# Papers Documentation\n\n';
-  content +=
-    '> A modern, customizable documentation framework built with React, Vite, TypeScript, and Tailwind CSS.\n\n';
-  content +=
-    'Papers is a static documentation site template with fast client-side navigation, Pagefind search, interactive documentation maps, and generated llms.txt outputs for AI-friendly discovery.\n\n';
+  let content = `# ${siteName} Documentation\n\n`;
+
+  if (siteSubtitle) {
+    content += `> ${siteSubtitle}\n\n`;
+  }
+
+  if (siteDescription) {
+    content += `${siteDescription}\n\n`;
+  }
 
   sections.forEach((section) => {
     content += `## ${section.title}\n\n`;
@@ -96,7 +117,7 @@ async function generateLLMSTxt() {
 }
 
 async function generateLLMSFullTxt() {
-  let fullContent = '# Papers Documentation - Full Content\n\n';
+  let fullContent = `# ${siteName} Documentation - Full Content\n\n`;
   fullContent +=
     '> Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.\n\n';
 
@@ -111,13 +132,17 @@ async function generateLLMSFullTxt() {
         const filePath = getDocFilePath(item.path);
 
         try {
+          if (!filePath) {
+            throw new Error('File not found');
+          }
+
           const fileContent = stripUtf8Bom(fs.readFileSync(filePath, 'utf8'));
-          content += `\n### ${item.name.replace('.md', '')}\n\n`;
+          content += `\n### ${item.name.replace(/\.(md|mdx)$/, '')}\n\n`;
           content += `URL: ${getDocUrl(item.path)}\n\n`;
           content += fileContent + '\n\n';
           content += '---\n\n';
         } catch (error) {
-          console.warn(`Could not read file ${filePath}:`, error);
+          console.warn(`Could not read file ${item.path}:`, error);
         }
       }
     });

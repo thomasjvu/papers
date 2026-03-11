@@ -1,4 +1,4 @@
-# Papers Documentation - Full Content
+# papers Documentation - Full Content
 
 > Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
 
@@ -730,7 +730,11 @@ Use this when normal HTML in Markdown should become a richer component at render
 The wallet block is the built-in example:
 
 ```html
-<code class="wallet-address" data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B" data-chain="eth">
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
   0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
 </code>
 ```
@@ -762,6 +766,7 @@ For the rest of the runtime details, keep following the docs in this app rather 
 
 - [Runtime APIs](/docs/api-reference/runtime-apis)
 - [Code Examples](/docs/developer-guides/code-examples)
+
 
 ---
 
@@ -917,7 +922,11 @@ Use this path when you want a custom code fence like `ColorPalette`.
 The wallet block is a good example of a custom rendered HTML pattern rather than a fenced block:
 
 ```html
-<code class="wallet-address" data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B" data-chain="eth">
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
   0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
 </code>
 ```
@@ -942,6 +951,7 @@ Use absolute docs links so the runtime can intercept them:
 ## Tip
 
 Because the site is generated from Markdown and shared config, the smallest possible change is usually the best one: update the tree, add the file, then regenerate.
+
 
 ---
 
