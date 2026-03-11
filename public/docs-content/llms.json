@@ -1,0 +1,5 @@
+{
+  "path": "llms",
+  "title": "LLMs.txt",
+  "content": "# LLMs.txt\n\nThis template generates AI-facing documentation exports during the build.\n\n## Generated Files\n\n- `/llms.txt`\n- `/llms-full.txt`\n\n## Why They Exist\n\nThese files give AI tools and internal agents a clean, structured representation of the docs without requiring them to crawl the full UI.\n\n## Build Integration\n\n`npm run build` runs `scripts/generate-llms.mjs` before the Vite build completes.\n\n## Helpful Links\n\n<a href=\"/llms.txt\" class=\"download-link\" data-file=\"llms.txt\">Download llms.txt</a>\n\n<a href=\"/llms-full.txt\" class=\"download-link\" data-file=\"llms-full.txt\">Download llms-full.txt</a>\n\n<a href=\"#\" class=\"copy-link\" data-url=\"/llms.txt\">Copy llms.txt URL</a>\n\n## Preview\n\n{llms-preview}\r\n"
+}

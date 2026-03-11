@@ -1,0 +1,5 @@
+{
+  "path": "deployment/production-setup",
+  "title": "Production Setup",
+  "content": "# Production Setup\n\n## Required Metadata\n\nBefore you ship, set the site metadata you actually want users to see.\n\n```env\nVITE_SITE_NAME=\"Your Docs\"\nVITE_SITE_URL=\"https://docs.example.com\"\nVITE_GITHUB_URL=\"https://github.com/your-org/your-repo\"\nVITE_GITHUB_BRANCH=\"main\"\n```\n\n## Asset And Cache Behavior\n\n`public/_headers` configures long-lived cache headers for hashed assets, fonts, favicons, and Pagefind files.\n\n## SPA Rewrite Rules\n\nDirect route loads need an HTML fallback.\n\nThis repo includes:\n\n- `public/_redirects`\n- `vercel.json`\n\nIf you deploy elsewhere, recreate equivalent rewrites.\n\n## CI Suggestions\n\nA good production pipeline runs:\n\n```bash\nnpm ci\nnpm run lint\nnpm run type-check\nnpm run build\n```\n\n## Final Smoke Test\n\nAfter deploy, verify:\n\n- homepage loads\n- a deep docs route loads directly\n- `/llms` loads directly\n- Pagefind search returns results\n- edit / issue / source links go to the expected repo\r\n"
+}

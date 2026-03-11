@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" class="theme-transition">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5" />
+    <meta name="theme-color" content="#678D58" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#678D58" media="(prefers-color-scheme: dark)" />
+
+    <title>papers | Modern documentation template</title>
+    <meta
+      name="description"
+      content="A static documentation template built with React, Vite, TypeScript, and Tailwind CSS."
+    />
+    <meta
+      name="keywords"
+      content="documentation, template, react, vite, typescript, tailwind, pagefind"
+    />
+    <meta name="author" content="papers" />
+    <meta name="application-name" content="papers Documentation" />
+    <meta name="apple-mobile-web-app-title" content="papers" />
+    <meta name="msapplication-TileColor" content="#678D58" />
+    <meta name="view-transition" content="same-origin" />
+
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="manifest" href="/favicon/site.webmanifest" />
+    <link rel="shortcut icon" href="/favicon/favicon.ico" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:title" content="papers | Modern documentation template" />
+    <meta
+      property="og:description"
+      content="A static documentation template built with React, Vite, TypeScript, and Tailwind CSS."
+    />
+    <meta property="og:site_name" content="papers" />
+    <meta property="og:image" content="/images/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="papers | Modern documentation template" />
+    <meta
+      name="twitter:description"
+      content="A static documentation template built with React, Vite, TypeScript, and Tailwind CSS."
+    />
+    <meta name="twitter:image" content="/images/twitter-card.png" />
+
+    <script>
+      (function () {
+        try {
+          var storedPreference = localStorage.getItem('darkMode');
+          var prefersDark =
+            window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var darkModeEnabled =
+            storedPreference === 'true' || (storedPreference === null && prefersDark);
+
+          document.documentElement.classList.toggle('dark', darkModeEnabled);
+        } catch (error) {
+          console.log('Error applying initial theme', error);
+        }
+      })();
+    </script>
+
+    <script src="/js/codeblock.js" defer></script>
+    <script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js" defer></script>
+  </head>
+  <body class="min-h-screen font-mona-sans">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

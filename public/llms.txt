@@ -1,0 +1,46 @@
+# Papers Documentation
+
+> A modern, customizable documentation framework built with React, Vite, TypeScript, and Tailwind CSS.
+
+Papers is a static documentation site template with fast client-side navigation, Pagefind search, interactive documentation maps, and generated llms.txt outputs for AI-friendly discovery.
+
+## Getting Started
+
+- [Introduction](/docs/getting-started/introduction): `papers` is a static documentation template for teams that want a polished docs site without standing up a backend.
+- [Quick Start](/docs/getting-started/quick-start): Use this path if you want to get a fork running with minimal setup.
+- [Installation](/docs/getting-started/installation): - Node.js 18 or newer
+
+## User Guide
+
+- [Basic Usage](/docs/user-guide/basic-usage): Once the site is running, most of the day-to-day workflow is simple: update Markdown, preview locally, and ship a static build.
+- [Advanced Features](/docs/user-guide/advanced-features): This template ships with more than a basic Markdown renderer.
+- [Configuration](/docs/user-guide/configuration): Most template changes happen in a small set of files.
+- [Troubleshooting](/docs/user-guide/troubleshooting): The host is probably missing an SPA rewrite.
+- [Command Palette](/docs/user-guide/command-palette): The command palette is the fastest way to move through the site.
+- [Interactive Map](/docs/user-guide/interactive-map): The interactive map renders the documentation tree as a graph in the right sidebar.
+
+## API Reference
+
+- [Overview](/docs/api-reference/overview): This section documents the internal APIs and generated artifacts that power the template.
+- [Content Pipeline](/docs/api-reference/content-pipeline): The content pipeline converts Markdown source files into static artifacts the app can ship directly.
+- [Runtime APIs](/docs/api-reference/runtime-apis): Loads a single document from the generated docs content store.
+
+## Developer Guides
+
+- [Code Examples](/docs/developer-guides/code-examples): This section shows accurate examples for the current Vite-based template.
+- [Best Practices](/docs/developer-guides/best-practices): Treat `shared/documentation-config.js` as the source of truth for navigation and page tags.
+- [Design System](/docs/developer-guides/design-system): A comprehensive guide to the design system, color palettes, typography, and components that make up the documentation platform.
+- [UI Configuration](/docs/developer-guides/ui-configuration): The template separates content structure from UI behavior.
+- [Icon Customization](/docs/developer-guides/icon-customization): This documentation site supports custom icons throughout the interface. You can easily add new icons from [Iconify Design](https://iconify.design) or create your own custom SVG icons.
+
+## Platform Guides
+
+- [Cloudflare](/docs/deployment/platforms/cloudflare): Use these settings in Cloudflare Pages:
+- [Vercel](/docs/deployment/platforms/vercel): Use these values when importing the repo:
+- [Netlify](/docs/deployment/platforms/netlify): Use these settings in Netlify:
+
+## Deployment
+
+- [Overview](/docs/deployment/overview): This project is a static site build with SPA routing.
+- [Production Setup](/docs/deployment/production-setup): Before you ship, set the site metadata you actually want users to see.
+

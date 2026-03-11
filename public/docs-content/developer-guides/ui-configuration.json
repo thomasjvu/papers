@@ -1,0 +1,5 @@
+{
+  "path": "developer-guides/ui-configuration",
+  "title": "UI Configuration",
+  "content": "# UI Configuration\n\nThe template separates content structure from UI behavior.\n\n## `src/config/ui.ts`\n\nUse this file for mobile docs layout toggles.\n\nCurrent options include:\n\n- whether to show a floating mobile file-tree button\n- where that button should appear\n\n## Theme And Font Controls\n\nTheme, reduced motion, and font settings are managed through `ThemeProvider` and surfaced in the header settings menu.\n\n## Navigation Links\n\nThe top navigation lives in `src/components/Navigation.tsx`.\n\nChange it if you want different global destinations in the header.\n\n## Social Links\n\nFooter social icons come from `src/constants/social.tsx`.\n\n## Styling\n\nGlobal colors, typography, code block styling, and markdown presentation are defined in `src/globals.css`.\n\nWhen making large visual changes, start there before editing many components individually.\r\n"
+}

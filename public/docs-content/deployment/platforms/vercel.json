@@ -1,0 +1,5 @@
+{
+  "path": "deployment/platforms/vercel",
+  "title": "Vercel",
+  "content": "# Vercel\n\n## Project Settings\n\nUse these values when importing the repo:\n\n- Build command: `npm run build`\n- Output directory: `dist`\n\n## Rewrites\n\nThe repo includes `vercel.json` so direct requests to docs routes and `/llms` resolve to the SPA entry.\n\n## Deploy From CLI\n\n```bash\nnpm run build\nnpx vercel --prod\n```\n\n## Notes\n\nBecause this project is static, Vercel is mostly acting as a CDN and routing layer. There are no server functions required for the default template.\r\n"
+}

@@ -1,0 +1,5 @@
+{
+  "path": "user-guide/interactive-map",
+  "title": "Interactive Map",
+  "content": "# Interactive Map\n\nThe interactive map renders the documentation tree as a graph in the right sidebar.\n\n## What It Shows\n\n- the current page\n- nearby docs sections\n- the relationship between directories and files\n\n## Why Use It\n\nThe graph is helpful when:\n\n- your docs are broad enough that a tree feels slow to scan\n- users need a spatial overview of the documentation set\n- you want a distinctive second navigation surface beyond search\n\n## Mobile Behavior\n\nOn mobile, the map opens from the navigation menu rather than staying visible all the time.\n\n## Desktop Behavior\n\nOn larger screens, users can switch between:\n\n- the interactive map\n- the table of contents\n\nThat keeps the right rail useful even when a page is long and heading-heavy.\n\n## Authoring Tip\n\nA clear documentation tree produces a much more readable graph. Keep your sections purposeful and avoid deeply nested one-off pages.\n\n## Next Steps\n\n- [Basic Usage](/docs/user-guide/basic-usage)\n- [Configuration](/docs/user-guide/configuration)\r\n"
+}

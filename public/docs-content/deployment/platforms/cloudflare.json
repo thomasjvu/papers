@@ -1,0 +1,5 @@
+{
+  "path": "deployment/platforms/cloudflare",
+  "title": "Cloudflare Pages",
+  "content": "# Cloudflare Pages\n\n## Dashboard Setup\n\nUse these settings in Cloudflare Pages:\n\n- Build command: `npm run build`\n- Build output directory: `dist`\n- Node version: `20` or newer\n\n## CLI Deployment\n\nThe repo includes `wrangler.toml` and npm scripts for Pages deployment.\n\n```bash\nnpm run build\nnpm run deploy\n```\n\n## Routing\n\n`public/_redirects` covers the SPA fallback for `/docs/...` and `/llms` when deployed on Cloudflare Pages.\n\n## Environment Variables\n\nSet the same `VITE_*` variables in the Pages dashboard that you use locally.\n\n## Good Fit\n\nCloudflare Pages works especially well here because the final site is fully static and the generated artifacts are easy to cache globally.\r\n"
+}

@@ -1,0 +1,5 @@
+{
+  "path": "user-guide/command-palette",
+  "title": "Command Palette",
+  "content": "# Command Palette\n\nThe command palette is the fastest way to move through the site.\n\n## Open It\n\n- Mac: `Cmd + K`\n- Windows / Linux: `Ctrl + K`\n\n## What It Searches\n\nThe palette can surface:\n\n- docs pages from the shared navigation tree\n- full-text matches from Pagefind\n- theme actions\n- built-in FAQ entries\n- quick navigation shortcuts such as the homepage and `llms.txt`\n\n## Keyboard Controls\n\n- `up` / `down` to move\n- `Enter` to open\n- `Esc` to close\n\n## Related Shortcut\n\nTheme toggling is available separately with `Cmd/Ctrl + I`.\n\n## Why It Matters\n\nIn large docs sites, readers often know the concept they want, not the section where it lives. The palette closes that gap quickly.\n\n## Next Steps\n\n- [Advanced Features](/docs/user-guide/advanced-features)\n- [Basic Usage](/docs/user-guide/basic-usage)\r\n"
+}

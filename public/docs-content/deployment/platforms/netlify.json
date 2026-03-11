@@ -1,0 +1,5 @@
+{
+  "path": "deployment/platforms/netlify",
+  "title": "Netlify",
+  "content": "# Netlify\n\n## Site Settings\n\nUse these settings in Netlify:\n\n- Build command: `npm run build`\n- Publish directory: `dist`\n\n## Included Files\n\nThis repo already includes the files Netlify expects for the common static-host case:\n\n- `public/_redirects`\n- `public/_headers`\n\n## CLI Deploy\n\n```bash\nnpm run build\nnetlify deploy --prod --dir=dist\n```\n\n## Routing\n\nThe `_redirects` file handles the SPA fallback for `/docs` routes and `/llms`.\n\n## Environment Variables\n\nSet your `VITE_*` variables in the Netlify dashboard under Site configuration.\r\n"
+}

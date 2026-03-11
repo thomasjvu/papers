@@ -1,0 +1,10 @@
+# Cloudflare Pages configuration
+# IMPORTANT: Update the 'name' field to match your project
+# - For existing projects: Use your Cloudflare Pages project name
+# - For new projects: Choose a unique name (will create project-name.pages.dev)
+name = "papers-docs"
+compatibility_date = "2025-01-14"
+pages_build_output_dir = "dist"
+
+[env.production]
+compatibility_date = "2025-01-14"

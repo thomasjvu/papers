@@ -1,0 +1,5 @@
+{
+  "path": "api-reference/runtime-apis",
+  "title": "Runtime APIs",
+  "content": "# Runtime APIs\n\n## `getDocument(path)`\n\nLoads a single document from the generated docs content store.\n\n```ts\nimport { getDocument } from '../src/lib/content';\n\nconst doc = await getDocument('deployment/overview');\n```\n\n## `loadDocsContent()`\n\nFetches and caches `/docs-index.json` for the current session.\n\n## `resolveDocumentPath(slug)`\n\nMaps route slugs such as empty directory paths to a default page.\n\nThat is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.\n\n## `usePagefind()`\n\nLoads the Pagefind browser bundle and returns normalized search results.\n\n```ts\nconst { search, isAvailable } = usePagefind();\n```\n\n## `useTheme()`\n\nExposes:\n\n- `isDarkMode`\n- `toggleTheme()`\n- `prefersReducedMotion`\n- `toggleReducedMotion()`\n- `fontFamily`\n- `setFontFamily()`\n\n## Notes\n\nThese APIs are intentionally small. Most of the template stays configuration-driven rather than introducing a large abstraction layer.\n"
+}
