@@ -42,7 +42,7 @@ const ContentRenderer = memo(function ContentRenderer({
                   border: '1px solid var(--border-unified)',
                 }}
               >
-                <span className="text-2xl font-bold" style={{ color: 'var(--text-color)' }}>
+                <span className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>
                   Documentation
                 </span>
               </div>

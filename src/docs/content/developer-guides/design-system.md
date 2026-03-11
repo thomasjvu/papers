@@ -158,7 +158,7 @@ Our design system includes interactive wallet address components with copy funct
 </div>
 ```
 
-The wallet addresses automatically get copy buttons when processed by the content renderer. The copy functionality includes:
+The wallet addresses automatically get a single theme-aware chain icon and copy button when processed by the content renderer. The copy functionality includes:
 
 - **Instant clipboard access** - One-click copying
 - **Visual feedback** - Button changes to checkmark when copied
@@ -171,33 +171,43 @@ The wallet addresses automatically get copy buttons when processed by the conten
 /* Wallet address styling */
 .wallet-address {
   font-family: var(--mono-font);
-  background-color: rgba(0, 0, 0, 0.05);
+  font-size: var(--code-inline-font-size);
+  background-color: var(--inline-code-bg);
+  color: var(--inline-code-text-color);
+  border: 1px solid var(--inline-code-border-color);
   padding: 0.4rem 0.8rem;
-  padding-right: 2.5rem;
+  padding-left: 2.25rem;
+  padding-right: 2.25rem;
   border-radius: 4px;
-  border: 1px solid var(--border-color);
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
 }
 
-/* Copy button styling */
+.chain-icon-container {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--code-muted-color);
+}
+
 .copy-button {
-  background-color: rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--border-color);
-  cursor: pointer;
-  padding: 4px 8px;
-  border-radius: 4px;
-  opacity: 0.9;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   position: absolute;
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--inline-code-border-color);
+  border-radius: 4px;
+  background-color: transparent;
+  color: var(--code-muted-color);
 }
 ```
 

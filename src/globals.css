@@ -136,17 +136,24 @@
   --code-line-number-color: #a1a1aa;
   --code-active-bg: #111111;
   --code-active-text: #ffffff;
+  --code-font-size: 0.8125rem;
+  --code-inline-font-size: 0.75rem;
+  --code-label-size: 0.6875rem;
+  --code-line-height: 1.6;
+  --inline-code-bg: #f4f4f5;
+  --inline-code-border-color: #e4e4e7;
+  --inline-code-text-color: #111111;
 
   --text-2xs: 0.6875rem;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
   --text-lg: 1.125rem;
-  --text-xl: 1.25rem;
-  --text-2xl: 1.5rem;
-  --text-3xl: 1.875rem;
-  --text-4xl: 2.25rem;
-  --text-5xl: 3rem;
+  --text-xl: 1.1875rem;
+  --text-2xl: 1.375rem;
+  --text-3xl: 1.6875rem;
+  --text-4xl: 2rem;
+  --text-5xl: 2.625rem;
 
   --leading-tight: 1.25;
   --leading-snug: 1.375;
@@ -258,6 +265,9 @@
   --code-line-number-color: #71717a;
   --code-active-bg: #f5f5f5;
   --code-active-text: #111111;
+  --inline-code-bg: #151515;
+  --inline-code-border-color: #27272a;
+  --inline-code-text-color: #f5f5f5;
 
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
@@ -268,20 +278,20 @@
 /* Responsive Typography Scale - Tablet and up */
 @media (min-width: 768px) {
   :root {
-    --text-2xl: 1.75rem;
-    --text-3xl: 2.125rem;
-    --text-4xl: 2.75rem;
-    --text-5xl: 3.5rem;
+    --text-2xl: 1.625rem;
+    --text-3xl: 1.875rem;
+    --text-4xl: 2.375rem;
+    --text-5xl: 3.125rem;
   }
 }
 
 /* Responsive Typography Scale - Desktop */
 @media (min-width: 1024px) {
   :root {
-    --text-2xl: 1.875rem;
-    --text-3xl: 2.25rem;
-    --text-4xl: 3rem;
-    --text-5xl: 3.75rem;
+    --text-2xl: 1.75rem;
+    --text-3xl: 2rem;
+    --text-4xl: 2.625rem;
+    --text-5xl: 3.375rem;
   }
 }
 
@@ -1013,6 +1023,31 @@ header a:hover,
 }
 
 /* Markdown blockquote styles - used by markdown processor */
+.prose code.inline-code,
+.markdown-content code.inline-code,
+.doc-content code.inline-code {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.125rem 0.45rem;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--inline-code-border-color);
+  background-color: var(--inline-code-bg) !important;
+  color: var(--inline-code-text-color) !important;
+  font-family: var(--mono-font) !important;
+  font-size: var(--code-inline-font-size) !important;
+  line-height: 1.35;
+  font-weight: 500;
+}
+
+.prose code.inline-code::before,
+.prose code.inline-code::after,
+.markdown-content code.inline-code::before,
+.markdown-content code.inline-code::after,
+.doc-content code.inline-code::before,
+.doc-content code.inline-code::after {
+  content: none !important;
+}
+
 .markdown-blockquote {
   border-left: 4px solid var(--primary-color);
   padding-left: var(--space-4);
@@ -1301,25 +1336,63 @@ header a:hover,
 /* Wallet address styling */
 code.wallet-address {
   font-family: var(--mono-font);
-  background-color: rgba(0, 0, 0, 0.05);
+  font-size: var(--code-inline-font-size);
+  line-height: 1.45;
+  background-color: var(--inline-code-bg);
+  color: var(--inline-code-text-color);
   padding: calc(var(--space-2) - 1px) var(--space-3);
-  padding-right: var(--space-10);
+  padding-right: calc(var(--space-8) + var(--space-1));
   border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
+  border: 1px solid var(--inline-code-border-color);
   position: relative;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   width: 100%;
   box-sizing: border-box;
 }
 
-.dark code.wallet-address {
-  background-color: rgba(255, 255, 255, 0.1);
-  border-color: var(--border-color);
+.wallet-address {
+  padding-left: calc(var(--space-8) + var(--space-1)) !important;
 }
 
-/* Copy button styling */
+.wallet-address-text {
+  min-width: 0;
+  word-break: break-all;
+}
 
-/* Chain icon styles for wallet addresses */
+.copy-button {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: 1px solid var(--inline-code-border-color);
+  border-radius: var(--radius-sm);
+  background-color: transparent;
+  color: var(--code-muted-color);
+  transition:
+    background-color var(--transition-fast),
+    border-color var(--transition-fast),
+    color var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+.copy-button:hover {
+  background-color: var(--code-bg);
+  border-color: var(--code-border-color);
+  color: var(--code-text-color);
+}
+
+.copy-button:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
 .chain-icon-container {
   position: absolute;
   left: 10px;
@@ -1328,43 +1401,20 @@ code.wallet-address {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  z-index: 1;
-  width: 20px;
-  height: 20px;
-}
-
-.wallet-address {
-  padding-left: 2.75rem !important; /* Make space for chain icon */
-  display: inline-flex !important;
-  align-items: center;
+  width: 18px;
+  height: 18px;
+  color: var(--code-muted-color);
 }
 
 .chain-icon {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  transition: opacity 0.2s ease;
+  display: inline-flex;
+  color: inherit;
 }
 
-.chain-icon-default {
-  opacity: 1;
-}
-
-.chain-icon-branded {
-  opacity: 0;
-}
-
-.wallet-address:hover .chain-icon-default {
-  opacity: 0;
-}
-
-.wallet-address:hover .chain-icon-branded {
-  opacity: 1;
-}
-
-/* Ensure iconify icons display properly */
-.chain-icon-container iconify-icon {
+.chain-icon-container svg,
+.chain-icon-container iconify-icon,
+.copy-button svg,
+.copy-button iconify-icon {
   display: inline-flex;
   vertical-align: middle;
 }

@@ -72,16 +72,16 @@ const minimalSyntaxTheme: Record<string, CSSProperties> = {
     background: 'transparent',
     textShadow: 'none',
     fontFamily: 'var(--mono-font)',
-    fontSize: 'var(--text-sm)',
-    lineHeight: '1.65',
+    fontSize: 'var(--code-font-size)',
+    lineHeight: 'var(--code-line-height)',
   },
   'code[class*="language-"]': {
     color: 'var(--code-text-color)',
     background: 'transparent',
     textShadow: 'none',
     fontFamily: 'var(--mono-font)',
-    fontSize: 'var(--text-sm)',
-    lineHeight: '1.65',
+    fontSize: 'var(--code-font-size)',
+    lineHeight: 'var(--code-line-height)',
   },
   comment: {
     color: 'var(--code-muted-color)',
@@ -190,7 +190,7 @@ const minimalSyntaxTheme: Record<string, CSSProperties> = {
   },
   '.line-numbers-rows': {
     borderRight: '1px solid var(--code-border-color)',
-    marginRight: '1rem',
+    marginRight: '0.875rem',
   },
 };
 
@@ -348,12 +348,12 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
               {copied ? (
                 <>
                   <Icon icon="mingcute:check-line" className="h-4 w-4" />
-                  <span className="ui-meta">Copied!</span>
+                  <span className={styles.codeBlockCopyLabel}>Copied!</span>
                 </>
               ) : (
                 <>
                   <Icon icon="mingcute:copy-line" className="h-4 w-4" />
-                  <span className="ui-meta">Copy</span>
+                  <span className={styles.codeBlockCopyLabel}>Copy</span>
                 </>
               )}
             </button>
@@ -367,10 +367,10 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
               wrapLines={true}
               customStyle={{
                 margin: 0,
-                padding: '1.5rem',
+                padding: '1.25rem',
                 background: 'transparent',
-                fontSize: 'var(--text-sm)',
-                lineHeight: '1.65',
+                fontSize: 'var(--code-font-size)',
+                lineHeight: 'var(--code-line-height)',
               }}
               codeTagProps={{
                 style: {

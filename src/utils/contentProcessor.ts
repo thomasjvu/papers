@@ -73,20 +73,13 @@ export const processWalletAddresses = (element: HTMLElement): void => {
     const iconContainer = document.createElement('span');
     iconContainer.className = 'chain-icon-container';
 
-    const defaultIcon = document.createElement('iconify-icon');
-    defaultIcon.setAttribute('icon', `token:${chain}`);
-    defaultIcon.setAttribute('width', '20');
-    defaultIcon.setAttribute('height', '20');
-    defaultIcon.className = 'chain-icon chain-icon-default';
+    const chainIcon = document.createElement('iconify-icon');
+    chainIcon.setAttribute('icon', `token:${chain}`);
+    chainIcon.setAttribute('width', '18');
+    chainIcon.setAttribute('height', '18');
+    chainIcon.className = 'chain-icon';
 
-    const brandedIcon = document.createElement('iconify-icon');
-    brandedIcon.setAttribute('icon', `token-branded:${chain}`);
-    brandedIcon.setAttribute('width', '20');
-    brandedIcon.setAttribute('height', '20');
-    brandedIcon.className = 'chain-icon chain-icon-branded';
-
-    iconContainer.appendChild(defaultIcon);
-    iconContainer.appendChild(brandedIcon);
+    iconContainer.appendChild(chainIcon);
     walletElement.insertBefore(iconContainer, walletElement.firstChild);
 
     const copyButton = document.createElement('button');

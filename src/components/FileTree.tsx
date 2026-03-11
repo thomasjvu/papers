@@ -23,6 +23,8 @@ type FileTreeItemProps = {
   currentPath?: string;
 };
 
+const NESTED_INDENT_STEP = 10;
+
 const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
   ({ item, onSelect, depth, onToggle, currentPath }) => {
     const { prefersReducedMotion } = useTheme();
@@ -62,36 +64,17 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             fontFamily: 'var(--mono-font)',
             letterSpacing: '-0.5px',
             fontSize: '0.8rem',
-            paddingLeft: `${(depth - 1) * 16 + (item.type === 'file' ? 12 : 0)}px`,
+            paddingLeft: `${Math.max(depth - 1, 0) * NESTED_INDENT_STEP}px`,
           }}
         >
-          {isDirectory && (
-            <span
-              className="mr-1 flex items-center justify-center"
-              style={{
-                display: 'inline-block',
-                width: '20px',
-              }}
-            >
-              {hasChildren ? (
-                <Icon
-                  icon={item.expanded ? 'mingcute:down-line' : 'mingcute:right-line'}
-                  className="w-3 h-3"
-                />
-              ) : (
-                <span className="w-3 h-3"></span>
-              )}
-            </span>
-          )}
-
           <span className="mr-2 flex items-center">
             {isDirectory ? (
               <Icon
                 icon={item.expanded ? 'mingcute:folder-open-line' : 'mingcute:folder-line'}
-                className="w-4 h-4"
+                className="h-4 w-4"
               />
             ) : (
-              <Icon icon="mingcute:file-line" className="w-4 h-4" />
+              <Icon icon="mingcute:file-line" className="h-4 w-4" />
             )}
           </span>
 
@@ -103,7 +86,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
         <AnimatePresence>
           {isDirectory && item.expanded && item.children && (
             <motion.div
-              className="file-tree-children pl-2"
+              className="file-tree-children"
               initial={{
                 height: 0,
                 opacity: prefersReducedMotion ? 1 : 0,
@@ -196,7 +179,7 @@ const FileTree: React.FC<FileTreeProps> = ({
           key={item.path}
           item={item}
           onSelect={onSelect}
-          depth={1}
+          depth={0}
           onToggle={toggleItem}
           currentPath={currentPath}
         />

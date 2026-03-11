@@ -45,13 +45,16 @@ export default function NotFoundPage() {
           </div>
 
           <h1
-            className="text-4xl md:text-5xl font-bold mb-4"
+            className="text-3xl md:text-4xl font-bold mb-4"
             style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
           >
             That page does not exist.
           </h1>
 
-          <p className="text-lg mb-6 max-w-2xl" style={{ color: 'var(--muted-color)' }}>
+          <p
+            className="text-base md:text-lg mb-6 max-w-2xl"
+            style={{ color: 'var(--muted-color)' }}
+          >
             The link may be stale, the route may have moved, or you may have landed on a placeholder
             path. The quickest fix is usually search.
           </p>

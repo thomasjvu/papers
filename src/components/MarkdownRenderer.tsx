@@ -1,4 +1,4 @@
-﻿import { Icon } from '@iconify/react';
+import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
@@ -342,20 +342,13 @@ function MarkdownWalletAddress({
       <span className="chain-icon-container">
         <Icon
           icon={`token:${resolvedChain}`}
-          width="20"
-          height="20"
-          className="chain-icon chain-icon-default"
-          aria-hidden="true"
-        />
-        <Icon
-          icon={`token-branded:${resolvedChain}`}
-          width="20"
-          height="20"
-          className="chain-icon chain-icon-branded"
+          width="18"
+          height="18"
+          className="chain-icon"
           aria-hidden="true"
         />
       </span>
-      <span>{children}</span>
+      <span className="wallet-address-text">{children}</span>
       <button
         className="copy-button"
         type="button"

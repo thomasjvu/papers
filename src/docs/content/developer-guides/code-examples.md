@@ -1,6 +1,6 @@
 # Code Examples
 
-This section shows accurate examples for the current Vite-based template.
+This section shows the supported authoring patterns in the current Vite-based template.
 
 ## Add A New Docs Page
 
@@ -61,6 +61,51 @@ HTML and CSS code fences render as live previews.
 }
 ```
 ````
+
+## Build A Custom Markdown Component
+
+There are two extension points in the current runtime:
+
+1. fenced Markdown blocks handled in `src/utils/markdownCore.ts`
+2. HTML patterns rendered in `src/components/MarkdownRenderer.tsx`
+
+The built-in examples are:
+
+- `ColorPalette` fenced blocks
+- `html` and `css` live examples
+- wallet copy blocks rendered from `<code class="wallet-address">...`
+
+### Add A New Fenced Component
+
+Use this path when you want a custom code fence like `ColorPalette`.
+
+1. Detect the fence language in `buildMarkdownRenderState()` inside `src/utils/markdownCore.ts`.
+2. Emit a placeholder element with `data-*` attributes for the payload you need.
+3. Read that placeholder in `src/components/MarkdownRenderer.tsx` and return a React component.
+4. Style the result with CSS variables in `src/globals.css` or a component CSS module.
+
+## Wallet Block Example
+
+The wallet block is a good example of a custom rendered HTML pattern rather than a fenced block:
+
+```html
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
+  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
+</code>
+```
+
+At render time, `MarkdownRenderer` upgrades that markup into a themed component with:
+
+- a chain icon
+- a copy button
+- clipboard feedback
+- theme-aware styling from CSS variables
+
+Use this same pattern when you want to author simple semantic HTML in docs but render a richer component in the app.
 
 ## Link Between Docs Pages
 

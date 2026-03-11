@@ -168,7 +168,11 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
             transition={{ duration: 0.15 }}
             onClick={onClose}
             className="fixed inset-0 z-50"
-            style={{ backgroundColor: 'var(--overlay-color)' }}
+            style={{
+              backgroundColor: 'var(--overlay-color)',
+              backdropFilter: 'blur(6px)',
+              WebkitBackdropFilter: 'blur(6px)',
+            }}
           />
 
           <motion.div

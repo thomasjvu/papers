@@ -27,7 +27,7 @@ Papers is a static documentation site template with fast client-side navigation,
 
 ## Developer Guides
 
-- [Code Examples](/docs/developer-guides/code-examples): This section shows accurate examples for the current Vite-based template.
+- [Code Examples](/docs/developer-guides/code-examples): This section shows the supported authoring patterns in the current Vite-based template.
 - [Best Practices](/docs/developer-guides/best-practices): Treat `shared/documentation-config.js` as the source of truth for navigation and page tags.
 - [Design System](/docs/developer-guides/design-system): A comprehensive guide to the design system, color palettes, typography, and components that make up the documentation platform.
 - [UI Configuration](/docs/developer-guides/ui-configuration): The template keeps content in the docs framework and exposes a few layout controls through code.

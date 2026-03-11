@@ -35,7 +35,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
         key={result.path}
         onClick={() => onSelect(result, index)}
         onMouseEnter={() => onMouseEnter(index)}
-        className="w-full px-4 py-3 flex items-center gap-3 transition-all text-left relative"
+        className="relative flex w-full items-center gap-3 px-4 py-2.5 text-left transition-all"
         style={{
           backgroundColor: isSelected ? 'rgba(var(--primary-color-rgb), 0.1)' : 'transparent',
           color: 'var(--text-color)',
@@ -44,12 +44,14 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.2, delay: index * 0.03 }}
       >
-        <span className="text-xl">{result.icon}</span>
-        <div className="flex-1 min-w-0">
-          <div className="font-medium">{result.title}</div>
+        <span className="text-lg leading-none">{result.icon}</span>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-medium leading-snug" style={{ color: 'var(--text-color)' }}>
+            {result.title}
+          </div>
           {result.description && (
             <div
-              className="text-xs opacity-70"
+              className="mt-0.5 text-2xs leading-relaxed opacity-70"
               style={{
                 color: 'var(--muted-color)',
                 fontFamily: 'var(--mono-font)',
@@ -62,7 +64,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
         <div className="flex items-center gap-2">
           {result.shortcut && (
             <kbd
-              className="px-2 py-1 text-xs rounded border font-mono"
+              className="rounded border px-1.5 py-0.5 text-2xs font-mono"
               style={{
                 borderColor: isSelected ? 'var(--primary-color)' : 'var(--border-color)',
                 backgroundColor: isSelected ? 'var(--primary-color)' : 'var(--hover-color)',
@@ -74,7 +76,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           )}
           {result.type === 'action' && (
             <span
-              className="text-xs px-2 py-1 rounded"
+              className="rounded px-2 py-1 text-2xs"
               style={{
                 backgroundColor: 'var(--primary-color)',
                 color: 'var(--selection-text-color)',
@@ -86,7 +88,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           )}
           {result.type === 'faq' && (
             <span
-              className="text-xs px-2 py-1 rounded border"
+              className="rounded border px-2 py-1 text-2xs"
               style={{
                 backgroundColor: 'var(--hover-color)',
                 borderColor: 'var(--border-unified)',

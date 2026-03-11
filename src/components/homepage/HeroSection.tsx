@@ -43,7 +43,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-5xl md:text-7xl font-bold mb-6"
+            className="text-4xl md:text-6xl font-bold mb-6"
             style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
           >
             {hero.title}
@@ -53,7 +53,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-xl md:text-2xl mb-4"
+            className="text-lg md:text-xl mb-4"
             style={{ fontFamily: 'var(--mono-font)', color: 'var(--primary-color)' }}
           >
             {hero.subtitle}
@@ -63,7 +63,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-lg md:text-xl mb-10 max-w-2xl mx-auto"
+            className="text-base md:text-lg mb-10 max-w-2xl mx-auto"
             style={{ color: 'var(--muted-color)' }}
           >
             {hero.description}

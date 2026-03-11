@@ -23,7 +23,7 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
           className="text-center mb-16"
         >
           <h2
-            className="text-3xl md:text-4xl font-bold mb-4"
+            className="text-2xl md:text-3xl font-bold mb-4"
             style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
           >
             Everything You Need
@@ -61,7 +61,7 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
                 />
               </div>
               <h3
-                className="text-xl font-semibold mb-2"
+                className="text-lg font-semibold mb-2"
                 style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
               >
                 {feature.title}

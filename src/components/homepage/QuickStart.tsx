@@ -24,7 +24,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
           className="text-center mb-16"
         >
           <h2
-            className="text-3xl md:text-4xl font-bold mb-4"
+            className="text-2xl md:text-3xl font-bold mb-4"
             style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
           >
             {quickStart.title}

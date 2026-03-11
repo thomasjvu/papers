@@ -35,6 +35,49 @@ function getInitialRightSidebarState(): boolean {
   return saved === null ? true : saved === 'true';
 }
 
+function RightRailFooter() {
+  return (
+    <div className="flex-shrink-0">
+      <div className="mb-2 flex items-center justify-center gap-2.5">
+        {socialLinks.map((link) => (
+          <a
+            key={link.name}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={link.name}
+            className={`social-link ${UI_CLASSES.button}`}
+            style={{ color: 'var(--toc-text-color)' }}
+          >
+            <div className="h-5 w-5">{link.icon}</div>
+          </a>
+        ))}
+      </div>
+
+      <div className="text-center">
+        <p
+          className="text-2xs font-mono leading-none"
+          style={{
+            color: 'var(--toc-text-color)',
+            fontFamily: 'var(--mono-font)',
+          }}
+        >
+          Design by{' '}
+          <a
+            href="https://x.com/ultima_gg"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="transition-opacity hover:opacity-80"
+            style={{ color: 'var(--text-color)' }}
+          >
+            Ultima
+          </a>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 const DocumentationPage = React.memo(
   ({ initialContent, currentPath, isLoading = false, pendingPath }: DocumentationPageProps) => {
     const navigate = useNavigate();
@@ -123,6 +166,30 @@ const DocumentationPage = React.memo(
         transition: { duration: 0.2 },
       };
     }, [prefersReducedMotion]);
+
+    const rightRailPanelVariants = useMemo(() => {
+      if (prefersReducedMotion) {
+        return {
+          hidden: { opacity: 0 },
+          visible: { opacity: 1 },
+          exit: { opacity: 0 },
+        };
+      }
+
+      return {
+        hidden: { opacity: 0, x: 20 },
+        visible: { opacity: 1, x: 0 },
+        exit: { opacity: 0, x: -20 },
+      };
+    }, [prefersReducedMotion]);
+
+    const rightRailPanelTransition = useMemo(
+      () => ({
+        duration: prefersReducedMotion ? 0.05 : 0.22,
+        ease: 'easeOut' as const,
+      }),
+      [prefersReducedMotion]
+    );
 
     useEffect(() => {
       if (typeof window === 'undefined') {
@@ -471,91 +538,76 @@ const DocumentationPage = React.memo(
 
               <ContentRenderer content={content} path={path} />
             </div>
-
-            {!rightSidebarVisible && (
-              <div className="hidden w-56 flex-shrink-0 items-center justify-center xl:flex">
-                <div className="w-full">
-                  <TableOfContents content={content} onToggleRightSidebar={toggleRightSidebar} />
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
-        <AnimatePresence>
-          {rightSidebarVisible && (
-            <motion.div
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: prefersReducedMotion ? 0.05 : 0.3 }}
-              className="hidden h-full shrink-0 overflow-hidden border-l lg:block"
-              style={{
-                backgroundColor: 'var(--background-color)',
-                borderColor: 'var(--border-unified)',
-              }}
-            >
-              <div className="flex h-full w-72 flex-col p-4 xl:w-80">
-                <div className="mb-2">
-                  <h3
-                    className="mb-1 text-sm font-semibold font-mono"
-                    style={{
-                      color: 'var(--mindmap-text-color)',
-                      fontFamily: 'var(--mono-font)',
-                      marginTop: '1px',
-                    }}
-                  >
-                    Interactive Map
-                  </h3>
-                </div>
-                <div className="mb-4 min-h-0 flex-1">
-                  <DocumentationGraph
-                    currentPath={path}
-                    onNodeClick={(nodePath) => {
-                      navigate(`/docs/${nodePath}`);
-                    }}
-                    className="h-full w-full"
-                  />
-                </div>
-
-                <div
-                  className="flex-shrink-0 border-t pt-4"
-                  style={{
-                    borderColor: 'var(--border-unified)',
-                  }}
+        <div
+          className="hidden h-full shrink-0 border-l lg:block"
+          style={{
+            backgroundColor: 'var(--background-color)',
+            borderColor: 'var(--border-unified)',
+          }}
+        >
+          <div className="flex h-full w-72 flex-col overflow-hidden p-4 xl:w-80">
+            <AnimatePresence mode="wait" initial={false}>
+              {rightSidebarVisible ? (
+                <motion.div
+                  key="interactive-map"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={rightRailPanelVariants}
+                  transition={rightRailPanelTransition}
+                  className="flex h-full flex-col"
                 >
-                  <div className="mb-3 flex items-center justify-center gap-3">
-                    {socialLinks.map((link) => (
-                      <a
-                        key={link.name}
-                        href={link.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        aria-label={link.name}
-                        className={`social-link ${UI_CLASSES.button}`}
-                        style={{ color: 'var(--toc-text-color)' }}
-                      >
-                        <div className="h-5 w-5">{link.icon}</div>
-                      </a>
-                    ))}
-                  </div>
-
-                  <div className="text-center">
-                    <p
-                      className="text-xs font-mono"
+                  <div className="mb-2">
+                    <h3
+                      className="mb-1 text-sm font-semibold font-mono"
                       style={{
-                        color: 'var(--toc-text-color)',
+                        color: 'var(--mindmap-text-color)',
                         fontFamily: 'var(--mono-font)',
+                        marginTop: '1px',
                       }}
                     >
-                      Built with papers
-                    </p>
+                      Interactive Map
+                    </h3>
                   </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                  <div className="mb-4 min-h-0 flex-1">
+                    <DocumentationGraph
+                      currentPath={path}
+                      onNodeClick={(nodePath) => {
+                        navigate(`/docs/${nodePath}`);
+                      }}
+                      className="h-full w-full"
+                    />
+                  </div>
+
+                  <RightRailFooter />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="table-of-contents"
+                  initial="hidden"
+                  animate="visible"
+                  exit="exit"
+                  variants={rightRailPanelVariants}
+                  transition={rightRailPanelTransition}
+                  className="flex h-full flex-col justify-between py-4"
+                >
+                  <div className="flex min-h-0 flex-1 items-center justify-center">
+                    <div className="w-full max-w-[15rem]" style={{ transform: 'translateY(-15%)' }}>
+                      <TableOfContents
+                        content={content}
+                        onToggleRightSidebar={toggleRightSidebar}
+                      />
+                    </div>
+                  </div>
+                  <RightRailFooter />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        </div>
 
         <AnimatePresence>
           {isMobile && mobileMapVisible && (
