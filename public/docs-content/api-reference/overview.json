@@ -1,0 +1,8 @@
+{
+  "path": "api-reference/overview",
+  "title": "API Reference Overview",
+  "description": "This section covers the internal runtime and build APIs that power the template.",
+  "frontmatter": {},
+  "content": "# API Reference Overview\n\nThis section covers the internal runtime and build APIs that power the template.\n\nIt is not a server API. Everything here exists to support a static docs site.\n\n## Runtime Modules\n\n- `src/lib/content.ts`: loads the docs manifest and per-page JSON\n- `src/lib/navigation.ts`: flattens the tree, finds adjacent pages, resolves defaults\n- `src/hooks/usePagefind.ts`: boots Pagefind and normalizes search results\n- `src/providers/ThemeProvider.tsx`: theme, motion, and font state\n- `src/components/MarkdownRenderer.tsx`: turns processed HTML into one React tree\n\n## Build Modules\n\n- `scripts/generate-docs.mjs`: writes `public/docs-index.json` and `public/docs-content/**/*.json`\n- `scripts/generate-llms.mjs`: writes `public/llms.txt` and `public/llms-full.txt`\n- `scripts/generate-pagefind.mjs`: writes the production search index to `dist/pagefind/`\n\n## Generated Artifacts\n\nThe runtime depends on:\n\n- `/docs-index.json`\n- `/docs-content/**/*.json`\n- `/llms.txt`\n- `/llms-full.txt`\n- `/pagefind/*`\n\n## When To Read This Section\n\nUse the rest of this API reference when you need to:\n\n- change how docs content is loaded\n- extend the markdown renderer\n- add a custom block type\n- adjust build outputs or search generation\n\n## Next Steps\n\n- [Content Pipeline](/docs/api-reference/content-pipeline)\n- [Runtime APIs](/docs/api-reference/runtime-apis)\n",
+  "sourcePath": "src/docs/content/api-reference/overview.md"
+}

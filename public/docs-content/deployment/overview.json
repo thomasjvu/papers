@@ -1,0 +1,8 @@
+{
+  "path": "deployment/overview",
+  "title": "Deployment Overview",
+  "description": "papers builds to a static site with route-specific HTML output.",
+  "frontmatter": {},
+  "content": "# Deployment Overview\n\n`papers` builds to a static site with route-specific HTML output.\n\n## What `npm run build` Produces\n\n- the Vite app bundle in `dist/`\n- generated docs JSON derived from your Markdown content\n- route-specific HTML files with page-level metadata\n- `robots.txt` and `sitemap.xml`\n- generated social preview images\n- `llms.txt` and `llms-full.txt`\n- the Pagefind search index in `dist/pagefind/`\n\n## What Your Host Must Support\n\nAt minimum, your host should:\n\n- publish the `dist/` directory\n- serve generated files directly, including `dist/docs/**/index.html`, `dist/llms/index.html`, and `dist/404.html`\n- serve static assets normally\n- avoid catch-all rewrites that send `/docs/*` or `/llms` to the homepage when matching files already exist\n\n## Included Host Helpers\n\nThis repo already includes:\n\n- `public/_headers`\n- `vercel.json`\n- `wrangler.toml`\n\nOptional rewrite rules only make sense if you intentionally remove route-level HTML generation and accept losing per-page metadata on direct requests.\n\n## Recommended Pre-Deploy Commands\n\n```bash\nnpm test\nnpm run lint\nnpm run build\nnpm run release:check\n```\n\n## Platform Guides\n\n- [Cloudflare](/docs/deployment/platforms/cloudflare)\n- [Vercel](/docs/deployment/platforms/vercel)\n- [Netlify](/docs/deployment/platforms/netlify)",
+  "sourcePath": "src/docs/content/deployment/overview.md"
+}

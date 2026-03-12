@@ -1,0 +1,8 @@
+{
+  "path": "llms",
+  "title": "LLMs.txt",
+  "description": "This template generates AI-facing text exports from the docs corpus.",
+  "frontmatter": {},
+  "content": "# LLMs.txt\n\nThis template generates AI-facing text exports from the docs corpus.\n\n## Generated Files\n\n- `/llms.txt`\n- `/llms-full.txt`\n\n## Why They Exist\n\nThese files give AI tools and internal agents a clean text entry point without requiring them to crawl the full UI.\n\n## How They Are Generated\n\n`npm run build` runs `scripts/generate-llms.mjs` automatically.\n\nIf you only want to refresh AI exports while writing, run:\n\n```bash\nnpm run generate:llms\n```\n\n## When To Regenerate\n\nRegenerate after:\n\n- changing Markdown content\n- renaming or restructuring docs sections\n- updating docs metadata that should appear in exported summaries\n\n## Helpful Links\n\n<a href=\"/llms.txt\" class=\"download-link\" data-file=\"llms.txt\">Download llms.txt</a>\n\n<a href=\"/llms-full.txt\" class=\"download-link\" data-file=\"llms-full.txt\">Download llms-full.txt</a>\n\n<a href=\"#\" class=\"copy-link\" data-url=\"/llms.txt\">Copy llms.txt URL</a>\n\n## Preview\n\n{llms-preview}\n",
+  "sourcePath": "src/docs/content/llms.md"
+}

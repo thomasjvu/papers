@@ -1,0 +1,8 @@
+{
+  "path": "user-guide/command-palette",
+  "title": "Command Palette",
+  "description": "The command palette is the fastest way to move through the site.",
+  "frontmatter": {},
+  "content": "# Command Palette\n\nThe command palette is the fastest way to move through the site.\n\n## Open It\n\n- Mac: `Cmd + K`\n- Windows / Linux: `Ctrl + K`\n\n## What It Can Show\n\n- docs pages from the shared navigation tree\n- built-in actions such as theme changes\n- FAQ answers inline inside the palette\n- quick links like the homepage and `llms.txt`\n- Pagefind full-text results after a production build\n\n## Keyboard Controls\n\n- `Up` and `Down` move through results\n- `Enter` opens a result or previews an FAQ answer\n- `Esc` closes the palette\n\n## Related Shortcut\n\n`Cmd/Ctrl + I` toggles the theme.\n\n## Search Notes\n\nLocal navigation results are always available.\n\nPagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.\n\n## Next Steps\n\n- [Advanced Features](/docs/user-guide/advanced-features)\n- [Basic Usage](/docs/user-guide/basic-usage)\n",
+  "sourcePath": "src/docs/content/user-guide/command-palette.md"
+}

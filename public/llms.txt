@@ -1,0 +1,46 @@
+# papers Documentation
+
+> Static documentation template
+
+A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.
+
+## Getting Started
+
+- [Introduction](/docs/getting-started/introduction): `papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
+- [Quick Start](/docs/getting-started/quick-start): Use this path if you want your own docs site running quickly with the least amount of ceremony.
+- [Installation](/docs/getting-started/installation): - Node.js 18 or newer
+
+## User Guide
+
+- [Basic Usage](/docs/user-guide/basic-usage): The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.
+- [Advanced Features](/docs/user-guide/advanced-features): `papers` ships with more than plain Markdown rendering.
+- [Configuration](/docs/user-guide/configuration): Most customization happens in a small set of files.
+- [Troubleshooting](/docs/user-guide/troubleshooting): The app reads generated JSON, not raw Markdown directly.
+- [Command Palette](/docs/user-guide/command-palette): The command palette is the fastest way to move through the site.
+- [Interactive Map](/docs/user-guide/interactive-map): The interactive map renders the documentation tree as a graph in the right rail.
+
+## API Reference
+
+- [Overview](/docs/api-reference/overview): This section covers the internal runtime and build APIs that power the template.
+- [Content Pipeline](/docs/api-reference/content-pipeline): The content pipeline turns Markdown source files into static artifacts the app can load directly.
+- [Runtime APIs](/docs/api-reference/runtime-apis): Fetches and caches `/docs-index.json` for the current session.
+
+## Developer Guides
+
+- [Code Examples](/docs/developer-guides/code-examples): This page shows the main authoring patterns supported by the current runtime.
+- [Best Practices](/docs/developer-guides/best-practices): Treat `shared/documentation-config.js` as the source of truth for navigation.
+- [Design System](/docs/developer-guides/design-system): The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
+- [UI Configuration](/docs/developer-guides/ui-configuration): The docs shell is mostly configured through a few focused files.
+- [Icon Customization](/docs/developer-guides/icon-customization): The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
+
+## Platform Guides
+
+- [Cloudflare](/docs/deployment/platforms/cloudflare): Use these values in Cloudflare Pages:
+- [Vercel](/docs/deployment/platforms/vercel): When importing the repo, use:
+- [Netlify](/docs/deployment/platforms/netlify): Use these values in Netlify:
+
+## Deployment
+
+- [Overview](/docs/deployment/overview): `papers` builds to a static site with route-specific HTML output.
+- [Production Setup](/docs/deployment/production-setup): Before you ship, set the values users and crawlers should actually see. You can provide them through `.env.local`, `.env.production`, or your host's build environment.
+

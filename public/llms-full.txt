@@ -1,0 +1,1613 @@
+# papers Documentation - Full Content
+
+> Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
+
+
+## Getting Started
+
+
+### Introduction
+
+URL: /docs/getting-started/introduction
+
+# Introduction
+
+`papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
+
+It ships with a docs shell, generated Markdown content, Pagefind search, `llms.txt` exports, and a deployable static build with sitemap, robots, and route-level metadata support.
+
+## What You Actually Customize
+
+Most projects only need to touch four places:
+
+- `shared/documentation-config.js` for the docs tree and homepage copy
+- `src/docs/content/` for the Markdown pages users read
+- `.env.local` for site metadata, canonical URL, and GitHub links
+- `src/globals.css` for theme and typography tokens
+
+## How The Template Works
+
+There are three layers:
+
+1. structure in `shared/documentation-config.js`
+2. page content in `src/docs/content/`
+3. generated output in `public/docs-content/`, `public/docs-index.json`, and SEO artifacts in `public/`
+
+The browser reads the generated JSON, not the raw Markdown files. That keeps the runtime fast and host-friendly, but it also means content changes need regeneration.
+
+## What Ships Out Of The Box
+
+- left-rail docs navigation with search and settings
+- right-rail table of contents and interactive map
+- command palette with local results, FAQ answers, and Pagefind results
+- tabbed code blocks, live HTML/CSS previews, color palettes, and wallet copy blocks
+- dark and light themes, reduced-motion support, and font cycling
+- `llms.txt` and `llms-full.txt` generation during build
+- robots, sitemap, social preview images, and route-level metadata generation
+
+## Learn These Files First
+
+- `shared/documentation-config.js`
+- `src/docs/content/`
+- `src/lib/content.ts`
+- `src/utils/markdownCore.ts`
+- `src/components/MarkdownRenderer.tsx`
+- `scripts/generate-docs.mjs`
+- `scripts/generate-seo.mjs`
+
+## Next Steps
+
+- [Quick Start](/docs/getting-started/quick-start)
+- [Installation](/docs/getting-started/installation)
+- [Basic Usage](/docs/user-guide/basic-usage)
+
+
+---
+
+
+### Quick Start
+
+URL: /docs/getting-started/quick-start
+
+# Quick Start
+
+Use this path if you want your own docs site running quickly with the least amount of ceremony.
+
+## 1. Clone And Start The App
+
+```bash
+git clone https://github.com/thomasjvu/papers.git
+cd papers
+npm install
+npm run dev
+```
+
+Open `http://localhost:3333`.
+
+## 2. Set Basic Metadata
+
+Create `.env.local` if you want your own site name, canonical URL, social metadata, or GitHub links.
+
+```env
+VITE_SITE_NAME="Your Docs"
+VITE_SITE_URL="https://docs.example.com"
+VITE_GITHUB_URL="https://github.com/your-org/your-repo"
+VITE_GITHUB_BRANCH="main"
+```
+
+`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and social preview metadata.
+
+## 3. Replace The Docs Tree
+
+Edit `shared/documentation-config.js` so the sections, page names, tags, homepage hero, and footer links match your project.
+
+## 4. Replace The Markdown
+
+Write your real content in `src/docs/content/`.
+
+Each `path` in the shared docs tree should map to one Markdown file with the same relative path.
+
+## 5. Regenerate Docs While You Work
+
+The app reads generated JSON from `public/docs-content/`, not raw Markdown directly.
+
+If the dev server is already running, rerun this after changing Markdown or the docs tree:
+
+```bash
+npm run generate:docs
+```
+
+If you changed metadata that affects sitemap, canonical tags, or share previews, also run:
+
+```bash
+npm run generate:seo
+```
+
+If you want fresh AI exports too, run:
+
+```bash
+npm run generate:llms
+```
+
+## 6. Validate Before Shipping
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run release:check
+```
+
+## Recommended First Edits
+
+- set your site metadata in `.env.local`
+- trim unused sections from the shared docs tree
+- replace the sample docs content
+- update social links and homepage copy
+- run a full build before the first deploy
+
+## Next Steps
+
+- [Installation](/docs/getting-started/installation)
+- [Configuration](/docs/user-guide/configuration)
+- [Deployment Overview](/docs/deployment/overview)
+
+---
+
+
+### Installation
+
+URL: /docs/getting-started/installation
+
+# Installation
+
+## Requirements
+
+- Node.js 18 or newer
+- npm 9 or newer
+
+## Install Dependencies
+
+```bash
+npm install
+```
+
+## Optional Environment Variables
+
+Use `.env.local` when you want real site metadata, canonical URLs, sitemap output, or GitHub footer links.
+
+```env
+VITE_SITE_NAME="Your Docs"
+VITE_SITE_URL="https://docs.example.com"
+VITE_GITHUB_URL="https://github.com/your-org/your-repo"
+VITE_GITHUB_BRANCH="main"
+VITE_DEBUG_MODE="false"
+```
+
+## First-Run Checklist
+
+1. Install dependencies.
+2. Update `shared/documentation-config.js`.
+3. Replace the sample Markdown files in `src/docs/content/`.
+4. Run `npm run dev`.
+5. Rerun `npm run generate:docs` after docs-content or docs-tree edits while dev is running.
+6. Rerun `npm run generate:seo` after changing site metadata or page descriptions.
+7. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before deploy.
+
+## Project Paths To Know
+
+```text
+shared/documentation-config.js   Docs tree, homepage content, footer links
+src/docs/content/                Markdown source files
+src/lib/content.ts               Docs manifest and per-page content loading
+src/config/ui.ts                 Mobile shell behavior
+src/globals.css                  Theme and typography tokens
+src/constants/social.tsx         Footer links
+scripts/generate-docs.mjs        Markdown-to-JSON generation
+scripts/generate-seo.mjs         robots, sitemap, social preview image generation
+scripts/generate-route-html.mjs  route-level HTML metadata snapshots
+scripts/generate-llms.mjs        llms.txt generation
+```
+
+## What A Successful Build Confirms
+
+A clean build means:
+
+- docs JSON was regenerated correctly
+- route metadata HTML was emitted into `dist/`
+- `robots.txt`, `sitemap.xml`, and share images were refreshed
+- the React app compiled
+- static assets were bundled
+- Pagefind assets were created
+- `llms.txt` outputs were refreshed
+
+## Next Steps
+
+- [Basic Usage](/docs/user-guide/basic-usage)
+- [Troubleshooting](/docs/user-guide/troubleshooting)
+
+---
+
+
+## User Guide
+
+
+### Basic Usage
+
+URL: /docs/user-guide/basic-usage
+
+# Basic Usage
+
+The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.
+
+## Reading The Docs UI
+
+The docs shell has three main surfaces:
+
+- the left rail for navigation, search, and settings
+- the center column for content
+- the right rail for either `On This Page` or the interactive map
+
+On mobile, the file tree opens from the floating button and the map opens from the left-rail tools.
+
+## Writer Workflow
+
+1. edit a Markdown file under `src/docs/content/`
+2. update `shared/documentation-config.js` if the page path, title, or section changed
+3. run `npm run generate:docs` if the dev server is already open
+4. run `npm run generate:seo` if the change affects page descriptions, site metadata, or social previews
+5. refresh the page and confirm links, headings, and custom blocks render correctly
+6. run `npm run build` and `npm run release:check` before publishing
+
+## Internal Links
+
+Use absolute docs links so navigation stays inside the SPA shell:
+
+```md
+[Deployment Overview](/docs/deployment/overview)
+```
+
+## Optional Frontmatter
+
+You can set a custom page description with YAML frontmatter:
+
+```md
+---
+description: Concise summary used for search, sitemap-related metadata, and social previews.
+---
+```
+
+If you omit it, the generator uses the first meaningful paragraph.
+
+## What Is Generated
+
+The browser does not load Markdown source files directly.
+
+The app fetches `/docs-index.json`, then loads only the requested page from `/docs-content/...`. That keeps the site static-host friendly and avoids loading the whole corpus on first paint.
+
+## Search Behavior
+
+The command palette always knows about docs-tree entries.
+
+Full-text Pagefind results appear after a production build, so local dev is best for navigation checks and production builds are best for search validation.
+
+## GitHub Footer Links
+
+`edit`, `issue`, and `source` links appear when `VITE_GITHUB_URL` is configured.
+
+## Next Steps
+
+- [Command Palette](/docs/user-guide/command-palette)
+- [Interactive Map](/docs/user-guide/interactive-map)
+- [Troubleshooting](/docs/user-guide/troubleshooting)
+
+---
+
+
+### Advanced Features
+
+URL: /docs/user-guide/advanced-features
+
+# Advanced Features
+
+`papers` ships with more than plain Markdown rendering.
+
+## Command Palette
+
+The command palette merges:
+
+- docs pages from the shared navigation tree
+- built-in actions like theme changes
+- inline FAQ answers
+- Pagefind full-text results after a production build
+
+## Interactive Map
+
+The right rail can switch from `On This Page` to a graph view of the docs tree.
+
+That gives readers a second navigation surface without leaving the page they are reading.
+
+## Rich Markdown Blocks
+
+The renderer supports:
+
+- syntax-highlighted code blocks
+- multi-tab code fences
+- live HTML and CSS previews
+- `ColorPalette` blocks
+- wallet copy blocks rendered from semantic HTML
+
+## Reader Preferences
+
+The settings menu lets readers change:
+
+- theme
+- motion preference
+- font family
+
+The font control cycles through sans, mono, and serif on click.
+
+## AI Exports
+
+Builds can generate:
+
+- `/llms.txt`
+- `/llms-full.txt`
+
+These give AI tools a cleaner entry point than crawling the full UI.
+
+## Next Steps
+
+- [Configuration](/docs/user-guide/configuration)
+- [LLMs.txt](/llms)
+
+
+---
+
+
+### Configuration
+
+URL: /docs/user-guide/configuration
+
+# Configuration
+
+Most customization happens in a small set of files.
+
+## Primary Configuration Files
+
+- `shared/documentation-config.js`: docs tree, homepage hero, quick-start steps, footer links, page tags
+- `src/docs/content/`: page source content
+- `.env.local`: site metadata, canonical URL, GitHub URLs
+- `src/globals.css`: theme tokens, typography, code styling
+- `src/config/ui.ts`: mobile docs-shell behavior
+- `src/constants/social.tsx`: footer links
+
+## Recommended Order
+
+1. define the docs structure in `shared/documentation-config.js`
+2. write or replace the Markdown pages in `src/docs/content/`
+3. set `VITE_*` metadata in `.env.local`
+4. adjust theme and typography tokens in `src/globals.css`
+5. run `npm run generate:docs`, `npm run generate:seo`, then `npm run build`
+
+## What Requires Regeneration
+
+Rerun `npm run generate:docs` when you change:
+
+- docs-tree paths or titles
+- Markdown page content
+- page descriptions that feed generated output
+
+Rerun `npm run generate:seo` when you change:
+
+- `VITE_SITE_URL`
+- `VITE_SITE_NAME`
+- homepage messaging that should appear in preview cards
+- route descriptions or canonical behavior
+
+Rerun `npm run generate:llms` when you want fresh AI exports without a full build.
+
+## What Does Not Need Content Regeneration
+
+UI-only changes in React, CSS, or providers can usually be checked with the dev server alone.
+
+## Notes On Descriptions
+
+Use Markdown frontmatter when a page needs a custom SEO or social summary:
+
+```md
+---
+description: One clear sentence about what this page covers.
+---
+```
+
+If you omit it, the first meaningful paragraph becomes the fallback description.
+
+## Next Steps
+
+- [UI Configuration](/docs/developer-guides/ui-configuration)
+- [Design System](/docs/developer-guides/design-system)
+
+
+---
+
+
+### Troubleshooting
+
+URL: /docs/user-guide/troubleshooting
+
+# Troubleshooting
+
+## My Markdown Change Does Not Show Up
+
+The app reads generated JSON, not raw Markdown directly.
+
+If `npm run dev` is already running, rerun:
+
+```bash
+npm run generate:docs
+```
+
+If you changed AI-export content too, also run:
+
+```bash
+npm run generate:llms
+```
+
+## A Docs Route Returns 404 On Refresh
+
+Known docs routes are emitted as static HTML during `npm run build`.
+
+If a direct request to `/docs/...` or `/llms` returns 404, check:
+
+- `npm run build` completed successfully
+- the deployed `dist/` output still includes `docs/.../index.html` and `llms/index.html`
+- no catch-all host rule is rewriting `/docs/*` or `/llms` back to the homepage
+- `vercel.json` is being used only as fallback routing, not instead of the generated files
+
+## The Command Palette Cannot Find A Page
+
+Make sure the page exists in both places:
+
+- `shared/documentation-config.js`
+- `src/docs/content/...`
+
+Then rerun `npm run generate:docs`.
+
+## Search Is Empty In Production
+
+Pagefind is only generated during `npm run build`.
+
+Make sure `dist/pagefind/` is deployed with the rest of the site.
+
+## Edit, Issue, Or Source Links Are Missing
+
+Set `VITE_GITHUB_URL` and optionally `VITE_GITHUB_BRANCH` in `.env.local`, `.env.production`, or your host build environment.
+
+## Theme, Motion, Or Font Settings Feel Stuck
+
+Clear these local-storage keys and reload:
+
+- `darkMode`
+- `prefersReducedMotion`
+- `fontFamily`
+
+## Wallet Icons Or Copy Buttons Look Wrong
+
+Confirm the wallet markup still uses `class="wallet-address"` plus `data-address`.
+
+## Debug Checklist
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+If those pass, the remaining problem is usually stale generated docs output, an incomplete deployment of `dist/`, or a path mismatch between the docs tree and Markdown files.
+
+
+---
+
+
+### Command Palette
+
+URL: /docs/user-guide/command-palette
+
+# Command Palette
+
+The command palette is the fastest way to move through the site.
+
+## Open It
+
+- Mac: `Cmd + K`
+- Windows / Linux: `Ctrl + K`
+
+## What It Can Show
+
+- docs pages from the shared navigation tree
+- built-in actions such as theme changes
+- FAQ answers inline inside the palette
+- quick links like the homepage and `llms.txt`
+- Pagefind full-text results after a production build
+
+## Keyboard Controls
+
+- `Up` and `Down` move through results
+- `Enter` opens a result or previews an FAQ answer
+- `Esc` closes the palette
+
+## Related Shortcut
+
+`Cmd/Ctrl + I` toggles the theme.
+
+## Search Notes
+
+Local navigation results are always available.
+
+Pagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.
+
+## Next Steps
+
+- [Advanced Features](/docs/user-guide/advanced-features)
+- [Basic Usage](/docs/user-guide/basic-usage)
+
+
+---
+
+
+### Interactive Map
+
+URL: /docs/user-guide/interactive-map
+
+# Interactive Map
+
+The interactive map renders the documentation tree as a graph in the right rail.
+
+## What It Is Good For
+
+Use it when readers need:
+
+- a fast overview of the docs structure
+- a visual way to jump between related sections
+- a second navigation surface besides the file tree and search
+
+## Desktop Behavior
+
+On desktop, the right rail switches between:
+
+- `On This Page`
+- `Interactive Map`
+
+The rail footer stays fixed, so the view change does not shift the rest of the shell.
+
+## Mobile Behavior
+
+On mobile, the map opens from the left-rail tools instead of staying visible all the time.
+
+## Authoring Tip
+
+A clean docs tree creates a clean map. Keep sections purposeful, avoid deep nesting unless it is warranted, and use page titles that make sense out of context.
+
+## Next Steps
+
+- [Basic Usage](/docs/user-guide/basic-usage)
+- [Configuration](/docs/user-guide/configuration)
+
+
+---
+
+
+## API Reference
+
+
+### Overview
+
+URL: /docs/api-reference/overview
+
+# API Reference Overview
+
+This section covers the internal runtime and build APIs that power the template.
+
+It is not a server API. Everything here exists to support a static docs site.
+
+## Runtime Modules
+
+- `src/lib/content.ts`: loads the docs manifest and per-page JSON
+- `src/lib/navigation.ts`: flattens the tree, finds adjacent pages, resolves defaults
+- `src/hooks/usePagefind.ts`: boots Pagefind and normalizes search results
+- `src/providers/ThemeProvider.tsx`: theme, motion, and font state
+- `src/components/MarkdownRenderer.tsx`: turns processed HTML into one React tree
+
+## Build Modules
+
+- `scripts/generate-docs.mjs`: writes `public/docs-index.json` and `public/docs-content/**/*.json`
+- `scripts/generate-llms.mjs`: writes `public/llms.txt` and `public/llms-full.txt`
+- `scripts/generate-pagefind.mjs`: writes the production search index to `dist/pagefind/`
+
+## Generated Artifacts
+
+The runtime depends on:
+
+- `/docs-index.json`
+- `/docs-content/**/*.json`
+- `/llms.txt`
+- `/llms-full.txt`
+- `/pagefind/*`
+
+## When To Read This Section
+
+Use the rest of this API reference when you need to:
+
+- change how docs content is loaded
+- extend the markdown renderer
+- add a custom block type
+- adjust build outputs or search generation
+
+## Next Steps
+
+- [Content Pipeline](/docs/api-reference/content-pipeline)
+- [Runtime APIs](/docs/api-reference/runtime-apis)
+
+
+---
+
+
+### Content Pipeline
+
+URL: /docs/api-reference/content-pipeline
+
+# Content Pipeline
+
+The content pipeline turns Markdown source files into static artifacts the app can load directly.
+
+## Inputs
+
+- `shared/documentation-config.js`
+- `src/docs/content/**/*.md`
+- Vite-resolved env values like `VITE_SITE_URL` and `VITE_SITE_NAME` from `.env*` files or the build environment
+
+## Main Commands
+
+```bash
+npm run generate:docs
+npm run generate:seo
+npm run generate:llms
+npm run build
+```
+
+## What Each Generator Produces
+
+### `scripts/generate-docs.mjs`
+
+Writes:
+
+- `public/docs-index.json`
+- `public/docs-content/**/*.json`
+
+### `scripts/generate-seo.mjs`
+
+Writes:
+
+- `public/robots.txt`
+- `public/sitemap.xml`
+- `public/images/og-image.svg`
+- `public/images/twitter-card.svg`
+
+### `scripts/generate-route-html.mjs`
+
+Runs after the Vite bundle exists and writes route-specific HTML snapshots into `dist/` with page-level metadata.
+
+### `scripts/generate-llms.mjs`
+
+Writes:
+
+- `public/llms.txt`
+- `public/llms-full.txt`
+
+### `scripts/generate-pagefind.mjs`
+
+Runs after the production bundle exists and writes:
+
+- `dist/pagefind/*`
+
+## Important Dev-Mode Detail
+
+The docs app reads generated JSON, not raw Markdown.
+
+If the dev server is already running, rerun `npm run generate:docs` after Markdown or docs-tree changes. Rerun `npm run generate:seo` when site metadata or page descriptions change.
+
+## Runtime Rendering Flow
+
+Once a page is fetched, rendering happens in three steps:
+
+1. `src/utils/markdownCore.ts` parses Markdown and records rich block placeholders.
+2. `src/utils/MarkdownProcessor.tsx` adds heading IDs, classes, sanitization, and caching.
+3. `src/components/MarkdownRenderer.tsx` turns the processed HTML into one React tree and swaps placeholders for real components.
+
+That is how code fences, live previews, color palettes, and wallet copy blocks stay interactive without extra DOM-walking roots.
+
+## Generated Output Shape
+
+The manifest contains lightweight page metadata. Each page is stored separately as JSON under `public/docs-content/`, so the app can fetch one page at a time instead of loading the full corpus up front.
+
+## Metadata Rules
+
+- `description:` frontmatter becomes the preferred page summary
+- if there is no frontmatter description, the first meaningful paragraph is used
+- sitemap and canonical data use `VITE_SITE_URL` when it is set, following Vite mode resolution and host-provided env overrides
+- route-level HTML snapshots make social tags and titles available before JavaScript runs
+
+## Custom Component Extension Points
+
+There are two supported extension paths.
+
+### Fenced Markdown Components
+
+Use this when you want a custom code-fence language like `ColorPalette`.
+
+- detect the language in `buildMarkdownRenderState()`
+- emit a placeholder element with `data-*` payload
+- map that placeholder to a React component in `MarkdownRenderer.tsx`
+
+### Semantic HTML Upgrades
+
+Use this when normal HTML inside Markdown should become a richer component at render time.
+
+The built-in wallet block uses this pattern:
+
+```html
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
+  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
+</code>
+```
+
+`MarkdownRenderer.tsx` upgrades that markup into a themed copyable wallet component.
+
+## Next Steps
+
+- [Runtime APIs](/docs/api-reference/runtime-apis)
+- [Code Examples](/docs/developer-guides/code-examples)
+
+
+
+---
+
+
+### Runtime APIs
+
+URL: /docs/api-reference/runtime-apis
+
+# Runtime APIs
+
+## `loadDocsContent()`
+
+Fetches and caches `/docs-index.json` for the current session.
+
+Use it when you need the generated manifest without loading a specific page.
+
+## `getDocument(path)`
+
+Loads one generated document from `/docs-content/...`.
+
+```ts
+import { getDocument } from '../src/lib/content';
+
+const doc = await getDocument('deployment/overview');
+```
+
+## `resolveDocumentPath(slug)`
+
+Maps route slugs to the actual page path.
+
+That is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.
+
+## `clearContentCache()`
+
+Clears the in-memory docs manifest and page cache.
+
+Useful in tests or when you intentionally want a fresh fetch cycle.
+
+## Navigation Helpers
+
+`src/lib/navigation.ts` also exposes small helpers such as:
+
+- `flattenNavigation()`
+- `findAdjacentPages()`
+- `findPageTags()`
+
+These are useful when you want derived data from the shared docs tree.
+
+## `usePagefind()`
+
+Loads the Pagefind browser bundle once and returns normalized search results.
+
+```ts
+const { search, isAvailable, isLoading } = usePagefind();
+```
+
+## `useTheme()`
+
+Exposes:
+
+- `isDarkMode`
+- `toggleTheme()`
+- `prefersReducedMotion`
+- `toggleReducedMotion()`
+- `fontFamily`
+- `setFontFamily()`
+
+The UI uses this provider for the settings menu, keyboard shortcut, and font cycling.
+
+## Notes
+
+These APIs are intentionally small. The template stays mostly configuration-driven instead of wrapping everything in a large abstraction layer.
+
+
+---
+
+
+## Developer Guides
+
+
+### Code Examples
+
+URL: /docs/developer-guides/code-examples
+
+# Code Examples
+
+This page shows the main authoring patterns supported by the current runtime.
+
+## Add A New Docs Page
+
+Add the page to `shared/documentation-config.js`:
+
+```js
+{
+  type: 'file',
+  name: 'Architecture.md',
+  path: 'developer-guides/architecture',
+  tags: ['architecture', 'guide']
+}
+```
+
+Then create `src/docs/content/developer-guides/architecture.md` and rerun `npm run generate:docs`.
+
+## Standard Code Block
+
+````md
+```ts
+export function hello(name: string) {
+  return `Hello, ${name}`;
+}
+```
+````
+
+## Multi-Tab Code Block
+
+Use pipe-separated language definitions. `---` splits snippet bodies when needed.
+
+````md
+```ts:TypeScript|js:JavaScript
+export const value = 1;
+---
+export const value = 1;
+```
+````
+
+## Optional Frontmatter
+
+Use frontmatter when you want to control the generated page description:
+
+````md
+---
+description: Short summary used for metadata, previews, and generated artifacts.
+---
+
+# Architecture
+```
+````
+
+## Live HTML Example
+
+````md
+```html
+<button class="button-primary" type="button">Try me</button>
+```
+````
+
+## Live CSS Example
+
+````md
+```css
+.button-primary {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-unified);
+  background: var(--card-color);
+  color: var(--text-color);
+}
+```
+````
+
+## `ColorPalette` Block
+
+The current component expects `hex`, `rgb`, and `usage` keys.
+
+````md
+```ColorPalette
+{
+  "colors": [
+    {
+      "name": "Primary",
+      "hex": "#111111",
+      "rgb": "17, 17, 17",
+      "usage": "Primary actions and emphasis"
+    }
+  ]
+}
+```
+````
+
+## Wallet Block
+
+The wallet block is authored as HTML and upgraded at render time.
+
+```html
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
+  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
+</code>
+```
+
+That becomes a theme-aware component with a chain icon and copy button.
+
+## Add Your Own Custom Component
+
+For most cases, the path is:
+
+1. detect the block in `src/utils/markdownCore.ts`
+2. emit a placeholder with the data your component needs
+3. render that placeholder in `src/components/MarkdownRenderer.tsx`
+4. style it with tokens from `src/globals.css`
+
+If the feature is only needed inside live previews, `src/utils/contentProcessor.ts` is the helper that upgrades HTML snippets like wallet blocks.
+
+## Internal Docs Links
+
+Use absolute docs links so routing stays inside the SPA shell.
+
+```md
+[Deployment Overview](/docs/deployment/overview)
+```
+
+## Reminder
+
+After adding or renaming docs pages, rerun `npm run generate:docs`. If you also changed descriptions or canonical metadata, rerun `npm run generate:seo` before checking the result.
+
+
+---
+
+
+### Best Practices
+
+URL: /docs/developer-guides/best-practices
+
+# Best Practices
+
+## Keep The Tree And Files In Sync
+
+Treat `shared/documentation-config.js` as the source of truth for navigation.
+
+If a Markdown file exists without a matching tree entry, users will not reach it through generated output.
+
+## Write For Scanning
+
+Prefer short pages, clear headings, and purposeful section names.
+
+That improves the table of contents, the interactive map, Pagefind excerpts, and `llms.txt` output.
+
+## Use Real Examples
+
+Code samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.
+
+## Regenerate Early
+
+Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.
+
+## Verify Before Shipping
+
+```bash
+npm test
+npm run lint
+npm run build
+```
+
+## Remove Sample Surface Area You Do Not Need
+
+Trim unused sections, placeholder pages, and dead links early. The starter is easiest to maintain when the tree only contains content you actually intend to support.
+
+
+---
+
+
+### Design System
+
+URL: /docs/developer-guides/design-system
+
+# Design System
+
+The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
+
+## Theme Direction
+
+- dark mode is the default
+- the palette stays black, white, and gray in both themes
+- code blocks use the same restrained monochrome approach as the shell
+
+## Core Color Tokens
+
+### Light Theme
+
+```ColorPalette
+{
+  "colors": [
+    {
+      "name": "Background",
+      "hex": "#FFFFFF",
+      "rgb": "255, 255, 255",
+      "usage": "Main app background"
+    },
+    {
+      "name": "Text",
+      "hex": "#111111",
+      "rgb": "17, 17, 17",
+      "usage": "Primary text and emphasis"
+    },
+    {
+      "name": "Border",
+      "hex": "#D4D4D8",
+      "rgb": "212, 212, 216",
+      "usage": "Unified borders and separators"
+    }
+  ]
+}
+```
+
+### Dark Theme
+
+```ColorPalette
+{
+  "colors": [
+    {
+      "name": "Background",
+      "hex": "#090909",
+      "rgb": "9, 9, 9",
+      "usage": "Main app background"
+    },
+    {
+      "name": "Text",
+      "hex": "#FAFAFA",
+      "rgb": "250, 250, 250",
+      "usage": "Primary text and emphasis"
+    },
+    {
+      "name": "Border",
+      "hex": "#27272A",
+      "rgb": "39, 39, 42",
+      "usage": "Unified borders and separators"
+    }
+  ]
+}
+```
+
+## Typography Tokens
+
+The three font roles are:
+
+- `--title-font` for headings and UI emphasis
+- `--body-font` for body copy
+- `--mono-font` for code, labels, and utility text
+
+Readers can cycle fonts in settings: sans -> mono -> serif.
+
+## Code Tokens
+
+Code styling is controlled by dedicated variables in `src/globals.css`, including:
+
+- `--code-bg`
+- `--code-header-bg`
+- `--code-border-color`
+- `--code-text-color`
+- `--code-muted-color`
+- `--inline-code-bg`
+- `--inline-code-border-color`
+
+Use those instead of hardcoded syntax colors.
+
+## Shell Tokens To Prefer
+
+For most UI work, start with:
+
+- `--background-color`
+- `--card-color`
+- `--text-color`
+- `--muted-color`
+- `--border-unified`
+- `--control-bg`
+- `--control-border-color`
+
+## Wallet Block Pattern
+
+The wallet block is a good example of a themed custom component:
+
+```html
+<code
+  class="wallet-address"
+  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
+  data-chain="eth"
+>
+  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
+</code>
+```
+
+The runtime upgrades that into a copyable inline component that uses the same code and border tokens as the rest of the theme.
+
+## Extension Rules
+
+- use CSS variables instead of hardcoded colors
+- check both light and dark mode
+- respect reduced motion
+- keep title sizes, body sizes, and code sizes aligned with the shared scale in `src/globals.css`
+- prefer one shared token change over many per-component overrides
+
+## Related Files
+
+- `src/globals.css`
+- `src/components/CodeBlock.tsx`
+- `src/components/CodeBlock.module.css`
+- `src/components/MarkdownRenderer.tsx`
+- `src/providers/ThemeProvider.tsx`
+
+
+---
+
+
+### UI Configuration
+
+URL: /docs/developer-guides/ui-configuration
+
+# UI Configuration
+
+The docs shell is mostly configured through a few focused files.
+
+## `src/config/ui.ts`
+
+Use this file for shell behavior that should be easy to change in a fork.
+
+Right now it controls:
+
+- whether the floating mobile file-tree button is shown
+- where that mobile button appears
+
+## Main Shell Layout
+
+`src/components/docs/DocumentationPage.tsx` owns the docs layout:
+
+- logo and search at the top of the left rail
+- file tree in the middle
+- map, `llms.txt`, and settings at the bottom
+- content in the center
+- `On This Page` or the interactive map in the right rail
+
+## Theme, Motion, And Font Controls
+
+These settings come from `ThemeProvider` and are surfaced through `SettingsMenu`.
+
+The font control cycles through sans, mono, and serif instead of opening a dropdown.
+
+## Supporting Configuration
+
+- `src/constants/social.tsx`: footer links
+- `src/globals.css`: shell tokens, typography, spacing, code styles
+- `shared/documentation-config.js`: homepage content and docs structure
+
+## Guidance
+
+If a change is global, start with tokens or config.
+
+If a change is specific to one interaction, edit the component directly.
+
+
+---
+
+
+### Icon Customization
+
+URL: /docs/developer-guides/icon-customization
+
+# Icon Customization
+
+The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
+
+## Primary Icon Path
+
+For most UI work, use `@iconify/react` with an icon name:
+
+```tsx
+import { Icon } from '@iconify/react';
+
+export function ExampleButton() {
+  return <Icon icon="mingcute:brain-line" className="h-4 w-4" />;
+}
+```
+
+The current UI mostly uses the Mingcute set.
+
+## Where Icons Usually Live
+
+- `src/components/`: app-shell and page-level icons
+- `src/constants/social.tsx`: footer/social links
+- wallet blocks: runtime-generated chain icons for supported addresses
+
+## Updating Footer Icons
+
+Footer links are configured in `src/constants/social.tsx`.
+
+That is the right place to change the repo link, add a social account, or swap an icon.
+
+## Using Custom SVG Files
+
+If you want a one-off custom SVG, put it in `public/` and reference it like any other static asset:
+
+```tsx
+<img src="/assets/icons/custom-mark.svg" alt="Custom mark" width="20" height="20" />
+```
+
+Prefer SVGs that use `currentColor` so they stay theme-aware.
+
+## Size Guidance
+
+- `16px` for inline UI icons
+- `20px` for controls and sidebar actions
+- `24px` for social or feature icons
+
+## Theming Guidance
+
+- default to monochrome icons so they fit the black-and-white shell
+- use `currentColor` whenever possible
+- check both light and dark modes
+- avoid introducing a new accent color unless the icon is explicitly a brand mark
+
+## When To Use Which Approach
+
+- use Iconify for normal UI icons
+- use custom SVG files for logos or brand-specific marks
+- use a custom component only if the icon has behavior or multiple states
+
+
+---
+
+
+## Deployment
+
+
+### Overview
+
+URL: /docs/deployment/overview
+
+# Deployment Overview
+
+`papers` builds to a static site with route-specific HTML output.
+
+## What `npm run build` Produces
+
+- the Vite app bundle in `dist/`
+- generated docs JSON derived from your Markdown content
+- route-specific HTML files with page-level metadata
+- `robots.txt` and `sitemap.xml`
+- generated social preview images
+- `llms.txt` and `llms-full.txt`
+- the Pagefind search index in `dist/pagefind/`
+
+## What Your Host Must Support
+
+At minimum, your host should:
+
+- publish the `dist/` directory
+- serve generated files directly, including `dist/docs/**/index.html`, `dist/llms/index.html`, and `dist/404.html`
+- serve static assets normally
+- avoid catch-all rewrites that send `/docs/*` or `/llms` to the homepage when matching files already exist
+
+## Included Host Helpers
+
+This repo already includes:
+
+- `public/_headers`
+- `vercel.json`
+- `wrangler.toml`
+
+Optional rewrite rules only make sense if you intentionally remove route-level HTML generation and accept losing per-page metadata on direct requests.
+
+## Recommended Pre-Deploy Commands
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run release:check
+```
+
+## Platform Guides
+
+- [Cloudflare](/docs/deployment/platforms/cloudflare)
+- [Vercel](/docs/deployment/platforms/vercel)
+- [Netlify](/docs/deployment/platforms/netlify)
+
+---
+
+
+### Production Setup
+
+URL: /docs/deployment/production-setup
+
+# Production Setup
+
+## Set Real Metadata First
+
+Before you ship, set the values users and crawlers should actually see. You can provide them through `.env.local`, `.env.production`, or your host's build environment.
+
+```env
+VITE_SITE_NAME="Your Docs"
+VITE_SITE_URL="https://docs.example.com"
+VITE_GITHUB_URL="https://github.com/your-org/your-repo"
+VITE_GITHUB_BRANCH="main"
+```
+
+`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and absolute social metadata.
+
+## Build Pipeline
+
+A production build runs the content generators and the static bundle in one command:
+
+```bash
+npm run build
+```
+
+That regenerates docs JSON, sitemap, robots, social preview images, route-level HTML metadata, AI exports, the app bundle, and Pagefind assets.
+
+## CI Baseline
+
+A solid deployment pipeline is:
+
+```bash
+npm ci
+npm test
+npm run lint
+npm run build
+npm run release:check
+```
+
+## Description Control
+
+If a page needs a specific search or preview summary, add frontmatter to the Markdown file:
+
+```md
+---
+description: One clear sentence describing the page.
+---
+```
+
+If you omit it, the generator falls back to the first meaningful paragraph.
+
+## Asset And Routing Helpers
+
+This repo already includes:
+
+- `public/_headers` for static-asset caching and security headers
+- `vercel.json` for Vercel fallback routing
+- `wrangler.toml` for Cloudflare Pages configuration
+
+Known docs routes are emitted as real HTML files, so avoid global `/docs/* -> /index.html` rewrites on hosts like Cloudflare Pages.
+
+## Final Smoke Test
+
+Before deploy, run:
+
+```bash
+npm run release:check
+```
+
+That verifies both the generated artifact set and a served preview of the built app.
+
+After deploy, verify:
+
+- the homepage loads
+- a deep docs route loads directly
+- `/llms` loads directly
+- `/robots.txt` and `/sitemap.xml` load
+- link previews use the expected title and description
+- Pagefind search returns results
+- GitHub footer links go to the expected repo
+- the generated docs match the latest source content
+
+
+---
+
+
+## Platform Guides
+
+
+### Cloudflare
+
+URL: /docs/deployment/platforms/cloudflare
+
+# Cloudflare Pages
+
+## Recommended Settings
+
+Use these values in Cloudflare Pages:
+
+- Build command: `npm run build`
+- Build output directory: `dist`
+- Node version: `20` or newer
+
+## CLI Deploy
+
+The repo already includes `wrangler.toml` and deploy scripts.
+
+```bash
+npm run build
+npm run deploy
+```
+
+## Routing
+
+Cloudflare Pages works best when it serves the generated route files directly.
+
+Do not add a blanket `/docs/* -> /index.html` or `/llms -> /index.html` rule in `_redirects` while route HTML generation is enabled. Pages follows those rules before serving the generated per-page HTML, which collapses your page-level metadata back to the homepage.
+
+## Environment Variables
+
+Set the same `VITE_*` variables in the Pages dashboard that you use locally.
+
+## Why It Fits Well
+
+Cloudflare Pages is a good match because the final site is fully static, cacheable, and does not require server functions by default.
+
+
+---
+
+
+### Vercel
+
+URL: /docs/deployment/platforms/vercel
+
+# Vercel
+
+## Project Settings
+
+When importing the repo, use:
+
+- Build command: `npm run build`
+- Output directory: `dist`
+
+If Vercel asks for a framework preset, `Other` is fine.
+
+## Rewrites
+
+The repo includes `vercel.json` as a fallback for unmatched client-side navigation, but Vercel still serves generated route files from `dist/` first.
+
+That means known docs routes and `/llms` continue to resolve to their own HTML snapshots with page-level metadata.
+
+## CLI Deploy
+
+```bash
+npm run build
+npx vercel --prod
+```
+
+## Notes
+
+This project is static by default. Vercel is acting as a CDN and routing layer rather than running server code.
+
+
+---
+
+
+### Netlify
+
+URL: /docs/deployment/platforms/netlify
+
+# Netlify
+
+## Site Settings
+
+Use these values in Netlify:
+
+- Build command: `npm run build`
+- Publish directory: `dist`
+
+## Included Files
+
+The repo already includes the common Netlify helper:
+
+- `public/_headers`
+
+## CLI Deploy
+
+```bash
+npm run build
+netlify deploy --prod --dir=dist
+```
+
+## Routing
+
+Known docs routes and `/llms` are already emitted as static HTML, so you usually do not need a catch-all `_redirects` file.
+
+If you add one intentionally, Netlify shadowing still lets existing generated files win.
+
+## Environment Variables
+
+Set your `VITE_*` variables in the Netlify dashboard under site configuration.
+
+
+---
+
+
+### LLMs.txt
+
+URL: /llms
+
+# LLMs.txt
+
+This template generates AI-facing text exports from the docs corpus.
+
+## Generated Files
+
+- `/llms.txt`
+- `/llms-full.txt`
+
+## Why They Exist
+
+These files give AI tools and internal agents a clean text entry point without requiring them to crawl the full UI.
+
+## How They Are Generated
+
+`npm run build` runs `scripts/generate-llms.mjs` automatically.
+
+If you only want to refresh AI exports while writing, run:
+
+```bash
+npm run generate:llms
+```
+
+## When To Regenerate
+
+Regenerate after:
+
+- changing Markdown content
+- renaming or restructuring docs sections
+- updating docs metadata that should appear in exported summaries
+
+## Helpful Links
+
+<a href="/llms.txt" class="download-link" data-file="llms.txt">Download llms.txt</a>
+
+<a href="/llms-full.txt" class="download-link" data-file="llms-full.txt">Download llms-full.txt</a>
+
+<a href="#" class="copy-link" data-url="/llms.txt">Copy llms.txt URL</a>
+
+## Preview
+
+{llms-preview}
+
+
+---
+

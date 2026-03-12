@@ -1,0 +1,8 @@
+{
+  "path": "user-guide/advanced-features",
+  "title": "Advanced Features",
+  "description": "papers ships with more than plain Markdown rendering.",
+  "frontmatter": {},
+  "content": "# Advanced Features\n\n`papers` ships with more than plain Markdown rendering.\n\n## Command Palette\n\nThe command palette merges:\n\n- docs pages from the shared navigation tree\n- built-in actions like theme changes\n- inline FAQ answers\n- Pagefind full-text results after a production build\n\n## Interactive Map\n\nThe right rail can switch from `On This Page` to a graph view of the docs tree.\n\nThat gives readers a second navigation surface without leaving the page they are reading.\n\n## Rich Markdown Blocks\n\nThe renderer supports:\n\n- syntax-highlighted code blocks\n- multi-tab code fences\n- live HTML and CSS previews\n- `ColorPalette` blocks\n- wallet copy blocks rendered from semantic HTML\n\n## Reader Preferences\n\nThe settings menu lets readers change:\n\n- theme\n- motion preference\n- font family\n\nThe font control cycles through sans, mono, and serif on click.\n\n## AI Exports\n\nBuilds can generate:\n\n- `/llms.txt`\n- `/llms-full.txt`\n\nThese give AI tools a cleaner entry point than crawling the full UI.\n\n## Next Steps\n\n- [Configuration](/docs/user-guide/configuration)\n- [LLMs.txt](/llms)\n",
+  "sourcePath": "src/docs/content/user-guide/advanced-features.md"
+}

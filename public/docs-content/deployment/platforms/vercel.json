@@ -1,0 +1,8 @@
+{
+  "path": "deployment/platforms/vercel",
+  "title": "Vercel",
+  "description": "When importing the repo, use:",
+  "frontmatter": {},
+  "content": "# Vercel\n\n## Project Settings\n\nWhen importing the repo, use:\n\n- Build command: `npm run build`\n- Output directory: `dist`\n\nIf Vercel asks for a framework preset, `Other` is fine.\n\n## Rewrites\n\nThe repo includes `vercel.json` as a fallback for unmatched client-side navigation, but Vercel still serves generated route files from `dist/` first.\n\nThat means known docs routes and `/llms` continue to resolve to their own HTML snapshots with page-level metadata.\n\n## CLI Deploy\n\n```bash\nnpm run build\nnpx vercel --prod\n```\n\n## Notes\n\nThis project is static by default. Vercel is acting as a CDN and routing layer rather than running server code.\r\n",
+  "sourcePath": "src/docs/content/deployment/platforms/vercel.md"
+}

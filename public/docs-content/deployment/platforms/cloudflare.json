@@ -1,0 +1,8 @@
+{
+  "path": "deployment/platforms/cloudflare",
+  "title": "Cloudflare Pages",
+  "description": "Use these values in Cloudflare Pages:",
+  "frontmatter": {},
+  "content": "# Cloudflare Pages\n\n## Recommended Settings\n\nUse these values in Cloudflare Pages:\n\n- Build command: `npm run build`\n- Build output directory: `dist`\n- Node version: `20` or newer\n\n## CLI Deploy\n\nThe repo already includes `wrangler.toml` and deploy scripts.\n\n```bash\nnpm run build\nnpm run deploy\n```\n\n## Routing\n\nCloudflare Pages works best when it serves the generated route files directly.\n\nDo not add a blanket `/docs/* -> /index.html` or `/llms -> /index.html` rule in `_redirects` while route HTML generation is enabled. Pages follows those rules before serving the generated per-page HTML, which collapses your page-level metadata back to the homepage.\n\n## Environment Variables\n\nSet the same `VITE_*` variables in the Pages dashboard that you use locally.\n\n## Why It Fits Well\n\nCloudflare Pages is a good match because the final site is fully static, cacheable, and does not require server functions by default.\r\n",
+  "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md"
+}
