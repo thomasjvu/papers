@@ -1,37 +1,31 @@
-﻿# Interactive Map
+# Interactive Map
 
-The interactive map renders the documentation tree as a graph in the right sidebar.
+The interactive map renders the documentation tree as a graph in the right rail.
 
-## What It Shows
+## What It Is Good For
 
-- the current page
-- nearby docs sections
-- the relationship between directories and files
+Use it when readers need:
 
-## Why Use It
-
-The graph is helpful when:
-
-- your docs are broad enough that a tree feels slow to scan
-- users need a spatial overview of the documentation set
-- you want a distinctive second navigation surface beyond search
-
-## Mobile Behavior
-
-On mobile, the map opens from the navigation menu rather than staying visible all the time.
+- a fast overview of the docs structure
+- a visual way to jump between related sections
+- a second navigation surface besides the file tree and search
 
 ## Desktop Behavior
 
-On larger screens, users can switch between:
+On desktop, the right rail switches between:
 
-- the interactive map
-- the table of contents
+- `On This Page`
+- `Interactive Map`
 
-That keeps the right rail useful even when a page is long and heading-heavy.
+The rail footer stays fixed, so the view change does not shift the rest of the shell.
+
+## Mobile Behavior
+
+On mobile, the map opens from the left-rail tools instead of staying visible all the time.
 
 ## Authoring Tip
 
-A clear documentation tree produces a much more readable graph. Keep your sections purposeful and avoid deeply nested one-off pages.
+A clean docs tree creates a clean map. Keep sections purposeful, avoid deep nesting unless it is warranted, and use page titles that make sense out of context.
 
 ## Next Steps
 

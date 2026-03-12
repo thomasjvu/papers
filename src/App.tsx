@@ -6,6 +6,8 @@ import DocsPage from './pages/DocsPage';
 import LLMSPage from './pages/LLMSPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { homepageConfig } from '../shared/documentation-config.js';
+import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
+import { buildDocsLandingPath } from '../shared/docsRouting.js';
 
 export default function App() {
   return (
@@ -17,12 +19,12 @@ export default function App() {
           ) : (
             <Route
               path="/"
-              element={<Navigate to="/docs/getting-started/introduction" replace />}
+              element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
             />
           )}
           <Route
             path="/docs"
-            element={<Navigate to="/docs/getting-started/introduction" replace />}
+            element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
           />
           <Route path="/docs/*" element={<DocsPage />} />
           <Route path="/llms" element={<LLMSPage />} />
@@ -32,3 +34,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
+

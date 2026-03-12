@@ -4,10 +4,13 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { documentationTree, homepageConfig } from '../shared/documentation-config.js';
+import { buildCanonicalDocsPath } from '../shared/docsRouting.js';
+import { getDefaultDocsVariantContext, resolveDocFileInfo } from './lib/docsVariants.mjs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.join(__dirname, '..');
+const defaultVariantContext = getDefaultDocsVariantContext();
 
 function stripUtf8Bom(content) {
   return content.replace(/^\uFEFF/, '');
@@ -18,20 +21,22 @@ function ensureTrailingNewline(content) {
 }
 
 function getDocFilePath(docPath) {
-  const extensions = ['.md', '.mdx'];
+  const fileInfo = resolveDocFileInfo(docPath, {
+    rootDir,
+    version: defaultVariantContext.version,
+    locale: defaultVariantContext.locale,
+  });
 
-  for (const extension of extensions) {
-    const filePath = path.join(rootDir, 'src', 'docs', 'content', `${docPath}${extension}`);
-    if (fs.existsSync(filePath)) {
-      return filePath;
-    }
-  }
-
-  return null;
+  return fileInfo?.filePath || null;
 }
 
 function getDocUrl(docPath) {
-  return docPath === 'llms' ? '/llms' : `/docs/${docPath}`;
+  return docPath === 'llms'
+    ? '/llms'
+    : buildCanonicalDocsPath(docPath, {
+        version: defaultVariantContext.version,
+        locale: defaultVariantContext.locale,
+      });
 }
 
 const siteName = homepageConfig.hero?.title || 'Documentation';

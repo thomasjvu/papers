@@ -6,6 +6,7 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
+import { buildCanonicalDocsPath } from '../../../shared/docsRouting.js';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -140,7 +141,7 @@ export const useSearchLogic = (query: string) => {
         if (item.type === 'file') {
           results.push({
             title: item.name.replace(/\.md$/, ''),
-            path: `/docs/${item.path}`,
+            path: buildCanonicalDocsPath(item.path),
             type: 'page',
             description: parentPath,
             icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),

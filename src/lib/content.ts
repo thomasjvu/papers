@@ -1,7 +1,8 @@
+import { buildDocsContentPath } from '../../shared/docsRouting.js';
 import {
+  DEFAULT_DOCUMENT_PATH,
   documentationTree,
   findDirectoryDefaultPath,
-  findFirstDocumentPath,
 } from './navigation.ts';
 import { createLogger } from '../utils/logger.ts';
 import { extractTopLevelMarkdownTitle, stripMarkdownBom } from '../utils/markdown.ts';
@@ -14,6 +15,12 @@ export interface Document {
   title: string;
   description?: string;
   frontmatter?: Record<string, unknown>;
+  sourcePath?: string;
+}
+
+export interface DocumentVariantOptions {
+  version?: string | null;
+  locale?: string | null;
 }
 
 interface DocsIndexResponse {
@@ -29,6 +36,7 @@ interface GeneratedDocumentResponse {
   title?: string;
   description?: string;
   frontmatter?: Record<string, unknown>;
+  sourcePath?: string;
 }
 
 let cachedContent: DocsIndexResponse | null = null;
@@ -60,8 +68,15 @@ export async function loadDocsContent(): Promise<DocsIndexResponse> {
   }
 }
 
-function getDocumentAssetUrl(path: string): string {
-  const encodedPath = path
+function getDocumentAssetKey(path: string, options: DocumentVariantOptions = {}): string {
+  return buildDocsContentPath(path, {
+    version: options.version,
+    locale: options.locale,
+  });
+}
+
+function getDocumentAssetUrl(path: string, options: DocumentVariantOptions = {}): string {
+  const encodedPath = getDocumentAssetKey(path, options)
     .split('/')
     .map((segment) => encodeURIComponent(segment))
     .join('/');
@@ -69,14 +84,14 @@ function getDocumentAssetUrl(path: string): string {
   return `/docs-content/${encodedPath}.json`;
 }
 
-async function fetchDocument(path: string): Promise<Document | null> {
+async function fetchDocument(path: string, options: DocumentVariantOptions = {}): Promise<Document | null> {
   const docsIndex = await loadDocsContent();
 
   if (!docsIndex.paths.includes(path)) {
     return null;
   }
 
-  const response = await fetch(getDocumentAssetUrl(path));
+  const response = await fetch(getDocumentAssetUrl(path, options));
   if (!response.ok) {
     if (response.status === 404) {
       return null;
@@ -100,32 +115,38 @@ async function fetchDocument(path: string): Promise<Document | null> {
     title,
     description: rawDocument.description,
     frontmatter: rawDocument.frontmatter,
+    sourcePath: rawDocument.sourcePath,
   };
 }
 
-export async function getDocument(path: string): Promise<Document | null> {
-  if (cachedDocuments.has(path)) {
-    return cachedDocuments.get(path) ?? null;
+export async function getDocument(
+  path: string,
+  options: DocumentVariantOptions = {}
+): Promise<Document | null> {
+  const cacheKey = getDocumentAssetKey(path, options);
+
+  if (cachedDocuments.has(cacheKey)) {
+    return cachedDocuments.get(cacheKey) ?? null;
   }
 
-  const existingRequest = pendingDocuments.get(path);
+  const existingRequest = pendingDocuments.get(cacheKey);
   if (existingRequest) {
     return existingRequest;
   }
 
-  const request = fetchDocument(path)
+  const request = fetchDocument(path, options)
     .then((document) => {
-      cachedDocuments.set(path, document);
-      pendingDocuments.delete(path);
+      cachedDocuments.set(cacheKey, document);
+      pendingDocuments.delete(cacheKey);
       return document;
     })
     .catch((error) => {
-      pendingDocuments.delete(path);
-      logger.error(`Error loading documentation content for ${path}:`, error);
+      pendingDocuments.delete(cacheKey);
+      logger.error(`Error loading documentation content for ${cacheKey}:`, error);
       throw error;
     });
 
-  pendingDocuments.set(path, request);
+  pendingDocuments.set(cacheKey, request);
   return request;
 }
 
@@ -134,9 +155,6 @@ export function clearContentCache(): void {
   cachedDocuments.clear();
   pendingDocuments.clear();
 }
-
-export const DEFAULT_DOCUMENT_PATH =
-  findFirstDocumentPath(documentationTree) || 'getting-started/introduction';
 
 export function resolveDocumentPath(slug: string | undefined): string {
   if (!slug) {

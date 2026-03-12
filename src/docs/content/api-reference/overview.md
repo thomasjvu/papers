@@ -1,35 +1,24 @@
 # API Reference Overview
 
-This section documents the internal APIs and generated artifacts that power the template.
+This section covers the internal runtime and build APIs that power the template.
 
-It is not a server API. Everything here supports a static docs runtime.
+It is not a server API. Everything here exists to support a static docs site.
 
-## Main Areas
+## Runtime Modules
 
-- content loading in `src/lib/content.ts`
-- navigation helpers in `src/lib/navigation.ts`
-- search integration in `src/hooks/usePagefind.ts`
-- theme and UI providers in `src/providers/`
-- build generators in `scripts/`
+- `src/lib/content.ts`: loads the docs manifest and per-page JSON
+- `src/lib/navigation.ts`: flattens the tree, finds adjacent pages, resolves defaults
+- `src/hooks/usePagefind.ts`: boots Pagefind and normalizes search results
+- `src/providers/ThemeProvider.tsx`: theme, motion, and font state
+- `src/components/MarkdownRenderer.tsx`: turns processed HTML into one React tree
 
-## Runtime Entry Points
+## Build Modules
 
-The most useful client helpers are:
+- `scripts/generate-docs.mjs`: writes `public/docs-index.json` and `public/docs-content/**/*.json`
+- `scripts/generate-llms.mjs`: writes `public/llms.txt` and `public/llms-full.txt`
+- `scripts/generate-pagefind.mjs`: writes the production search index to `dist/pagefind/`
 
-- `loadDocsContent()`
-- `getDocument(path)`
-- `resolveDocumentPath(slug)`
-- `usePagefind()`
-
-## Build Entry Points
-
-The important generation scripts are:
-
-- `npm run generate:docs`
-- `npm run generate:llms`
-- `npm run generate:pagefind`
-
-## Output Files
+## Generated Artifacts
 
 The runtime depends on:
 
@@ -38,6 +27,15 @@ The runtime depends on:
 - `/llms.txt`
 - `/llms-full.txt`
 - `/pagefind/*`
+
+## When To Read This Section
+
+Use the rest of this API reference when you need to:
+
+- change how docs content is loaded
+- extend the markdown renderer
+- add a custom block type
+- adjust build outputs or search generation
 
 ## Next Steps
 

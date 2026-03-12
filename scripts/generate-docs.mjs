@@ -1,26 +1,30 @@
 import { mkdir, readFile, rm, writeFile } from 'fs/promises';
-import { existsSync } from 'fs';
 import { dirname, join } from 'path';
 
 import { documentationTree } from '../shared/documentation-config.js';
+import { buildDocsContentPath, getDocsVariantContexts } from '../shared/docsRouting.js';
 
 import {
+  createDocumentArtifact,
   createDocsArtifacts,
   serializeArtifactJson,
   stabilizeIndexGeneration,
 } from './lib/docsArtifacts.mjs';
+import { resolveDocFileInfo } from './lib/docsVariants.mjs';
 
-function resolveDocFilePath(docPath) {
-  const extensions = ['.md', '.mdx'];
+function collectDocumentPaths(items, paths = []) {
+  for (const item of items) {
+    if (item.type === 'file') {
+      paths.push(item.path);
+      continue;
+    }
 
-  for (const extension of extensions) {
-    const filePath = join(process.cwd(), 'src/docs/content', `${docPath}${extension}`);
-    if (existsSync(filePath)) {
-      return filePath;
+    if (item.type === 'directory' && item.children) {
+      collectDocumentPaths(item.children, paths);
     }
   }
 
-  return null;
+  return paths;
 }
 
 async function readExistingIndex(indexPath) {
@@ -35,19 +39,17 @@ async function readExistingIndex(indexPath) {
   }
 }
 
-async function loadMarkdownContent(docPath) {
+async function loadMarkdownContent(docPath, fileInfo = resolveDocFileInfo(docPath)) {
   try {
-    const filePath = resolveDocFilePath(docPath);
-
-    if (!filePath) {
+    if (!fileInfo) {
       console.warn(`File not found for "${docPath}"`);
       return `# File Not Found\n\nThe requested documentation file "${docPath}" could not be found.`;
     }
 
-    const content = await readFile(filePath, 'utf-8');
+    const content = await readFile(fileInfo.filePath, 'utf-8');
 
     if (!content.trim()) {
-      console.warn(`Empty file: ${filePath}`);
+      console.warn(`Empty file: ${fileInfo.filePath}`);
       return `# Empty File\n\nThe documentation file "${docPath}" appears to be empty.`;
     }
 
@@ -58,20 +60,44 @@ async function loadMarkdownContent(docPath) {
   }
 }
 
-async function processFileItems(items) {
-  const result = {};
+async function buildVariantDocuments(docPaths) {
+  const contexts = getDocsVariantContexts();
+  const documents = {};
+  const defaultDocsByPath = {};
+  const defaultSourcePathsByPath = {};
 
-  for (const item of items) {
-    if (item.type === 'file') {
-      console.log(`Processing: ${item.path}`);
-      result[item.path] = await loadMarkdownContent(item.path);
-    } else if (item.type === 'directory' && item.children) {
-      const childResults = await processFileItems(item.children);
-      Object.assign(result, childResults);
+  for (const context of contexts) {
+    const label = context.key || 'default';
+    console.log(`Processing docs variant: ${label}`);
+
+    for (const docPath of docPaths) {
+      const fileInfo = resolveDocFileInfo(docPath, {
+        version: context.version,
+        locale: context.locale,
+      });
+      const rawContent = await loadMarkdownContent(docPath, fileInfo);
+      const documentKey = buildDocsContentPath(docPath, {
+        version: context.version,
+        locale: context.locale,
+      });
+
+      documents[documentKey] = createDocumentArtifact(docPath, rawContent, fileInfo?.sourcePath);
+
+      if (context.isDefault) {
+        defaultDocsByPath[docPath] = rawContent;
+
+        if (fileInfo?.sourcePath) {
+          defaultSourcePathsByPath[docPath] = fileInfo.sourcePath;
+        }
+      }
     }
   }
 
-  return result;
+  return {
+    documents,
+    defaultDocsByPath,
+    defaultSourcePathsByPath,
+  };
 }
 
 async function writeDocumentFiles(contentDir, documents) {
@@ -88,9 +114,16 @@ async function generateDocsContent() {
   try {
     console.log('Generating documentation content...');
 
-    const rawContent = await processFileItems(documentationTree);
+    const docPaths = collectDocumentPaths(documentationTree);
+    const { documents, defaultDocsByPath, defaultSourcePathsByPath } = await buildVariantDocuments(
+      docPaths
+    );
     const generatedAt = new Date().toISOString();
-    const { index: nextIndex, documents } = createDocsArtifacts(rawContent, generatedAt);
+    const { index: nextIndex } = createDocsArtifacts(
+      defaultDocsByPath,
+      generatedAt,
+      defaultSourcePathsByPath
+    );
     const contentDir = join(process.cwd(), 'public', 'docs-content');
     const indexPath = join(process.cwd(), 'public', 'docs-index.json');
     const previousIndex = await readExistingIndex(indexPath);
@@ -103,6 +136,7 @@ async function generateDocsContent() {
     await writeDocumentFiles(contentDir, documents);
 
     console.log(`Generated documentation content for ${index.count} files`);
+    console.log(`Generated ${Object.keys(documents).length} docs artifacts across ${getDocsVariantContexts().length} variant context(s)`);
     console.log(`Content files saved to: ${contentDir}`);
 
     await writeFile(indexPath, serializeArtifactJson(index));

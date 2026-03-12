@@ -1,84 +1,101 @@
 # Content Pipeline
 
-The content pipeline converts Markdown source files into static artifacts the app can ship directly.
+The content pipeline turns Markdown source files into static artifacts the app can load directly.
 
 ## Inputs
 
 - `shared/documentation-config.js`
 - `src/docs/content/**/*.md`
+- Vite-resolved env values like `VITE_SITE_URL` and `VITE_SITE_NAME` from `.env*` files or the build environment
 
-## Generators
+## Main Commands
+
+```bash
+npm run generate:docs
+npm run generate:seo
+npm run generate:llms
+npm run build
+```
+
+## What Each Generator Produces
 
 ### `scripts/generate-docs.mjs`
 
-Creates:
+Writes:
 
 - `public/docs-index.json`
 - `public/docs-content/**/*.json`
 
+### `scripts/generate-seo.mjs`
+
+Writes:
+
+- `public/robots.txt`
+- `public/sitemap.xml`
+- `public/images/og-image.svg`
+- `public/images/twitter-card.svg`
+
+### `scripts/generate-route-html.mjs`
+
+Runs after the Vite bundle exists and writes route-specific HTML snapshots into `dist/` with page-level metadata.
+
 ### `scripts/generate-llms.mjs`
 
-Creates:
+Writes:
 
 - `public/llms.txt`
 - `public/llms-full.txt`
 
 ### `scripts/generate-pagefind.mjs`
 
-Builds the Pagefind index from the production `dist/` output.
+Runs after the production bundle exists and writes:
 
-## Output Shape
+- `dist/pagefind/*`
 
-`docs-index.json` looks like this:
+## Important Dev-Mode Detail
 
-```json
-{
-  "generated": "2026-03-11T00:00:00.000Z",
-  "paths": ["getting-started/introduction"],
-  "count": 1,
-  "titles": {
-    "getting-started/introduction": "Introduction"
-  }
-}
-```
+The docs app reads generated JSON, not raw Markdown.
 
-Each page is written separately, for example `public/docs-content/getting-started/introduction.json`:
-
-```json
-{
-  "path": "getting-started/introduction",
-  "title": "Introduction",
-  "content": "# Introduction\n..."
-}
-```
+If the dev server is already running, rerun `npm run generate:docs` after Markdown or docs-tree changes. Rerun `npm run generate:seo` when site metadata or page descriptions change.
 
 ## Runtime Rendering Flow
 
-Once a page is fetched, the docs app renders it in two stages:
+Once a page is fetched, rendering happens in three steps:
 
-1. `src/utils/markdownCore.ts` converts Markdown into HTML plus placeholder metadata for richer blocks.
-2. `src/utils/MarkdownProcessor.tsx` adds standard classes, heading IDs, and sanitization.
-3. `src/components/MarkdownRenderer.tsx` turns the HTML into one React tree and swaps placeholders for real components.
+1. `src/utils/markdownCore.ts` parses Markdown and records rich block placeholders.
+2. `src/utils/MarkdownProcessor.tsx` adds heading IDs, classes, sanitization, and caching.
+3. `src/components/MarkdownRenderer.tsx` turns the processed HTML into one React tree and swaps placeholders for real components.
 
-That is how code fences, live previews, wallet copy blocks, and color palettes stay interactive without `dangerouslySetInnerHTML` roots all over the page.
+That is how code fences, live previews, color palettes, and wallet copy blocks stay interactive without extra DOM-walking roots.
+
+## Generated Output Shape
+
+The manifest contains lightweight page metadata. Each page is stored separately as JSON under `public/docs-content/`, so the app can fetch one page at a time instead of loading the full corpus up front.
+
+## Metadata Rules
+
+- `description:` frontmatter becomes the preferred page summary
+- if there is no frontmatter description, the first meaningful paragraph is used
+- sitemap and canonical data use `VITE_SITE_URL` when it is set, following Vite mode resolution and host-provided env overrides
+- route-level HTML snapshots make social tags and titles available before JavaScript runs
 
 ## Custom Component Extension Points
 
-There are two supported ways to add your own component behavior.
+There are two supported extension paths.
 
-### 1. Fenced Markdown Components
+### Fenced Markdown Components
 
-Use this for things like `ColorPalette` or any future custom block syntax.
+Use this when you want a custom code-fence language like `ColorPalette`.
 
 - detect the language in `buildMarkdownRenderState()`
-- emit a placeholder element with the data your React component needs
-- map that placeholder back to a component in `MarkdownRenderer.tsx`
+- emit a placeholder element with `data-*` payload
+- map that placeholder to a React component in `MarkdownRenderer.tsx`
 
-### 2. Semantic HTML Upgrades
+### Semantic HTML Upgrades
 
-Use this when normal HTML in Markdown should become a richer component at render time.
+Use this when normal HTML inside Markdown should become a richer component at render time.
 
-The wallet block is the built-in example:
+The built-in wallet block uses this pattern:
 
 ```html
 <code
@@ -90,30 +107,10 @@ The wallet block is the built-in example:
 </code>
 ```
 
-`MarkdownRenderer.tsx` detects that shape and renders a themed wallet component with a chain icon and copy affordance.
-
-## When It Runs
-
-The full build runs generators in this order:
-
-1. `generate:llms`
-2. `generate:docs`
-3. `vite build`
-4. `generate:pagefind`
-
-## Why This Design Works
-
-- works on static hosts
-- loads a tiny manifest before fetching page content
-- keeps deployment simple
-- makes AI exports a first-class build artifact
-- gives you clear hooks for adding custom interactive docs components
-
-## Related Reading
-
-For the rest of the runtime details, keep following the docs in this app rather than relying on extra root-level markdown files.
+`MarkdownRenderer.tsx` upgrades that markup into a themed copyable wallet component.
 
 ## Next Steps
 
 - [Runtime APIs](/docs/api-reference/runtime-apis)
 - [Code Examples](/docs/developer-guides/code-examples)
+

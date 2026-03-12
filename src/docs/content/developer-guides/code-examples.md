@@ -1,10 +1,10 @@
 # Code Examples
 
-This section shows the supported authoring patterns in the current Vite-based template.
+This page shows the main authoring patterns supported by the current runtime.
 
 ## Add A New Docs Page
 
-Update `shared/documentation-config.js`:
+Add the page to `shared/documentation-config.js`:
 
 ```js
 {
@@ -15,9 +15,9 @@ Update `shared/documentation-config.js`:
 }
 ```
 
-Then create `src/docs/content/developer-guides/architecture.md`.
+Then create `src/docs/content/developer-guides/architecture.md` and rerun `npm run generate:docs`.
 
-## Use A Standard Code Block
+## Standard Code Block
 
 ````md
 ```ts
@@ -27,9 +27,9 @@ export function hello(name: string) {
 ```
 ````
 
-## Use A Multi-Tab Code Block
+## Multi-Tab Code Block
 
-The Markdown processor supports pipe-separated language definitions.
+Use pipe-separated language definitions. `---` splits snippet bodies when needed.
 
 ````md
 ```ts:TypeScript|js:JavaScript
@@ -39,9 +39,20 @@ export const value = 1;
 ```
 ````
 
-## Embed A Live Example
+## Optional Frontmatter
 
-HTML and CSS code fences render as live previews.
+Use frontmatter when you want to control the generated page description:
+
+````md
+---
+description: Short summary used for metadata, previews, and generated artifacts.
+---
+
+# Architecture
+```
+````
+
+## Live HTML Example
 
 ````md
 ```html
@@ -49,44 +60,41 @@ HTML and CSS code fences render as live previews.
 ```
 ````
 
-## Render A Color Palette
+## Live CSS Example
+
+````md
+```css
+.button-primary {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-unified);
+  background: var(--card-color);
+  color: var(--text-color);
+}
+```
+````
+
+## `ColorPalette` Block
+
+The current component expects `hex`, `rgb`, and `usage` keys.
 
 ````md
 ```ColorPalette
 {
   "colors": [
-    { "name": "Primary", "value": "#111111" },
-    { "name": "Accent", "value": "#52525B" }
+    {
+      "name": "Primary",
+      "hex": "#111111",
+      "rgb": "17, 17, 17",
+      "usage": "Primary actions and emphasis"
+    }
   ]
 }
 ```
 ````
 
-## Build A Custom Markdown Component
+## Wallet Block
 
-There are two extension points in the current runtime:
-
-1. fenced Markdown blocks handled in `src/utils/markdownCore.ts`
-2. HTML patterns rendered in `src/components/MarkdownRenderer.tsx`
-
-The built-in examples are:
-
-- `ColorPalette` fenced blocks
-- `html` and `css` live examples
-- wallet copy blocks rendered from `<code class="wallet-address">...`
-
-### Add A New Fenced Component
-
-Use this path when you want a custom code fence like `ColorPalette`.
-
-1. Detect the fence language in `buildMarkdownRenderState()` inside `src/utils/markdownCore.ts`.
-2. Emit a placeholder element with `data-*` attributes for the payload you need.
-3. Read that placeholder in `src/components/MarkdownRenderer.tsx` and return a React component.
-4. Style the result with CSS variables in `src/globals.css` or a component CSS module.
-
-## Wallet Block Example
-
-The wallet block is a good example of a custom rendered HTML pattern rather than a fenced block:
+The wallet block is authored as HTML and upgraded at render time.
 
 ```html
 <code
@@ -98,23 +106,27 @@ The wallet block is a good example of a custom rendered HTML pattern rather than
 </code>
 ```
 
-At render time, `MarkdownRenderer` upgrades that markup into a themed component with:
+That becomes a theme-aware component with a chain icon and copy button.
 
-- a chain icon
-- a copy button
-- clipboard feedback
-- theme-aware styling from CSS variables
+## Add Your Own Custom Component
 
-Use this same pattern when you want to author simple semantic HTML in docs but render a richer component in the app.
+For most cases, the path is:
 
-## Link Between Docs Pages
+1. detect the block in `src/utils/markdownCore.ts`
+2. emit a placeholder with the data your component needs
+3. render that placeholder in `src/components/MarkdownRenderer.tsx`
+4. style it with tokens from `src/globals.css`
 
-Use absolute docs links so the runtime can intercept them:
+If the feature is only needed inside live previews, `src/utils/contentProcessor.ts` is the helper that upgrades HTML snippets like wallet blocks.
+
+## Internal Docs Links
+
+Use absolute docs links so routing stays inside the SPA shell.
 
 ```md
 [Deployment Overview](/docs/deployment/overview)
 ```
 
-## Tip
+## Reminder
 
-Because the site is generated from Markdown and shared config, the smallest possible change is usually the best one: update the tree, add the file, then regenerate.
+After adding or renaming docs pages, rerun `npm run generate:docs`. If you also changed descriptions or canonical metadata, rerun `npm run generate:seo` before checking the result.

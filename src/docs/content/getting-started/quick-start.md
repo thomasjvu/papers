@@ -1,8 +1,8 @@
-﻿# Quick Start
+# Quick Start
 
-Use this path if you want to fork the template, replace the sample content, and get your own docs site running as quickly as possible.
+Use this path if you want your own docs site running quickly with the least amount of ceremony.
 
-## 1. Clone, Install, And Start The App
+## 1. Clone And Start The App
 
 ```bash
 git clone https://github.com/thomasjvu/papers.git
@@ -13,9 +13,9 @@ npm run dev
 
 Open `http://localhost:3333`.
 
-## 2. Set The Basic Site Metadata
+## 2. Set Basic Metadata
 
-Create `.env.local` if you want your own site name, canonical URL, or GitHub edit links.
+Create `.env.local` if you want your own site name, canonical URL, social metadata, or GitHub links.
 
 ```env
 VITE_SITE_NAME="Your Docs"
@@ -24,41 +24,56 @@ VITE_GITHUB_URL="https://github.com/your-org/your-repo"
 VITE_GITHUB_BRANCH="main"
 ```
 
+`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and social preview metadata.
+
 ## 3. Replace The Docs Tree
 
-Edit `shared/documentation-config.js` so the sections, page titles, homepage content, and navigation structure match your project.
+Edit `shared/documentation-config.js` so the sections, page names, tags, homepage hero, and footer links match your project.
 
-## 4. Replace The Sample Markdown
+## 4. Replace The Markdown
 
-Write your own content under `src/docs/content/`.
+Write your real content in `src/docs/content/`.
 
-Every entry in the docs tree should map to a Markdown file with the same path.
+Each `path` in the shared docs tree should map to one Markdown file with the same relative path.
 
-## 5. Check The Main User Flows
+## 5. Regenerate Docs While You Work
 
-Before you ship, make sure these work with your real content:
+The app reads generated JSON from `public/docs-content/`, not raw Markdown directly.
 
-- homepage links
-- left sidebar navigation
-- `Cmd/Ctrl + K` search
-- right-side table of contents and docs map
-- edit/issue/source links if you enabled GitHub URLs
-
-## 6. Build The Production Site
+If the dev server is already running, rerun this after changing Markdown or the docs tree:
 
 ```bash
-npm run build
+npm run generate:docs
 ```
 
-That command regenerates docs content, `llms.txt`, and the Pagefind index before producing `dist/`.
+If you changed metadata that affects sitemap, canonical tags, or share previews, also run:
+
+```bash
+npm run generate:seo
+```
+
+If you want fresh AI exports too, run:
+
+```bash
+npm run generate:llms
+```
+
+## 6. Validate Before Shipping
+
+```bash
+npm test
+npm run lint
+npm run build
+npm run release:check
+```
 
 ## Recommended First Edits
 
-- set your site name and GitHub repo URL
-- replace the homepage hero copy
+- set your site metadata in `.env.local`
 - trim unused sections from the shared docs tree
-- replace the sample docs in `src/docs/content/`
-- remove any placeholder links you do not want in production
+- replace the sample docs content
+- update social links and homepage copy
+- run a full build before the first deploy
 
 ## Next Steps
 

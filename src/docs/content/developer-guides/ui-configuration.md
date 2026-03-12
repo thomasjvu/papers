@@ -1,37 +1,40 @@
-﻿# UI Configuration
+# UI Configuration
 
-The template keeps content in the docs framework and exposes a few layout controls through code.
+The docs shell is mostly configured through a few focused files.
 
 ## `src/config/ui.ts`
 
-Use this file for mobile docs-shell behavior.
+Use this file for shell behavior that should be easy to change in a fork.
 
-Current options include:
+Right now it controls:
 
-- whether to show the floating mobile sidebar toggle
-- where that toggle should appear on screen
+- whether the floating mobile file-tree button is shown
+- where that mobile button appears
 
-## Docs Shell
+## Main Shell Layout
 
-The docs experience is centered on the left sidebar now:
+`src/components/docs/DocumentationPage.tsx` owns the docs layout:
 
-- the logo sits at the top of the rail
-- search opens from the sidebar instead of a top header
-- settings live at the bottom of the sidebar
-- the interactive map can be opened from the sidebar utilities
+- logo and search at the top of the left rail
+- file tree in the middle
+- map, `llms.txt`, and settings at the bottom
+- content in the center
+- `On This Page` or the interactive map in the right rail
 
-The main docs layout lives in `src/components/docs/DocumentationPage.tsx`.
+## Theme, Motion, And Font Controls
 
-## Theme And Font Controls
+These settings come from `ThemeProvider` and are surfaced through `SettingsMenu`.
 
-Theme, reduced motion, and font settings are managed through `ThemeProvider` and surfaced by `src/components/SettingsMenu.tsx`.
+The font control cycles through sans, mono, and serif instead of opening a dropdown.
 
-## Social Links
+## Supporting Configuration
 
-Footer social icons come from `src/constants/social.tsx`.
+- `src/constants/social.tsx`: footer links
+- `src/globals.css`: shell tokens, typography, spacing, code styles
+- `shared/documentation-config.js`: homepage content and docs structure
 
-## Styling
+## Guidance
 
-Global colors, typography, shell spacing, and markdown presentation are defined in `src/globals.css`.
+If a change is global, start with tokens or config.
 
-When making large visual changes, start there before editing many components individually.
+If a change is specific to one interaction, edit the component directly.

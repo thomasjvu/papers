@@ -1,17 +1,16 @@
-﻿# Netlify
+# Netlify
 
 ## Site Settings
 
-Use these settings in Netlify:
+Use these values in Netlify:
 
 - Build command: `npm run build`
 - Publish directory: `dist`
 
 ## Included Files
 
-This repo already includes the files Netlify expects for the common static-host case:
+The repo already includes the common Netlify helper:
 
-- `public/_redirects`
 - `public/_headers`
 
 ## CLI Deploy
@@ -23,8 +22,10 @@ netlify deploy --prod --dir=dist
 
 ## Routing
 
-The `_redirects` file handles the SPA fallback for `/docs` routes and `/llms`.
+Known docs routes and `/llms` are already emitted as static HTML, so you usually do not need a catch-all `_redirects` file.
+
+If you add one intentionally, Netlify shadowing still lets existing generated files win.
 
 ## Environment Variables
 
-Set your `VITE_*` variables in the Netlify dashboard under Site configuration.
+Set your `VITE_*` variables in the Netlify dashboard under site configuration.

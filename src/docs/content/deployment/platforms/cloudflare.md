@@ -1,16 +1,16 @@
-﻿# Cloudflare Pages
+# Cloudflare Pages
 
-## Dashboard Setup
+## Recommended Settings
 
-Use these settings in Cloudflare Pages:
+Use these values in Cloudflare Pages:
 
 - Build command: `npm run build`
 - Build output directory: `dist`
 - Node version: `20` or newer
 
-## CLI Deployment
+## CLI Deploy
 
-The repo includes `wrangler.toml` and npm scripts for Pages deployment.
+The repo already includes `wrangler.toml` and deploy scripts.
 
 ```bash
 npm run build
@@ -19,12 +19,14 @@ npm run deploy
 
 ## Routing
 
-`public/_redirects` covers the SPA fallback for `/docs/...` and `/llms` when deployed on Cloudflare Pages.
+Cloudflare Pages works best when it serves the generated route files directly.
+
+Do not add a blanket `/docs/* -> /index.html` or `/llms -> /index.html` rule in `_redirects` while route HTML generation is enabled. Pages follows those rules before serving the generated per-page HTML, which collapses your page-level metadata back to the homepage.
 
 ## Environment Variables
 
 Set the same `VITE_*` variables in the Pages dashboard that you use locally.
 
-## Good Fit
+## Why It Fits Well
 
-Cloudflare Pages works especially well here because the final site is fully static and the generated artifacts are easy to cache globally.
+Cloudflare Pages is a good match because the final site is fully static, cacheable, and does not require server functions by default.

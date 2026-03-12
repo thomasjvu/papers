@@ -1,54 +1,61 @@
-﻿# Basic Usage
+# Basic Usage
 
-Once the site is running, the normal workflow is simple: edit Markdown, preview locally, and ship a static build.
+The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.
 
 ## Reading The Docs UI
 
-The docs experience has three primary surfaces:
+The docs shell has three main surfaces:
 
-- the file tree on the left for moving between pages
-- the page content in the center for reading and editing docs
-- the table of contents or interactive map on the right for in-page navigation and structure
+- the left rail for navigation, search, and settings
+- the center column for content
+- the right rail for either `On This Page` or the interactive map
 
-On mobile, the sidebar reopens from the floating toggle and the map opens from the sidebar tools.
+On mobile, the file tree opens from the floating button and the map opens from the left-rail tools.
 
-## Search And Shortcuts
+## Writer Workflow
 
-- `Cmd/Ctrl + K` opens the command palette
-- `Cmd/Ctrl + I` toggles theme
-- arrow keys move through palette results
-- `Enter` opens the selected result
+1. edit a Markdown file under `src/docs/content/`
+2. update `shared/documentation-config.js` if the page path, title, or section changed
+3. run `npm run generate:docs` if the dev server is already open
+4. run `npm run generate:seo` if the change affects page descriptions, site metadata, or social previews
+5. refresh the page and confirm links, headings, and custom blocks render correctly
+6. run `npm run build` and `npm run release:check` before publishing
 
-## Editing Content
+## Internal Links
 
-A typical content change looks like this:
+Use absolute docs links so navigation stays inside the SPA shell:
 
-1. update the Markdown file under `src/docs/content/`
-2. keep the matching path in `shared/documentation-config.js`
-3. preview the result with `npm run dev`
-4. run `npm run build` before shipping
+```md
+[Deployment Overview](/docs/deployment/overview)
+```
 
-## Generated Content Behavior
+## Optional Frontmatter
 
-The browser does not read Markdown files directly.
+You can set a custom page description with YAML frontmatter:
 
-Instead, the app loads a generated docs manifest from `/docs-index.json` and then fetches the requested page from `/docs-content/`, which keeps deployments static-host friendly and avoids loading the whole corpus up front.
+```md
+---
+description: Concise summary used for search, sitemap-related metadata, and social previews.
+---
+```
 
-## Production Search
+If you omit it, the generator uses the first meaningful paragraph.
 
-Production search is powered by Pagefind.
+## What Is Generated
 
-The index is generated during `npm run build` and must be published with the rest of `dist/`.
+The browser does not load Markdown source files directly.
 
-## GitHub Editing Links
+The app fetches `/docs-index.json`, then loads only the requested page from `/docs-content/...`. That keeps the site static-host friendly and avoids loading the whole corpus on first paint.
 
-Each docs page can show these actions at the bottom:
+## Search Behavior
 
-- `edit`
-- `issue`
-- `source`
+The command palette always knows about docs-tree entries.
 
-Those links appear when `VITE_GITHUB_URL` is configured.
+Full-text Pagefind results appear after a production build, so local dev is best for navigation checks and production builds are best for search validation.
+
+## GitHub Footer Links
+
+`edit`, `issue`, and `source` links appear when `VITE_GITHUB_URL` is configured.
 
 ## Next Steps
 

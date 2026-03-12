@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">papers | Static documentation template</title>
+  <desc id="desc">A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.</desc>
+  <rect width="1200" height="630" fill="#090909" />
+  <rect x="56" y="56" width="1088" height="518" rx="24" fill="#111111" stroke="#27272A" />
+  <rect x="88" y="88" width="164" height="40" rx="20" fill="#FAFAFA" />
+  <text x="170" y="114" text-anchor="middle" font-family="MapleMono, monospace" font-size="18" letter-spacing="2" fill="#090909">Open Graph</text>
+  <text x="88" y="214" font-family="Hubot Sans, Mona Sans, sans-serif" font-size="56" font-weight="800" fill="#FAFAFA"><tspan x="88" dy="0">papers | Static</tspan><tspan x="88" dy="58">documentation template</tspan></text>
+  <text x="88" y="358" font-family="Mona Sans, sans-serif" font-size="28" fill="#A1A1AA"><tspan x="88" dy="0">A minimal docs starter with install-ready</tspan><tspan x="88" dy="34">defaults, generated content, and static-host</tspan><tspan x="88" dy="34">deployment support.</tspan></text>
+  <text x="88" y="520" font-family="MapleMono, monospace" font-size="22" fill="#FAFAFA">papers</text>
+  <text x="1112" y="520" text-anchor="end" font-family="MapleMono, monospace" font-size="22" fill="#71717A">Open Graph</text>
+</svg>

@@ -39,14 +39,39 @@ const detectChainFromAddress = (address: string): string => {
   return 'eth';
 };
 
-function createInlineIcon(icon: string, width: string = '14', height: string = '14'): HTMLElement {
-  const iconElement = document.createElement('iconify-icon');
-  iconElement.setAttribute('icon', icon);
+function createInlineIcon(icon: 'copy' | 'check', width: string = '14', height: string = '14') {
+  const svgNamespace = 'http://www.w3.org/2000/svg';
+  const iconElement = document.createElementNS(svgNamespace, 'svg');
   iconElement.setAttribute('width', width);
   iconElement.setAttribute('height', height);
+  iconElement.setAttribute('viewBox', '0 0 24 24');
+  iconElement.setAttribute('fill', 'none');
+  iconElement.setAttribute('stroke', 'currentColor');
+  iconElement.setAttribute('stroke-width', '2');
+  iconElement.setAttribute('stroke-linecap', 'round');
+  iconElement.setAttribute('stroke-linejoin', 'round');
   iconElement.setAttribute('aria-hidden', 'true');
-  iconElement.setAttribute('inline', '');
+
+  const pathDefinitions =
+    icon === 'check'
+      ? ['M20 6 9 17l-5-5']
+      : ['M9 9h13v13H9z', 'M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'];
+
+  for (const definition of pathDefinitions) {
+    const pathElement = document.createElementNS(svgNamespace, 'path');
+    pathElement.setAttribute('d', definition);
+    iconElement.appendChild(pathElement);
+  }
+
   return iconElement;
+}
+
+function createChainBadge(chain: string): HTMLSpanElement {
+  const badge = document.createElement('span');
+  badge.className = 'chain-icon';
+  badge.setAttribute('aria-hidden', 'true');
+  badge.textContent = chain.slice(0, 3).toUpperCase();
+  return badge;
 }
 
 /**
@@ -72,14 +97,7 @@ export const processWalletAddresses = (element: HTMLElement): void => {
 
     const iconContainer = document.createElement('span');
     iconContainer.className = 'chain-icon-container';
-
-    const chainIcon = document.createElement('iconify-icon');
-    chainIcon.setAttribute('icon', `token:${chain}`);
-    chainIcon.setAttribute('width', '18');
-    chainIcon.setAttribute('height', '18');
-    chainIcon.className = 'chain-icon';
-
-    iconContainer.appendChild(chainIcon);
+    iconContainer.appendChild(createChainBadge(chain));
     walletElement.insertBefore(iconContainer, walletElement.firstChild);
 
     const copyButton = document.createElement('button');
@@ -87,7 +105,7 @@ export const processWalletAddresses = (element: HTMLElement): void => {
     copyButton.setAttribute('aria-label', 'Copy to clipboard');
     copyButton.setAttribute('title', 'Copy to clipboard');
     copyButton.setAttribute('type', 'button');
-    copyButton.appendChild(createInlineIcon('mingcute:copy-line'));
+    copyButton.appendChild(createInlineIcon('copy'));
 
     const handleCopyClick = async (event: Event) => {
       event.stopPropagation();
@@ -96,11 +114,11 @@ export const processWalletAddresses = (element: HTMLElement): void => {
         await navigator.clipboard.writeText(address);
         processorLogger.debug(`Copied address to clipboard: ${address.substring(0, 4)}...`);
 
-        copyButton.replaceChildren(createInlineIcon('mingcute:check-line'));
+        copyButton.replaceChildren(createInlineIcon('check'));
         showCopyToast();
 
         setTimeout(() => {
-          copyButton.replaceChildren(createInlineIcon('mingcute:copy-line'));
+          copyButton.replaceChildren(createInlineIcon('copy'));
         }, 1500);
       } catch (error) {
         processorLogger.error('Failed to copy to clipboard:', error);

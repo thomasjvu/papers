@@ -1405,16 +1405,21 @@ code.wallet-address {
   height: 18px;
   color: var(--code-muted-color);
 }
-
 .chain-icon {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
   color: inherit;
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
 }
 
 .chain-icon-container svg,
-.chain-icon-container iconify-icon,
-.copy-button svg,
-.copy-button iconify-icon {
+.chain-icon-container .chain-icon,
+.copy-button svg {
   display: inline-flex;
   vertical-align: middle;
 }
@@ -2072,3 +2077,4 @@ select {
 .text-secondary {
   color: var(--text-secondary);
 }
+

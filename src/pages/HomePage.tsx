@@ -1,7 +1,8 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 
 import { homepageConfig } from '../../shared/documentation-config.js';
+import { applySeoMetadata } from '../utils/seo';
 
 import { Footer, FeaturesGrid, HeroSection, QuickStart } from '../components/homepage';
 
@@ -9,7 +10,18 @@ const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
 export default function HomePage() {
   useEffect(() => {
-    document.title = `${SITE_NAME} | Modern documentation template`;
+    const subtitle = homepageConfig.hero.subtitle || 'Documentation';
+    const description =
+      homepageConfig.hero.description ||
+      'A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.';
+
+    applySeoMetadata({
+      title: `${SITE_NAME} | ${subtitle}`,
+      description,
+      path: '/',
+      canonicalPath: '/',
+      type: 'website',
+    });
   }, []);
 
   if (!homepageConfig.enabled) {

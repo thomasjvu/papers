@@ -1,3 +1,5 @@
+import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
+
 function stripUtf8Bom(content) {
   return content.replace(/^\uFEFF/, '');
 }
@@ -62,20 +64,39 @@ export function extractTopLevelTitle(docPath, content) {
     : frontmatter.title || docPath.split('/').pop() || docPath;
 }
 
-export function createDocsArtifacts(docsByPath, generatedAt = new Date().toISOString()) {
+export function createDocumentArtifact(docPath, rawContent, sourcePath) {
+  const { body, frontmatter } = parseFrontmatter(rawContent);
+  const content = stripUtf8Bom(body);
+  const description = frontmatter.description || extractDescriptionFromMarkdown(content);
+
+  return {
+    path: docPath,
+    title: extractTopLevelTitle(docPath, rawContent),
+    description: description || undefined,
+    frontmatter,
+    content,
+    ...(sourcePath
+      ? {
+          sourcePath,
+        }
+      : {}),
+  };
+}
+
+export function createDocsArtifacts(
+  docsByPath,
+  generatedAt = new Date().toISOString(),
+  sourcePathsByPath = {}
+) {
   const documents = {};
   const paths = Object.keys(docsByPath);
 
   for (const docPath of paths) {
-    const { body, frontmatter } = parseFrontmatter(docsByPath[docPath]);
-    const content = stripUtf8Bom(body);
-    documents[docPath] = {
-      path: docPath,
-      title: extractTopLevelTitle(docPath, docsByPath[docPath]),
-      description: frontmatter.description,
-      frontmatter,
-      content,
-    };
+    documents[docPath] = createDocumentArtifact(
+      docPath,
+      docsByPath[docPath],
+      sourcePathsByPath[docPath]
+    );
   }
 
   return {

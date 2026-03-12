@@ -2,6 +2,7 @@ import { existsSync, readFileSync, rmSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import * as pagefind from 'pagefind';
+import { buildCanonicalDocsPath, buildDocsContentPath, getDocsVariantContexts } from '../shared/docsRouting.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const rootDir = join(__dirname, '..');
@@ -56,39 +57,66 @@ function stripMarkdown(content) {
     .trim();
 }
 
-function toSearchUrl(docPath) {
-  return docPath === 'llms' ? '/llms' : `/docs/${docPath}`;
+function getSearchUrl(docPath, context) {
+  if (docPath === 'llms') {
+    return '/llms';
+  }
+
+  return buildCanonicalDocsPath(docPath, {
+    version: context.version,
+    locale: context.locale,
+  });
 }
 
-function getGeneratedDocumentPath(docPath) {
-  return join(docsContentDir, `${docPath}.json`);
+function getGeneratedDocumentPath(docPath, context) {
+  const key = buildDocsContentPath(docPath, {
+    version: context.version,
+    locale: context.locale,
+  });
+
+  return join(docsContentDir, `${key}.json`);
 }
 
 async function buildSearchIndex() {
-  const { index } = await pagefind.createIndex({ forceLanguage: 'en' });
+  const { index } = await pagefind.createIndex();
+  const variantContexts = getDocsVariantContexts();
+  const indexedDocumentPaths = new Set();
   let indexedCount = 0;
 
-  for (const docPath of docsIndex.paths) {
-    const documentPath = getGeneratedDocumentPath(docPath);
+  for (const context of variantContexts) {
+    for (const docPath of docsIndex.paths) {
+      if (docPath === 'llms' && !context.isDefault) {
+        continue;
+      }
 
-    if (!existsSync(documentPath)) {
-      console.warn(`Skipping missing generated document: ${documentPath}`);
-      continue;
+      const documentPath = getGeneratedDocumentPath(docPath, context);
+      const documentKey = `${getSearchUrl(docPath, context)}::${documentPath}`;
+
+      if (indexedDocumentPaths.has(documentKey)) {
+        continue;
+      }
+
+      indexedDocumentPaths.add(documentKey);
+
+      if (!existsSync(documentPath)) {
+        console.warn(`Skipping missing generated document: ${documentPath}`);
+        continue;
+      }
+
+      const documentData = JSON.parse(readFileSync(documentPath, 'utf-8'));
+      const rawContent = documentData.content ?? '';
+      const title = documentData.title || docsIndex.titles?.[docPath] || getTitle(docPath, rawContent);
+      const searchableContent = stripMarkdown(rawContent);
+
+      await index.addCustomRecord({
+        url: getSearchUrl(docPath, context),
+        content: `${title}\n\n${searchableContent}`,
+        language: context.locale || 'en',
+        meta: { title },
+      });
+
+      indexedCount += 1;
     }
-
-    const documentData = JSON.parse(readFileSync(documentPath, 'utf-8'));
-    const rawContent = documentData.content ?? '';
-    const title = documentData.title || docsIndex.titles?.[docPath] || getTitle(docPath, rawContent);
-    const searchableContent = stripMarkdown(rawContent);
-
-    await index.addCustomRecord({
-      url: toSearchUrl(docPath),
-      content: `${title}\n\n${searchableContent}`,
-      language: 'en',
-      meta: { title },
-    });
-
-    indexedCount += 1;
   }
 
   await index.writeFiles({ outputPath: pagefindOutputDir });

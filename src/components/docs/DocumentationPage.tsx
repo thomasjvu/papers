@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { AnimatePresence, motion } from 'framer-motion';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { documentationTree } from '../../data/documentation';
 import { useCommandPalette } from '../../providers/CommandPaletteProvider';
@@ -18,10 +18,12 @@ import { socialLinks } from '../../constants/social';
 import { UI_CLASSES } from '../../constants/ui';
 import { getMobileTogglePositionClasses, uiConfig } from '../../config/ui';
 import TableOfContents from './TableOfContents';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
 
 interface DocumentationPageProps {
   initialContent: string;
   currentPath: string;
+  sourcePath?: string;
   isLoading?: boolean;
   pendingPath?: string;
 }
@@ -37,7 +39,7 @@ function getInitialRightSidebarState(): boolean {
 
 function RightRailFooter() {
   return (
-    <div className="flex-shrink-0">
+    <div className="flex-shrink-0 pb-3">
       <div className="mb-2 flex items-center justify-center gap-2.5">
         {socialLinks.map((link) => (
           <a
@@ -79,8 +81,15 @@ function RightRailFooter() {
 }
 
 const DocumentationPage = React.memo(
-  ({ initialContent, currentPath, isLoading = false, pendingPath }: DocumentationPageProps) => {
+  ({
+    initialContent,
+    currentPath,
+    sourcePath,
+    isLoading = false,
+    pendingPath,
+  }: DocumentationPageProps) => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { openCommandPalette } = useCommandPalette();
     const { prefersReducedMotion } = useTheme();
     const content = useMemo(() => stripMarkdownBom(initialContent), [initialContent]);
@@ -92,6 +101,10 @@ const DocumentationPage = React.memo(
       () => pendingPath?.split('/').pop()?.replace(/-/g, ' '),
       [pendingPath]
     );
+    const docsRouteSlug = location.pathname.startsWith('/docs')
+      ? location.pathname.replace(/^\/docs\/?/, '')
+      : '';
+    const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
 
     const [isMobile, setIsMobile] = useState(() => {
       if (typeof window === 'undefined') {
@@ -177,15 +190,15 @@ const DocumentationPage = React.memo(
       }
 
       return {
-        hidden: { opacity: 0, x: 20 },
-        visible: { opacity: 1, x: 0 },
-        exit: { opacity: 0, x: -20 },
+        hidden: { opacity: 0 },
+        visible: { opacity: 1 },
+        exit: { opacity: 0 },
       };
     }, [prefersReducedMotion]);
 
     const rightRailPanelTransition = useMemo(
       () => ({
-        duration: prefersReducedMotion ? 0.05 : 0.22,
+        duration: prefersReducedMotion ? 0.05 : 0.12,
         ease: 'easeOut' as const,
       }),
       [prefersReducedMotion]
@@ -212,13 +225,18 @@ const DocumentationPage = React.memo(
           return;
         }
 
-        navigate(`/docs/${item.path}`);
+        navigate(
+          buildCanonicalDocsPath(item.path, {
+            version: routeContext.activeVersion,
+            locale: routeContext.activeLocale,
+          })
+        );
 
         if (isMobile) {
           setSidebarVisible(false);
         }
       },
-      [isMobile, navigate]
+      [isMobile, navigate, routeContext.activeLocale, routeContext.activeVersion]
     );
 
     const toggleSidebar = useCallback(() => {
@@ -413,12 +431,12 @@ const DocumentationPage = React.memo(
               >
                 <button
                   onClick={handleMapButtonClick}
-                  className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
+                  className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
                   style={utilityButtonStyle}
                   type="button"
                 >
                   <span className="flex items-center gap-2">
-                    <Icon icon="mingcute:brain-line" className="h-4 w-4" />
+                    <Icon icon="mingcute:brain-line" className="h-4 w-4 transition duration-150 group-hover:invert" />
                     <span>
                       {isMobile ? 'Open map' : rightSidebarVisible ? 'Hide map' : 'Show map'}
                     </span>
@@ -520,95 +538,99 @@ const DocumentationPage = React.memo(
                 </div>
               )}
 
-              {rightSidebarVisible && (
-                <button
-                  onClick={toggleRightSidebar}
-                  className="absolute top-4 right-[23px] z-20 hidden h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80 lg:flex"
-                  aria-label="Hide documentation map"
-                  style={{
-                    backgroundColor: 'var(--card-color)',
-                    borderColor: 'var(--border-unified)',
-                    color: 'var(--text-color)',
-                  }}
-                  type="button"
-                >
-                  <Icon icon="mingcute:arrow-right-line" className="h-3.5 w-3.5" />
-                </button>
-              )}
 
-              <ContentRenderer content={content} path={path} />
+              <ContentRenderer content={content} path={path} sourcePath={sourcePath} />
             </div>
           </div>
         </div>
 
         <div
-          className="hidden h-full shrink-0 border-l lg:block"
+          className="hidden h-full shrink-0 lg:block"
           style={{
             backgroundColor: 'var(--background-color)',
-            borderColor: 'var(--border-unified)',
           }}
         >
-          <div className="flex h-full w-72 flex-col overflow-hidden p-4 xl:w-80">
-            <AnimatePresence mode="wait" initial={false}>
-              {rightSidebarVisible ? (
-                <motion.div
-                  key="interactive-map"
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={rightRailPanelVariants}
-                  transition={rightRailPanelTransition}
-                  className="flex h-full flex-col"
-                >
-                  <div className="mb-2">
-                    <h3
-                      className="mb-1 text-sm font-semibold font-mono"
-                      style={{
-                        color: 'var(--mindmap-text-color)',
-                        fontFamily: 'var(--mono-font)',
-                        marginTop: '1px',
-                      }}
-                    >
-                      Interactive Map
-                    </h3>
-                  </div>
-                  <div className="mb-4 min-h-0 flex-1">
-                    <DocumentationGraph
-                      currentPath={path}
-                      onNodeClick={(nodePath) => {
-                        navigate(`/docs/${nodePath}`);
-                      }}
-                      className="h-full w-full"
-                    />
-                  </div>
-
-                  <RightRailFooter />
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="table-of-contents"
-                  initial="hidden"
-                  animate="visible"
-                  exit="exit"
-                  variants={rightRailPanelVariants}
-                  transition={rightRailPanelTransition}
-                  className="flex h-full flex-col justify-between py-4"
-                >
-                  <div className="flex min-h-0 flex-1 items-center justify-center">
-                    <div className="w-full max-w-[15rem]" style={{ transform: 'translateY(-15%)' }}>
-                      <TableOfContents
-                        content={content}
-                        onToggleRightSidebar={toggleRightSidebar}
+          <div className="flex h-full w-72 flex-col overflow-hidden px-4 py-4 xl:w-80">
+            <div className="relative min-h-0 flex-1">
+              <AnimatePresence initial={false}>
+                {rightSidebarVisible ? (
+                  <motion.div
+                    key="interactive-map"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={rightRailPanelVariants}
+                    transition={rightRailPanelTransition}
+                    className="absolute inset-0 flex h-full flex-col pt-5 will-change-[opacity]"
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <h3
+                        className="mb-1 text-sm font-semibold font-mono"
+                        style={{
+                          color: 'var(--mindmap-text-color)',
+                          fontFamily: 'var(--mono-font)',
+                          marginTop: '1px',
+                        }}
+                      >
+                        Interactive Map
+                      </h3>
+                      <button
+                        onClick={toggleRightSidebar}
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80"
+                        aria-label="Show table of contents"
+                        style={{
+                          backgroundColor: 'var(--card-color)',
+                          borderColor: 'var(--border-unified)',
+                          color: 'var(--text-color)',
+                        }}
+                        type="button"
+                      >
+                        <Icon icon="mingcute:brain-line" className="h-3.5 w-3.5 -translate-y-1" />
+                      </button>
+                    </div>
+                    <div className="min-h-0 flex-1">
+                      <DocumentationGraph
+                        currentPath={path}
+                        onNodeClick={(nodePath) => {
+                          navigate(
+                            buildCanonicalDocsPath(nodePath, {
+                              version: routeContext.activeVersion,
+                              locale: routeContext.activeLocale,
+                            })
+                          );
+                        }}
+                        className="h-full w-full"
                       />
                     </div>
-                  </div>
-                  <RightRailFooter />
-                </motion.div>
-              )}
-            </AnimatePresence>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="table-of-contents"
+                    initial="hidden"
+                    animate="visible"
+                    exit="exit"
+                    variants={rightRailPanelVariants}
+                    transition={rightRailPanelTransition}
+                    className="absolute inset-0 flex h-full flex-col py-4 will-change-[opacity]"
+                  >
+                    <div className="flex min-h-0 flex-1 items-center justify-center">
+                      <div className="w-full max-w-[15rem]" style={{ transform: 'translateY(-15%)' }}>
+                        <TableOfContents
+                          content={content}
+                          onToggleRightSidebar={toggleRightSidebar}
+                        />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <div className="flex-shrink-0 pt-3">
+              <RightRailFooter />
+            </div>
           </div>
         </div>
-
         <AnimatePresence>
           {isMobile && mobileMapVisible && (
             <motion.div
@@ -653,7 +675,12 @@ const DocumentationPage = React.memo(
                   <DocumentationGraph
                     currentPath={path}
                     onNodeClick={(nodePath) => {
-                      navigate(`/docs/${nodePath}`);
+                      navigate(
+                        buildCanonicalDocsPath(nodePath, {
+                          version: routeContext.activeVersion,
+                          locale: routeContext.activeLocale,
+                        })
+                      );
                       setMobileMapVisible(false);
                     }}
                     className="h-full w-full"
@@ -671,3 +698,6 @@ const DocumentationPage = React.memo(
 DocumentationPage.displayName = 'DocumentationPage';
 
 export default DocumentationPage;
+
+
+

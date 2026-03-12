@@ -1,23 +1,31 @@
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useMemo, memo } from 'react';
 
 import { documentationTree } from '../data/documentation';
 import { findAdjacentPages, findPageTags } from '../lib/navigation';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
 import MarkdownRenderer from './MarkdownRenderer';
 
 type ContentRendererProps = {
   content: string;
   path: string;
+  sourcePath?: string;
 };
 
 const ContentRenderer = memo(function ContentRenderer({
   content = '',
   path = '',
+  sourcePath,
 }: ContentRendererProps) {
   const navigate = useNavigate();
+  const location = useLocation();
+  const docsRouteSlug = location.pathname.startsWith('/docs')
+    ? location.pathname.replace(/^\/docs\/?/, '')
+    : '';
+  const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
 
   const { prev: prevPage, next: nextPage } = useMemo(
     () => findAdjacentPages(path, documentationTree),
@@ -27,6 +35,7 @@ const ContentRenderer = memo(function ContentRenderer({
   const isSynopsisPage = useMemo(() => path.toLowerCase().includes('synopsis'), [path]);
 
   const githubBranch = import.meta.env.VITE_GITHUB_BRANCH || 'main';
+  const githubSourcePath = sourcePath || `src/docs/content/${path}.md`;
 
   return (
     <div className="w-full h-full overflow-hidden" role="article">
@@ -95,7 +104,14 @@ const ContentRenderer = memo(function ContentRenderer({
               <div className="pagination-links">
                 {prevPage ? (
                   <button
-                    onClick={() => navigate(`/docs/${prevPage.path}`)}
+                    onClick={() =>
+                      navigate(
+                        buildCanonicalDocsPath(prevPage.path, {
+                          version: routeContext.activeVersion,
+                          locale: routeContext.activeLocale,
+                        })
+                      )
+                    }
                     className="nav-button text-left p-4 rounded-lg transition-opacity hover:opacity-70"
                     type="button"
                   >
@@ -112,7 +128,14 @@ const ContentRenderer = memo(function ContentRenderer({
 
                 {nextPage && (
                   <button
-                    onClick={() => navigate(`/docs/${nextPage.path}`)}
+                    onClick={() =>
+                      navigate(
+                        buildCanonicalDocsPath(nextPage.path, {
+                          version: routeContext.activeVersion,
+                          locale: routeContext.activeLocale,
+                        })
+                      )
+                    }
                     className="nav-button text-right p-4 rounded-lg transition-opacity hover:opacity-70"
                     type="button"
                   >
@@ -139,7 +162,7 @@ const ContentRenderer = memo(function ContentRenderer({
               {import.meta.env.VITE_GITHUB_URL && (
                 <>
                   <a
-                    href={`${import.meta.env.VITE_GITHUB_URL}/edit/${githubBranch}/src/docs/content/${path}.md`}
+                    href={`${import.meta.env.VITE_GITHUB_URL}/edit/${githubBranch}/${githubSourcePath}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
@@ -161,7 +184,7 @@ const ContentRenderer = memo(function ContentRenderer({
                   </a>
 
                   <a
-                    href={`${import.meta.env.VITE_GITHUB_URL}/blob/${githubBranch}/src/docs/content/${path}.md`}
+                    href={`${import.meta.env.VITE_GITHUB_URL}/blob/${githubBranch}/${githubSourcePath}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"

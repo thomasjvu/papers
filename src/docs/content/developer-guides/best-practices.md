@@ -1,38 +1,33 @@
-﻿# Best Practices
+# Best Practices
 
-## Keep One Source Of Truth
+## Keep The Tree And Files In Sync
 
-Treat `shared/documentation-config.js` as the source of truth for navigation and page tags.
+Treat `shared/documentation-config.js` as the source of truth for navigation.
 
-If a page exists in Markdown but not in the shared tree, it will not show up in generated outputs.
+If a Markdown file exists without a matching tree entry, users will not reach it through generated output.
 
-## Prefer Small, Focused Markdown Files
+## Write For Scanning
 
-Shorter docs pages improve:
+Prefer short pages, clear headings, and purposeful section names.
 
-- navigation clarity
-- Pagefind excerpts
-- `llms.txt` descriptions
-- maintenance over time
+That improves the table of contents, the interactive map, Pagefind excerpts, and `llms.txt` output.
 
-## Validate The Static Build Regularly
+## Use Real Examples
 
-Run this before merging meaningful changes:
+Code samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.
+
+## Regenerate Early
+
+Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.
+
+## Verify Before Shipping
 
 ```bash
+npm test
 npm run lint
-npm run type-check
 npm run build
 ```
 
-## Keep Internal Links Stable
+## Remove Sample Surface Area You Do Not Need
 
-Use `/docs/...` links consistently so the runtime can intercept them and hosts can rewrite them cleanly.
-
-## Configure GitHub Metadata Early
-
-Set `VITE_GITHUB_URL` so contributors can jump straight to edit and issue links from the page footer.
-
-## Avoid Unused Surface Area
-
-If you remove a docs section from the shared tree, also remove or archive the corresponding Markdown file so the repo stays easy to read.
+Trim unused sections, placeholder pages, and dead links early. The starter is easiest to maintain when the tree only contains content you actually intend to support.

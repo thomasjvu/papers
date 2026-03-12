@@ -1,6 +1,7 @@
+import { documentationTree } from '../../shared/documentation-config.js';
 import type { FileItem } from '../types/documentation';
 
-export { documentationTree } from '../../shared/documentation-config.js';
+export { documentationTree };
 
 export function flattenNavigation(items: FileItem[]): Array<{ path: string; title: string }> {
   const result: Array<{ path: string; title: string }> = [];
@@ -39,6 +40,9 @@ export function findFirstDocumentPath(items: FileItem[]): string | null {
 
   return null;
 }
+
+export const DEFAULT_DOCUMENT_PATH =
+  findFirstDocumentPath(documentationTree) || 'getting-started/introduction';
 
 export function findDirectoryDefaultPath(slug: string, items: FileItem[]): string | null {
   for (const item of items) {

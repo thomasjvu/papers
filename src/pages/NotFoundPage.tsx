@@ -2,7 +2,10 @@ import { Icon } from '@iconify/react';
 import { useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
+import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
+import { buildCanonicalDocsPath, buildDocsLandingPath } from '../../shared/docsRouting.js';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
+import { applySeoMetadata } from '../utils/seo';
 
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
@@ -16,8 +19,17 @@ export default function NotFoundPage() {
   }, []);
 
   useEffect(() => {
-    document.title = `Not Found | ${SITE_NAME}`;
-  }, []);
+    const missingPath = `${location.pathname}${location.search}${location.hash}`;
+
+    applySeoMetadata({
+      title: `Not Found | ${SITE_NAME}`,
+      description: 'The requested page could not be found.',
+      path: missingPath || '/404.html',
+      canonicalPath: '/404.html',
+      type: 'website',
+      noIndex: true,
+    });
+  }, [location.hash, location.pathname, location.search]);
 
   const missingPath = `${location.pathname}${location.search}${location.hash}`;
   const showRefreshHint = location.pathname.startsWith('/docs/');
@@ -87,20 +99,7 @@ export default function NotFoundPage() {
             </button>
 
             <Link
-              to="/docs/getting-started/installation"
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
-              style={{
-                borderColor: 'var(--border-unified)',
-                color: 'var(--text-color)',
-                fontFamily: 'var(--mono-font)',
-              }}
-            >
-              <Icon icon="mingcute:download-2-line" className="w-4 h-4" />
-              Installation
-            </Link>
-
-            <Link
-              to="/docs/getting-started/introduction"
+              to="/docs"
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
               style={{
                 borderColor: 'var(--border-unified)',
@@ -109,7 +108,20 @@ export default function NotFoundPage() {
               }}
             >
               <Icon icon="mingcute:book-2-line" className="w-4 h-4" />
-              Docs Home
+              Documentation
+            </Link>
+
+            <Link
+              to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
+              style={{
+                borderColor: 'var(--border-unified)',
+                color: 'var(--text-color)',
+                fontFamily: 'var(--mono-font)',
+              }}
+            >
+              <Icon icon="mingcute:compass-3-line" className="w-4 h-4" />
+              First Page
             </Link>
 
             <Link
@@ -135,14 +147,15 @@ export default function NotFoundPage() {
               }}
             >
               <div className="font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
-                If this happened after refreshing a docs page
+                If this happened on a direct page load in production
               </div>
               <p className="mb-3" style={{ color: 'var(--muted-color)' }}>
-                Static hosts need SPA rewrite rules so nested documentation routes resolve back to
-                the app entrypoint.
+                This build generates real HTML files for known docs routes. Verify the deployed
+                `dist/` output still includes your `docs/.../index.html` files and that no catch-all
+                host rule is rewriting `/docs/*` or `/llms` back to the homepage.
               </p>
               <Link
-                to="/docs/user-guide/troubleshooting"
+                to={buildCanonicalDocsPath('user-guide/troubleshooting')}
                 className="inline-flex items-center gap-2"
                 style={{ color: 'var(--primary-color)', fontFamily: 'var(--mono-font)' }}
               >

@@ -1,49 +1,50 @@
 # Advanced Features
 
-This template ships with more than a basic Markdown renderer.
+`papers` ships with more than plain Markdown rendering.
 
-## Command Palette + Pagefind
+## Command Palette
 
 The command palette merges:
 
-- fast local navigation entries from the docs tree
-- theme and utility actions
-- Pagefind full-text results in production
+- docs pages from the shared navigation tree
+- built-in actions like theme changes
+- inline FAQ answers
+- Pagefind full-text results after a production build
 
-That gives you instant navigation for known pages and better deep-content search after a production build.
+## Interactive Map
 
-## Interactive Documentation Map
+The right rail can switch from `On This Page` to a graph view of the docs tree.
 
-The right sidebar can render a graph view of the documentation tree. It helps users jump between sections without scanning the file tree.
+That gives readers a second navigation surface without leaving the page they are reading.
 
-## Rich Markdown Components
+## Rich Markdown Blocks
 
-The renderer supports more than plain fenced code blocks:
+The renderer supports:
 
 - syntax-highlighted code blocks
-- tabbed multi-language blocks
-- HTML and CSS live examples
-- `ColorPalette` blocks for design-token docs
-- wallet-address copy buttons with inline chain icons
+- multi-tab code fences
+- live HTML and CSS previews
+- `ColorPalette` blocks
+- wallet copy blocks rendered from semantic HTML
 
-## Theme, Motion, And Font Controls
+## Reader Preferences
 
-The UI includes:
+The settings menu lets readers change:
 
-- dark and light mode
-- reduced-motion support
-- font switching for readers who prefer mono or serif content
+- theme
+- motion preference
+- font family
 
-The app defaults to the black theme until a user explicitly changes it.
+The font control cycles through sans, mono, and serif on click.
 
-## LLM Exports
+## AI Exports
 
-Every build can generate:
+Builds can generate:
 
 - `/llms.txt`
 - `/llms-full.txt`
 
-These make the site easier to ingest from AI tools and internal agents.
+These give AI tools a cleaner entry point than crawling the full UI.
 
 ## Next Steps
 

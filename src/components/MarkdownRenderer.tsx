@@ -1,10 +1,12 @@
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
 import { processMarkdown, type CodeBlockData } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
+import { resolveDocumentPath } from '../lib/content';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
@@ -380,7 +382,12 @@ function MarkdownWalletAddress({
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [processedData, setProcessedData] = useState<ProcessedMarkdownData | null>(null);
+  const currentDocsSlug = location.pathname.startsWith('/docs')
+    ? location.pathname.replace(/^\/docs\/?/, '')
+    : '';
+  const routeContext = useMemo(() => parseDocsRoutePath(currentDocsSlug), [currentDocsSlug]);
   const [isProcessing, setIsProcessing] = useState(true);
   const hasRenderedContentRef = useRef(false);
 
@@ -435,9 +442,30 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
     return parseHtmlToReactNodes(processedData, {
       codeBlocks: processedData.codeBlocks,
-      navigate: (href) => navigate(href),
+      navigate: (href) => {
+        if (href === '/' || href === '/llms') {
+          navigate(href);
+          return;
+        }
+
+        if (href.startsWith('/docs')) {
+          const targetSlug = href.replace(/^\/docs\/?/, '');
+          const parsedTarget = parseDocsRoutePath(targetSlug);
+          const resolvedTargetPath = resolveDocumentPath(parsedTarget.docPath);
+
+          navigate(
+            buildCanonicalDocsPath(resolvedTargetPath, {
+              version: routeContext.activeVersion,
+              locale: routeContext.activeLocale,
+            })
+          );
+          return;
+        }
+
+        navigate(href);
+      },
     });
-  }, [navigate, processedData]);
+  }, [navigate, processedData, routeContext.activeLocale, routeContext.activeVersion]);
 
   if (!processedData && isProcessing) {
     return (

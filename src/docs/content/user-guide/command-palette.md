@@ -7,29 +7,29 @@ The command palette is the fastest way to move through the site.
 - Mac: `Cmd + K`
 - Windows / Linux: `Ctrl + K`
 
-## What It Searches
-
-The palette can surface:
+## What It Can Show
 
 - docs pages from the shared navigation tree
-- full-text matches from Pagefind
-- theme actions
-- built-in FAQ entries
-- quick navigation shortcuts such as the homepage and `llms.txt`
+- built-in actions such as theme changes
+- FAQ answers inline inside the palette
+- quick links like the homepage and `llms.txt`
+- Pagefind full-text results after a production build
 
 ## Keyboard Controls
 
-- `up` / `down` to move
-- `Enter` to open pages or preview FAQ answers
-- `Esc` to close
+- `Up` and `Down` move through results
+- `Enter` opens a result or previews an FAQ answer
+- `Esc` closes the palette
 
 ## Related Shortcut
 
-Theme toggling is available separately with `Cmd/Ctrl + I`.
+`Cmd/Ctrl + I` toggles the theme.
 
-## Why It Matters
+## Search Notes
 
-In large docs sites, readers often know the concept they want, not the section where it lives. The palette closes that gap quickly.
+Local navigation results are always available.
+
+Pagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.
 
 ## Next Steps
 

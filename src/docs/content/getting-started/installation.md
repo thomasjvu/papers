@@ -1,4 +1,4 @@
-﻿# Installation
+# Installation
 
 ## Requirements
 
@@ -13,7 +13,7 @@ npm install
 
 ## Optional Environment Variables
 
-Use `.env.local` when you want custom metadata or GitHub integration.
+Use `.env.local` when you want real site metadata, canonical URLs, sitemap output, or GitHub footer links.
 
 ```env
 VITE_SITE_NAME="Your Docs"
@@ -27,41 +27,37 @@ VITE_DEBUG_MODE="false"
 
 1. Install dependencies.
 2. Update `shared/documentation-config.js`.
-3. Replace the example Markdown files.
+3. Replace the sample Markdown files in `src/docs/content/`.
 4. Run `npm run dev`.
-5. Run `npm run lint` and `npm run build` before deploying.
+5. Rerun `npm run generate:docs` after docs-content or docs-tree edits while dev is running.
+6. Rerun `npm run generate:seo` after changing site metadata or page descriptions.
+7. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before deploy.
 
-## Common Project Paths
+## Project Paths To Know
 
 ```text
-shared/documentation-config.js   Navigation tree and homepage metadata
+shared/documentation-config.js   Docs tree, homepage content, footer links
 src/docs/content/                Markdown source files
-src/config/ui.ts                 UI feature toggles
-src/constants/social.tsx         Footer social links
-public/_headers                  Cache headers
-public/_redirects                SPA rewrites for supported hosts
+src/lib/content.ts               Docs manifest and per-page content loading
+src/config/ui.ts                 Mobile shell behavior
+src/globals.css                  Theme and typography tokens
+src/constants/social.tsx         Footer links
+scripts/generate-docs.mjs        Markdown-to-JSON generation
+scripts/generate-seo.mjs         robots, sitemap, social preview image generation
+scripts/generate-route-html.mjs  route-level HTML metadata snapshots
+scripts/generate-llms.mjs        llms.txt generation
 ```
 
-## How To Verify The Setup
+## What A Successful Build Confirms
 
-Run:
+A clean build means:
 
-```bash
-npm run test
-npm run lint
-npm run build
-```
-
-If all three pass, the template is in good shape for customization and deployment.
-
-## What A Successful Build Means
-
-A successful production build confirms that:
-
-- docs content was generated correctly
-- the TypeScript app compiled
-- the static assets were bundled
-- Pagefind search assets were generated
+- docs JSON was regenerated correctly
+- route metadata HTML was emitted into `dist/`
+- `robots.txt`, `sitemap.xml`, and share images were refreshed
+- the React app compiled
+- static assets were bundled
+- Pagefind assets were created
 - `llms.txt` outputs were refreshed
 
 ## Next Steps

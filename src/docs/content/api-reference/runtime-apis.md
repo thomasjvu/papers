@@ -1,8 +1,14 @@
 # Runtime APIs
 
+## `loadDocsContent()`
+
+Fetches and caches `/docs-index.json` for the current session.
+
+Use it when you need the generated manifest without loading a specific page.
+
 ## `getDocument(path)`
 
-Loads a single document from the generated docs content store.
+Loads one generated document from `/docs-content/...`.
 
 ```ts
 import { getDocument } from '../src/lib/content';
@@ -10,22 +16,34 @@ import { getDocument } from '../src/lib/content';
 const doc = await getDocument('deployment/overview');
 ```
 
-## `loadDocsContent()`
-
-Fetches and caches `/docs-index.json` for the current session.
-
 ## `resolveDocumentPath(slug)`
 
-Maps route slugs such as empty directory paths to a default page.
+Maps route slugs to the actual page path.
 
 That is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.
 
+## `clearContentCache()`
+
+Clears the in-memory docs manifest and page cache.
+
+Useful in tests or when you intentionally want a fresh fetch cycle.
+
+## Navigation Helpers
+
+`src/lib/navigation.ts` also exposes small helpers such as:
+
+- `flattenNavigation()`
+- `findAdjacentPages()`
+- `findPageTags()`
+
+These are useful when you want derived data from the shared docs tree.
+
 ## `usePagefind()`
 
-Loads the Pagefind browser bundle and returns normalized search results.
+Loads the Pagefind browser bundle once and returns normalized search results.
 
 ```ts
-const { search, isAvailable } = usePagefind();
+const { search, isAvailable, isLoading } = usePagefind();
 ```
 
 ## `useTheme()`
@@ -39,6 +57,8 @@ Exposes:
 - `fontFamily`
 - `setFontFamily()`
 
+The UI uses this provider for the settings menu, keyboard shortcut, and font cycling.
+
 ## Notes
 
-These APIs are intentionally small. Most of the template stays configuration-driven rather than introducing a large abstraction layer.
+These APIs are intentionally small. The template stays mostly configuration-driven instead of wrapping everything in a large abstraction layer.

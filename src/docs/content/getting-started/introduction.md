@@ -1,55 +1,50 @@
-﻿# Introduction
+# Introduction
 
-`papers` is a static documentation template for teams that want a polished docs site without standing up a backend or CMS first.
+`papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
 
-It combines React Router navigation, generated Markdown content, Pagefind search, `llms.txt` exports, and a production-ready static build in one project.
+It ships with a docs shell, generated Markdown content, Pagefind search, `llms.txt` exports, and a deployable static build with sitemap, robots, and route-level metadata support.
 
-## What You Get
+## What You Actually Customize
 
-- a homepage and docs framework driven by `shared/documentation-config.js`
-- Markdown source content under `src/docs/content/`
-- a generated docs manifest plus per-page JSON files
-- built-in command palette, file tree, table of contents, and interactive map
-- `llms.txt` and `llms-full.txt` output for AI-friendly discovery
-- theme, motion, and font preferences without extra setup
+Most projects only need to touch four places:
 
-## How To Think About The Template
+- `shared/documentation-config.js` for the docs tree and homepage copy
+- `src/docs/content/` for the Markdown pages users read
+- `.env.local` for site metadata, canonical URL, and GitHub links
+- `src/globals.css` for theme and typography tokens
 
-There are two layers:
+## How The Template Works
 
-1. Configuration: your docs tree, homepage copy, metadata, and shared links.
-2. Content: the Markdown pages your users actually read.
+There are three layers:
 
-That means most customization happens in a few predictable places instead of across dozens of components.
+1. structure in `shared/documentation-config.js`
+2. page content in `src/docs/content/`
+3. generated output in `public/docs-content/`, `public/docs-index.json`, and SEO artifacts in `public/`
 
-## How The Content Pipeline Works
+The browser reads the generated JSON, not the raw Markdown files. That keeps the runtime fast and host-friendly, but it also means content changes need regeneration.
 
-1. Define the docs structure in `shared/documentation-config.js`.
-2. Write Markdown pages in `src/docs/content/`.
-3. Run `npm run generate:docs` or `npm run build`.
-4. The app loads `/docs-index.json` once, then fetches only the requested page from `/docs-content/`.
+## What Ships Out Of The Box
 
-## When This Template Fits Well
+- left-rail docs navigation with search and settings
+- right-rail table of contents and interactive map
+- command palette with local results, FAQ answers, and Pagefind results
+- tabbed code blocks, live HTML/CSS previews, color palettes, and wallet copy blocks
+- dark and light themes, reduced-motion support, and font cycling
+- `llms.txt` and `llms-full.txt` generation during build
+- robots, sitemap, social preview images, and route-level metadata generation
 
-Use it when you want:
-
-- product documentation
-- internal engineering handbooks
-- API or SDK docs
-- changelog or release-note sites
-- AI-ingestible docs without extra infrastructure
-
-## Files To Learn First
+## Learn These Files First
 
 - `shared/documentation-config.js`
 - `src/docs/content/`
 - `src/lib/content.ts`
+- `src/utils/markdownCore.ts`
+- `src/components/MarkdownRenderer.tsx`
 - `scripts/generate-docs.mjs`
-- `scripts/generate-llms.mjs`
-- `scripts/generate-pagefind.mjs`
+- `scripts/generate-seo.mjs`
 
-## Recommended First Steps
+## Next Steps
 
-- read [Quick Start](/docs/getting-started/quick-start)
-- verify your environment in [Installation](/docs/getting-started/installation)
-- learn the editing workflow in [Basic Usage](/docs/user-guide/basic-usage)
+- [Quick Start](/docs/getting-started/quick-start)
+- [Installation](/docs/getting-started/installation)
+- [Basic Usage](/docs/user-guide/basic-usage)

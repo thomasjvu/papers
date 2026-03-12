@@ -1,17 +1,21 @@
-﻿# Vercel
+# Vercel
 
 ## Project Settings
 
-Use these values when importing the repo:
+When importing the repo, use:
 
 - Build command: `npm run build`
 - Output directory: `dist`
 
+If Vercel asks for a framework preset, `Other` is fine.
+
 ## Rewrites
 
-The repo includes `vercel.json` so direct requests to docs routes and `/llms` resolve to the SPA entry.
+The repo includes `vercel.json` as a fallback for unmatched client-side navigation, but Vercel still serves generated route files from `dist/` first.
 
-## Deploy From CLI
+That means known docs routes and `/llms` continue to resolve to their own HTML snapshots with page-level metadata.
+
+## CLI Deploy
 
 ```bash
 npm run build
@@ -20,4 +24,4 @@ npx vercel --prod
 
 ## Notes
 
-Because this project is static, Vercel is mostly acting as a CDN and routing layer. There are no server functions required for the default template.
+This project is static by default. Vercel is acting as a CDN and routing layer rather than running server code.
