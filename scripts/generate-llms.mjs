@@ -13,6 +13,10 @@ function stripUtf8Bom(content) {
   return content.replace(/^\uFEFF/, '');
 }
 
+function ensureTrailingNewline(content) {
+  return content.endsWith('\n') ? content : `${content}\n`;
+}
+
 function getDocFilePath(docPath) {
   const extensions = ['.md', '.mdx'];
 
@@ -164,11 +168,13 @@ async function main() {
       fs.mkdirSync(publicDir, { recursive: true });
     }
 
-    const llmsTxt = (await generateLLMSTxt()).replace(/[ \t]+$/gm, '');
+    const llmsTxt = ensureTrailingNewline((await generateLLMSTxt()).replace(/[ \t]+$/gm, ''));
     fs.writeFileSync(path.join(publicDir, 'llms.txt'), llmsTxt, 'utf8');
     console.log('Generated llms.txt');
 
-    const llmsFullTxt = (await generateLLMSFullTxt()).replace(/[ \t]+$/gm, '');
+    const llmsFullTxt = ensureTrailingNewline(
+      (await generateLLMSFullTxt()).replace(/[ \t]+$/gm, '')
+    );
     fs.writeFileSync(path.join(publicDir, 'llms-full.txt'), llmsFullTxt, 'utf8');
     console.log('Generated llms-full.txt');
 

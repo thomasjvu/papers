@@ -42,6 +42,18 @@ function parseFrontmatter(content) {
   };
 }
 
+function normalizeIndex(index) {
+  if (!index || !Array.isArray(index.paths) || typeof index.titles !== 'object' || index.titles === null) {
+    return null;
+  }
+
+  return {
+    paths: index.paths,
+    count: index.count,
+    titles: index.titles,
+  };
+}
+
 export function extractTopLevelTitle(docPath, content) {
   const { body, frontmatter } = parseFrontmatter(content);
   const titleMatch = body.match(/^#\s+(.+)$/m);
@@ -75,4 +87,30 @@ export function createDocsArtifacts(docsByPath, generatedAt = new Date().toISOSt
     },
     documents,
   };
+}
+
+export function stabilizeIndexGeneration(previousIndex, nextIndex, fallbackGeneratedAt = new Date().toISOString()) {
+  const comparablePrevious = normalizeIndex(previousIndex);
+  const comparableNext = normalizeIndex(nextIndex);
+
+  if (
+    comparablePrevious &&
+    comparableNext &&
+    JSON.stringify(comparablePrevious) === JSON.stringify(comparableNext) &&
+    typeof previousIndex.generated === 'string'
+  ) {
+    return {
+      ...nextIndex,
+      generated: previousIndex.generated,
+    };
+  }
+
+  return {
+    ...nextIndex,
+    generated: fallbackGeneratedAt,
+  };
+}
+
+export function serializeArtifactJson(value) {
+  return `${JSON.stringify(value, null, 2)}\n`;
 }

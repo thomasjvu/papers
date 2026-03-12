@@ -4,7 +4,11 @@ import { dirname, join } from 'path';
 
 import { documentationTree } from '../shared/documentation-config.js';
 
-import { createDocsArtifacts } from './lib/docsArtifacts.mjs';
+import {
+  createDocsArtifacts,
+  serializeArtifactJson,
+  stabilizeIndexGeneration,
+} from './lib/docsArtifacts.mjs';
 
 function resolveDocFilePath(docPath) {
   const extensions = ['.md', '.mdx'];
@@ -17,6 +21,18 @@ function resolveDocFilePath(docPath) {
   }
 
   return null;
+}
+
+async function readExistingIndex(indexPath) {
+  try {
+    return JSON.parse(await readFile(indexPath, 'utf-8'));
+  } catch (error) {
+    if (error.code !== 'ENOENT') {
+      console.warn(`Could not read existing docs index at ${indexPath}: ${error.message}`);
+    }
+
+    return null;
+  }
 }
 
 async function loadMarkdownContent(docPath) {
@@ -63,7 +79,7 @@ async function writeDocumentFiles(contentDir, documents) {
     Object.entries(documents).map(async ([docPath, document]) => {
       const outputPath = join(contentDir, `${docPath}.json`);
       await mkdir(dirname(outputPath), { recursive: true });
-      await writeFile(outputPath, JSON.stringify(document, null, 2));
+      await writeFile(outputPath, serializeArtifactJson(document));
     })
   );
 }
@@ -73,8 +89,12 @@ async function generateDocsContent() {
     console.log('Generating documentation content...');
 
     const rawContent = await processFileItems(documentationTree);
-    const { index, documents } = createDocsArtifacts(rawContent, new Date().toISOString());
+    const generatedAt = new Date().toISOString();
+    const { index: nextIndex, documents } = createDocsArtifacts(rawContent, generatedAt);
     const contentDir = join(process.cwd(), 'public', 'docs-content');
+    const indexPath = join(process.cwd(), 'public', 'docs-index.json');
+    const previousIndex = await readExistingIndex(indexPath);
+    const index = stabilizeIndexGeneration(previousIndex, nextIndex, generatedAt);
 
     await rm(contentDir, { recursive: true, force: true });
     await mkdir(contentDir, { recursive: true });
@@ -85,8 +105,7 @@ async function generateDocsContent() {
     console.log(`Generated documentation content for ${index.count} files`);
     console.log(`Content files saved to: ${contentDir}`);
 
-    const indexPath = join(process.cwd(), 'public', 'docs-index.json');
-    await writeFile(indexPath, JSON.stringify(index, null, 2));
+    await writeFile(indexPath, serializeArtifactJson(index));
 
     console.log(`Generated docs index: ${indexPath}`);
     return index;

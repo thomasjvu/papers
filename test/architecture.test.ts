@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 
-import { createDocsArtifacts } from '../scripts/lib/docsArtifacts.mjs';
+import {
+  createDocsArtifacts,
+  serializeArtifactJson,
+  stabilizeIndexGeneration,
+} from '../scripts/lib/docsArtifacts.mjs';
 import { combineSearchResults } from '../src/components/CommandPalette/searchUtils.ts';
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
@@ -59,6 +63,60 @@ export const architectureTests: ArchitectureTestCase[] = [
         frontmatter: {},
         content: 'Body only',
       });
+    },
+  },
+  {
+    name: 'docs artifact helpers keep stable manifest metadata and trailing newlines',
+    run: () => {
+      const previousIndex = {
+        generated: '2026-03-11T00:00:00.000Z',
+        paths: ['guides/intro'],
+        count: 1,
+        titles: {
+          'guides/intro': 'Intro',
+        },
+      };
+      const unchangedIndex = {
+        generated: '2026-03-12T00:00:00.000Z',
+        paths: ['guides/intro'],
+        count: 1,
+        titles: {
+          'guides/intro': 'Intro',
+        },
+      };
+      const changedIndex = {
+        generated: '2026-03-12T00:00:00.000Z',
+        paths: ['guides/intro', 'guides/advanced'],
+        count: 2,
+        titles: {
+          'guides/intro': 'Intro',
+          'guides/advanced': 'Advanced',
+        },
+      };
+
+      assert.deepEqual(
+        stabilizeIndexGeneration(previousIndex, unchangedIndex, '2026-03-12T00:00:00.000Z'),
+        {
+          generated: '2026-03-11T00:00:00.000Z',
+          paths: ['guides/intro'],
+          count: 1,
+          titles: {
+            'guides/intro': 'Intro',
+          },
+        }
+      );
+
+      assert.deepEqual(
+        stabilizeIndexGeneration(previousIndex, changedIndex, '2026-03-12T00:00:00.000Z'),
+        changedIndex
+      );
+
+      assert.equal(
+        serializeArtifactJson({
+          hello: 'world',
+        }),
+        '{\n  "hello": "world"\n}\n'
+      );
     },
   },
   {

@@ -23,7 +23,7 @@ type FileTreeItemProps = {
   currentPath?: string;
 };
 
-const NESTED_INDENT_STEP = 10;
+const NESTED_INDENT_STEP = 14;
 
 const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
   ({ item, onSelect, depth, onToggle, currentPath }) => {
@@ -31,6 +31,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
     const isActive = currentPath === item.path;
     const isDirectory = item.type === 'directory';
     const hasChildren = isDirectory && item.children && item.children.length > 0;
+    const indent = depth * NESTED_INDENT_STEP;
 
     const handleClick = useCallback(() => {
       if (isDirectory && hasChildren) {
@@ -64,7 +65,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             fontFamily: 'var(--mono-font)',
             letterSpacing: '-0.5px',
             fontSize: '0.8rem',
-            paddingLeft: `${Math.max(depth - 1, 0) * NESTED_INDENT_STEP}px`,
+            paddingLeft: `${indent}px`,
           }}
         >
           <span className="mr-2 flex items-center">
