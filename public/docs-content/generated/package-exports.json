@@ -1,0 +1,8 @@
+{
+  "path": "generated/package-exports",
+  "title": "Generated Package Export Inventory",
+  "description": "This file is generated from package.json exports.",
+  "frontmatter": {},
+  "content": "# Generated Package Export Inventory\n\nThis file is generated from `package.json` exports.\n\nPublic exports: **10**\n\n| Package | Export | Types | Import | Require |\n| --- | --- | --- | --- | --- |\n| @phantasy/agent | `.` | `./dist/index.d.ts` | `./dist/index.js` | `./dist/index.js` |\n| - | `./config` | `./dist/config/config-loader.d.ts` | `./dist/config/config-loader.js` | - |\n| @phantasy/core-runtime | `./core-runtime` | `./dist/core-runtime/index.d.ts` | `./dist/core-runtime/index.js` | - |\n| - | `./plugins` | `./dist/plugins/base-plugin.d.ts` | `./dist/plugins/base-plugin.js` | - |\n| @phantasy/profile-character | `./profile-character` | `./dist/profile-character/index.d.ts` | `./dist/profile-character/index.js` | - |\n| @phantasy/profile-coder | `./profile-coder` | `./dist/profile-coder/index.d.ts` | `./dist/profile-coder/index.js` | - |\n| - | `./server` | `./dist/server/server.d.ts` | `./dist/server/server.js` | - |\n| @phantasy/server-admin | `./server-admin` | `./dist/server-admin/index.d.ts` | `./dist/server-admin/index.js` | - |\n| - | `./skills` | `./dist/skills/index.d.ts` | `./dist/skills/index.js` | - |\n| - | `./types` | `./dist/types/index.d.ts` | `./dist/types/index.js` | - |\n",
+  "sourcePath": "src/docs/content/generated/package-exports.md"
+}

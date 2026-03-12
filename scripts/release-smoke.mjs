@@ -48,7 +48,8 @@ function main() {
   assert(existsSync(distDocsIndexPath), 'Missing dist/docs-index.json.');
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
   assert(existsSync(join(distDir, 'sitemap.xml')), 'Missing dist/sitemap.xml.');
-  assert(existsSync(join(distDir, 'llms', 'index.html')), 'Missing dist/llms/index.html.');
+  assert(existsSync(join(distDir, 'llms.txt')), 'Missing dist/llms.txt.');
+  assert(existsSync(join(distDir, 'llms-full.txt')), 'Missing dist/llms-full.txt.');
   assert(existsSync(join(distDir, '404.html')), 'Missing dist/404.html.');
   assert(existsSync(distHeadersPath), 'Missing dist/_headers.');
 
@@ -76,7 +77,7 @@ function main() {
     );
   }
 
-  const sampleDocPath = docsIndex.paths.find((path) => path !== 'llms') || defaultDocPath;
+  const sampleDocPath = docsIndex.paths[0] || defaultDocPath;
   const sampleDocJsonPath = join(distDocsContentDir, `${buildDocsContentPath(sampleDocPath)}.json`);
   assert(existsSync(sampleDocJsonPath), `Missing generated docs JSON for ${sampleDocPath}.`);
   const sampleDocument = JSON.parse(readText(sampleDocJsonPath));

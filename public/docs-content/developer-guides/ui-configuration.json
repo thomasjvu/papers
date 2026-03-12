@@ -1,8 +1,0 @@
-{
-  "path": "developer-guides/ui-configuration",
-  "title": "UI Configuration",
-  "description": "The docs shell is mostly configured through a few focused files.",
-  "frontmatter": {},
-  "content": "# UI Configuration\n\nThe docs shell is mostly configured through a few focused files.\n\n## `src/config/ui.ts`\n\nUse this file for shell behavior that should be easy to change in a fork.\n\nRight now it controls:\n\n- whether the floating mobile file-tree button is shown\n- where that mobile button appears\n\n## Main Shell Layout\n\n`src/components/docs/DocumentationPage.tsx` owns the docs layout:\n\n- logo and search at the top of the left rail\n- file tree in the middle\n- map, `llms.txt`, and settings at the bottom\n- content in the center\n- `On This Page` or the interactive map in the right rail\n\n## Theme, Motion, And Font Controls\n\nThese settings come from `ThemeProvider` and are surfaced through `SettingsMenu`.\n\nThe font control cycles through sans, mono, and serif instead of opening a dropdown.\n\n## Supporting Configuration\n\n- `src/constants/social.tsx`: footer links\n- `src/globals.css`: shell tokens, typography, spacing, code styles\n- `shared/documentation-config.js`: homepage content and docs structure\n\n## Guidance\n\nIf a change is global, start with tokens or config.\n\nIf a change is specific to one interaction, edit the component directly.\n",
-  "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
-}

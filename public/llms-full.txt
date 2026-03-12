@@ -1,4 +1,4 @@
-# papers Documentation - Full Content
+# Phantasy Documentation - Full Content
 
 > Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
 
@@ -12,145 +12,111 @@ URL: /docs/getting-started/introduction
 
 # Introduction
 
-`papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
+Phantasy lets you build an AI companion or VTuber who can run her own site, content, automations, and business.
 
-It ships with a docs shell, generated Markdown content, Pagefind search, `llms.txt` exports, and a deployable static build with sitemap, robots, and route-level metadata support.
+That is the whole idea. The companion is the product surface. The CMS, workflows, channels, and operations live around her on the same runtime.
 
-## What You Actually Customize
+```bash
+npm install @phantasy/agent
+```
 
-Most projects only need to touch four places:
+## The Product Model
 
-- `shared/documentation-config.js` for the docs tree and homepage copy
-- `src/docs/content/` for the Markdown pages users read
-- `.env.local` for site metadata, canonical URL, and GitHub links
-- `src/globals.css` for theme and typography tokens
+Phantasy organizes first-party features into five workspaces:
 
-## How The Template Works
+- `Character`: identity, memory, behavior, voice, avatar
+- `Site`: website, themes, media, Chronicle publishing
+- `Business`: channels, integrations, notifications, monetization
+- `Automations`: workflows, schedules, approvals, background activity
+- `Operations`: providers, auth, monitoring, logs, testing, admin tools
 
-There are three layers:
+If you remember those five, the repo makes sense quickly.
 
-1. structure in `shared/documentation-config.js`
-2. page content in `src/docs/content/`
-3. generated output in `public/docs-content/`, `public/docs-index.json`, and SEO artifacts in `public/`
+## Why The Runtime Split Exists
 
-The browser reads the generated JSON, not the raw Markdown files. That keeps the runtime fast and host-friendly, but it also means content changes need regeneration.
+Phantasy keeps a small trusted core, then layers product surfaces and privileged profiles on top.
 
-## What Ships Out Of The Box
+That means:
 
-- left-rail docs navigation with search and settings
-- right-rail table of contents and interactive map
-- command palette with local results, FAQ answers, and Pagefind results
-- tabbed code blocks, live HTML/CSS previews, color palettes, and wallet copy blocks
-- dark and light themes, reduced-motion support, and font cycling
-- `llms.txt` and `llms-full.txt` generation during build
-- robots, sitemap, social preview images, and route-level metadata generation
+- the default runtime stays on `core-runtime`
+- coding tools are opt-in through `coder`
+- companion/media features are opt-in through `character`
+- server/admin surfaces are opt-in through `server-admin`
 
-## Learn These Files First
+The product stays broad without pretending everything belongs in the base trust boundary.
 
-- `shared/documentation-config.js`
-- `src/docs/content/`
-- `src/lib/content.ts`
-- `src/utils/markdownCore.ts`
-- `src/components/MarkdownRenderer.tsx`
-- `scripts/generate-docs.mjs`
-- `scripts/generate-seo.mjs`
+## Start With These Shapes
 
-## Next Steps
+Most teams should begin with one of three front-door shapes:
 
-- [Quick Start](/docs/getting-started/quick-start)
+- `business-cms`: the flagship path
+- `operator`: the same runtime with operations foregrounded
+- `creator`: publishing and media foregrounded
+
+If you are unsure, choose `business-cms`.
+
+## Read Next
+
 - [Installation](/docs/getting-started/installation)
-- [Basic Usage](/docs/user-guide/basic-usage)
+- [First Run](/docs/getting-started/first-run)
+- [Use Cases](/docs/getting-started/use-cases)
+- [Workspaces](/docs/workspaces)
+- [Runtime Packages](/docs/architecture/runtime-packages)
 
 
 ---
 
 
-### Quick Start
+### Use Cases
 
-URL: /docs/getting-started/quick-start
+URL: /docs/getting-started/use-cases
 
-# Quick Start
+# Use Cases
 
-Use this path if you want your own docs site running quickly with the least amount of ceremony.
+Phantasy is broad. The docs are opinionated about where it lands best.
 
-## 1. Clone And Start The App
+## 1. `business-cms`
 
-```bash
-git clone https://github.com/thomasjvu/papers.git
-cd papers
-npm install
-npm run dev
-```
+This is the flagship story.
 
-Open `http://localhost:3333`.
+You are building a public-facing companion or VTuber. She has a site, a publishing flow, automations, and business operations around the same identity.
 
-## 2. Set Basic Metadata
+Typical stack:
 
-Create `.env.local` if you want your own site name, canonical URL, social metadata, or GitHub links.
+- Chronicle publishing
+- website modes and themes
+- Live2D, VRM, or PNGTuber presentation
+- notifications, integrations, and workflows behind the scenes
 
-```env
-VITE_SITE_NAME="Your Docs"
-VITE_SITE_URL="https://docs.example.com"
-VITE_GITHUB_URL="https://github.com/your-org/your-repo"
-VITE_GITHUB_BRANCH="main"
-```
+Start here if you want the shortest path to a coherent product.
 
-`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and social preview metadata.
+## 2. `operator`
 
-## 3. Replace The Docs Tree
+This is the same runtime with operations foregrounded.
 
-Edit `shared/documentation-config.js` so the sections, page names, tags, homepage hero, and footer links match your project.
+Use it when the companion is also the operator for approvals, publishing queues, automation runs, or internal tooling. The important part is that the character layer and the operational layer still share one system.
 
-## 4. Replace The Markdown
+## 3. `creator`
 
-Write your real content in `src/docs/content/`.
+This is the publishing-forward version.
 
-Each `path` in the shared docs tree should map to one Markdown file with the same relative path.
+Use it when content, media, and distribution are the most visible part of the product, but you still want the companion identity, workflows, and operational surface behind it.
 
-## 5. Regenerate Docs While You Work
+## How To Choose Quickly
 
-The app reads generated JSON from `public/docs-content/`, not raw Markdown directly.
+- If you are unsure, choose `business-cms`.
+- If users notice operations first, choose `operator`.
+- If users notice publishing first, choose `creator`.
 
-If the dev server is already running, rerun this after changing Markdown or the docs tree:
+All three shapes sit on the same runtime and the same five workspaces. The difference is emphasis, not architecture.
 
-```bash
-npm run generate:docs
-```
+## Good Follow-Up Pages
 
-If you changed metadata that affects sitemap, canonical tags, or share previews, also run:
+- [Website Modes](/docs/website-mode)
+- [Chronicle](/docs/features/chronicle)
+- [Live2D Setup](/docs/guides/LIVE2D_SETUP)
+- [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY)
 
-```bash
-npm run generate:seo
-```
-
-If you want fresh AI exports too, run:
-
-```bash
-npm run generate:llms
-```
-
-## 6. Validate Before Shipping
-
-```bash
-npm test
-npm run lint
-npm run build
-npm run release:check
-```
-
-## Recommended First Edits
-
-- set your site metadata in `.env.local`
-- trim unused sections from the shared docs tree
-- replace the sample docs content
-- update social links and homepage copy
-- run a full build before the first deploy
-
-## Next Steps
-
-- [Installation](/docs/getting-started/installation)
-- [Configuration](/docs/user-guide/configuration)
-- [Deployment Overview](/docs/deployment/overview)
 
 ---
 
@@ -161,205 +127,272 @@ URL: /docs/getting-started/installation
 
 # Installation
 
-## Requirements
+Phantasy is Bun-first in the repo and npm-friendly when you install the published package.
 
-- Node.js 18 or newer
-- npm 9 or newer
+## Default Install
 
-## Install Dependencies
+This is the shortest path and the one the docs are tuned for:
 
 ```bash
-npm install
+npm install @phantasy/agent
+npx phantasy create business-cms my-brand
+npx phantasy start --config config/agents/my-brand.json
 ```
 
-## Optional Environment Variables
+That gives you the flagship product shape: companion, site, business, automations, and operations in one runtime.
 
-Use `.env.local` when you want real site metadata, canonical URLs, sitemap output, or GitHub footer links.
+If the CLI is already on your `PATH`, you can drop `npx`.
 
-```env
-VITE_SITE_NAME="Your Docs"
-VITE_SITE_URL="https://docs.example.com"
-VITE_GITHUB_URL="https://github.com/your-org/your-repo"
-VITE_GITHUB_BRANCH="main"
-VITE_DEBUG_MODE="false"
+## Repo Install
+
+If you are working from source instead of the published package:
+
+```bash
+git clone https://github.com/phantasy-bot/agent.git
+cd agent
+bun install
+cp .env.example .env
+./start.sh
 ```
 
-## First-Run Checklist
+Default local access:
 
-1. Install dependencies.
-2. Update `shared/documentation-config.js`.
-3. Replace the sample Markdown files in `src/docs/content/`.
-4. Run `npm run dev`.
-5. Rerun `npm run generate:docs` after docs-content or docs-tree edits while dev is running.
-6. Rerun `npm run generate:seo` after changing site metadata or page descriptions.
-7. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before deploy.
+- Server/API: `http://localhost:2000`
+- Admin UI dev server: `http://localhost:5173`
+- Embedded admin route: `http://localhost:2000/admin`
 
-## Project Paths To Know
+## Which Shape To Pick
 
-```text
-shared/documentation-config.js   Docs tree, homepage content, footer links
-src/docs/content/                Markdown source files
-src/lib/content.ts               Docs manifest and per-page content loading
-src/config/ui.ts                 Mobile shell behavior
-src/globals.css                  Theme and typography tokens
-src/constants/social.tsx         Footer links
-scripts/generate-docs.mjs        Markdown-to-JSON generation
-scripts/generate-seo.mjs         robots, sitemap, social preview image generation
-scripts/generate-route-html.mjs  route-level HTML metadata snapshots
-scripts/generate-llms.mjs        llms.txt generation
+- `business-cms`: default, public-facing companion business
+- `operator`: same foundation, more operationally foregrounded
+- `creator`: same foundation, publishing/media foregrounded
+
+If you are evaluating the product, do not start with the developer-only shape. It is useful, but it is not the best first impression.
+
+## Useful Repo Commands
+
+```bash
+bun run dev
+bun run dev:server
+bun run dev:ui
+bun run test
+bun run typecheck
+bun run build
 ```
 
-## What A Successful Build Confirms
+## Release Checks
 
-A clean build means:
+```bash
+bun run typecheck
+bun run test
+bun run validate:standards
+bun run docs:check
+bun run build
+npm pack --dry-run
+```
 
-- docs JSON was regenerated correctly
-- route metadata HTML was emitted into `dist/`
-- `robots.txt`, `sitemap.xml`, and share images were refreshed
-- the React app compiled
-- static assets were bundled
-- Pagefind assets were created
-- `llms.txt` outputs were refreshed
+## Next
 
-## Next Steps
+- [First Run](/docs/getting-started/first-run)
+- [Local Development](/docs/getting-started/local-development)
+- [Configuration](/docs/getting-started/configuration)
 
-- [Basic Usage](/docs/user-guide/basic-usage)
-- [Troubleshooting](/docs/user-guide/troubleshooting)
 
 ---
 
 
-## User Guide
+### First Run
 
+URL: /docs/getting-started/first-run
 
-### Basic Usage
+# First Run
 
-URL: /docs/user-guide/basic-usage
+This is the quickest honest demo of Phantasy.
 
-# Basic Usage
+## Start The Flagship Shape
 
-The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.
-
-## Reading The Docs UI
-
-The docs shell has three main surfaces:
-
-- the left rail for navigation, search, and settings
-- the center column for content
-- the right rail for either `On This Page` or the interactive map
-
-On mobile, the file tree opens from the floating button and the map opens from the left-rail tools.
-
-## Writer Workflow
-
-1. edit a Markdown file under `src/docs/content/`
-2. update `shared/documentation-config.js` if the page path, title, or section changed
-3. run `npm run generate:docs` if the dev server is already open
-4. run `npm run generate:seo` if the change affects page descriptions, site metadata, or social previews
-5. refresh the page and confirm links, headings, and custom blocks render correctly
-6. run `npm run build` and `npm run release:check` before publishing
-
-## Internal Links
-
-Use absolute docs links so navigation stays inside the SPA shell:
-
-```md
-[Deployment Overview](/docs/deployment/overview)
+```bash
+npm install @phantasy/agent
+npx phantasy create business-cms my-brand
+npx phantasy start --config config/agents/my-brand.json
 ```
 
-## Optional Frontmatter
+Repo checkout path:
 
-You can set a custom page description with YAML frontmatter:
-
-```md
----
-description: Concise summary used for search, sitemap-related metadata, and social previews.
----
+```bash
+bun install
+cp .env.example .env
+./start.sh
 ```
 
-If you omit it, the generator uses the first meaningful paragraph.
+## Check The Main Surface
 
-## What Is Generated
+1. Open `http://localhost:5173` in local dev or `http://localhost:2000/admin` in the server build.
+2. Confirm the five workspaces are visible: Character, Site, Business, Automations, Operations.
+3. In `Website`, set the mode to `public`.
+4. In `Character`, give the companion a name, voice, or avatar.
+5. In `Content`, publish a Chronicle entry.
+6. Confirm the public site or `/blog` reflects that same runtime.
 
-The browser does not load Markdown source files directly.
+## Quick Server Smoke Test
 
-The app fetches `/docs-index.json`, then loads only the requested page from `/docs-content/...`. That keeps the site static-host friendly and avoids loading the whole corpus on first paint.
+Health:
 
-## Search Behavior
+```bash
+curl http://localhost:2000/health
+```
 
-The command palette always knows about docs-tree entries.
+Expected shape:
 
-Full-text Pagefind results appear after a production build, so local dev is best for navigation checks and production builds are best for search validation.
+```json
+{
+  "status": "ok",
+  "timestamp": "2026-03-12T12:00:00.000Z"
+}
+```
 
-## GitHub Footer Links
+Public agent summary:
 
-`edit`, `issue`, and `source` links appear when `VITE_GITHUB_URL` is configured.
+```bash
+curl http://localhost:2000/api/agent
+```
 
-## Next Steps
+## What The Admin UI Is For
 
-- [Command Palette](/docs/user-guide/command-palette)
-- [Interactive Map](/docs/user-guide/interactive-map)
-- [Troubleshooting](/docs/user-guide/troubleshooting)
+The admin shell is where you operate the companion, not where you escape the product story.
+
+Use it for:
+
+- config editing
+- publishing
+- media and avatar setup
+- workflow and notification handling
+- monitoring and diagnostics
+
+For avatar assets, the common paths are:
+
+- `/public/vrm/...` for direct VRM files
+- `/public/live2d/...` for direct Live2D entry files
+- `/admin/avatars/<agentId>` for PNGTuber frame packs
+- Media workspace uploads when you want storage-backed URLs
+
+## When To Drop To Profiles
+
+Once the flagship path feels clear, you can narrow capability on purpose:
+
+```json
+{ "pluginProfiles": ["coder"] }
+```
+
+```json
+{ "pluginProfiles": ["coder", "character"] }
+```
+
+If `pluginProfiles` is omitted, the runtime stays on `["core-runtime"]`.
+
+## Operational Checks
+
+- logs: `bun run dev` locally, stdout in production
+- protected status endpoints: `/admin/api/status/health` and `/admin/api/status/health/detailed`
+- detailed route inventory: [Generated Admin API Route Inventory](/docs/generated/api-routes)
+
+## Next
+
+- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
+- [Configuration](/docs/getting-started/configuration)
+- [Runtime Packages](/docs/architecture/runtime-packages)
+- [Deployment](/docs/guides/DEPLOY)
+
 
 ---
 
 
-### Advanced Features
+### Local Development
 
-URL: /docs/user-guide/advanced-features
+URL: /docs/getting-started/local-development
 
-# Advanced Features
+# Local Development
 
-`papers` ships with more than plain Markdown rendering.
+Phantasy is Bun-first in the main product repo and ships two common local paths: a fast repo loop and a production-like Docker loop.
 
-## Command Palette
+## Fast Path
 
-The command palette merges:
+From the root of `@phantasy/agent`:
 
-- docs pages from the shared navigation tree
-- built-in actions like theme changes
-- inline FAQ answers
-- Pagefind full-text results after a production build
+```bash
+bun install
+cp .env.example .env
+./start.sh
+```
 
-## Interactive Map
+`./start.sh` handles the expected local PostgreSQL container and then starts `bun run dev`.
 
-The right rail can switch from `On This Page` to a graph view of the docs tree.
+Useful variants:
 
-That gives readers a second navigation surface without leaving the page they are reading.
+```bash
+./start.sh postgres
+./start.sh dev
+./start.sh stop
+./start.sh restart
+```
 
-## Rich Markdown Blocks
+## Manual Dev Commands
 
-The renderer supports:
+If you want finer control over the server and UI processes:
 
-- syntax-highlighted code blocks
-- multi-tab code fences
-- live HTML and CSS previews
-- `ColorPalette` blocks
-- wallet copy blocks rendered from semantic HTML
+```bash
+bun run dev
+bun run dev:server
+bun run dev:ui
+```
 
-## Reader Preferences
+The main scripts live in the root `package.json`:
 
-The settings menu lets readers change:
+- `bun run dev`: server plus Vite admin UI
+- `bun run dev:server`: Express server only
+- `bun run dev:ui`: Vite admin UI only
+- `bun run build`: admin UI + server production build
 
-- theme
-- motion preference
-- font family
+## Production-Like Local Docker
 
-The font control cycles through sans, mono, and serif on click.
+Use Docker when you want the container path the product documents for self-hosting:
 
-## AI Exports
+```bash
+docker compose -f docker-compose.local.yml up -d
+docker compose -f docker-compose.local.yml down
+```
 
-Builds can generate:
+## Default Access Points
 
-- `/llms.txt`
-- `/llms-full.txt`
+- Server/API: `http://localhost:2000`
+- Admin UI Vite dev server: `http://localhost:5173`
+- Embedded admin route: `http://localhost:2000/admin`
 
-These give AI tools a cleaner entry point than crawling the full UI.
+## Focused Verification
 
-## Next Steps
+Prefer targeted checks before broad suites:
 
-- [Configuration](/docs/user-guide/configuration)
-- [LLMs.txt](/llms)
+```bash
+bun run test:core -- src/path/to/test.ts
+bun run test:ui:components -- src/admin-ui/path/to/test.tsx
+bun run validate:standards
+bun run docs:check
+```
+
+Run the broader set when the change surface is wide:
+
+```bash
+bun run test
+bun run typecheck
+bun run build
+```
+
+## Related Docs
+
+- [Installation](/docs/getting-started/installation)
+- [First Run](/docs/getting-started/first-run)
+- [Configuration](/docs/getting-started/configuration)
+- [Deployment](/docs/guides/DEPLOY)
 
 
 ---
@@ -367,1246 +400,3655 @@ These give AI tools a cleaner entry point than crawling the full UI.
 
 ### Configuration
 
-URL: /docs/user-guide/configuration
+URL: /docs/getting-started/configuration
 
 # Configuration
 
-Most customization happens in a small set of files.
+Phantasy merges configuration from a few places. The order matters.
 
-## Primary Configuration Files
+## Priority
 
-- `shared/documentation-config.js`: docs tree, homepage hero, quick-start steps, footer links, page tags
-- `src/docs/content/`: page source content
-- `.env.local`: site metadata, canonical URL, GitHub URLs
-- `src/globals.css`: theme tokens, typography, code styling
-- `src/config/ui.ts`: mobile docs-shell behavior
-- `src/constants/social.tsx`: footer links
+Highest wins:
 
-## Recommended Order
+1. persisted admin/database config
+2. environment variables
+3. agent config files
+4. built-in defaults
 
-1. define the docs structure in `shared/documentation-config.js`
-2. write or replace the Markdown pages in `src/docs/content/`
-3. set `VITE_*` metadata in `.env.local`
-4. adjust theme and typography tokens in `src/globals.css`
-5. run `npm run generate:docs`, `npm run generate:seo`, then `npm run build`
+Generated defaults live in [Defaults Inventory](/docs/generated/defaults).
 
-## What Requires Regeneration
+## The Shape That Matters
 
-Rerun `npm run generate:docs` when you change:
+Use the current runtime schema directly.
 
-- docs-tree paths or titles
-- Markdown page content
-- page descriptions that feed generated output
+The main keys are:
 
-Rerun `npm run generate:seo` when you change:
+- `pluginProfiles`
+- `modelRouting`
+- `providers`
+- `integrations`
+- `memoryConfig`
+- `skills`
+- `mcpServers`
 
-- `VITE_SITE_URL`
-- `VITE_SITE_NAME`
-- homepage messaging that should appear in preview cards
-- route descriptions or canonical behavior
+Legacy aliases are not the documented contract anymore.
 
-Rerun `npm run generate:llms` when you want fresh AI exports without a full build.
+## Minimal Example
 
-## What Does Not Need Content Regeneration
+```json
+{
+  "id": "my-agent",
+  "name": "My Agent",
+  "instructions": "Be clear and reliable.",
+  "pluginProfiles": ["character", "server-admin"],
+  "modelRouting": {
+    "default": { "provider": "kilo-gateway", "model": "minimax/minimax-m2.5:free" },
+    "fast": { "provider": "kilo-gateway", "model": "minimax/minimax-m2.5:free" }
+  },
+  "providers": {
+    "kilo-gateway": { "enabled": true }
+  },
+  "memoryConfig": {
+    "provider": "markdown"
+  }
+}
+```
 
-UI-only changes in React, CSS, or providers can usually be checked with the dev server alone.
+## Profiles
 
-## Notes On Descriptions
+`pluginProfiles` is the main capability switch:
 
-Use Markdown frontmatter when a page needs a custom SEO or social summary:
+- `core-runtime`
+- `coder`
+- `character`
+- `server-admin`
+- `agent` as shorthand for `coder + character + server-admin`
+
+If you omit `pluginProfiles`, the runtime stays on `["core-runtime"]`.
+
+## Skills And MCP
+
+Two config surfaces round out the modern agent model:
+
+- `skills` for enabling `SKILL.md` instruction packs
+- `mcpServers` for attaching external Model Context Protocol tools
+
+Example:
+
+```json
+{
+  "skills": {
+    "github": { "enabled": true }
+  },
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  }
+}
+```
+
+## Validation
+
+```bash
+phantasy init --output config/agents/my-agent.json
+phantasy validate config/agents/my-agent.json
+```
+
+## Related Docs
+
+- [Agent Compatibility](/docs/architecture/agent-compatibility)
+- [Providers Inventory](/docs/generated/providers)
+- [Runtime Packages](/docs/architecture/runtime-packages)
+
+
+---
+
+
+### Bootstrapping
+
+URL: /docs/getting-started/bootstrapping
+
+# Bootstrapping
+
+Phantasy has two filesystem stories:
+
+- a machine-level home at `~/.phantasy/`
+- a product/runtime workspace, usually `./workspace`
+
+Keeping those separate makes the repo easier to reason about.
+
+## Global Home
+
+Use the global home for provider credentials, hooks, and a default personal workspace:
+
+```bash
+phantasy setup
+phantasy setup provider --list
+phantasy setup provider --provider openai --api-key <key>
+```
+
+`phantasy setup` creates a structure like this:
+
+```text
+~/.phantasy/
+├── config.json
+├── credentials/
+├── hooks/
+└── workspace/
+    └── default/
+        ├── AGENTS.md
+        ├── SOUL.md
+        ├── USER.md
+        ├── IDENTITY.md
+        ├── TOOLS.md
+        ├── HEARTBEAT.md
+        ├── BOOT.md
+        ├── memory/MEMORY.md
+        └── sessions/
+```
+
+That is the personal operator home, not the only place a product runtime can live.
+
+## Runtime Workspace
+
+The actual runtime resolves its workspace root from:
+
+1. `memoryConfig.workspacePath`
+2. `PHANTASY_WORKSPACE`
+3. `./workspace`
+
+When it looks for agent context files, it checks these candidates in order:
+
+- `<workspaceRoot>`
+- `<workspaceRoot>/<agentId>`
+- `<workspaceRoot>/agents/<agentId>`
+- `~/.phantasy/workspace/<agentId>`
+
+So a repo-local workspace, an agent-specific subfolder, and the global fallback can all work.
+
+## What Lives In The Workspace
+
+Phantasy uses the workspace for a few different surfaces:
+
+- context files such as `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `TOOLS.md`, `BOOT.md`, and `HEARTBEAT.md`
+- markdown memory under `agents/<agentId>/memory/`
+- conversation history under `agents/<agentId>/conversations/`
+- per-user context under `users/<userId>/USER.md`
+
+One subtle point: the bootstrapped global default workspace includes `memory/MEMORY.md`, while the repo/runtime memory path usually lands under `agents/<agentId>/memory/`. Both are understood by the current loader.
+
+## Good Default
+
+For a normal product setup:
+
+- keep secrets in env vars or `~/.phantasy/config.json`
+- keep product memory and companion data in `./workspace`
+- let the CLI and admin shell point at the same workspace root
+
+If the data should travel with the repo, do not leave it only under `~/.phantasy/`.
+
+## Next
+
+- [Configuration](/docs/getting-started/configuration)
+- [Memory System](/docs/architecture/memory-system)
+- [Agent Compatibility](/docs/architecture/agent-compatibility)
+
+
+---
+
+
+## Product
+
+
+### Workspaces
+
+URL: /docs/workspaces
+
+# Workspaces
+
+Every first-party Phantasy feature belongs to one primary workspace.
+
+This is the product taxonomy the repo uses for admin tabs, route metadata, manifests, presets, and documentation. The source of truth lives in `src/product/taxonomy.ts`.
+
+## The Five Workspaces
+
+| Workspace | What it owns |
+| --- | --- |
+| `Character` | identity, avatar, voice, memory, companion behavior, knowledge |
+| `Site` | website, themes, pages, media, Chronicle publishing, public delivery |
+| `Business` | channels, integrations, notifications, offerings, subscriptions, wallet/payments |
+| `Automations` | workflows, jobs, approvals, schedules, heartbeat-driven activity |
+| `Operations` | providers, routing, monitoring, logs, testing, auth, users, developer tools |
+
+`Notifications` exists in the admin shell as an inbox/launcher surface. It is not a sixth architecture domain.
+
+## Current Admin Surface By Workspace
+
+The shared admin tab registry is the quickest inventory check:
+
+- `Character`: Companion, Skills, Games
+- `Site`: Website, Content, Media, Themes, Video Studio, Creator Studio
+- `Business`: Integrations, Notifications
+- `Automations`: Automations, Browser Use
+- `Operations`: Dashboard, Status, Providers, Developer, Workbench, Monitoring, Plugins, Users, Admin, Logs, Test
+
+For the exact tab catalog, use [Generated Admin Tab Inventory](/docs/generated/admin-tabs).
+
+## Placement Rules
+
+When adding or documenting a feature, decide three things first:
+
+1. Which workspace owns the feature?
+2. Is it trusted-kernel logic, product-surface logic, or extension logic?
+3. Which transport is adapting it: admin UI, admin API, CLI, website, or runtime?
+
+Preferred shape:
+
+- domain first
+- transport second
+- extension metadata explicit
+
+That is why Phantasy treats `themes`, `skills`, `plugins`, and `workflows` as extension surfaces, not top-level product domains.
+
+## Extension Mapping
+
+- `themes` default to `Site` and `presentation`
+- `skills` usually belong to `Character` or `Automations`
+- `plugins` can land in any workspace, but first-party built-ins are grouped by profile
+- `workflows` belong to `Automations`
+
+## Why This Matters
+
+The workspace model is not just UI labeling. It drives:
+
+- admin tab ownership
+- admin API route metadata
+- preset/product-shape framing
+- extension manifest validation
+- documentation placement
+
+If a feature cannot be assigned cleanly, the design is usually still too muddy.
+
+## Related Docs
+
+- [Use Cases](/docs/getting-started/use-cases)
+- [Generated Admin Tab Inventory](/docs/generated/admin-tabs)
+- [Generated Admin API Route Inventory](/docs/generated/api-routes)
+- [Design Principles](/docs/architecture/design-principles)
+
+
+---
+
+
+### Avatar System
+
+URL: /docs/avatars
+
+# Avatars
+
+Phantasy supports four avatar types:
+
+- `static`
+- `pngtuber`
+- `live2d`
+- `vrm`
+
+The short version: PNGTuber is the fastest path, Live2D is the polished 2D path, and VRM is the 3D path.
+
+## Asset Paths
+
+Common locations:
+
+- project PNGTuber packs: `./.phantasy/pngtuber/<agentId>/`
+- bundled Kurisu starter source: `./assets/pngtuber/kurisu/`
+- Live2D files: `./public/live2d/...`
+- VRM files: `./public/vrm/...`
+- media/CDN URLs: also supported
+
+The important distinction:
+
+- `./assets/pngtuber/kurisu/` is the checked-in starter pack in the repo
+- `./.phantasy/pngtuber/<agentId>/` is the project-local copy created by the Kurisu starter flow
+
+PNGTuber packs are served from `/admin/avatars/<agentId>` when you use the local project path.
+
+If you are editing a real project, the `.phantasy` copy is usually the one that matters.
+
+## Real Kurisu Frames
+
+These are literal files from the bundled Kurisu starter pack. When you choose the Makise Kurisu starter, Phantasy copies that pack into `./.phantasy/pngtuber/<agentId>/` and serves it from `/admin/avatars/<agentId>`.
+
+<div class="avatar-expression-grid">
+  <div class="avatar-expression-card">
+    <img src="/images/docs/avatars/kurisu-lab-idle.png" alt="Kurisu PNGTuber lab outfit idle expression frame" />
+    <p><strong>lab / idle / 0</strong><br />Neutral frame from the lab coat outfit.</p>
+  </div>
+  <div class="avatar-expression-card">
+    <img src="/images/docs/avatars/kurisu-lab-happy.png" alt="Kurisu PNGTuber lab outfit happy expression frame" />
+    <p><strong>lab / happy / 0</strong><br />Same outfit, different expression. This is the shape the runtime keys off.</p>
+  </div>
+  <div class="avatar-expression-card">
+    <img src="/images/docs/avatars/kurisu-casual-annoyed.png" alt="Kurisu PNGTuber casual outfit annoyed expression frame" />
+    <p><strong>casual / annoyed / 0</strong><br />Different outfit, same pack format. No special-casing required.</p>
+  </div>
+</div>
+
+Source files used here:
+
+- `assets/pngtuber/kurisu/lab/idle/0/CRS_BSC_40000600.png`
+- `assets/pngtuber/kurisu/lab/happy/0/CRS_BSC_40000300.png`
+- `assets/pngtuber/kurisu/casual/annoyed/0/CRS_ASB_40000500.png`
+
+## PNGTuber Pack Shape
+
+Phantasy accepts either of these layouts:
+
+```text
+outfit/expression/frame.png
+outfit/expression/variation/frame.png
+```
+
+Typical result:
+
+```text
+.phantasy/pngtuber/<agentId>/
+└── lab/
+    ├── idle/0/0.png
+    ├── happy/0/0.png
+    └── blush/0/0.png
+```
+
+The filenames do not need to be pretty. Kurisu uses long exported asset ids. Phantasy cares about the folder shape more than the leaf filename.
+
+The local pack importer preserves that structure in media storage and infers outfits plus expressions from it.
+
+## PNGTuber Config
+
+```json
+{
+  "avatars": {
+    "defaultType": "pngtuber",
+    "pngtuber": {
+      "url": "/admin/avatars/kurisu",
+      "outfits": ["lab", "casual"],
+      "expressions": {
+        "idle": { "outfit": "lab", "expression": "idle", "variation": 0 },
+        "happy": { "outfit": "lab", "expression": "happy", "variation": 0 },
+        "blush": { "outfit": "lab", "expression": "blush", "variation": 0 }
+      }
+    }
+  }
+}
+```
+
+The expression keys are logical emotion names. They are not fixed to the Kurisu starter.
+
+## Admin Workflow
+
+The current admin avatar flow lets you:
+
+- point the PNGTuber URL at `/admin/avatars/<agentId>`
+- point it at a media or CDN pack root
+- import a local folder into the media provider
+- rename outfits
+- remap logical emotions to pack folders and variations
+
+That means you can start from the checked-in starter pack, then swap to your own art without changing the rest of the product.
+
+## Expression Tags
+
+PNGTuber expression tags are config-driven.
+
+If your mapping contains `thinking`, `smug`, or `wave`, the runtime can react to `[thinking]`, `[smug]`, or `[wave]` in model output. The Kurisu starter simply ships with a familiar set.
+
+## Troubleshooting
+
+If an avatar does not show:
+
+- verify the base URL resolves
+- verify the expected frame files exist
+- verify imported media is public
+- verify the configured outfits and expressions match the pack layout
+
+If PNGTuber works locally but not from remote media, the usual culprit is the pack root URL, not the frame files themselves.
+
+## Related Docs
+
+- [Live2D Setup](/docs/guides/LIVE2D_SETUP)
+- [First Run](/docs/getting-started/first-run)
+- [Use Cases](/docs/getting-started/use-cases)
+
+
+---
+
+
+### Website Modes
+
+URL: /docs/website-mode
+
+# Website Modes
+
+Phantasy keeps content, themes, and public APIs in one system, but lets you choose how much of the built-in website is exposed at runtime.
+
+## Modes
+
+| Mode | Embedded HTML site | Public content API | Intended use |
+| --- | --- | --- | --- |
+| `public` | Yes | Yes | Default CMS + website experience |
+| `private` | Admin preview only | No | Drafting or client review before launch |
+| `api-only` | No | Yes | Headless/Jamstack setups or external consumers |
+
+Legacy config values still work:
+
+- `website_mode` takes priority when set.
+- `website_visibility: "private"` maps to `private`.
+- `website_enabled: false` maps to `api-only`.
+
+## Why this model
+
+This keeps the default experience WordPress-like without forcing everyone into a monolith:
+
+- The admin UI still edits the same content and theme data.
+- The public REST API remains the canonical interface for headless consumers.
+- The embedded themed site is just one delivery mode on top of the same data.
+
+## Static export
+
+Use the built-in exporter when you want Jamstack-style deployment without splitting the product into a second CMS/frontend pair.
+
+```bash
+bun run site:export
+phantasy site export --base-url https://example.com
+```
+
+The exporter writes to `dist/site` by default and can emit:
+
+- themed HTML pages
+- theme assets
+- feed files
+- content API snapshots for headless consumers
+
+`api-only` mode still supports static export. It disables runtime HTML routes, not your ability to generate a static site from the same content and theme data.
+
+
+---
+
+
+### Chronicle
+
+URL: /docs/features/chronicle
+
+# Chronicle
+
+Chronicle is Phantasy's publishing surface.
+
+It lets the companion draft, publish, approve, syndicate, and serve content from the same runtime as the site and admin shell.
+
+## What It Covers
+
+- manual entries from the Content surface
+- public blog delivery under `/blog`
+- approval-based publishing flows
+- optional scheduled generation
+- optional syndication after publish
+
+## Entry Model
+
+Chronicle entries support the fields you would expect:
+
+- `title`, `content`, `tags`
+- `visibility`: `private`, `public`, `unlisted`
+- `status`: `draft`, `published`, `archived`
+- `slug`, `excerpt`, `featuredImage`
+- `mood`, `template`, `metadata`
+- `publishedPlatforms`
+
+Slugs are generated when missing. Tags are normalized and capped.
+
+## Public Blog Routes
+
+When website mode allows the embedded site, Chronicle serves:
+
+- `GET /blog`
+- `GET /blog/:slug`
+- `GET /blog/tag/:tag`
+- `GET /blog/feed.xml`
+- `GET /blog/feed.json`
+- `GET /blog/sitemap.xml`
+
+Route access still respects website mode:
+
+- `public`: public
+- `private`: admin/operator preview
+- `api-only`: blog HTML disabled
+
+For listing and single-post routes, `Accept: application/json` returns JSON instead of HTML.
+
+## Admin Surface
+
+The current admin/content API lives here:
+
+- `GET /admin/api/content/entries`
+- `POST /admin/api/content/entries`
+- `GET /admin/api/content/entries/:id`
+- `PUT /admin/api/content/entries/:id`
+- `DELETE /admin/api/content/entries/:id`
+- `POST /admin/api/content/notifications/:id/approve`
+- `POST /admin/api/content/notifications/:id/reject`
+
+Useful query params:
+
+- `page`
+- `pageSize` or `limit`
+- `q`
+- `visibility`
+- `status`
+- `tags`
+- `sort`
+
+## Scheduled Posting
+
+Chronicle can generate entries on an interval with controls for:
+
+- `intervalMinutes`
+- `requireApproval`
+- `postingHours`
+- `maxPostsPerDay`
+- template selection
+
+There is also a separate `generateDailyJournal()` path that uses the `calendar` template and folds in notes or memory context when available.
+
+## Syndication
+
+After a public publish, Chronicle can format content for:
+
+- Twitter/X
+- Discord
+
+Discord delivery uses `platforms.discord.chronicleChannelId` when configured.
+
+## Config Note
+
+Chronicle configuration shows up in two places in the codebase today:
+
+- `chronicleConfig` in the agent schema
+- the Chronicle plugin config used by the runtime service
+
+If scheduled posting is not behaving the way you expect, verify the active runtime path, not just the schema.
+
+## Good Default
+
+Start simple:
+
+- publish manually first
+- make `/blog` feel right
+- add approval before autonomous posting
+- syndicate only after the public site is solid
+
+## Related Docs
+
+- [Website Mode](/docs/website-mode)
+- [Admin API](/docs/api/admin-api)
+- [Generated API Routes](/docs/generated/api-routes)
+- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
+
+
+---
+
+
+### Integration Model
+
+URL: /docs/integrations/integrations-guide
+
+# Integration Model
+
+Phantasy has five extension surfaces.
+
+They overlap just enough to be confusing if you treat them casually, so here is the clean version.
+
+## Quick Map
+
+| Need | Use |
+| --- | --- |
+| Workspace behavior | `AGENTS.md` |
+| Reusable know-how | `SKILL.md` |
+| Executable external tools | MCP |
+| Runtime capability | Plugin |
+| First-party capability bundle | Profile |
+
+## The Mental Model
+
+- `AGENTS.md` changes how the agent behaves in a workspace
+- skills teach workflows
+- MCP gives the model real external tools
+- plugins change the runtime
+- profiles choose built-in plugin bundles
+
+That separation keeps the trusted core smaller and the product easier to reason about.
+
+## Common Shapes
+
+### Coding Agent
+
+```json
+{
+  "pluginProfiles": ["coder"]
+}
+```
+
+### Companion
+
+```json
+{
+  "pluginProfiles": ["character"]
+}
+```
+
+### In-Character Coder
+
+```json
+{
+  "pluginProfiles": ["coder", "character"]
+}
+```
+
+### Hosted Product Surface
+
+```json
+{
+  "pluginProfiles": ["coder", "character", "server-admin"]
+}
+```
+
+That last shape is the one that adds the HTTP admin and server surface.
+
+## `AGENTS.md`
+
+Use it for:
+
+- repo rules
+- local workflow expectations
+- tone and collaboration style
+- "how we work here" guidance
+
+If the behavior belongs to one workspace or repo, start here.
+
+## Skills
+
+Use skills when the model needs structured guidance, not new executable power.
+
+Good fits:
+
+- CLI playbooks
+- review checklists
+- operating procedures
+- environment-specific instructions
+
+## MCP
+
+Use MCP when the model needs to call a real external system.
+
+Typical examples:
+
+- GitHub
+- databases
+- issue trackers
+- internal APIs
+
+Example:
+
+```json
+{
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  }
+}
+```
+
+Skills and MCP pair well: the skill explains the job, MCP does the job.
+
+## Plugins
+
+Use a plugin when you need deeper runtime hooks:
+
+- lifecycle behavior
+- tool registration
+- platform adapters
+- provider or storage integration
+
+Plugins are the heaviest extension surface. Reach for them on purpose.
+
+## Profiles
+
+Built-in profile groups:
+
+- `core-runtime`
+- `coder`
+- `character`
+- `server-admin`
+
+If `pluginProfiles` is omitted, Phantasy stays on `["core-runtime"]`.
+
+## Decision Rule
+
+Use this order:
+
+1. workspace behavior: `AGENTS.md`
+2. reusable know-how: skill
+3. external executable tools: MCP
+4. runtime hook or platform behavior: plugin
+5. first-party built-in bundle: profile
+
+## Related Docs
+
+- [Bootstrapping](/docs/getting-started/bootstrapping)
+- [Agent Compatibility](/docs/architecture/agent-compatibility)
+- [Plugin Overview](/docs/plugins/overview)
+- [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY)
+
+
+---
+
+
+### Workflow Overview
+
+URL: /docs/workflows/overview
+
+# Workflow Overview
+
+Workflows are declarative automation graphs executed by the scheduling engine.
+
+They are automation recipes, not a replacement for agents.
+
+## Agents vs Workflows
+
+- Agents are autonomous LLM companions/operators with tools and persistent memory.
+- Workflows are deterministic multi-step graphs for approvals, publishing, review loops, and background jobs.
+
+Use a workflow when you want predictable orchestration. Use an agent when you want reasoning and adaptive behavior around that orchestration.
+
+## Built-In Workflows
+
+The current first-party catalog ships in the root `workflows/` directory:
+
+- `approval-loop`
+- `content-pipeline`
+- `daily-operator-brief`
+- `site-launch-readiness`
+
+Each workflow ships as:
+
+- `*.workflow.json`: executable workflow graph
+- `*.workflow.metadata.json`: catalog metadata for export, hub, and admin surfaces
+
+## CLI Usage
+
+```bash
+npx phantasy workflow list
+npx phantasy workflow run approval-loop
+npx phantasy workflow export approval-loop
+```
+
+## Product Fit
+
+In the flagship product story, workflows live inside the `Automations` workspace and usually back:
+
+- approvals for risky or publishable actions
+- content review/publish flows
+- scheduled operational summaries
+- launch and readiness checklists
+
+## Authoring Guidance
+
+- Keep reusable execution infrastructure in the trusted kernel.
+- Keep business-specific orchestration in workflows or workspace surfaces.
+- Start from a built-in starter before inventing a new graph shape.
+
+## Related Docs
+
+- [Workspaces](/docs/workspaces)
+- [Configuration](/docs/getting-started/configuration)
+- [Launch Playbook](/docs/guides/LAUNCH_PLAYBOOK)
+
+
+---
+
+
+## Guides
+
+
+### 10 Minute Launch
+
+URL: /docs/guides/BUSINESS_AGENT_CMS_10_MINUTES
+
+# Build An AI Companion Business In 10 Minutes
+
+This is the shortest honest demo of Phantasy's flagship shape: a companion who runs her own site, content, automations, and business from one runtime.
+
+## 1. Install And Start
+
+```bash
+npm install @phantasy/agent
+npx phantasy create business-cms my-brand
+npx phantasy start --config config/agents/my-brand.json
+```
+
+If you are working from source:
+
+```bash
+bun install
+cp .env.example .env
+./start.sh
+```
+
+Open:
+
+- admin dev shell: `http://localhost:5173`
+- server build: `http://localhost:2000/admin`
+
+## 2. Make The Site Public
+
+In `Website`:
+
+1. set website mode to `public`
+2. add the brand title and description
+3. save
+
+If you want a headless setup instead, choose `api-only`. The content model stays the same.
+
+## 3. Publish Something Real
+
+In `Content`:
+
+1. create your first Chronicle entry
+2. publish it
+3. confirm `/blog` and `/blog/:slug` render correctly
+
+That is the quickest way to prove the companion, CMS, and public site are all reading from the same runtime.
+
+## 4. Add The Character Surface
+
+If you want the Live2D path, vendor the pinned runtime first:
+
+```bash
+bun run setup:live2d
+```
+
+Then use the companion/avatar settings to point at a `Live2D` `.model3.json`, a `PNGTuber` pack root, or your preferred VRM asset.
+
+Recommended Live2D smoke test:
+
+```bash
+bun run test -- src/live2d-plugin-loader.smoke.test.ts
+```
+
+## 5. Check The Product Loop
+
+Before calling it a demo, make sure you can show all of this without hand-waving:
+
+- a named companion
+- a public site
+- a published entry
+- one automation or approval surface
+- one business or integration surface
+
+If those five land cleanly, the product story is working.
+
+## 6. Run The Release Checks
+
+```bash
+bun run typecheck
+bun run lint
+bun run stylelint
+bun run docs:check
+bun run test
+npm pack --dry-run
+```
+
+## 7. Lead With The Wedge
+
+For launch copy, lead with:
+
+- the companion as the product surface
+- site and content around her
+- automations and approvals behind her
+- business operations attached to the same identity
+
+Do not lead with every plugin, every integration, or every future mode. Let the wedge stay sharp.
+
+## Related Docs
+
+- [First Run](/docs/getting-started/first-run)
+- [Chronicle](/docs/features/chronicle)
+- [Live2D Setup](/docs/guides/LIVE2D_SETUP)
+- [Launch Playbook](/docs/guides/LAUNCH_PLAYBOOK)
+
+
+---
+
+
+### Live2D Setup
+
+URL: /docs/guides/LIVE2D_SETUP
+
+# Live2D Setup
+
+Live2D in Phantasy is intentionally pinned.
+
+That is not glamourous, but it is honest. The current path is built around:
+
+- Live2D Cubism Core
+- `pixi.js@6.5.2`
+- the `pixi-live2d-display` Cubism 4 build
+
+## 1. Vendor The Runtime
+
+From the repo root:
+
+```bash
+bun run setup:live2d
+```
+
+That vendors the pinned browser assets into the public runtime paths Phantasy expects.
+
+## 2. Point The Avatar At A Model
+
+Use the avatar settings and set the type to `Live2D`, then point it at a `.model3.json` file.
+
+Good sources:
+
+- a local asset under `public/live2d/...`
+- a media-uploaded URL
+- your own CDN or remote HTTPS URL
+
+Example:
+
+```text
+/live2d/brand-companion/brand-companion.model3.json
+```
+
+Keep the model JSON, textures, motions, expressions, and physics files in the same asset tree.
+
+## Why Load Order Matters
+
+The current loader still depends on global script boot order:
+
+1. `live2dcubismcore.min.js`
+2. `pixi-6.5.2.min.js`
+3. `pixi-live2d-display-cubism4.min.js`
+
+If that order breaks, models usually fail as blank renders, missing globals, or half-initialized motion systems.
+
+## What Works Well Today
+
+- Cubism 4 `.model3.json` models
+- remote or local asset URLs
+- expression switching
+- idle and motion playback
+- Phantasy-side lip-sync and orchestration on top of the renderer
+
+## Current Limits
+
+- Cubism 2 is not the mainline target
+- the runtime is pinned rather than bundled as one internal renderer package
+- some models still need defensive physics compatibility handling
+- Cubism licensing still applies even when the surrounding Phantasy code is open
+
+## Troubleshooting
+
+If the model does not load:
+
+- verify the model URL resolves
+- verify the pinned runtime assets were vendored
+- verify the model references valid texture and motion files
+- verify your host is not blocking the asset requests with CORS
+
+Quick filesystem check:
+
+```bash
+ls public/live2d-sdk/
+ls public/vendor/
+```
+
+You should see:
+
+- `live2dcubismcore.min.js`
+- `pixi-6.5.2.min.js`
+- `pixi-live2d-display-cubism4.min.js`
+
+## Smoke Test
+
+```bash
+bun run test -- src/live2d-plugin-loader.smoke.test.ts
+```
+
+That test covers the pinned loader path and boot order.
+
+## Licensing
+
+Phantasy's integration code can be open source. Live2D Cubism Core is still governed by Live2D's own license terms.
+
+Review the official terms before shipping bundles that include Cubism runtime files:
+
+- [Live2D Open Software License Agreement](https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html)
+- [Live2D Cubism License Docs](https://docs.live2d.com/en/cubism-sdk-manual/license/)
+
+## Related Docs
+
+- [Avatars](/docs/avatars)
+- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
+- [First Run](/docs/getting-started/first-run)
+
+
+---
+
+
+### Authentication Setup
+
+URL: /docs/guides/AUTHENTICATION_SETUP
+
+# Authentication
+
+Most installs only need one thing: protect `/admin` with a local admin login and a real JWT secret.
+
+GitHub and GitLab OAuth are optional. Nice to have, not the default story.
+
+## Minimum Setup
+
+Generate a bcrypt hash:
+
+```bash
+bun run generate-password-hash "YourStrongPassword123!"
+```
+
+Then set:
+
+```env
+AUTH_REQUIRED=true
+AUTH_BASIC_ENABLED=true
+AUTH_ADMIN_USERNAME=admin
+AUTH_ADMIN_PASSWORD_HASH=$2b$10$...
+
+AUTH_JWT_SECRET=<32+ char secret>
+# Optional in local-only dev, required for shared/prod-like deployments
+AUTH_SESSION_SECRET=<32+ char secret>
+```
+
+Start the app and open `/admin`.
+
+## What The Runtime Expects
+
+Defaults are fairly strict:
+
+- auth is required unless `AUTH_REQUIRED=false`
+- local admin login is enabled unless `AUTH_BASIC_ENABLED=false`
+- shared or production-like deployments must use real secrets
+- local development can fall back to ephemeral secrets, but only when the app still looks local
+
+If you set `PUBLIC_URL`, `ADMIN_DASHBOARD_URL`, non-local origins, a non-loopback bind host, or `TRUST_PROXY`, the runtime stops being lenient about placeholder secrets.
+
+## Local Admin Endpoints
+
+The auth surface is small:
+
+- `POST /auth/login`
+- `POST /auth/logout`
+- `GET /auth/logout`
+- `GET /auth/me`
+- `POST /auth/refresh`
+- `GET /auth/providers`
+
+`POST /auth/login` returns a bearer token and also sets the session cookie.
+
+The default cookie name is `phantasy.sid`.
+
+## OAuth
+
+Optional providers:
+
+- GitHub
+- GitLab
+
+Example GitHub setup:
+
+```env
+AUTH_GITHUB_ENABLED=true
+AUTH_GITHUB_CLIENT_ID=...
+AUTH_GITHUB_CLIENT_SECRET=...
+AUTH_GITHUB_CALLBACK_URL=/auth/github/callback
+AUTH_GITHUB_ALLOWED_ORGS=my-org
+AUTH_GITHUB_ALLOWED_USERS=alice,bob
+```
+
+Example GitLab setup:
+
+```env
+AUTH_GITLAB_ENABLED=true
+AUTH_GITLAB_CLIENT_ID=...
+AUTH_GITLAB_CLIENT_SECRET=...
+AUTH_GITLAB_CALLBACK_URL=/auth/gitlab/callback
+AUTH_GITLAB_BASE_URL=https://gitlab.com
+AUTH_GITLAB_ALLOWED_GROUPS=my-group
+AUTH_GITLAB_ALLOWED_USERS=alice,bob
+```
+
+One important edge: `AUTH_GITHUB_ALLOWED_TEAMS` is intentionally rejected in v1. Team-level GitHub enforcement is not implemented.
+
+## Sessions And Proxying
+
+Useful defaults:
+
+- `AUTH_JWT_EXPIRES_IN=12h`
+- `AUTH_SESSION_MAX_AGE=43200000`
+- `AUTH_SESSION_SAME_SITE=lax`
+
+Set `TRUST_PROXY=1` only when exactly one reverse proxy sits in front of the app. Leave it unset for local development or direct hosting.
+
+If Docker or Compose might mangle `$` characters, use the `_B64` variants:
+
+- `AUTH_ADMIN_PASSWORD_HASH_B64`
+- `AUTH_JWT_SECRET_B64`
+- `AUTH_SESSION_SECRET_B64`
+
+## Rate Limiting
+
+Phantasy applies:
+
+- a global limiter unless `RATE_LIMIT_ENABLED=false`
+- a stricter auth limiter on `/auth/login`
+- a chat limiter on integration chat routes
+- an upload limiter on media and knowledge uploads
+
+Built-in stricter buckets are:
+
+- auth: 5 attempts per 15 minutes
+- chat: 20 requests per minute
+- upload: 100 uploads per hour
+
+Global limits are configurable with:
+
+```env
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX_REQUESTS=1000
+RATE_LIMIT_WHITELIST_IPS=127.0.0.1
+```
+
+The runtime can persist limiter state to Postgres when available. Otherwise it falls back to in-memory tracking.
+
+## Public Routes Override
+
+`AUTH_PUBLIC_ROUTES` must be structured JSON, not a comma-separated string.
+
+Example:
+
+```env
+AUTH_PUBLIC_ROUTES=[{"path":"/health","match":"exact","methods":["GET","HEAD"]},{"path":"/auth/providers","match":"exact","methods":["GET"]}]
+```
+
+Each rule uses:
+
+- `path`
+- `match`: `exact` or `prefix`
+- `methods`: uppercase HTTP methods
+
+## Good Default
+
+For a normal self-hosted deployment:
+
+- keep local admin login on
+- add OAuth only if the team really needs it
+- use real secrets before sharing the app
+- set `TRUST_PROXY` only when you can name the proxy hop with a straight face
+
+## Related Docs
+
+- [Deploy](/docs/guides/DEPLOY)
+- [First Run](/docs/getting-started/first-run)
+- [Admin API](/docs/api/admin-api)
+
+
+---
+
+
+### Deploy
+
+URL: /docs/guides/DEPLOY
+
+# Deploy Your Phantasy Agent
+
+The primary self-hosting path is Docker.
+
+Run the app with the shipped `Dockerfile` or `docker-compose.yml`, set your auth and provider env vars, then open `/admin`.
+
+## Proxy Rule
+
+| Deployment shape | Example | `TRUST_PROXY` |
+| --- | --- | --- |
+| Direct bind | Docker published directly on a server port | unset |
+| One reverse proxy | Docker behind Caddy, Nginx, Traefik | `1` |
+
+Use local admin login by default. GitHub and GitLab OAuth are optional advanced SSO.
+
+## Fast Path
+
+1. Generate a bcrypt hash: `bun run generate-password-hash "YourStrongPassword123!"`
+2. Copy `.env.example` to `.env`
+3. Set `DATABASE_URL`
+4. Set `AUTH_ADMIN_PASSWORD_HASH` or `AUTH_ADMIN_PASSWORD_HASH_B64`
+5. Set `AUTH_JWT_SECRET` or `AUTH_JWT_SECRET_B64`
+6. Set at least one AI provider key
+7. Set `TRUST_PROXY=1` only if a reverse proxy sits in front of Docker
+8. Run `docker compose up -d`
+9. Open `http://localhost:2000/admin`
+
+## Docker Compose Notes
+
+- The compose files now build the Admin UI by default.
+- `TRUST_PROXY` is wired through to the container.
+- Compose accepts both plain and `_B64` auth secrets.
+- For Compose, `_B64` is safer for bcrypt/JWT values because `$` characters can be mangled by shell interpolation.
+- Leave `PHANTASY_ENABLE_EXTERNAL_PLUGINS`, `PHANTASY_TRUST_EXTERNAL_PLUGIN_EXECUTION`, `PHANTASY_TRUSTED_EXTERNAL_PLUGIN_DIGESTS`, and `PLUGIN_REMOTE_INSTALL_ENABLED` unset for a normal v1 deployment.
+- If you intentionally enable external plugins in Docker, use the optional `external-plugins` compose profile so third-party code runs in the separate `plugin-host` service instead of the main app container.
+
+Example for intentional external-plugin execution:
+
+```env
+PHANTASY_ENABLE_EXTERNAL_PLUGINS=true
+PHANTASY_TRUST_EXTERNAL_PLUGIN_EXECUTION=true
+PHANTASY_TRUSTED_EXTERNAL_PLUGIN_DIGESTS={"my-plugin":["sha256hex"]}
+PHANTASY_EXTERNAL_PLUGIN_HOST_URL=http://plugin-host:2101
+PHANTASY_EXTERNAL_PLUGIN_HOST_TOKEN=<long-random-secret>
+```
+
+Then start Compose with:
+
+```bash
+docker compose --profile external-plugins up -d
+```
+
+Example:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://user:pass@host:5432/phantasy_agent
+
+AUTH_REQUIRED=true
+AUTH_BASIC_ENABLED=true
+AUTH_ADMIN_USERNAME=admin
+AUTH_ADMIN_PASSWORD_HASH_B64=<base64-of-bcrypt-hash>
+AUTH_JWT_SECRET_B64=<base64-of-random-secret>
+
+# Set only when Docker is behind one reverse proxy
+# TRUST_PROXY=1
+
+OPENAI_API_KEY=sk-...
+```
+
+## Dockerfile Build
+
+```bash
+docker build -t phantasy-agent .
+docker run --env-file .env -p 2000:2000 phantasy-agent
+```
+
+If you intentionally want a headless build with no Admin UI, set `--build-arg BUILD_ADMIN_UI=false`.
+
+## Troubleshooting
+
+### `/admin` does not load
+
+- Rebuild the image if you changed frontend code.
+- Confirm you did not intentionally disable `BUILD_ADMIN_UI`.
+- Check container logs for missing auth env vars.
+
+### Login or rate limiting behaves strangely
+
+- Leave `TRUST_PROXY` unset for direct hosting.
+- Set `TRUST_PROXY=1` when one reverse proxy forwards traffic to Docker.
+- Do not guess at proxy hops; set the actual number.
+
+### Compose auth secrets are ignored
+
+- If you use plain bcrypt/JWT values in Compose, make sure your shell or platform does not rewrite `$`.
+- If in doubt, use `AUTH_ADMIN_PASSWORD_HASH_B64` and `AUTH_JWT_SECRET_B64`.
+
+## Resources
+
+- [Introduction](../getting-started/introduction.md)
+- [Authentication & hosting](./AUTHENTICATION_SETUP.md)
+- [Local development](../getting-started/local-development.md)
+- [GitHub Repository](https://github.com/phantasy-bot/agent)
+
+
+---
+
+
+### Consuming Phantasy
+
+URL: /docs/guides/CONSUMING_PHANTASY
+
+# Consuming Phantasy
+
+Build an AI companion/VTuber, then layer site, content, automations, and business around her on the same foundation.
+
+This guide is for teams embedding Phantasy into another repo, product, or platform.
+
+## Choose The Surface
+
+| Need | Install | Notes |
+|------|---------|-------|
+| Full framework | `@phantasy/agent` | Easiest way to get a companion/VTuber, CMS, CLI, server, and shared runtime in one package |
+| Trusted base runtime | `@phantasy/core-runtime` | Smallest trust boundary |
+| Coding capability | `@phantasy/profile-coder` | Shell, edit, search, glob, filesystem, doctor |
+| Character capability | `@phantasy/profile-character` | Persona, memory, voice, image, and Live2D/VRM-oriented companion features |
+| Admin/server surfaces | `@phantasy/server-admin` | Express server, admin API, CMS, publishing, and operational route layer |
+| Plugin authoring | `@phantasy/plugin-sdk` | Build first-party or external plugins against the stable SDK |
+
+## Default Recommendation
+
+If you are building a companion-driven product, a VTuber business, or a workflow application and want the fastest path, start with the meta package:
+
+```bash
+npm install @phantasy/agent
+```
+
+Then compose profiles in config instead of hard-coding capabilities into your runtime:
+
+```json
+{
+  "id": "kurisu",
+  "name": "Kurisu",
+  "instructions": "You are sharp, technically rigorous, and emotionally expressive.",
+  "pluginProfiles": ["character", "server-admin", "coder"],
+  "modelRouting": {
+    "default": {
+      "provider": "openai",
+      "model": "gpt-4.1"
+    },
+    "fast": {
+      "provider": "openai",
+      "model": "gpt-4.1-mini"
+    }
+  }
+}
+```
+
+That keeps companion identity, CMS surfaces, and capability composable:
+
+- `["character", "server-admin"]` for a character-native product
+- `["coder"]` for a coding agent
+- `["coder", "character"]` for an in-character coding agent
+- `["coder", "character", "server-admin"]` for a full operator stack
+
+## Focused Package Consumption
+
+If you want a smaller public surface and a narrower trust boundary, install only the packages you need:
+
+```bash
+npm install @phantasy/core-runtime @phantasy/profile-coder
+```
+
+Typical import shape:
+
+```ts
+import { ConfigLoader, PluginManager } from "@phantasy/core-runtime";
+import { CODER_PROFILE_PLUGIN_NAMES } from "@phantasy/profile-coder";
+```
+
+The first-party packages are published as real package surfaces. Internally they stay aligned with the same shared implementation so public APIs do not drift.
+
+## CLI And Server Consumption
+
+Phantasy supports two main runtime paths:
+
+- CLI-first development with `npx phantasy chat` or `npx phantasy start`
+- server deployment with the admin/server surface
+
+The important point is that both paths sit on the same runtime model. You do not switch frameworks when moving from a local companion prototype to a hosted product or workflow application.
+
+### CLI Example
+
+```bash
+npx phantasy chat --config ./agent-config.json
+```
+
+### Server Example
+
+```ts
+import { Server } from "@phantasy/agent";
+
+const server = new Server();
+await server.start();
+```
+
+## Skills, MCP, And Workspace Compatibility
+
+Phantasy treats the common agent compatibility surfaces as first-class:
+
+- `AGENTS.md` for workspace-specific operating rules
+- `SKILL.md` for structured, progressive-disclosure skills
+- MCP for executable external tools
+
+That means a consumer can build on the same conventions other agent ecosystems use without losing Phantasy-specific runtime features.
+
+Example config:
+
+```json
+{
+  "pluginProfiles": ["coder", "character"],
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  }
+}
+```
+
+Skills can come from:
+
+- project `skills/`
+- user `~/.phantasy/skills/`
+- bundled skills
+- installed npm skill packages that ship a `SKILL.md`
+
+## Source-Level Consumption
+
+If you want exact source pinning, custom patching, or a mono-repo workflow, consume the repo as source instead of as published packages.
+
+Typical patterns:
+
+- git submodule
+- git subtree
+- workspace package inside a larger mono-repo
+
+When doing that, keep the package boundaries intact:
+
+- `src/core-runtime/`
+- `src/profile-coder/`
+- `src/profile-character/`
+- `src/server-admin/`
+- `src/admin-ui/` as the dashboard app boundary
+
+That will make future upgrades much easier than depending on internal service paths.
+
+## Plugin Consumption
+
+Use the SDK when you need to add new runtime capability:
+
+```bash
+npm install @phantasy/plugin-sdk
+```
+
+External plugins should be treated as staged extensions, not as part of the trusted base runtime. Phantasy’s remote install flow now stages and verifies before enablement, and does not auto-run lifecycle scripts during staging.
+
+## What To Avoid
+
+- Do not treat the admin UI as part of the trusted core.
+- Do not put privileged tooling into the base runtime when a profile can own it.
+- Do not couple persona to capability. Compose them.
+- Do not depend on legacy docs that assume “everything is core”.
+
+## Recommended Architecture For Consumers
+
+1. Keep your product identity in config, prompts, bootstrap files, and content.
+2. Keep capability selection in `pluginProfiles`.
+3. Treat companion presentation and the business surfaces around her as first-class product concerns, not theme polish.
+4. Use skills for “how to do the work”.
+5. Use MCP for “call the external system”.
+6. Use plugins only when you need deeper runtime integration.
+
+## See Also
+
+- [Introduction](../getting-started/introduction.md)
+- [Configuration](../getting-started/configuration.md)
+- [Agent Compatibility](../architecture/agent-compatibility.md)
+- [Runtime Packages](../architecture/runtime-packages.md)
+- [Plugin Overview](../plugins/overview.md)
+
+
+---
+
+
+### Launch Playbook
+
+URL: /docs/guides/LAUNCH_PLAYBOOK
+
+# Launch Playbook
+
+This is the launch filter for Phantasy.
+
+If a feature, screenshot, demo, or paragraph does not strengthen the flagship story below, move it to advanced docs, label it clearly, or leave it out of the launch surface.
+
+## Flagship Sentence
+
+Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
+
+Shorter version:
+
+- WordPress for AI companions
+- companion/VTuber first, site + content + workflows + business around her
+- the companion is the product surface, not a chatbot glued onto a backend
+
+## Homepage Copy
+
+Headline:
+
+`Build an AI companion/VTuber who can run her own site, content, automations, and business.`
+
+Supporting sentence:
+
+`Phantasy gives you one self-hosted runtime for companion identity, Live2D or VRM presence, Chronicle publishing, workflows, channels, and operations.`
+
+Proof points for the first screenful:
+
+- the companion is the product
+- one runtime for identity, publishing, and operations
+- Live2D or VRM presence plus Chronicle content flows
+- workflows, notifications, and business surfaces around the same character
+- explicit trust boundaries, not an everything-is-core framework
+
+Primary CTA:
+
+`npm install @phantasy/agent`
+
+Secondary CTA:
+
+`npx phantasy create business-cms my-brand`
+
+## Lead With
+
+- `business-cms` as the default starting shape
+- the companion/VTuber as the protagonist of the product
+- the five-workspace product model: Character, Site, Business, Automations, Operations
+- Chronicle as the built-in publishing engine
+- website modes: public, private, and api-only
+- Live2D and VRM as first-class character presentation
+- one runtime for the companion, the site, the business logic, and the operator tooling
+- trust boundaries: small core, opt-in privileged profiles
+
+## Do Not Lead With
+
+- every plugin, provider, or niche integration
+- crypto, markets, ACP, or trading surfaces
+- experimental or narrow presets as if they define the framework
+- “general purpose agent framework” positioning
+- infrastructure migration history
+- narrow side-mode mechanics as if they are the whole framework
+
+Those surfaces can remain supported. They should not define first impression or homepage copy.
+
+## Launch Demo Shape
+
+The best public demo should show one companion business, not a toolbox tour.
+
+Recommended sequence:
+
+1. Open on the public-facing companion or VTuber landing page.
+2. Show the `Character` workspace and configure identity plus appearance.
+3. Publish a Chronicle entry or edit the website in the `Site` workspace.
+4. Return to the public site and show the result.
+5. Trigger an automation, approval, or notification flow.
+6. Show a business surface such as integrations, channels, or monetization.
+7. End by showing the five workspaces together as one operating system around the companion.
+
+## Screenshot Order
+
+For a homepage, README, or launch thread, prefer this screenshot stack:
+
+1. Hero shot: the companion on her public site.
+2. Character setup: identity, avatar, Live2D, or VRM.
+3. Publishing: Chronicle editor or website workspace.
+4. Output: published page, blog, or themed site view.
+5. Operations: automation, approval, or notifications.
+6. Business: channels, integrations, or monetization.
+
+Do not use this order:
+
+1. Provider settings
+2. Plugin lists
+3. Logs, tests, or workbench
+4. Specialist crypto or market surfaces
+
+That sequence makes the repo feel like tooling before it feels like a product.
+
+## Demo Talk Track
+
+Use a short, repeatable talk track:
+
+1. "This is the companion."
+2. "This is where she runs her site and content."
+3. "This is how she automates work and handles approvals."
+4. "This is how channels and business operations stay attached to the same identity."
+
+## Open Source Checklist
+
+- README opens with the flagship sentence in the first screenful.
+- The first runnable path is `npm install @phantasy/agent` plus `npx phantasy create business-cms`.
+- The docs have one obvious beginner path and one obvious 10-minute demo path.
+- CLI help separates flagship shapes from specialist presets.
+- Stale docs that describe old architecture work are archived or rewritten.
+- Screenshots use the business-cms story, not a random mix of features.
+- The repo shows that the product is coherent even if the extension ecosystem is still early.
+
+## Product Cleanup Checklist
+
+- Keep `business-cms`, `operator`, and `creator` as the only front-door shapes.
+- Mark specialist presets as advanced or legacy instead of beginner defaults.
+- Keep theme, workflow, and skill ecosystem claims honest about current inventory.
+- Push niche surfaces deeper in docs and UI copy unless they support the flagship wedge.
+- Prefer examples that publish, automate, and monetize around a recognizable companion identity.
+
+## Acquihire Checklist
+
+Acquirers should immediately see:
+
+- coherent product taste
+- architecture discipline
+- explicit trust boundaries
+- product taxonomy instead of random feature sprawl
+- a team that can ship both framework infrastructure and user-facing surfaces
+
+If the repo reads like a collection of experiments, the acquihire value drops even if the code is strong.
+
+## Final Rule
+
+Ship the wedge, not the whole universe.
+
+The wedge is not “agents.”
+
+The wedge is: build a companion who can run her own business.
+
+
+---
+
+
+## Architecture
+
+
+### Design Principles
+
+URL: /docs/architecture/design-principles
+
+# Design Principles
+
+Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
+
+This repo is intentionally organized around a few constraints:
+
+## Product Layer By Workspace
+
+The product surface should organize around five workspaces:
+
+- `Character`
+- `Site`
+- `Business`
+- `Automations`
+- `Operations`
+
+Transport layers such as admin API, admin UI, CLI, and website mode should read as adapters over those domains rather than as the primary mental model.
+
+## What Stays In Core
+
+`@phantasy/core-runtime` should contain only what every agent needs:
+
+- config loading and validation
+- provider routing contracts
+- memory and storage interfaces
+- workflow execution
+- plugin contracts and hook execution
+- shared orchestration that is hard to externalize
+
+Core should stay small, low-privilege, and easy to audit.
+
+## What Stays Out Of Core
+
+Anything privileged, product-specific, or operational should live outside the trusted base:
+
+- coding tools in `@phantasy/profile-coder`
+- persona, memory, voice, and media features in `@phantasy/profile-character`
+- HTTP admin and dashboard concerns in `@phantasy/server-admin`
+- niche verticals and specialized integrations in extensions, plugins, or deeper docs
+
+That boundary is architectural, not narrative. Character surfaces, CMS features, and business workflows are central to the product story even when they live outside the trusted core.
+
+## Character Identity And Capability Are Orthogonal
+
+Tool surface and character identity are separate choices.
+
+A coding agent can also be a companion. A companion can also be a coding agent.
+
+```json
+{
+  "pluginProfiles": ["coder", "character"]
+}
+```
+
+That is the intended shape for agents like Kurisu: one runtime, one character layer, multiple capability profiles.
+
+## Companions Are First-Class Product Surfaces
+
+Phantasy is not a generic agent framework with a character skin taped on later.
+
+The distinct product wedge is:
+
+- Live2D and VRM companion/VTuber surfaces
+- built-in admin/CMS tooling around that companion
+- website and headless publishing
+- workflow orchestration for business and application logic
+
+The runtime exists so those pieces can share memory, identity, permissions, and operations instead of becoming four disconnected products.
+
+## Main Narrative vs Long Tail
+
+The main docs should lead with the three primary stories:
+
+- an AI companion/VTuber as the product surface
+- self-hosted CMS, publishing, and business products around her
+- workflow and application orchestration around the same runtime
+
+Coding agents and other specialized verticals still matter, but they should be presented as additional surfaces on top of the same system.
+
+## Source Of Truth
+
+Narrative docs explain intent. Generated inventories explain what is actually implemented.
+
+When they disagree, fix the docs or the code until they match.
+
+
+---
+
+
+### Runtime Packages
+
+URL: /docs/architecture/runtime-packages
+
+# Runtime Packages
+
+Phantasy exposes one default package plus focused runtime surfaces for advanced composition.
+
+Exact public exports live in [../generated/package-exports.md](../generated/package-exports.md).
+
+For most teams, the answer is still `@phantasy/agent`.
+
+The smaller surfaces exist for trust boundaries, deployment shape, and intentional narrowing. They are not the default product story.
+
+In practice:
+
+- `@phantasy/core-runtime` is the smallest trust boundary.
+- `@phantasy/profile-coder` adds coding tools.
+- `@phantasy/profile-character` adds companion and media features.
+- `@phantasy/server-admin` adds the self-hosted server and admin surface.
+- `@phantasy/agent` remains the easiest full install.
+
+## Composing Profiles
+
+Capability and persona are meant to compose.
+
+If you want a straight coding agent, select `["coder"]`.
+
+If you want a character-driven coding agent, select `["coder", "character"]`.
+
+If you want the full self-hosted product surface, add `server-admin`.
+
+Common shapes:
+
+- `["character", "server-admin"]` for a character-native CMS product
+- `["character", "server-admin", "coder"]` for a workflow/operator product
+- `["coder", "character", "server-admin"]` for a creator/operator stack
+
+See [Use Cases](../getting-started/use-cases.md) for the narrative framing around those compositions and how they map back to `business-cms`, `operator`, and `creator`.
+
+## Why The Split Exists
+
+The split reduces trust in the default runtime and makes capability boundaries explicit:
+
+- coding tools are not part of the base runtime
+- character/media features are not part of the base runtime
+- admin HTTP surfaces are not part of the base runtime
+
+That keeps the smallest install and the smallest trust boundary aligned.
+
+## Publishing Model
+
+The repo builds publishable package artifacts under `dist/packages/`.
+
+Those packages wrap stable `@phantasy/agent` subpath exports instead of duplicating runtime implementations.
+
+
+---
+
+
+### System Design
+
+URL: /docs/architecture/system-design
+
+# System Design
+
+Phantasy has two runtime entrypoints that share one core:
+
+- CLI runtime in `src/cli/runtime/`
+- server runtime in `src/server/`
+
+Both sit on top of the same config loader, provider routing layer, plugin manager, memory system, and workflow engine.
+
+## High-Level Shape
+
+```text
+CLI Runtime / Express Server
+        |
+        v
+  Core Runtime Surface
+        |
+        +-- Plugin Manager + Hook Bus
+        +-- Provider Routing
+        +-- Memory Layer
+        +-- Workflow Engine
+        +-- MCP Integration
+```
+
+## Key Design Choices
+
+### Minimal Trusted Core
+
+The base runtime keeps only contracts and orchestration that every agent needs:
+
+- config loading
+- plugin contracts
+- hook execution
+- memory interfaces
+- workflow execution
+- provider routing interfaces
+
+Privileged tools and server surfaces are layered on as profiles.
+
+### Profile-Based Capability Loading
+
+Built-in plugins are selected by profile. The default profile is `core-runtime`, which means privileged built-ins are not loaded unless explicitly requested.
+
+### Personality Is Orthogonal To Capability
+
+Persona does not define tool surface.
+
+An agent can be both a coding agent and a companion by composing `coder` and `character`. That lets products share one runtime while varying the outward identity and capability mix.
+
+### Compiled Admin Routing
+
+The admin API uses a compiled route registry instead of probing handlers linearly on every request. That makes the dispatch path smaller, easier to audit, and less allocation-heavy.
+
+### Staged Plugin Installation
+
+Remote plugins are fetched into a staged state and must be explicitly enabled after verification. Lifecycle scripts and auto-build steps are not run during staging.
+
+### Search That Avoids Whole-Store Scans
+
+- markdown memory maintains an on-disk index
+- sqlite memory filters candidates in SQL before scoring
+- query text is pushed down into memory backends where possible
+
+## Repo Boundaries
+
+- `src/core-runtime/`: public core-runtime surface
+- `src/profile-coder/`: public coding profile surface
+- `src/profile-character/`: public character/media profile surface
+- `src/server-admin/`: public server/admin surface
+- `src/admin-ui/`: dashboard app boundary, not part of the trusted runtime core
+- `src/plugins/`: plugin framework and built-ins
+- `src/admin-api/`: admin API routes and route registry
+- `src/memory/`: memory providers and interfaces
+- `src/services/`: business logic and integration services
+
+## Admin UI Boundary
+
+The admin UI is part of the product surface, not the runtime trust boundary.
+
+That matters for both engineering and marketing:
+
+- it keeps the runtime story smaller
+- it lets the dashboard evolve without redefining the core
+- it makes it clearer which code is framework infrastructure and which code is application UI
+
+## Source Of Truth
+
+When architectural docs and generated inventories disagree, prefer the generated inventories and the public package surfaces in `src/core-runtime/`, `src/profile-coder/`, `src/profile-character/`, and `src/server-admin/`.
+
+See also: [Design Principles](./design-principles.md)
+
+
+---
+
+
+### Memory System
+
+URL: /docs/architecture/memory-system
+
+# Memory System
+
+Phantasy is markdown-first by default.
+
+That means a fresh local install can persist memory without standing up a vector database first.
+
+## Memory vs Knowledge
+
+- Memory: user facts, daily notes, persistent context, conversation-adjacent state
+- Knowledge: uploaded or indexed external documents queried through knowledge tooling
+
+## Supported Memory Providers
+
+- `markdown`: default, filesystem-backed
+- `sqlite`: local vector search
+- `qdrant`: external vector database
+- `pgvector`: PostgreSQL vector storage
+
+The current defaults snapshot is here: [../generated/defaults.md](../generated/defaults.md).
+
+## Default Behavior
+
+The default memory config comes from `src/config/constants.ts`:
+
+```json
+{
+  "provider": "markdown",
+  "workspacePath": "./workspace"
+}
+```
+
+## Where Memory Lives
+
+Project workspaces typically persist under `workspace/`. The CLI global workspace uses `~/.phantasy/workspace/`.
+
+Common files:
+
+- `MEMORY.md`
+- `YYYY-MM-DD.md`
+- per-user notes under `users/`
+
+## Runtime Shape
+
+Key pieces in the current codebase:
+
+- `src/memory/` for backend implementations
+- `src/services/core/memory-service.ts` for runtime integration
+- `src/memory/conversation-markdown-store.ts` for markdown conversation persistence
+
+## Practical Guidance
+
+- Use `markdown` when you want zero-config local persistence.
+- Use `sqlite` when you want local semantic search without an external service.
+- Use `qdrant` or `pgvector` when you want a dedicated vector layer.
+
+## Related Docs
+
+- [Configuration](/docs/getting-started/configuration)
+- [Workspaces](/docs/workspaces)
+
+
+---
+
+
+### Agent Compatibility
+
+URL: /docs/architecture/agent-compatibility
+
+# Agent Compatibility
+
+Phantasy intentionally supports the common local-agent surfaces people already use across modern coding-agent stacks:
+
+- `AGENTS.md` for local operating instructions
+- `SKILL.md` for on-demand capability instructions
+- `.mcp.json` and `mcpServers` for Model Context Protocol tools
+- profile and plugin config for runtime capability composition
+
+## The Short Version
+
+- `AGENTS.md` tells the agent how to behave in a workspace
+- `SKILL.md` teaches the agent how to do a workflow
+- MCP gives the agent callable external tools
+- plugins and profiles extend the runtime itself
+
+Use all four together when needed. They are complementary, not competing abstractions.
+
+## `AGENTS.md` And Bootstrap Files
+
+Phantasy bootstraps per-agent workspaces with a small set of local instruction files:
+
+- `AGENTS.md`
+- `SOUL.md`
+- `IDENTITY.md`
+- `TOOLS.md`
+- `USER.md`
+- `memory/MEMORY.md`
+
+The CLI prompt builder loads those files into the system prompt so local workspace instructions shape the agent without forking the runtime.
+
+Use `AGENTS.md` for operating rules and workflow expectations, not for volatile memory or one-off task notes.
+
+## `SKILL.md` Compatibility
+
+Phantasy’s skill system is built around the Agent Skills pattern: markdown instructions with YAML frontmatter, loaded progressively.
+
+What Phantasy supports:
+
+- project skills in `./skills/*/SKILL.md`
+- user skills in `~/.phantasy/skills/*/SKILL.md`
+- bundled skills shipped with the framework
+- linked skills from plugins
+- optional npm-delivered skill packages
+
+Skills are instruction surfaces. They teach the model when and how to use tools, CLIs, workflows, and conventions.
+
+Phantasy also supports OpenClaw-style gating and installer metadata through `metadata.openclaw`.
+
+## MCP Compatibility
+
+Phantasy supports Model Context Protocol servers as external tool providers.
+
+Configuration precedence:
+
+1. `agentConfig.mcpServers`
+2. project `.mcp.json`
+3. `~/.phantasy/mcp.json`
+
+That matches the practical setup most teams expect: shared project defaults with local overrides and per-agent specificity.
+
+## Skills vs MCP vs Plugins
+
+| Need | Use |
+| --- | --- |
+| Teach the model a workflow or CLI | `SKILL.md` |
+| Give the model executable external tools | MCP |
+| Add runtime/platform capability | profile or plugin |
+| Set local workspace behavior | `AGENTS.md` |
+
+## Example Composition
+
+```json
+{
+  "pluginProfiles": ["coder", "character"],
+  "skills": {
+    "github": { "enabled": true }
+  },
+  "mcpServers": {
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"]
+    }
+  }
+}
+```
+
+This gives you:
+
+- coder tools from the runtime
+- persona and companion behavior from the character profile
+- GitHub workflow instructions from a skill
+- live GitHub actions through MCP
+
+## Recommendation
+
+Keep the base runtime boring.
+
+Put local behavior in `AGENTS.md`, reusable workflow knowledge in `SKILL.md`, external tools in MCP, and product/runtime concerns in profiles or plugins.
+
+
+---
+
+
+### Heartbeat
+
+URL: /docs/architecture/heartbeat
+
+# Heartbeat
+
+Heartbeat is the lightweight background loop.
+
+Use it for periodic checklists and small wake-up tasks. Use workflows when you need a real automation graph.
+
+## What It Actually Does
+
+When enabled, `HeartbeatService`:
+
+- resolves a workspace from config, `PHANTASY_WORKSPACE`, or `./workspace`
+- runs once immediately on startup
+- runs again every `interval_minutes`
+- optionally reads unchecked items from `HEARTBEAT.md`
+- records audit-trail events for enable, start, success, failure, and stop
+
+The checklist items are task labels. They do not execute arbitrary code by themselves.
+
+## Config
+
+```json
+{
+  "heartbeat": {
+    "enabled": true,
+    "interval_minutes": 30,
+    "read_heartbeat_md": true,
+    "message": "Checking in..."
+  }
+}
+```
+
+## `HEARTBEAT.md`
+
+Only unchecked checklist lines are parsed:
 
 ```md
----
-description: One clear sentence about what this page covers.
----
+# HEARTBEAT.md
+
+- [ ] Check pending approvals
+- [ ] Review urgent messages
+- [ ] Tidy memory if needed
 ```
 
-If you omit it, the first meaningful paragraph becomes the fallback description.
+Checked items are ignored.
 
-## Next Steps
+## Return Shape
 
-- [UI Configuration](/docs/developer-guides/ui-configuration)
-- [Design System](/docs/developer-guides/design-system)
+A run returns one of these:
+
+- `HEARTBEAT_OK - Processed N tasks`
+- `HEARTBEAT_OK - No tasks pending`
+- `HEARTBEAT_ERROR`
+
+If you set `heartbeat.message`, that string becomes the success response instead.
+
+## When To Use It
+
+Heartbeat is good for:
+
+- lightweight recurring checks
+- companion "look around" behavior
+- audit-trail backed background nudges
+
+Workflows are better for:
+
+- multi-step automation
+- branching or approvals
+- reusable recipes and scheduled graphs
+
+## Related Docs
+
+- [Bootstrapping](/docs/getting-started/bootstrapping)
+- [Workflows Overview](/docs/workflows/overview)
+- [Admin API](/docs/api/admin-api)
 
 
 ---
 
 
-### Troubleshooting
+### Admin UI Style Policy
 
-URL: /docs/user-guide/troubleshooting
+URL: /docs/architecture/admin-ui-style-policy
 
-# Troubleshooting
+# Admin UI Style Policy
 
-## My Markdown Change Does Not Show Up
+This is the style contract for Phantasy's admin UI.
 
-The app reads generated JSON, not raw Markdown directly.
+Reference docs:
 
-If `npm run dev` is already running, rerun:
+- `docs/architecture/repo-standards.md`
+- `docs/architecture/admin-ui-style-policy.md`
+- `docs/architecture/admin-ui-design-system.md`
+
+## Goal
+
+Make the UI easier to change, easier to reason about, and less dependent on one-off styling decisions hidden inside TSX.
+
+The desired shape is:
+
+- shared tokens in `src/admin-ui/styles/theme.css`
+- shared primitives in `src/admin-ui/components/common/`
+- feature-local CSS modules next to the feature they style
+- inline styles only when the value is genuinely runtime-driven
+
+## Rules
+
+1. Use CSS modules for component styling.
+
+2. Use theme tokens instead of raw presentation values whenever possible.
+
+- Prefer `var(--bg-*)`, `var(--text-*)`, `var(--border-*)`, `var(--accent-*)`
+- Prefer `var(--font-primary)` and `var(--font-mono)`
+
+3. Shared patterns belong in shared modules.
+
+- Good: `src/admin-ui/components/common/Buttons.module.css`
+- Good: `src/admin-ui/components/common/SurfacePrimitives.module.css`
+- Bad: importing `PluginsTab.module.css` into an unrelated page because it already has a convenient button class
+
+4. Inline styles are allowed only for dynamic values that cannot be expressed statically.
+
+Allowed examples:
+
+- runtime positioning like `top`, `left`, `bottom`
+- CSS custom property injection like `style={{ \"--duration\": value }}`
+- canvas/SVG sizing
+- image aspect-ratio or measured dimensions
+
+Not allowed as a default:
+
+- static spacing
+- static colors
+- static borders
+- static typography
+- reusable card, grid, toolbar, or badge styling
+
+5. Fonts are centralized.
+
+- Page-level titles rendered by shared headers use `var(--font-display)` for the BBH Bartle voice.
+- Sans UI copy, buttons, labels, and workspace-launcher controls use `var(--font-primary)`.
+- Code, ids, hashes, counters, and diagnostics use `var(--font-mono)`.
+- Do not hardcode ad hoc font stacks inside product surfaces. Use the shared tokens instead, even on buttons and custom controls.
+
+6. Keep ownership local.
+
+- Feature components should use their own CSS module or a shared common module
+- If two features need the same class, promote it into `components/common/`
+
+## Naming
+
+- React components: `PascalCase.tsx`
+- CSS modules: `PascalCase.module.css`
+- CSS module classes: `camelCase`
+
+## Enforcement
+
+`bun run validate:standards` enforces this policy in several ways:
+
+- repo-wide non-regression checks for legacy inline-style debt
+- clean-room checks on shared shell primitives and core dashboard components
+- file-size budget freezes for the largest admin UI surfaces
+- font-token enforcement for component CSS
+
+The broader standards contract is documented in [Repository Standards](./repo-standards.md).
+
+The enforcement bar will keep tightening. New code should not add to the exception count.
+
+
+---
+
+
+### Repository Standards
+
+URL: /docs/architecture/repo-standards
+
+# Repository Standards
+
+`bun run validate:standards` is the repo-specific guardrail layer.
+
+Use it alongside:
+
+- `bun run typecheck`
+- `bun run stylelint`
+- `bun run lint`
+
+The important difference is scope. ESLint, TypeScript, and Stylelint know generic language rules. `validate-standards` knows Phantasy's architecture contract.
+
+## What It Enforces
+
+### Runtime integrity
+
+- provider directories must match registered runtime providers
+- bundled plugin manifests must validate and point at real files
+- mounted admin routes cannot drift away from the route registry
+- the Party-HQ protocol mirror cannot silently diverge
+
+### Product metadata integrity
+
+- primary admin tabs must map to valid workspaces
+- workspace launcher tabs must exist and stay aligned with their section
+- dashboard-promoted tabs and specialist admin surfaces must declare icons
+- product admin surfaces cannot duplicate names or tab ids
+- admin API route metadata cannot duplicate endpoint strings
+- bundled dashboard widgets cannot silently collide on `plugin:widgetId`
+- bundled widgets inherit ownership from plugin taxonomy, so widgets without plugin taxonomy are rejected
+
+### Admin UI style discipline
+
+- the repo-wide admin inline-style count is budgeted and non-regressing
+- clean-room files may only use inline styles for explicit runtime hooks
+- feature files cannot borrow CSS modules from unrelated tabs
+- product surfaces cannot hardcode custom font families
+- component CSS must use shared font tokens or `inherit`
+
+### Admin UI size budgets
+
+These are budget freezes, not ideal targets:
+
+- max component file size: `1770` lines
+- files over `700` lines: `18`
+- files over `1200` lines: `6`
+
+This keeps debt from growing while the repo is still being split by domain.
+
+## Why Budget Freezes Instead Of Perfect Rules
+
+The point is to stop regressions without pretending the codebase is already fully normalized.
+
+That means:
+
+- existing debt is fenced
+- new debt must justify itself explicitly
+- intentional refactors can ratchet budgets downward
+- the standards script should fail on drift, not on history
+
+## How To Tighten Or Adjust A Rule
+
+When a cleanup pass lands:
+
+1. lower the matching budget in `scripts/validate-standards.ts`
+2. add newly-clean files to the clean-room list when appropriate
+3. document new allowed dynamic-style hooks if the component still needs them
+4. rerun `bun run validate:standards`, `bun run stylelint`, and `bun run typecheck`
+
+When a rule is too strict:
+
+1. fix the underlying drift if possible
+2. if the exception is legitimate, encode it narrowly in `validate-standards.ts`
+3. document the reason here or in [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy)
+
+Do not widen budgets casually. If a budget changes upward, it should be tied to an intentional architectural decision, not convenience.
+
+## What We Are Not Enforcing Yet
+
+Deliberately out of scope for now:
+
+- repo-wide raw color-token purity
+- full domain-boundary import rules between every workspace module
+- perfect file-size ceilings across all historical surfaces
+- browser-level UI smoke coverage in the standards script itself
+
+Those can be added later, but only if the rule is cheap to understand and cheap to maintain.
+
+## Practical Workflow
+
+For contributors:
+
+- run `bun run validate:standards` before large UI or manifest changes
+- treat a standards failure as architecture drift, not just lint noise
+- prefer shrinking budgets after cleanup passes rather than creating one-off exemptions
+
+For maintainers:
+
+- use this file as the explanation layer
+- use `scripts/validate-standards.ts` as the enforcement layer
+- keep the policy intentionally boring, explicit, and easy to tune
+
+
+---
+
+
+## Extensions
+
+
+### Plugin Overview
+
+URL: /docs/plugins/overview
+
+# Plugin Overview
+
+Phantasy uses a code-first plugin framework built around:
+
+- `src/plugins/base-plugin.ts`
+- `src/plugins/plugin-manager.ts`
+- `src/plugins/manager/builtin-plugins.ts`
+- `src/plugins/hook-bus.ts`
+
+## Built-In Plugins
+
+Built-ins are now profile-based rather than implicitly always-on.
+
+- `core-runtime`: no built-ins by default
+- `coder`: coding tools and diagnostics
+- `character`: companion identity, memory, voice, image, and presentation features
+- `server-admin`: operational and browser automation surfaces
+
+The generated inventory is the source of truth for exact descriptors and privilege flags: [Built-in plugins](../generated/plugins.md).
+
+## Lifecycle
+
+`PluginManager` is responsible for:
+
+- registration
+- manifest validation
+- initialization
+- config validation and persistence
+- enable and disable state
+- tool aggregation
+- hook execution
+- destruction and unload
+
+## External Plugins
+
+External plugins remain supported, but the install path is intentionally stricter than before:
+
+- fetch package artifact
+- stage and inspect manifest
+- do not run lifecycle scripts during install
+- explicitly enable after verification
+
+That keeps remote install from becoming silent code execution.
+
+## Profile Loading
+
+The runtime resolves built-ins from selected profiles in config or environment. If no profile is requested, the system falls back to `core-runtime`.
+
+That means the repo can support coding agents, companion businesses, and production products without pretending they all belong in one trusted base runtime.
+
+## Related Docs
+
+- [Design Principles](../architecture/design-principles.md)
+- [Runtime Packages](../architecture/runtime-packages.md)
+- [Developing Plugins](./developing.md)
+- [Integration Model](../integrations/integrations-guide.md)
+- [Generated Built-in Plugin Inventory](../generated/plugins.md)
+
+
+---
+
+
+### Developing Plugins
+
+URL: /docs/plugins/developing
+
+# Developing Plugins
+
+Build a plugin when profiles, skills, and MCP are not enough.
+
+That is the whole threshold.
+
+## Reach For A Plugin When You Need
+
+- runtime lifecycle hooks
+- tool registration inside the Phantasy runtime
+- platform or provider integration
+- storage or admin behavior that cannot live in prompts
+
+If the task is just instructions, use `AGENTS.md` or a skill first.
+
+## Scaffold
 
 ```bash
-npm run generate:docs
-```
-
-If you changed AI-export content too, also run:
-
-```bash
-npm run generate:llms
-```
-
-## A Docs Route Returns 404 On Refresh
-
-Known docs routes are emitted as static HTML during `npm run build`.
-
-If a direct request to `/docs/...` or `/llms` returns 404, check:
-
-- `npm run build` completed successfully
-- the deployed `dist/` output still includes `docs/.../index.html` and `llms/index.html`
-- no catch-all host rule is rewriting `/docs/*` or `/llms` back to the homepage
-- `vercel.json` is being used only as fallback routing, not instead of the generated files
-
-## The Command Palette Cannot Find A Page
-
-Make sure the page exists in both places:
-
-- `shared/documentation-config.js`
-- `src/docs/content/...`
-
-Then rerun `npm run generate:docs`.
-
-## Search Is Empty In Production
-
-Pagefind is only generated during `npm run build`.
-
-Make sure `dist/pagefind/` is deployed with the rest of the site.
-
-## Edit, Issue, Or Source Links Are Missing
-
-Set `VITE_GITHUB_URL` and optionally `VITE_GITHUB_BRANCH` in `.env.local`, `.env.production`, or your host build environment.
-
-## Theme, Motion, Or Font Settings Feel Stuck
-
-Clear these local-storage keys and reload:
-
-- `darkMode`
-- `prefersReducedMotion`
-- `fontFamily`
-
-## Wallet Icons Or Copy Buttons Look Wrong
-
-Confirm the wallet markup still uses `class="wallet-address"` plus `data-address`.
-
-## Debug Checklist
-
-```bash
-npm test
-npm run lint
+phantasy create plugin my-plugin --workspace operations --kind capability
+cd plugins/my-plugin
+npm install
 npm run build
 ```
 
-If those pass, the remaining problem is usually stale generated docs output, an incomplete deployment of `dist/`, or a path mismatch between the docs tree and Markdown files.
+The scaffold lands under `./plugins/<slug>/`, which is the right place for trusted local development.
+
+## Minimal Shape
+
+```ts
+import {
+  BasePlugin,
+  type PluginContext,
+  type PluginTool,
+} from "@phantasy/agent/plugins";
+
+export class MyPlugin extends BasePlugin {
+  name = "my-plugin";
+  version = "1.0.0";
+  description = "Example plugin";
+  protected workspace = "operations" as const;
+  protected extensionKind = "capability" as const;
+
+  async beforeChat(_context: PluginContext) {
+    return { shouldContinue: true };
+  }
+
+  getTools(): PluginTool[] {
+    return [
+      {
+        name: "my_tool",
+        description: "Does something useful",
+        parameters: {
+          type: "object",
+          required: ["input"],
+          properties: {
+            input: { type: "string", description: "Input value" },
+          },
+        },
+        handler: async ({ input }) => ({ result: `Processed: ${input}` }),
+      },
+    ];
+  }
+}
+
+export default MyPlugin;
+```
+
+## Design Rules
+
+Prefer plugins that are:
+
+- narrow
+- explicit
+- low-privilege by default
+- honest about dependencies
+
+Avoid plugins that:
+
+- span multiple unrelated domains
+- assume other plugins are present
+- hide side effects in lifecycle hooks
+- quietly expand the trust boundary
+
+## Profiles Versus Plugins
+
+Phantasy has two capability lanes:
+
+1. first-party built-ins selected through `pluginProfiles`
+2. explicit plugins for extra capability
+
+A plugin should never assume it is part of the default runtime.
+
+## Installation And Trust
+
+Remote plugin installation is staged before enablement.
+
+Practical implications:
+
+- download is not the same as enablement
+- staging does not auto-run lifecycle scripts
+- staging does not auto-run `build`
+
+If your plugin needs a build step, document it clearly.
+
+## Good Default
+
+Before writing a plugin, ask the boring question first:
+
+- can this be an `AGENTS.md` rule?
+- can this be a skill?
+- can this be MCP?
+
+If the answer is still no, then a plugin is probably the right tool.
+
+## Related Docs
+
+- [Plugin Overview](/docs/plugins/overview)
+- [Integration Model](/docs/integrations/integrations-guide)
+- [Runtime Packages](/docs/architecture/runtime-packages)
+- [Design Principles](/docs/architecture/design-principles)
 
 
 ---
 
 
-### Command Palette
+## API & Reference
 
-URL: /docs/user-guide/command-palette
 
-# Command Palette
+### CLI
 
-The command palette is the fastest way to move through the site.
+URL: /docs/cli
 
-## Open It
+# CLI
 
-- Mac: `Cmd + K`
-- Windows / Linux: `Ctrl + K`
+The CLI is the coder-first path through Phantasy.
 
-## What It Can Show
+It runs on the same core runtime used by companion/VTuber products and server deployments, so you can combine coding capability with persona, memory, workflows, and later admin/server surfaces without switching frameworks.
 
-- docs pages from the shared navigation tree
-- built-in actions such as theme changes
-- FAQ answers inline inside the palette
-- quick links like the homepage and `llms.txt`
-- Pagefind full-text results after a production build
-
-## Keyboard Controls
-
-- `Up` and `Down` move through results
-- `Enter` opens a result or previews an FAQ answer
-- `Esc` closes the palette
-
-## Related Shortcut
-
-`Cmd/Ctrl + I` toggles the theme.
-
-## Search Notes
-
-Local navigation results are always available.
-
-Pagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.
-
-## Next Steps
-
-- [Advanced Features](/docs/user-guide/advanced-features)
-- [Basic Usage](/docs/user-guide/basic-usage)
-
-
----
-
-
-### Interactive Map
-
-URL: /docs/user-guide/interactive-map
-
-# Interactive Map
-
-The interactive map renders the documentation tree as a graph in the right rail.
-
-## What It Is Good For
-
-Use it when readers need:
-
-- a fast overview of the docs structure
-- a visual way to jump between related sections
-- a second navigation surface besides the file tree and search
-
-## Desktop Behavior
-
-On desktop, the right rail switches between:
-
-- `On This Page`
-- `Interactive Map`
-
-The rail footer stays fixed, so the view change does not shift the rest of the shell.
-
-## Mobile Behavior
-
-On mobile, the map opens from the left-rail tools instead of staying visible all the time.
-
-## Authoring Tip
-
-A clean docs tree creates a clean map. Keep sections purposeful, avoid deep nesting unless it is warranted, and use page titles that make sense out of context.
-
-## Next Steps
-
-- [Basic Usage](/docs/user-guide/basic-usage)
-- [Configuration](/docs/user-guide/configuration)
-
-
----
-
-
-## API Reference
-
-
-### Overview
-
-URL: /docs/api-reference/overview
-
-# API Reference Overview
-
-This section covers the internal runtime and build APIs that power the template.
-
-It is not a server API. Everything here exists to support a static docs site.
-
-## Runtime Modules
-
-- `src/lib/content.ts`: loads the docs manifest and per-page JSON
-- `src/lib/navigation.ts`: flattens the tree, finds adjacent pages, resolves defaults
-- `src/hooks/usePagefind.ts`: boots Pagefind and normalizes search results
-- `src/providers/ThemeProvider.tsx`: theme, motion, and font state
-- `src/components/MarkdownRenderer.tsx`: turns processed HTML into one React tree
-
-## Build Modules
-
-- `scripts/generate-docs.mjs`: writes `public/docs-index.json` and `public/docs-content/**/*.json`
-- `scripts/generate-llms.mjs`: writes `public/llms.txt` and `public/llms-full.txt`
-- `scripts/generate-pagefind.mjs`: writes the production search index to `dist/pagefind/`
-
-## Generated Artifacts
-
-The runtime depends on:
-
-- `/docs-index.json`
-- `/docs-content/**/*.json`
-- `/llms.txt`
-- `/llms-full.txt`
-- `/pagefind/*`
-
-## When To Read This Section
-
-Use the rest of this API reference when you need to:
-
-- change how docs content is loaded
-- extend the markdown renderer
-- add a custom block type
-- adjust build outputs or search generation
-
-## Next Steps
-
-- [Content Pipeline](/docs/api-reference/content-pipeline)
-- [Runtime APIs](/docs/api-reference/runtime-apis)
-
-
----
-
-
-### Content Pipeline
-
-URL: /docs/api-reference/content-pipeline
-
-# Content Pipeline
-
-The content pipeline turns Markdown source files into static artifacts the app can load directly.
-
-## Inputs
-
-- `shared/documentation-config.js`
-- `src/docs/content/**/*.md`
-- Vite-resolved env values like `VITE_SITE_URL` and `VITE_SITE_NAME` from `.env*` files or the build environment
+The entrypoint is `src/cli/index.ts`. If no top-level command is provided, Phantasy starts the interactive chat/TUI flow.
 
 ## Main Commands
 
+The generated command inventory is here: [generated/cli-commands.md](./generated/cli-commands.md).
+
+## Common Usage
+
 ```bash
-npm run generate:docs
-npm run generate:seo
-npm run generate:llms
-npm run build
+npx phantasy
+npx phantasy chat --config config/agents/my-brand.json
+npx phantasy chat --config config/agents/editorial-companion.json
+npx phantasy start
+npx phantasy workflow list
+npx phantasy create agent
+npx phantasy create business-cms my-brand
+npx phantasy create developer local-coder
+npx phantasy create plugin publishing-hook --workspace site --kind capability
+npx phantasy create skill editorial-voice --workspace character --kind behavior
+npx phantasy create theme atelier
+npx phantasy setup
+npx phantasy models auth import-codex --provider openai-codex
 ```
 
-## What Each Generator Produces
+If the CLI is already installed globally or otherwise available on your `PATH`, you can use `phantasy` directly.
 
-### `scripts/generate-docs.mjs`
+## Runtime Model
 
-Writes:
+The CLI runtime is implemented in `src/cli/runtime/agent-runtime.ts`.
 
-- `public/docs-index.json`
-- `public/docs-content/**/*.json`
+It loads agent config, bootstrap files, memory, selected profiles, skills, MCP servers, workflows, provider routing, and the terminal UI.
 
-### `scripts/generate-seo.mjs`
+Example profile selection:
 
-Writes:
-
-- `public/robots.txt`
-- `public/sitemap.xml`
-- `public/images/og-image.svg`
-- `public/images/twitter-card.svg`
-
-### `scripts/generate-route-html.mjs`
-
-Runs after the Vite bundle exists and writes route-specific HTML snapshots into `dist/` with page-level metadata.
-
-### `scripts/generate-llms.mjs`
-
-Writes:
-
-- `public/llms.txt`
-- `public/llms-full.txt`
-
-### `scripts/generate-pagefind.mjs`
-
-Runs after the production bundle exists and writes:
-
-- `dist/pagefind/*`
-
-## Important Dev-Mode Detail
-
-The docs app reads generated JSON, not raw Markdown.
-
-If the dev server is already running, rerun `npm run generate:docs` after Markdown or docs-tree changes. Rerun `npm run generate:seo` when site metadata or page descriptions change.
-
-## Runtime Rendering Flow
-
-Once a page is fetched, rendering happens in three steps:
-
-1. `src/utils/markdownCore.ts` parses Markdown and records rich block placeholders.
-2. `src/utils/MarkdownProcessor.tsx` adds heading IDs, classes, sanitization, and caching.
-3. `src/components/MarkdownRenderer.tsx` turns the processed HTML into one React tree and swaps placeholders for real components.
-
-That is how code fences, live previews, color palettes, and wallet copy blocks stay interactive without extra DOM-walking roots.
-
-## Generated Output Shape
-
-The manifest contains lightweight page metadata. Each page is stored separately as JSON under `public/docs-content/`, so the app can fetch one page at a time instead of loading the full corpus up front.
-
-## Metadata Rules
-
-- `description:` frontmatter becomes the preferred page summary
-- if there is no frontmatter description, the first meaningful paragraph is used
-- sitemap and canonical data use `VITE_SITE_URL` when it is set, following Vite mode resolution and host-provided env overrides
-- route-level HTML snapshots make social tags and titles available before JavaScript runs
-
-## Custom Component Extension Points
-
-There are two supported extension paths.
-
-### Fenced Markdown Components
-
-Use this when you want a custom code-fence language like `ColorPalette`.
-
-- detect the language in `buildMarkdownRenderState()`
-- emit a placeholder element with `data-*` payload
-- map that placeholder to a React component in `MarkdownRenderer.tsx`
-
-### Semantic HTML Upgrades
-
-Use this when normal HTML inside Markdown should become a richer component at render time.
-
-The built-in wallet block uses this pattern:
-
-```html
-<code
-  class="wallet-address"
-  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
-  data-chain="eth"
->
-  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
-</code>
+```json
+{
+  "pluginProfiles": ["coder", "character"]
+}
 ```
 
-`MarkdownRenderer.tsx` upgrades that markup into a themed copyable wallet component.
+That gives you a persona-driven coding agent without changing runtimes.
 
-## Next Steps
+If you want the fully explicit local developer stack, use:
 
-- [Runtime APIs](/docs/api-reference/runtime-apis)
-- [Code Examples](/docs/developer-guides/code-examples)
-
-
-
----
-
-
-### Runtime APIs
-
-URL: /docs/api-reference/runtime-apis
-
-# Runtime APIs
-
-## `loadDocsContent()`
-
-Fetches and caches `/docs-index.json` for the current session.
-
-Use it when you need the generated manifest without loading a specific page.
-
-## `getDocument(path)`
-
-Loads one generated document from `/docs-content/...`.
-
-```ts
-import { getDocument } from '../src/lib/content';
-
-const doc = await getDocument('deployment/overview');
+```bash
+npx phantasy create developer local-coder
 ```
 
-## `resolveDocumentPath(slug)`
-
-Maps route slugs to the actual page path.
-
-That is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.
-
-## `clearContentCache()`
-
-Clears the in-memory docs manifest and page cache.
-
-Useful in tests or when you intentionally want a fresh fetch cycle.
-
-## Navigation Helpers
-
-`src/lib/navigation.ts` also exposes small helpers such as:
-
-- `flattenNavigation()`
-- `findAdjacentPages()`
-- `findPageTags()`
-
-These are useful when you want derived data from the shared docs tree.
-
-## `usePagefind()`
-
-Loads the Pagefind browser bundle once and returns normalized search results.
-
-```ts
-const { search, isAvailable, isLoading } = usePagefind();
-```
-
-## `useTheme()`
-
-Exposes:
-
-- `isDarkMode`
-- `toggleTheme()`
-- `prefersReducedMotion`
-- `toggleReducedMotion()`
-- `fontFamily`
-- `setFontFamily()`
-
-The UI uses this provider for the settings menu, keyboard shortcut, and font cycling.
+That preset opts into the composite `agent` profile on purpose, rather than inheriting coder tools from beginner product shapes.
 
 ## Notes
 
-These APIs are intentionally small. The template stays mostly configuration-driven instead of wrapping everything in a large abstraction layer.
+- The CLI is Bun-first in this repo.
+- Global workspace setup uses `~/.phantasy/`.
+- The CLI shares the same provider and plugin registries as the server path.
+- `phantasy models auth` manages session-backed providers such as `openai-codex`.
+- If no profile is requested, the runtime stays on `core-runtime`.
+- `AGENTS.md`, `SKILL.md`, and MCP are all first-class parts of the CLI path. See [Agent Compatibility](/docs/architecture/agent-compatibility).
 
 
 ---
 
 
-## Developer Guides
+### Public API
 
+URL: /docs/api/public-api
 
-### Code Examples
+# Public API
 
-URL: /docs/developer-guides/code-examples
+Phantasy exposes a small public HTTP surface alongside the authenticated admin shell.
 
-# Code Examples
+The source of truth for the mounted public routes is the server route layer in:
 
-This page shows the main authoring patterns supported by the current runtime.
+- `src/server/routes/health-routes.ts`
+- `src/server/routes/public-api-routes.ts`
 
-## Add A New Docs Page
+## Always-Public Endpoints
 
-Add the page to `shared/documentation-config.js`:
+### Health
 
-```js
+```bash
+GET /health
+```
+
+Current response shape:
+
+```json
 {
-  type: 'file',
-  name: 'Architecture.md',
-  path: 'developer-guides/architecture',
-  tags: ['architecture', 'guide']
+  "status": "ok",
+  "timestamp": "2026-03-12T12:00:00.000Z"
 }
 ```
 
-Then create `src/docs/content/developer-guides/architecture.md` and rerun `npm run generate:docs`.
+### Agent Metadata
 
-## Standard Code Block
-
-````md
-```ts
-export function hello(name: string) {
-  return `Hello, ${name}`;
-}
+```bash
+GET /agent.json
+GET /.well-known/agent.json
+GET /api/agent
 ```
-````
 
-## Multi-Tab Code Block
+- `/agent.json` and `/.well-known/agent.json` return ERC-8004-style agent metadata.
+- `/api/agent` returns a public summary of the active agent config for external consumers.
 
-Use pipe-separated language definitions. `---` splits snippet bodies when needed.
+## Public Content API
 
-````md
-```ts:TypeScript|js:JavaScript
-export const value = 1;
+These routes are available only when the website mode allows public content delivery:
+
+- `GET /api/content/entries`
+- `GET /api/content/entries/:slugOrId`
+- `GET /api/content/tags`
+- `GET /api/content/pages`
+- `GET /api/content/pages/:slug`
+
+Practical rule:
+
+- `public`: embedded site + public content API
+- `api-only`: public content API without runtime HTML site
+- `private`: no public content API
+
+See [Website Modes](/docs/website-mode).
+
+## Integration API
+
+Custom integrations live under `/api/integrations/*`.
+
+Mounted routes:
+
+- `POST /api/integrations/:integrationId/chat/completions`
+- `POST /api/integrations/:integrationId/transcription`
+- `POST /api/integrations/voice/generate`
+- `POST /api/integrations/webhook`
+- `GET /api/integrations/:integrationId/threads/messages`
+- `GET /api/integrations/messages`
+
+Important details:
+
+- chat completions are the OpenAI-compatible public chat surface
+- integration routes use custom integration auth, not admin-session auth
+- the router also serves CORS preflight for `/api/integrations/*`
+
+## Platform Webhooks
+
+Phantasy also mounts:
+
+```bash
+POST /api/webhooks/fanvue
+```
+
+That route delegates to the active Fanvue adapter when the integration is enabled.
+
+## What Is Not Public
+
+These surfaces are not part of the public API contract:
+
+- `/admin/api/*`
+- `/admin/media/*`
+- `/admin/avatars/*`
+- `/admin/api/logs/stream`
+
+Those require authenticated admin access.
+
+## Related Docs
+
+- [Admin API](/docs/api/admin-api)
+- [Website Modes](/docs/website-mode)
+- [Authentication & Hosting](/docs/guides/AUTHENTICATION_SETUP)
+
+
 ---
-export const value = 1;
+
+
+### Admin API
+
+URL: /docs/api/admin-api
+
+# Admin API
+
+The admin surface is mounted under `/admin/api/*` and is protected by the same auth system as the admin UI.
+
+The route inventory is generated from the mounted handlers and route registry, so the fastest drift check is:
+
+- [Generated Admin API Route Inventory](/docs/generated/api-routes)
+
+## Auth Model
+
+Admin routes are protected by default.
+
+Typical access paths:
+
+- browser session cookie from `/auth/login`
+- bearer token issued after admin authentication
+
+Operationally relevant protections also cover:
+
+- `/admin/media/*`
+- `/admin/avatars/*`
+- `/admin/api/logs/stream`
+
+## Route Shape
+
+Phantasy uses two admin route paths:
+
+1. a compiled admin route registry for most route modules
+2. a small number of explicit Express mounts for native monitoring or static/admin concerns
+
+The current mounted groups span all five workspaces:
+
+- `Character`: agent config, notes, memory, knowledge, character-card
+- `Site`: content, themes, website, media, video
+- `Business`: integrations, notifications, wallet, financial, ACP
+- `Automations`: workflow and browser-use surfaces currently land through tabs/plugins rather than a large standalone admin route group
+- `Operations`: providers, setup, validation, monitoring, status, plugins, users
+
+## Health And Observability
+
+Useful admin endpoints include:
+
+- `GET /admin/api/status/health`
+- `GET /admin/api/status/health/detailed`
+- `GET /admin/api/monitoring/*` for realtime monitoring routes
+
+Admin log streaming uses a WebSocket upgrade on:
+
+```bash
+GET /admin/api/logs/stream
 ```
-````
 
-## Optional Frontmatter
+That stream is admin-only and currently exists for log streaming rather than as a general-purpose event bus.
 
-Use frontmatter when you want to control the generated page description:
+## Tab And Route Inventories
 
-````md
+Use these generated pages together:
+
+- [Generated Admin Tab Inventory](/docs/generated/admin-tabs)
+- [Generated Admin API Route Inventory](/docs/generated/api-routes)
+
+Tabs describe what operators can navigate to. Route inventory describes what is actually mounted.
+
+## Related Docs
+
+- [Public API](/docs/api/public-api)
+- [Authentication & Hosting](/docs/guides/AUTHENTICATION_SETUP)
+- [Workspaces](/docs/workspaces)
+
+
 ---
-description: Short summary used for metadata, previews, and generated artifacts.
----
 
-# Architecture
-```
-````
 
-## Live HTML Example
+## Generated Inventories
 
-````md
-```html
-<button class="button-primary" type="button">Try me</button>
-```
-````
 
-## Live CSS Example
+### Defaults
 
-````md
-```css
-.button-primary {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-unified);
-  background: var(--card-color);
-  color: var(--text-color);
-}
-```
-````
+URL: /docs/generated/defaults
 
-## `ColorPalette` Block
+# Generated Defaults Inventory
 
-The current component expects `hex`, `rgb`, and `usage` keys.
+This file is generated from `src/config/constants.ts`.
 
-````md
-```ColorPalette
+## Agent Defaults
+
+```json
 {
-  "colors": [
+  "ID": "default",
+  "NAME": "Companion",
+  "PERSONALITY": "A helpful AI assistant.",
+  "INSTRUCTIONS": "You are a helpful AI assistant."
+}
+```
+
+## Model Defaults
+
+```json
+{
+  "PROVIDER": "kilo-gateway",
+  "MODEL": "minimax/minimax-m2.5:free",
+  "TEMPERATURE": 0.7,
+  "MAX_TOKENS": 4096,
+  "TOP_P": 1,
+  "PRESENCE_PENALTY": 0,
+  "FREQUENCY_PENALTY": 0
+}
+```
+
+## Model Routing Defaults
+
+```json
+{
+  "default": {
+    "provider": "mlc-llm",
+    "model": "HF://mlc-ai/Qwen3-8B-Instruct-q4f32_1-MLC",
+    "temperature": 0.7
+  },
+  "fast": {
+    "provider": "mlc-llm",
+    "model": "HF://mlc-ai/Qwen3-1.7B-Instruct-q4f32_1-MLC",
+    "temperature": 0.7
+  }
+}
+```
+
+## Memory Defaults
+
+```json
+{
+  "PROVIDER": "markdown",
+  "WORKSPACE_PATH": "./workspace",
+  "MAX_MEMORIES": 50,
+  "SIMILARITY": 0.7,
+  "AUTO_FLUSH": true,
+  "FLUSH_THRESHOLD": 0.8,
+  "MAX_CONVERSATION_MESSAGES": 50,
+  "DUAL_EMBEDDINGS": false,
+  "SQLITE_VECTOR_PATH": "./workspace/.vector-index.db"
+}
+```
+
+## Server Defaults
+
+```json
+{
+  "PORT": 2000,
+  "HOST": "0.0.0.0",
+  "API_PREFIX": "/api/v1",
+  "WS_PATH": "/ws",
+  "REQUEST_TIMEOUT": 30000,
+  "MAX_BODY_SIZE": "10mb"
+}
+```
+
+## Admin UI Defaults
+
+```json
+{
+  "PORT": 2000,
+  "DEV_PORT": 5173,
+  "WS_PORT": 1999
+}
+```
+
+## Provider URL Defaults
+
+```json
+{
+  "openai": "https://api.openai.com/v1",
+  "openai-codex": "https://api.openai.com/v1",
+  "anthropic": "https://api.anthropic.com/v1",
+  "google": "https://generativelanguage.googleapis.com/v1beta",
+  "redpill": "https://api.redpill.ai/v1",
+  "venice": "https://api.venice.ai/v1",
+  "fireworks": "https://api.fireworks.ai/v1",
+  "groq": "https://api.groq.com/openai/v1",
+  "together": "https://api.together.ai/v1",
+  "openrouter": "https://openrouter.ai/v1",
+  "mistral": "https://api.mistral.ai/v1",
+  "deepseek": "https://api.deepseek.com/v1",
+  "chutes": "https://api.chutes.ai/v1",
+  "kilo-gateway": "https://api.kilo.ai/api/gateway",
+  "alkahest": "http://localhost:8787",
+  "dalle": "https://api.openai.com/v1/images/generations",
+  "stability": "https://api.stability.ai/v1",
+  "replicate": "https://api.replicate.com/v1",
+  "midjourney": "https://api.midjourney.com/v1",
+  "whisper": "https://api.openai.com/v1/audio/transcriptions",
+  "cozytts": "https://api.coqui.ai/v2",
+  "kokoro": "https://kokoro.hf.ai/v1",
+  "chutes_tts": "https://chutes-kokoro.chutes.ai",
+  "chutes_stt": "https://chutes-whisper-large-v3.chutes.ai",
+  "comfyui": "http://localhost:8188",
+  "ollama": "http://localhost:11434/v1",
+  "openai-compatible": "http://localhost:11434/v1",
+  "qdrant": "http://localhost:6333",
+  "weaviate": "http://localhost:8080",
+  "discord": "https://discord.com/api/v10",
+  "twitter": "https://api.twitter.com/2",
+  "telegram": "https://api.telegram.org"
+}
+```
+
+## Provider Model Defaults
+
+```json
+{
+  "openai": "gpt-4o",
+  "openai-codex": "gpt-5-codex",
+  "anthropic": "claude-sonnet-4-20250514",
+  "google": "gemini-2.0-flash-exp",
+  "redpill": "llama-3.1-70b",
+  "venice": "venice-uncensored",
+  "fireworks": "accounts/fireworks/models/llama-v3p1-70b-instruct",
+  "groq": "llama-3.1-70b-versatile",
+  "together": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+  "openrouter": "anthropic/claude-3.5-sonnet",
+  "mistral": "mistral-large-latest",
+  "deepseek": "deepseek-chat",
+  "chutes": "zai-org/GLM-4.6V",
+  "kilo-gateway": "minimax/minimax-m2.5:free",
+  "dalle": "dall-e-3",
+  "stability": "stable-diffusion-xl-1024-v1-0",
+  "whisper": "whisper-1",
+  "kokoro": "kokoro",
+  "chutes_tts": "kokoro",
+  "chutes_stt": "whisper-large-v3",
+  "openai_embedding": "text-embedding-3-small",
+  "redpill_embedding": "BAAI/bge-large-en-v1.5"
+}
+```
+
+## CORS Defaults
+
+```json
+{
+  "ALLOWED_ORIGINS": [
+    "http://localhost:1999",
+    "http://localhost:2000",
+    "http://localhost:2001",
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:3000",
+    "http://localhost:3001"
+  ],
+  "ALLOWED_METHODS": [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "PATCH",
+    "OPTIONS"
+  ],
+  "ALLOWED_HEADERS": [
+    "Content-Type",
+    "Authorization",
+    "X-Requested-With",
+    "X-Agent-ID",
+    "X-API-Key"
+  ]
+}
+```
+
+
+---
+
+
+### Providers
+
+URL: /docs/generated/providers
+
+# Generated Provider Inventory
+
+This file is generated from the registered runtime provider definitions.
+
+Registered runtime providers: **28**
+
+| ID | Name | Compatibility | Capabilities | Auth Env Vars | Base Endpoint |
+| --- | --- | --- | --- | --- | --- |
+| `alkahest` | Alkahest | custom | `chat.completions`, `images.generate`, `audio.speech` | `ALKAHEST_API_KEY` | `https://alkahest-api.phantasybot.workers.dev/api/v1` |
+| `animalese` | Animalese | custom | `audio.speech` | - | `-` |
+| `anthropic` | Anthropic | anthropic | `chat.completions` | `ANTHROPIC_API_KEY` | `https://api.anthropic.com` |
+| `chutes` | Chutes | openai | `chat.completions`, `audio.speech`, `audio.transcriptions` | `CHUTES_API_KEY` | `https://llm.chutes.ai/v1` |
+| `cloudflare` | Cloudflare Workers AI | custom | `chat.completions` | `CLOUDFLARE_API_KEY` | `https://api.cloudflare.com/client/v4` |
+| `comfyui` | ComfyUI | custom | `images.generate` | - | `http://localhost:8188` |
+| `deepgram` | Deepgram | custom | `audio.transcriptions` | `DEEPGRAM_API_KEY` | `https://api.deepgram.com` |
+| `featherless` | Featherless AI | openai | `chat.completions` | `FEATHERLESS_API_KEY` | `https://api.featherless.ai/v1` |
+| `fireworks` | Fireworks AI | openai | `chat.completions` | `FIREWORKS_API_KEY` | `https://api.fireworks.ai/inference/v1` |
+| `google` | Google (Gemini) | google | `chat.completions` | `GOOGLE_API_KEY` | `https://generativelanguage.googleapis.com` |
+| `gpt-sovits` | GPT-SoVITS | custom | `audio.speech` | `GPT_SOVITS_API_KEY` | `https://9880-01jyv64hpdj48897cjn3mgjx8y.cloudspaces.litng.ai` |
+| `grok` | Grok | openai | `chat.completions` | `GROK_API_KEY` | `https://api.x.ai/v1` |
+| `groq` | Groq | openai | `chat.completions` | `GROQ_API_KEY` | `https://api.groq.com/openai/v1` |
+| `kilo-gateway` | Kilo Gateway | openai | `chat.completions` | `KILO_GATEWAY_API_KEY` | `https://api.kilo.ai/api/gateway` |
+| `local` | Local LLM | openai | `chat.completions` | - | `local://` |
+| `mistral` | Mistral | openai | `chat.completions` | `MISTRAL_API_KEY` | `https://api.mistral.ai/v1` |
+| `mlc-llm` | MLC LLM (Local) | custom | `chat.completions`, `embeddings.create` | - | `-` |
+| `nim` | NVIDIA NIM | openai | `chat.completions` | `NVIDIA_API_KEY` | `https://integrate.api.nvidia.com` |
+| `openai` | OpenAI | openai | `chat.completions`, `images.generate`, `audio.speech`, `audio.transcriptions`, `embeddings.create` | `OPENAI_API_KEY` | `https://api.openai.com/v1` |
+| `openai-codex` | OpenAI Codex | openai | `chat.completions` | `OPENAI_CODEX_ACCESS_TOKEN` | `https://api.openai.com/v1` |
+| `openai-compatible` | OpenAI Compatible | openai | `chat.completions` | `OPENAI_COMPATIBLE_API_KEY` | `http://localhost:11434/v1` |
+| `openrouter` | OpenRouter | openai | `chat.completions` | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` |
+| `redpill` | RedPill AI | openai | `chat.completions`, `embeddings.create` | `REDPILL_API_KEY` | `https://api.redpill.ai/v1` |
+| `replicate` | Replicate | custom | `chat.completions`, `audio.speech`, `video.generate` | `REPLICATE_API_TOKEN` | `https://api.replicate.com/v1` |
+| `salad` | Salad (Whisper via Salad Cloud) | custom | `audio.transcriptions` | `SALAD_API_KEY` | `-` |
+| `together` | Together | openai | `chat.completions` | `TOGETHER_API_KEY` | `https://api.together.xyz/v1` |
+| `venice` | Venice.ai | custom | `chat.completions`, `images.generate`, `audio.speech`, `embeddings.create` | `VENICE_API_KEY` | `https://api.venice.ai/api/v1` |
+| `vn-tts` | Visual Novel TTS | custom | `audio.speech` | - | `-` |
+
+
+---
+
+
+### Package Exports
+
+URL: /docs/generated/package-exports
+
+# Generated Package Export Inventory
+
+This file is generated from `package.json` exports.
+
+Public exports: **10**
+
+| Package | Export | Types | Import | Require |
+| --- | --- | --- | --- | --- |
+| @phantasy/agent | `.` | `./dist/index.d.ts` | `./dist/index.js` | `./dist/index.js` |
+| - | `./config` | `./dist/config/config-loader.d.ts` | `./dist/config/config-loader.js` | - |
+| @phantasy/core-runtime | `./core-runtime` | `./dist/core-runtime/index.d.ts` | `./dist/core-runtime/index.js` | - |
+| - | `./plugins` | `./dist/plugins/base-plugin.d.ts` | `./dist/plugins/base-plugin.js` | - |
+| @phantasy/profile-character | `./profile-character` | `./dist/profile-character/index.d.ts` | `./dist/profile-character/index.js` | - |
+| @phantasy/profile-coder | `./profile-coder` | `./dist/profile-coder/index.d.ts` | `./dist/profile-coder/index.js` | - |
+| - | `./server` | `./dist/server/server.d.ts` | `./dist/server/server.js` | - |
+| @phantasy/server-admin | `./server-admin` | `./dist/server-admin/index.d.ts` | `./dist/server-admin/index.js` | - |
+| - | `./skills` | `./dist/skills/index.d.ts` | `./dist/skills/index.js` | - |
+| - | `./types` | `./dist/types/index.d.ts` | `./dist/types/index.js` | - |
+
+
+---
+
+
+### Plugins
+
+URL: /docs/generated/plugins
+
+# Generated Built-in Plugin Inventory
+
+This file is generated from the built-in profile descriptors.
+
+Built-ins are declared as profile-scoped descriptors and are only materialized when a runtime selects those profiles.
+
+Default `core-runtime` intentionally loads no built-in plugins.
+
+Built-in plugin descriptors: **16**
+
+| Workspace | Kind | Profile | Package | Plugin | Tier | Privileged |
+| --- | --- | --- | --- | --- | --- | --- |
+| Character | `behavior` | `character` | `@phantasy/profile-character` | `adventure` | `profile` | no |
+| Site | `capability` | `character` | `@phantasy/profile-character` | `chronicle` | `profile` | no |
+| Site | `capability` | `character` | `@phantasy/profile-character` | `image` | `profile` | no |
+| Character | `behavior` | `character` | `@phantasy/profile-character` | `memory` | `profile` | no |
+| Character | `behavior` | `character` | `@phantasy/profile-character` | `romance-affection` | `profile` | no |
+| Character | `capability` | `character` | `@phantasy/profile-character` | `voice` | `profile` | no |
+| Character | `capability` | `character` | `@phantasy/profile-character` | `weather` | `profile` | no |
+| Character | `capability` | `character` | `@phantasy/profile-character` | `web-search` | `profile` | no |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `doctor` | `profile` | no |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `edit` | `profile` | yes |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `filesystem` | `profile` | yes |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `glob` | `profile` | yes |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `search` | `profile` | yes |
+| Operations | `capability` | `coder` | `@phantasy/profile-coder` | `shell` | `profile` | yes |
+| Automations | `automation` | `server-admin` | `@phantasy/server-admin` | `browseruse` | `profile` | yes |
+| Operations | `capability` | `server-admin` | `@phantasy/server-admin` | `monitoring` | `profile` | no |
+
+
+---
+
+
+### Skills
+
+URL: /docs/generated/skills
+
+# Generated Skill Inventory
+
+This file is generated from bundled `skills/*/SKILL.md` files.
+
+Bundled skills: **13**
+
+| Workspace | Kind | Skill | Version | Category | Tags | Source |
+| --- | --- | --- | --- | --- | --- | --- |
+| Operations | `integration` | `cloudflare` | 0.1.0 | - | `cloudflare`, `workers`, `pages`, `wrangler`, `d1`, `kv`, `r2`, `durable-objects`, `queues` | `skills/cloudflare/SKILL.md` |
+| Operations | `behavior` | `docker` | 1.0.0 | - | - | `skills/docker/SKILL.md` |
+| Site | `behavior` | `ffmpeg` | 1.0.0 | - | - | `skills/ffmpeg/SKILL.md` |
+| Operations | `integration` | `github` | 1.0.0 | - | - | `skills/github/SKILL.md` |
+| Business | `integration` | `gws` | 1.0.0 | - | - | `skills/gws/SKILL.md` |
+| Business | `integration` | `gws-calendar` | 1.0.0 | - | - | `skills/gws-calendar/SKILL.md` |
+| Business | `integration` | `gws-chat` | 1.0.0 | - | - | `skills/gws-chat/SKILL.md` |
+| Business | `integration` | `gws-docs` | 1.0.0 | - | - | `skills/gws-docs/SKILL.md` |
+| Business | `integration` | `gws-drive` | 1.0.0 | - | - | `skills/gws-drive/SKILL.md` |
+| Business | `integration` | `gws-gmail` | 1.0.0 | - | - | `skills/gws-gmail/SKILL.md` |
+| Business | `integration` | `gws-sheets` | 1.0.0 | - | - | `skills/gws-sheets/SKILL.md` |
+| Business | `integration` | `market` | 0.1.0 | web3 | `web3`, `monetization`, `marketplace` | `skills/market/SKILL.md` |
+| Operations | `behavior` | `phantasy-extension-authoring` | 0.1.0 | - | - | `skills/phantasy-extension-authoring/SKILL.md` |
+
+
+---
+
+
+### Themes
+
+URL: /docs/generated/themes
+
+# Generated Theme Inventory
+
+This file is generated from bundled `themes/*/theme.json` manifests.
+
+Bundled themes: **1**
+
+| Workspace | Kind | Theme | Version | Display Name | Source |
+| --- | --- | --- | --- | --- | --- |
+| Site | `presentation` | `blog` | 1.0.0 | Chronicle Blog | `themes/blog/theme.json` |
+
+
+---
+
+
+### CLI Commands
+
+URL: /docs/generated/cli-commands
+
+# Generated CLI Command Inventory
+
+This file is generated from the CLI entrypoint command dispatch table.
+
+Top-level CLI commands: **16**
+
+| Command | Role | Module |
+| --- | --- | --- |
+| `chat` | Default interactive TUI session | `src/cli/commands/chat.ts` |
+| `create` | Top-level CLI command | `src/cli/commands/create.ts` |
+| `hub` | Top-level CLI command | `src/cli/commands/hub.ts` |
+| `init` | Top-level CLI command | `src/cli/commands/init.ts` |
+| `knowledge` | Top-level CLI command | `src/cli/commands/knowledge.ts` |
+| `mcp` | Top-level CLI command | `src/cli/commands/mcp.ts` |
+| `memory` | Top-level CLI command | `src/cli/commands/memory.ts` |
+| `models` | Top-level CLI command | `src/cli/commands/models.ts` |
+| `plugins` | Top-level CLI command | `src/cli/commands/plugins.ts` |
+| `setup` | Top-level CLI command | `src/cli/commands/setup.ts` |
+| `site` | Top-level CLI command | `src/cli/commands/site.ts` |
+| `skills` | Top-level CLI command | `src/cli/commands/skills.ts` |
+| `start` | Top-level CLI command | `src/cli/commands/start.ts` |
+| `validate` | Top-level CLI command | `src/cli/commands/validate.ts` |
+| `video` | Top-level CLI command | `src/cli/commands/video.ts` |
+| `workflow` | Top-level CLI command | `src/cli/commands/workflow.ts` |
+
+
+---
+
+
+### Admin Tabs
+
+URL: /docs/generated/admin-tabs
+
+# Generated Admin Tab Inventory
+
+This file is generated from the shared admin tab registry used by the layout, URL resolver, and command palette.
+
+Navigable admin tabs: **26**
+
+| ID | Label | Workspace | Audience | Required Plugins | Aliases | Keywords |
+| --- | --- | --- | --- | --- | --- | --- |
+| `dashboard` | Dashboard | Operations | all users | - | `overview` | `home`, `overview`, `main` |
+| `status` | Status | Operations | all users | - | - | `health`, `online`, `running` |
+| `companion` | Companion | Character | all users | - | `basic`, `memory`, `knowledge` | `identity`, `personality`, `character`, `memory`, `knowledge` |
+| `providers` | Providers | Operations | all users | - | - | `ai`, `models`, `llm`, `routing` |
+| `comfyui` | Creator Studio | Site | all users | - | `creator-studio`, `creator`, `studio`, `comfyui` | `image`, `workflow`, `diffusion`, `nodes`, `creator`, `studio` |
+| `integrations` | Integrations | Business | all users | - | `platforms` | `api`, `connect`, `platforms`, `third-party` |
+| `developer` | Developer | Operations | all users | - | - | `dev`, `debug`, `tools` |
+| `workbench` | Workbench | Operations | all users | - | `editor`, `terminal` | `editor`, `terminal`, `files`, `code`, `vim` |
+| `monitoring` | Monitoring | Operations | all users | `monitoring` | - | `logs`, `metrics`, `analytics`, `stats` |
+| `chronicle` | Content | Site | all users | - | `writing`, `chronicle`, `posts` | `content`, `publishing`, `posts`, `timeline`, `records` |
+| `media` | Media | Site | all users | - | - | `images`, `photos`, `upload`, `voice` |
+| `video` | Video Studio | Site | all users | - | `video-studio` | `videos`, `clips`, `generation`, `creator`, `studio` |
+| `workflows` | Automations | Automations | all users | - | `workflows` | `automation`, `tasks`, `schedule` |
+| `games` | Games | Character | all users | - | - | `play`, `entertainment` |
+| `plugins` | Capabilities | Operations | all users | - | - | `tools`, `extensions`, `plugins`, `add-ons` |
+| `skills` | Skills | Character | all users | - | - | `abilities`, `capabilities` |
+| `themes` | Themes | Site | all users | - | `appearance` | `appearance`, `style`, `design`, `colors` |
+| `browser-use` | Browser Use | Automations | all users | `browseruse` | - | `automation`, `browser`, `puppeteer` |
+| `github` | GitHub | Operations | all users | `github` | - | `git`, `repository`, `code` |
+| `gitlab` | GitLab | Operations | all users | `gitlab` | - | `git`, `repository`, `code` |
+| `test` | Test | Operations | all users | - | - | `testing`, `debug`, `qa` |
+| `logs` | Logs | Operations | all users | - | - | `log`, `debug`, `errors` |
+| `users` | Users | Operations | admin | - | - | `user`, `accounts`, `members` |
+| `notifications` | Notifications | Business | all users | - | - | `alerts`, `messages`, `push` |
+| `admin` | Admin | Operations | all users | - | - | `administration`, `management`, `settings` |
+| `website` | Website | Site | all users | - | - | `web`, `site`, `pages`, `seo` |
+
+
+---
+
+
+### Party-HQ Protocol
+
+URL: /docs/generated/party-hq-protocol
+
+# Generated Party-HQ Protocol Inventory
+
+This file is generated from `apps/party-hq/packages/shared/src/protocol.ts`.
+
+Protocol version: **`party-hq.v1`**
+
+## Frameworks
+
+| Framework |
+| --- |
+| `phantasy` |
+| `openclaw` |
+| `claude-code` |
+| `opencode` |
+| `codex` |
+| `paperclip` |
+| `custom` |
+
+## Capabilities
+
+| Capability |
+| --- |
+| `tweet-approval` |
+| `tweet-posting` |
+| `chat` |
+| `messages` |
+| `character-card` |
+| `voice` |
+| `memory` |
+| `tool-calling` |
+| `task-routing` |
+| `multi-agent` |
+| `workspaces` |
+| `observability` |
+
+## Party-HQ Webhook Paths
+
+| Name | Path |
+| --- | --- |
+| `tweet` | `/webhook/tweet` |
+| `message` | `/webhook/message` |
+| `agentSync` | `/webhook/agent-sync` |
+| `tweetStatus` | `/webhook/tweet-status` |
+| `heartbeat` | `/webhook/heartbeat` |
+| `runTrace` | `/webhook/run-trace` |
+| `runResult` | `/webhook/run-result` |
+| `health` | `/health` |
+
+## Goal Statuses
+
+| Status |
+| --- |
+| `draft` |
+| `active` |
+| `blocked` |
+| `completed` |
+| `archived` |
+
+## Ticket Statuses
+
+| Status |
+| --- |
+| `queued` |
+| `ready` |
+| `in_progress` |
+| `blocked` |
+| `completed` |
+| `failed` |
+| `cancelled` |
+
+## Run Statuses
+
+| Status |
+| --- |
+| `assigned` |
+| `running` |
+| `blocked` |
+| `completed` |
+| `failed` |
+| `cancelled` |
+
+## Approval Statuses
+
+| Status |
+| --- |
+| `pending` |
+| `approved` |
+| `rejected` |
+| `cancelled` |
+
+## Phantasy Endpoint Paths
+
+| Name | Path |
+| --- | --- |
+| `callback` | `/admin/api/webhooks/party-hq` |
+| `characterCard` | `/admin/api/character-card` |
+| `health` | `/health` |
+| `status` | `/admin/api/integrations/party-hq/status` |
+
+## Agent Sync Example
+
+```json
+{
+  "specVersion": "party-hq.v1",
+  "agentFrameworkId": "default",
+  "name": "Companion",
+  "bio": "Phantasy runtime with tweet approval, chat, and character-card support.",
+  "avatarUrl": "https://cdn.example.com/companion.png",
+  "callbackUrl": "https://agent.example.com/admin/api/webhooks/party-hq",
+  "callbackSecret": "whsec_example",
+  "twitterUsername": "companion_ai",
+  "frameworkType": "phantasy",
+  "frameworkVersion": "2.0.0",
+  "capabilities": [
+    "tweet-approval",
+    "chat",
+    "character-card",
+    "voice",
+    "multi-agent"
+  ],
+  "endpoints": {
+    "callback": "https://agent.example.com/admin/api/webhooks/party-hq",
+    "characterCard": "https://agent.example.com/admin/api/character-card",
+    "health": "https://agent.example.com/health"
+  }
+}
+```
+
+## Submit Tweet Example
+
+```json
+{
+  "specVersion": "party-hq.v1",
+  "content": "Ship fewer hand-maintained docs and more generated truth.",
+  "mediaUrls": [
     {
-      "name": "Primary",
-      "hex": "#111111",
-      "rgb": "17, 17, 17",
-      "usage": "Primary actions and emphasis"
+      "url": "https://cdn.example.com/tweet-card.png",
+      "mimeType": "image/png"
     }
   ]
 }
 ```
-````
 
-## Wallet Block
+## Approved Callback Example
 
-The wallet block is authored as HTML and upgraded at render time.
-
-```html
-<code
-  class="wallet-address"
-  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
-  data-chain="eth"
->
-  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
-</code>
-```
-
-That becomes a theme-aware component with a chain icon and copy button.
-
-## Add Your Own Custom Component
-
-For most cases, the path is:
-
-1. detect the block in `src/utils/markdownCore.ts`
-2. emit a placeholder with the data your component needs
-3. render that placeholder in `src/components/MarkdownRenderer.tsx`
-4. style it with tokens from `src/globals.css`
-
-If the feature is only needed inside live previews, `src/utils/contentProcessor.ts` is the helper that upgrades HTML snippets like wallet blocks.
-
-## Internal Docs Links
-
-Use absolute docs links so routing stays inside the SPA shell.
-
-```md
-[Deployment Overview](/docs/deployment/overview)
-```
-
-## Reminder
-
-After adding or renaming docs pages, rerun `npm run generate:docs`. If you also changed descriptions or canonical metadata, rerun `npm run generate:seo` before checking the result.
-
-
----
-
-
-### Best Practices
-
-URL: /docs/developer-guides/best-practices
-
-# Best Practices
-
-## Keep The Tree And Files In Sync
-
-Treat `shared/documentation-config.js` as the source of truth for navigation.
-
-If a Markdown file exists without a matching tree entry, users will not reach it through generated output.
-
-## Write For Scanning
-
-Prefer short pages, clear headings, and purposeful section names.
-
-That improves the table of contents, the interactive map, Pagefind excerpts, and `llms.txt` output.
-
-## Use Real Examples
-
-Code samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.
-
-## Regenerate Early
-
-Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.
-
-## Verify Before Shipping
-
-```bash
-npm test
-npm run lint
-npm run build
-```
-
-## Remove Sample Surface Area You Do Not Need
-
-Trim unused sections, placeholder pages, and dead links early. The starter is easiest to maintain when the tree only contains content you actually intend to support.
-
-
----
-
-
-### Design System
-
-URL: /docs/developer-guides/design-system
-
-# Design System
-
-The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
-
-## Theme Direction
-
-- dark mode is the default
-- the palette stays black, white, and gray in both themes
-- code blocks use the same restrained monochrome approach as the shell
-
-## Core Color Tokens
-
-### Light Theme
-
-```ColorPalette
+```json
 {
-  "colors": [
+  "specVersion": "party-hq.v1",
+  "event": "tweet.approved",
+  "timestamp": 1700000000000,
+  "data": {
+    "tweetId": "tweet_123",
+    "agentId": "agent_123",
+    "agentFrameworkId": "default",
+    "frameworkType": "phantasy",
+    "content": "Approved and ready to publish.",
+    "media": [
+      {
+        "url": "https://cdn.example.com/tweet-card.png",
+        "mimeType": "image/png"
+      }
+    ],
+    "agentName": "Companion",
+    "twitterUsername": "companion_ai"
+  }
+}
+```
+
+## Heartbeat Example
+
+```json
+{
+  "specVersion": "party-hq.v1",
+  "status": "idle",
+  "frameworkType": "phantasy",
+  "supportedCapabilities": [
+    "tool-calling",
+    "chat",
+    "memory"
+  ],
+  "maxAssignments": 1
+}
+```
+
+## Trace Example
+
+```json
+{
+  "specVersion": "party-hq.v1",
+  "runId": "run_123",
+  "ticketId": "ticket_123",
+  "status": "running",
+  "events": [
     {
-      "name": "Background",
-      "hex": "#FFFFFF",
-      "rgb": "255, 255, 255",
-      "usage": "Main app background"
-    },
-    {
-      "name": "Text",
-      "hex": "#111111",
-      "rgb": "17, 17, 17",
-      "usage": "Primary text and emphasis"
-    },
-    {
-      "name": "Border",
-      "hex": "#D4D4D8",
-      "rgb": "212, 212, 216",
-      "usage": "Unified borders and separators"
+      "eventType": "tool.call",
+      "status": "running",
+      "message": "Searching repo for route registry usage."
     }
   ]
 }
 ```
 
-### Dark Theme
+## Run Result Example
 
-```ColorPalette
+```json
 {
-  "colors": [
+  "specVersion": "party-hq.v1",
+  "runId": "run_123",
+  "ticketId": "ticket_123",
+  "status": "completed",
+  "summary": "Route inventory updated and docs regenerated.",
+  "costUsd": 0.42,
+  "artifacts": [
     {
-      "name": "Background",
-      "hex": "#090909",
-      "rgb": "9, 9, 9",
-      "usage": "Main app background"
-    },
-    {
-      "name": "Text",
-      "hex": "#FAFAFA",
-      "rgb": "250, 250, 250",
-      "usage": "Primary text and emphasis"
-    },
-    {
-      "name": "Border",
-      "hex": "#27272A",
-      "rgb": "39, 39, 42",
-      "usage": "Unified borders and separators"
+      "kind": "markdown",
+      "title": "Implementation summary",
+      "content": "Updated mounted route inventory and regenerated docs."
     }
   ]
 }
 ```
 
-## Typography Tokens
 
-The three font roles are:
+---
 
-- `--title-font` for headings and UI emphasis
-- `--body-font` for body copy
-- `--mono-font` for code, labels, and utility text
 
-Readers can cycle fonts in settings: sans -> mono -> serif.
+### API Routes
 
-## Code Tokens
+URL: /docs/generated/api-routes
 
-Code styling is controlled by dedicated variables in `src/globals.css`, including:
+# Generated Admin API Route Inventory
 
-- `--code-bg`
-- `--code-header-bg`
-- `--code-border-color`
-- `--code-text-color`
-- `--code-muted-color`
-- `--inline-code-bg`
-- `--inline-code-border-color`
+This file is generated from mounted admin route handlers and explicit Express admin router mounts.
 
-Use those instead of hardcoded syntax colors.
+Mounted admin route modules: **39**
 
-## Shell Tokens To Prefer
-
-For most UI work, start with:
-
-- `--background-color`
-- `--card-color`
-- `--text-color`
-- `--muted-color`
-- `--border-unified`
-- `--control-bg`
-- `--control-border-color`
-
-## Wallet Block Pattern
-
-The wallet block is a good example of a themed custom component:
-
-```html
-<code
-  class="wallet-address"
-  data-address="0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B"
-  data-chain="eth"
->
-  0x742d35Cc6634C0532925a3b844Bc9e7595f8fA6B
-</code>
-```
-
-The runtime upgrades that into a copyable inline component that uses the same code and border tokens as the rest of the theme.
-
-## Extension Rules
-
-- use CSS variables instead of hardcoded colors
-- check both light and dark mode
-- respect reduced motion
-- keep title sizes, body sizes, and code sizes aligned with the shared scale in `src/globals.css`
-- prefer one shared token change over many per-component overrides
-
-## Related Files
-
-- `src/globals.css`
-- `src/components/CodeBlock.tsx`
-- `src/components/CodeBlock.module.css`
-- `src/components/MarkdownRenderer.tsx`
-- `src/providers/ThemeProvider.tsx`
+| Workspace | Group | Mount Paths | Mounted Via | Route File |
+| --- | --- | --- | --- | --- |
+| Business | acp | `/admin/api/acp` | `route-registry` | `src/admin-api/routes/acp/acp-routes.ts` |
+| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/agent-notes-routes.ts` |
+| Operations | agent | `/admin/api/agent` | `route-registry` | `src/admin-api/routes/agent/agent-ops-routes.ts` |
+| Character | agent | `/admin/api/agent` | `route-registry` | `src/admin-api/routes/agent/agent-routes.ts` |
+| Character | agent | `/admin/api/knowledge` | `route-registry` | `src/admin-api/routes/agent/knowledge-routes.ts` |
+| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/markdown-memory-routes.ts` |
+| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/qdrant-memory-routes.ts` |
+| Operations | agent | `/admin/api/threads` | `route-registry` | `src/admin-api/routes/agent/threads-routes.ts` |
+| Operations | analytics | `/admin/api/analytics` | `route-registry` | `src/admin-api/routes/analytics/preferences-routes.ts` |
+| Operations | config | `/admin/api/config` | `route-registry` | `src/admin-api/routes/config/config-routes.ts` |
+| Operations | config | `/admin/api/user-settings` | `route-registry` | `src/admin-api/routes/config/user-settings-routes.ts` |
+| Operations | config | `/admin/api/users` | `route-registry` | `src/admin-api/routes/config/users-routes.ts` |
+| Operations | config | `/admin/api/validate` | `route-registry` | `src/admin-api/routes/config/validation-routes.ts` |
+| Operations | core | `/admin/api/admin-surfaces` | `route-registry` | `src/admin-api/routes/core/admin-surface-routes.ts` |
+| Business | core | `/admin/api/wallet` | `route-registry` | `src/admin-api/routes/core/agentkit-routes.ts` |
+| Character | core | `/admin/api/character-card` | `route-registry` | `src/admin-api/routes/core/character-card-routes.ts` |
+| Site | core | `/admin/api/content` | `route-registry` | `src/admin-api/routes/core/content-routes.ts` |
+| Site | core | `/admin/api/skills`, `/admin/api/themes`, `/admin/api/website` | `route-registry` | `src/admin-api/routes/core/extensions-routes.ts` |
+| Operations | core | `/admin/api/mlc-llm` | `route-registry` | `src/admin-api/routes/core/mlc-llm-routes.ts` |
+| Operations | core | `/admin/api/plugins` | `route-registry` | `src/admin-api/routes/core/plugin-routes.ts` |
+| Operations | core | `/admin/api/setup` | `route-registry` | `src/admin-api/routes/core/setup-routes.ts` |
+| Operations | core | `/admin/api/endpoints`, `/admin/api/analyze-request` | `route-registry` | `src/admin-api/routes/core/utility-routes.ts` |
+| Business | financial | `/admin/api/financial` | `route-registry` | `src/admin-api/routes/financial/financial-routes.ts` |
+| Character | media | `/admin/api/adventures` | `route-registry` | `src/admin-api/routes/media/adventures-routes.ts` |
+| Site | media | `/admin/api/comfyui` | `route-registry` | `src/admin-api/routes/media/comfyui-routes.ts` |
+| Site | media | `/admin/api/media` | `route-registry` | `src/admin-api/routes/media/media-routes.ts` |
+| Operations | monitoring | `/admin/api/logs` | `route-registry` | `src/admin-api/routes/monitoring/logs-routes.ts` |
+| Operations | monitoring | `/admin/api/monitoring` | `static-routes` | `src/admin-api/routes/monitoring/monitoring-routes.ts` |
+| Operations | monitoring | `/admin/api/test-provider`, `/admin/api/test-chat`, `/admin/api/test-image`, `/admin/api/test-speech`, `/admin/api/test-transcription`, `/admin/api/venice`, `/admin/api/tools` | `route-registry` | `src/admin-api/routes/monitoring/testing-routes.ts` |
+| Business | platform | `/admin/api/integrations` | `route-registry` | `src/admin-api/routes/platform/fanvue-routes.ts` |
+| Business | platform | `/admin/api/notifications` | `route-registry` | `src/admin-api/routes/platform/notifications-routes.ts` |
+| Business | platform | `/admin/api/webhooks`, `/admin/api/integrations` | `route-registry` | `src/admin-api/routes/platform/party-hq-routes.ts` |
+| Business | platform | `/admin/api/platforms` | `route-registry` | `src/admin-api/routes/platform/platform-routes.ts` |
+| Business | platform | `/admin/api/integrations` | `route-registry` | `src/admin-api/routes/platform/twitter-routes.ts` |
+| Business | provider | `/admin/api/integrations` | `route-registry` | `src/admin-api/routes/provider/integrations-routes.ts` |
+| Operations | provider | `/admin/api/providers` | `route-registry` | `src/admin-api/routes/provider/provider-routes.ts` |
+| Operations | status | `/admin/api/status` | `route-registry` | `src/admin-api/routes/status/status-routes.ts` |
+| Site | video | `/admin/api/video` | `route-registry` | `src/admin-api/routes/video/video-routes.ts` |
+| Business | wallet | `/admin/api/wallet` | `route-registry` | `src/admin-api/routes/wallet/wallet-routes.ts` |
 
 
 ---
 
 
-### UI Configuration
+## Development
 
-URL: /docs/developer-guides/ui-configuration
 
-# UI Configuration
+### Verification
 
-The docs shell is mostly configured through a few focused files.
+URL: /docs/development/verification
 
-## `src/config/ui.ts`
+# Verification
 
-Use this file for shell behavior that should be easy to change in a fork.
+Prefer targeted verification first, then escalate to the broader suite when the change surface warrants it.
 
-Right now it controls:
+This mirrors the working agreement in the main `@phantasy/agent` repo.
 
-- whether the floating mobile file-tree button is shown
-- where that mobile button appears
-
-## Main Shell Layout
-
-`src/components/docs/DocumentationPage.tsx` owns the docs layout:
-
-- logo and search at the top of the left rail
-- file tree in the middle
-- map, `llms.txt`, and settings at the bottom
-- content in the center
-- `On This Page` or the interactive map in the right rail
-
-## Theme, Motion, And Font Controls
-
-These settings come from `ThemeProvider` and are surfaced through `SettingsMenu`.
-
-The font control cycles through sans, mono, and serif instead of opening a dropdown.
-
-## Supporting Configuration
-
-- `src/constants/social.tsx`: footer links
-- `src/globals.css`: shell tokens, typography, spacing, code styles
-- `shared/documentation-config.js`: homepage content and docs structure
-
-## Guidance
-
-If a change is global, start with tokens or config.
-
-If a change is specific to one interaction, edit the component directly.
-
-
----
-
-
-### Icon Customization
-
-URL: /docs/developer-guides/icon-customization
-
-# Icon Customization
-
-The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
-
-## Primary Icon Path
-
-For most UI work, use `@iconify/react` with an icon name:
-
-```tsx
-import { Icon } from '@iconify/react';
-
-export function ExampleButton() {
-  return <Icon icon="mingcute:brain-line" className="h-4 w-4" />;
-}
-```
-
-The current UI mostly uses the Mingcute set.
-
-## Where Icons Usually Live
-
-- `src/components/`: app-shell and page-level icons
-- `src/constants/social.tsx`: footer/social links
-- wallet blocks: runtime-generated chain icons for supported addresses
-
-## Updating Footer Icons
-
-Footer links are configured in `src/constants/social.tsx`.
-
-That is the right place to change the repo link, add a social account, or swap an icon.
-
-## Using Custom SVG Files
-
-If you want a one-off custom SVG, put it in `public/` and reference it like any other static asset:
-
-```tsx
-<img src="/assets/icons/custom-mark.svg" alt="Custom mark" width="20" height="20" />
-```
-
-Prefer SVGs that use `currentColor` so they stay theme-aware.
-
-## Size Guidance
-
-- `16px` for inline UI icons
-- `20px` for controls and sidebar actions
-- `24px` for social or feature icons
-
-## Theming Guidance
-
-- default to monochrome icons so they fit the black-and-white shell
-- use `currentColor` whenever possible
-- check both light and dark modes
-- avoid introducing a new accent color unless the icon is explicitly a brand mark
-
-## When To Use Which Approach
-
-- use Iconify for normal UI icons
-- use custom SVG files for logos or brand-specific marks
-- use a custom component only if the icon has behavior or multiple states
-
-
----
-
-
-## Deployment
-
-
-### Overview
-
-URL: /docs/deployment/overview
-
-# Deployment Overview
-
-`papers` builds to a static site with route-specific HTML output.
-
-## What `npm run build` Produces
-
-- the Vite app bundle in `dist/`
-- generated docs JSON derived from your Markdown content
-- route-specific HTML files with page-level metadata
-- `robots.txt` and `sitemap.xml`
-- generated social preview images
-- `llms.txt` and `llms-full.txt`
-- the Pagefind search index in `dist/pagefind/`
-
-## What Your Host Must Support
-
-At minimum, your host should:
-
-- publish the `dist/` directory
-- serve generated files directly, including `dist/docs/**/index.html`, `dist/llms/index.html`, and `dist/404.html`
-- serve static assets normally
-- avoid catch-all rewrites that send `/docs/*` or `/llms` to the homepage when matching files already exist
-
-## Included Host Helpers
-
-This repo already includes:
-
-- `public/_headers`
-- `vercel.json`
-- `wrangler.toml`
-
-Optional rewrite rules only make sense if you intentionally remove route-level HTML generation and accept losing per-page metadata on direct requests.
-
-## Recommended Pre-Deploy Commands
+## Targeted Checks
 
 ```bash
-npm test
-npm run lint
-npm run build
-npm run release:check
+bun run test:core -- src/path/to/test.ts
+bun run test:ui:components -- src/admin-ui/path/to/test.tsx
+bun run validate:standards
+bun run docs:check
 ```
 
-## Platform Guides
+Use these when your change is local to one subsystem or one workspace surface.
 
-- [Cloudflare](/docs/deployment/platforms/cloudflare)
-- [Vercel](/docs/deployment/platforms/vercel)
-- [Netlify](/docs/deployment/platforms/netlify)
-
----
-
-
-### Production Setup
-
-URL: /docs/deployment/production-setup
-
-# Production Setup
-
-## Set Real Metadata First
-
-Before you ship, set the values users and crawlers should actually see. You can provide them through `.env.local`, `.env.production`, or your host's build environment.
-
-```env
-VITE_SITE_NAME="Your Docs"
-VITE_SITE_URL="https://docs.example.com"
-VITE_GITHUB_URL="https://github.com/your-org/your-repo"
-VITE_GITHUB_BRANCH="main"
-```
-
-`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and absolute social metadata.
-
-## Build Pipeline
-
-A production build runs the content generators and the static bundle in one command:
+## Broad Checks
 
 ```bash
-npm run build
+bun run test
+bun run typecheck
+bun run build
 ```
 
-That regenerates docs JSON, sitemap, robots, social preview images, route-level HTML metadata, AI exports, the app bundle, and Pagefind assets.
-
-## CI Baseline
-
-A solid deployment pipeline is:
+Add the style layer when you touch admin UI CSS:
 
 ```bash
-npm ci
-npm test
-npm run lint
-npm run build
-npm run release:check
+bun run stylelint
 ```
 
-## Description Control
+## When To Regenerate Inventories
 
-If a page needs a specific search or preview summary, add frontmatter to the Markdown file:
+If you change any of these source-of-truth surfaces, refresh the generated docs in the main product repo:
 
-```md
----
-description: One clear sentence describing the page.
----
-```
+- admin tabs
+- admin API routes
+- package exports
+- providers
+- built-in plugins
+- bundled skills/themes
 
-If you omit it, the generator falls back to the first meaningful paragraph.
-
-## Asset And Routing Helpers
-
-This repo already includes:
-
-- `public/_headers` for static-asset caching and security headers
-- `vercel.json` for Vercel fallback routing
-- `wrangler.toml` for Cloudflare Pages configuration
-
-Known docs routes are emitted as real HTML files, so avoid global `/docs/* -> /index.html` rewrites on hosts like Cloudflare Pages.
-
-## Final Smoke Test
-
-Before deploy, run:
+Command:
 
 ```bash
-npm run release:check
+bun run docs:generate
 ```
 
-That verifies both the generated artifact set and a served preview of the built app.
-
-After deploy, verify:
-
-- the homepage loads
-- a deep docs route loads directly
-- `/llms` loads directly
-- `/robots.txt` and `/sitemap.xml` load
-- link previews use the expected title and description
-- Pagefind search returns results
-- GitHub footer links go to the expected repo
-- the generated docs match the latest source content
-
-
----
-
-
-## Platform Guides
-
-
-### Cloudflare
-
-URL: /docs/deployment/platforms/cloudflare
-
-# Cloudflare Pages
-
-## Recommended Settings
-
-Use these values in Cloudflare Pages:
-
-- Build command: `npm run build`
-- Build output directory: `dist`
-- Node version: `20` or newer
-
-## CLI Deploy
-
-The repo already includes `wrangler.toml` and deploy scripts.
+If you maintain `papers` alongside the product repo, sync that generated folder into the docs site instead of hand-editing copies:
 
 ```bash
-npm run build
-npm run deploy
+PAPERS_GENERATED_DOCS_SOURCE=../agent/docs/generated npm run sync:generated
+npm run docs:check
 ```
 
-## Routing
+That keeps the generated inventory pages tied to the code-derived source and catches drift before release.
 
-Cloudflare Pages works best when it serves the generated route files directly.
+## Release-Oriented Checks
 
-Do not add a blanket `/docs/* -> /index.html` or `/llms -> /index.html` rule in `_redirects` while route HTML generation is enabled. Pages follows those rules before serving the generated per-page HTML, which collapses your page-level metadata back to the homepage.
-
-## Environment Variables
-
-Set the same `VITE_*` variables in the Pages dashboard that you use locally.
-
-## Why It Fits Well
-
-Cloudflare Pages is a good match because the final site is fully static, cacheable, and does not require server functions by default.
-
-
----
-
-
-### Vercel
-
-URL: /docs/deployment/platforms/vercel
-
-# Vercel
-
-## Project Settings
-
-When importing the repo, use:
-
-- Build command: `npm run build`
-- Output directory: `dist`
-
-If Vercel asks for a framework preset, `Other` is fine.
-
-## Rewrites
-
-The repo includes `vercel.json` as a fallback for unmatched client-side navigation, but Vercel still serves generated route files from `dist/` first.
-
-That means known docs routes and `/llms` continue to resolve to their own HTML snapshots with page-level metadata.
-
-## CLI Deploy
+For release or package-surface changes:
 
 ```bash
-npm run build
-npx vercel --prod
+bun run typecheck
+bun run test
+bun run validate:standards
+bun run docs:check
+bun run build
+npm pack --dry-run
 ```
 
-## Notes
+## Why `validate:standards` Matters
 
-This project is static by default. Vercel is acting as a CDN and routing layer rather than running server code.
+Lint and typecheck catch generic issues. `validate:standards` enforces Phantasy-specific architectural contracts such as:
 
+- taxonomy metadata integrity
+- admin route and tab consistency
+- plugin/theme/skill manifest integrity
+- admin UI style-policy rules
 
----
+## Related Docs
 
-
-### Netlify
-
-URL: /docs/deployment/platforms/netlify
-
-# Netlify
-
-## Site Settings
-
-Use these values in Netlify:
-
-- Build command: `npm run build`
-- Publish directory: `dist`
-
-## Included Files
-
-The repo already includes the common Netlify helper:
-
-- `public/_headers`
-
-## CLI Deploy
-
-```bash
-npm run build
-netlify deploy --prod --dir=dist
-```
-
-## Routing
-
-Known docs routes and `/llms` are already emitted as static HTML, so you usually do not need a catch-all `_redirects` file.
-
-If you add one intentionally, Netlify shadowing still lets existing generated files win.
-
-## Environment Variables
-
-Set your `VITE_*` variables in the Netlify dashboard under site configuration.
-
-
----
-
-
-### LLMs.txt
-
-URL: /llms
-
-# LLMs.txt
-
-This template generates AI-facing text exports from the docs corpus.
-
-## Generated Files
-
-- `/llms.txt`
-- `/llms-full.txt`
-
-## Why They Exist
-
-These files give AI tools and internal agents a clean text entry point without requiring them to crawl the full UI.
-
-## How They Are Generated
-
-`npm run build` runs `scripts/generate-llms.mjs` automatically.
-
-If you only want to refresh AI exports while writing, run:
-
-```bash
-npm run generate:llms
-```
-
-## When To Regenerate
-
-Regenerate after:
-
-- changing Markdown content
-- renaming or restructuring docs sections
-- updating docs metadata that should appear in exported summaries
-
-## Helpful Links
-
-<a href="/llms.txt" class="download-link" data-file="llms.txt">Download llms.txt</a>
-
-<a href="/llms-full.txt" class="download-link" data-file="llms-full.txt">Download llms-full.txt</a>
-
-<a href="#" class="copy-link" data-url="/llms.txt">Copy llms.txt URL</a>
-
-## Preview
-
-{llms-preview}
+- [Repository Standards](/docs/architecture/repo-standards)
+- [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy)
+- [Local Development](/docs/getting-started/local-development)
 
 
 ---

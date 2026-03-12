@@ -9,7 +9,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
 
 const logger = createLogger('DocsPage');
-const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
+const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'Phantasy Docs';
 
 export default function DocsPage() {
   const params = useParams();
@@ -67,7 +67,8 @@ export default function DocsPage() {
           return;
         }
 
-        const notFoundContent = '# Not Found\n\nThe requested documentation page could not be found.';
+        const notFoundContent =
+          '# Not Found\n\nThe requested documentation page could not be found.';
         setContent(notFoundContent);
         setCurrentDocPath(docPath);
         setDocTitle('Not Found');
@@ -110,9 +111,7 @@ export default function DocsPage() {
 
     applySeoMetadata({
       title: `${docTitle} | ${SITE_NAME}`,
-      description:
-        docDescription ||
-        'Documentation for the current section of the papers static documentation template.',
+      description: docDescription || 'Verified documentation for the Phantasy companion runtime.',
       path: canonicalPath,
       canonicalPath,
       type: noIndex ? 'website' : 'article',

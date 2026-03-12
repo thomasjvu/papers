@@ -24,12 +24,23 @@ export function QuickStart({ quickStart }: QuickStartProps) {
           className="text-center mb-16"
         >
           <h2
-            className="text-2xl md:text-3xl font-bold mb-4"
-            style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
+            className="font-bold mb-4"
+            style={{
+              fontFamily: 'var(--title-font)',
+              color: 'var(--text-color)',
+              fontSize: 'clamp(var(--text-2xl), 4vw, var(--text-4xl))',
+              letterSpacing: '-0.03em',
+            }}
           >
             {quickStart.title}
           </h2>
-          <p className="text-lg" style={{ color: 'var(--muted-color)' }}>
+          <p
+            style={{
+              color: 'var(--muted-color)',
+              fontSize: 'var(--text-lg)',
+              lineHeight: 'var(--leading-loose)',
+            }}
+          >
             Get up and running in minutes
           </p>
         </motion.div>
@@ -45,25 +56,34 @@ export function QuickStart({ quickStart }: QuickStartProps) {
               className="flex items-start gap-4"
             >
               <div
-                className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm"
+                className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold"
                 style={{
                   backgroundColor: 'var(--primary-color)',
                   color: 'var(--selection-text-color)',
                   fontFamily: 'var(--mono-font)',
+                  fontSize: 'var(--text-xs)',
                 }}
               >
                 {index + 1}
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
+                <h4
+                  className="font-semibold mb-2"
+                  style={{
+                    color: 'var(--text-color)',
+                    fontSize: 'var(--text-base)',
+                  }}
+                >
                   {step.title}
                 </h4>
                 <div
-                  className="p-4 rounded-lg font-mono text-sm"
+                  className="p-4 rounded-lg"
                   style={{
                     backgroundColor: 'var(--hover-color)',
                     color: 'var(--primary-color)',
                     border: '1px solid var(--border-unified)',
+                    fontFamily: 'var(--mono-font)',
+                    fontSize: 'var(--code-font-size)',
                   }}
                 >
                   <code>{step.code}</code>

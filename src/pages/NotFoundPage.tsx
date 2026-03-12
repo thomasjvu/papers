@@ -7,7 +7,7 @@ import { buildCanonicalDocsPath, buildDocsLandingPath } from '../../shared/docsR
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { applySeoMetadata } from '../utils/seo';
 
-const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
+const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'Phantasy Docs';
 
 export default function NotFoundPage() {
   const location = useLocation();
@@ -152,15 +152,15 @@ export default function NotFoundPage() {
               <p className="mb-3" style={{ color: 'var(--muted-color)' }}>
                 This build generates real HTML files for known docs routes. Verify the deployed
                 `dist/` output still includes your `docs/.../index.html` files and that no catch-all
-                host rule is rewriting `/docs/*` or `/llms` back to the homepage.
+                host rule is rewriting `/docs/*` or intercepting `/llms.txt`.
               </p>
               <Link
-                to={buildCanonicalDocsPath('user-guide/troubleshooting')}
+                to={buildCanonicalDocsPath('guides/DEPLOY')}
                 className="inline-flex items-center gap-2"
                 style={{ color: 'var(--primary-color)', fontFamily: 'var(--mono-font)' }}
               >
                 <Icon icon="mingcute:warning-line" className="w-4 h-4" />
-                Open troubleshooting
+                Open deployment guide
               </Link>
             </div>
           )}

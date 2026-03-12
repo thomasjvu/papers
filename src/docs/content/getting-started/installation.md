@@ -1,66 +1,71 @@
 # Installation
 
-## Requirements
+Phantasy is Bun-first in the repo and npm-friendly when you install the published package.
 
-- Node.js 18 or newer
-- npm 9 or newer
+## Default Install
 
-## Install Dependencies
+This is the shortest path and the one the docs are tuned for:
 
 ```bash
-npm install
+npm install @phantasy/agent
+npx phantasy create business-cms my-brand
+npx phantasy start --config config/agents/my-brand.json
 ```
 
-## Optional Environment Variables
+That gives you the flagship product shape: companion, site, business, automations, and operations in one runtime.
 
-Use `.env.local` when you want real site metadata, canonical URLs, sitemap output, or GitHub footer links.
+If the CLI is already on your `PATH`, you can drop `npx`.
 
-```env
-VITE_SITE_NAME="Your Docs"
-VITE_SITE_URL="https://docs.example.com"
-VITE_GITHUB_URL="https://github.com/your-org/your-repo"
-VITE_GITHUB_BRANCH="main"
-VITE_DEBUG_MODE="false"
+## Repo Install
+
+If you are working from source instead of the published package:
+
+```bash
+git clone https://github.com/phantasy-bot/agent.git
+cd agent
+bun install
+cp .env.example .env
+./start.sh
 ```
 
-## First-Run Checklist
+Default local access:
 
-1. Install dependencies.
-2. Update `shared/documentation-config.js`.
-3. Replace the sample Markdown files in `src/docs/content/`.
-4. Run `npm run dev`.
-5. Rerun `npm run generate:docs` after docs-content or docs-tree edits while dev is running.
-6. Rerun `npm run generate:seo` after changing site metadata or page descriptions.
-7. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before deploy.
+- Server/API: `http://localhost:2000`
+- Admin UI dev server: `http://localhost:5173`
+- Embedded admin route: `http://localhost:2000/admin`
 
-## Project Paths To Know
+## Which Shape To Pick
 
-```text
-shared/documentation-config.js   Docs tree, homepage content, footer links
-src/docs/content/                Markdown source files
-src/lib/content.ts               Docs manifest and per-page content loading
-src/config/ui.ts                 Mobile shell behavior
-src/globals.css                  Theme and typography tokens
-src/constants/social.tsx         Footer links
-scripts/generate-docs.mjs        Markdown-to-JSON generation
-scripts/generate-seo.mjs         robots, sitemap, social preview image generation
-scripts/generate-route-html.mjs  route-level HTML metadata snapshots
-scripts/generate-llms.mjs        llms.txt generation
+- `business-cms`: default, public-facing companion business
+- `operator`: same foundation, more operationally foregrounded
+- `creator`: same foundation, publishing/media foregrounded
+
+If you are evaluating the product, do not start with the developer-only shape. It is useful, but it is not the best first impression.
+
+## Useful Repo Commands
+
+```bash
+bun run dev
+bun run dev:server
+bun run dev:ui
+bun run test
+bun run typecheck
+bun run build
 ```
 
-## What A Successful Build Confirms
+## Release Checks
 
-A clean build means:
+```bash
+bun run typecheck
+bun run test
+bun run validate:standards
+bun run docs:check
+bun run build
+npm pack --dry-run
+```
 
-- docs JSON was regenerated correctly
-- route metadata HTML was emitted into `dist/`
-- `robots.txt`, `sitemap.xml`, and share images were refreshed
-- the React app compiled
-- static assets were bundled
-- Pagefind assets were created
-- `llms.txt` outputs were refreshed
+## Next
 
-## Next Steps
-
-- [Basic Usage](/docs/user-guide/basic-usage)
-- [Troubleshooting](/docs/user-guide/troubleshooting)
+- [First Run](/docs/getting-started/first-run)
+- [Local Development](/docs/getting-started/local-development)
+- [Configuration](/docs/getting-started/configuration)

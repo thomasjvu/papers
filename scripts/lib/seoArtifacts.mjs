@@ -160,26 +160,6 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   }
 
   for (const docPath of docsIndex.paths) {
-    if (docPath === 'llms') {
-      const document = getDocumentForRoute(docPath, '/llms', documentsByPath, routeOptions);
-
-      if (!document) {
-        continue;
-      }
-
-      registerRoute({
-        routePath: '/llms',
-        canonicalPath: '/llms',
-        title: `LLMs.txt | ${siteName}`,
-        description:
-          getDocumentDescription(document) ||
-          'AI-friendly text exports generated from the documentation corpus.',
-        type: 'article',
-        includeInSitemap: true,
-      });
-      continue;
-    }
-
     registerDocsRouteVariants(registerRoute, docPath, docPath, documentsByPath, {
       ...routeOptions,
       includeInSitemap: true,
@@ -270,11 +250,11 @@ export function createSocialCardSvg({ title, description, siteName, label }) {
     '  <rect width="1200" height="630" fill="#090909" />',
     '  <rect x="56" y="56" width="1088" height="518" rx="24" fill="#111111" stroke="#27272A" />',
     '  <rect x="88" y="88" width="164" height="40" rx="20" fill="#FAFAFA" />',
-    `  <text x="170" y="114" text-anchor="middle" font-family="MapleMono, monospace" font-size="18" letter-spacing="2" fill="#090909">${escapeXml(label)}</text>`,
+    `  <text x="170" y="114" text-anchor="middle" font-family="Mona Sans, sans-serif" font-size="18" letter-spacing="2" fill="#090909">${escapeXml(label)}</text>`,
     `  <text x="88" y="214" font-family="Hubot Sans, Mona Sans, sans-serif" font-size="56" font-weight="800" fill="#FAFAFA">${titleMarkup}</text>`,
     `  <text x="88" y="358" font-family="Mona Sans, sans-serif" font-size="28" fill="#A1A1AA">${descriptionMarkup}</text>`,
-    `  <text x="88" y="520" font-family="MapleMono, monospace" font-size="22" fill="#FAFAFA">${escapeXml(siteName)}</text>`,
-    `  <text x="1112" y="520" text-anchor="end" font-family="MapleMono, monospace" font-size="22" fill="#71717A">${escapeXml(label)}</text>`,
+    `  <text x="88" y="520" font-family="Mona Sans, sans-serif" font-size="22" fill="#FAFAFA">${escapeXml(siteName)}</text>`,
+    `  <text x="1112" y="520" text-anchor="end" font-family="Mona Sans, sans-serif" font-size="22" fill="#71717A">${escapeXml(label)}</text>`,
     '</svg>',
   ].join('\n');
 }

@@ -18,6 +18,7 @@ interface HeroSectionProps {
 
 export function HeroSection({ hero }: HeroSectionProps) {
   const { isDarkMode } = useTheme();
+  const isBrandTitle = hero.title.trim().toLowerCase() === 'phantasy';
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
@@ -43,8 +44,14 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="text-4xl md:text-6xl font-bold mb-6"
-            style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
+            className="mb-6 font-bold"
+            style={{
+              fontFamily: isBrandTitle ? 'var(--brand-font)' : 'var(--title-font)',
+              color: 'var(--text-color)',
+              fontSize: 'clamp(var(--text-4xl), 7vw, 5.75rem)',
+              letterSpacing: '-0.04em',
+              lineHeight: 0.92,
+            }}
           >
             {hero.title}
           </motion.h1>
@@ -53,8 +60,12 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl mb-4"
-            style={{ fontFamily: 'var(--mono-font)', color: 'var(--primary-color)' }}
+            className="mb-4"
+            style={{
+              fontFamily: 'var(--mono-font)',
+              color: 'var(--primary-color)',
+              fontSize: 'clamp(var(--text-lg), 2vw, var(--text-2xl))',
+            }}
           >
             {hero.subtitle}
           </motion.p>
@@ -63,8 +74,12 @@ export function HeroSection({ hero }: HeroSectionProps) {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="text-base md:text-lg mb-10 max-w-2xl mx-auto"
-            style={{ color: 'var(--muted-color)' }}
+            className="mb-10 max-w-2xl mx-auto"
+            style={{
+              color: 'var(--muted-color)',
+              fontSize: 'clamp(var(--text-base), 1.5vw, var(--text-lg))',
+              lineHeight: 'var(--leading-loose)',
+            }}
           >
             {hero.description}
           </motion.p>
@@ -77,11 +92,12 @@ export function HeroSection({ hero }: HeroSectionProps) {
           >
             <Link
               to={hero.cta.primary.href}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg transition-all hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105"
               style={{
                 backgroundColor: 'var(--primary-color)',
                 color: 'var(--selection-text-color)',
                 fontFamily: 'var(--mono-font)',
+                fontSize: 'var(--text-base)',
               }}
             >
               {hero.cta.primary.text}
@@ -90,11 +106,12 @@ export function HeroSection({ hero }: HeroSectionProps) {
 
             <Link
               to={hero.cta.secondary.href}
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold text-lg border transition-all hover:scale-105"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold border transition-all hover:scale-105"
               style={{
                 borderColor: 'var(--border-unified)',
                 color: 'var(--text-color)',
                 fontFamily: 'var(--mono-font)',
+                fontSize: 'var(--text-base)',
               }}
             >
               <Icon icon="mingcute:book-2-line" width="20" />

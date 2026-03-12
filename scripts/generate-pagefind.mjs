@@ -58,10 +58,6 @@ function stripMarkdown(content) {
 }
 
 function getSearchUrl(docPath, context) {
-  if (docPath === 'llms') {
-    return '/llms';
-  }
-
   return buildCanonicalDocsPath(docPath, {
     version: context.version,
     locale: context.locale,
@@ -85,10 +81,6 @@ async function buildSearchIndex() {
 
   for (const context of variantContexts) {
     for (const docPath of docsIndex.paths) {
-      if (docPath === 'llms' && !context.isDefault) {
-        continue;
-      }
-
       const documentPath = getGeneratedDocumentPath(docPath, context);
       const documentKey = `${getSearchUrl(docPath, context)}::${documentPath}`;
 

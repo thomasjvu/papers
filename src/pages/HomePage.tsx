@@ -6,7 +6,7 @@ import { applySeoMetadata } from '../utils/seo';
 
 import { Footer, FeaturesGrid, HeroSection, QuickStart } from '../components/homepage';
 
-const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
+const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'Phantasy Docs';
 
 export default function HomePage() {
   useEffect(() => {

@@ -26,11 +26,85 @@ interface ProcessedMarkdownData {
 
 interface RenderContext {
   codeBlocks: Map<string, CodeBlockData[]>;
+  currentPath: string;
+  activeLocale: string | null;
+  activeVersion: string | null;
   navigate: (href: string) => void;
 }
 
 const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'readonly', 'selected']);
+const EXTERNAL_PROTOCOL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function stripDocExtension(path: string): string {
+  return path.replace(/\.(md|mdx)$/i, '');
+}
+
+function splitPathSuffix(href: string): { pathname: string; suffix: string } {
+  const hashIndex = href.indexOf('#');
+  const queryIndex = href.indexOf('?');
+  const splitIndex =
+    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
+
+  if (splitIndex === -1) {
+    return { pathname: href, suffix: '' };
+  }
+
+  return {
+    pathname: href.slice(0, splitIndex),
+    suffix: href.slice(splitIndex),
+  };
+}
+
+function buildResolvedDocsHref(
+  docPath: string,
+  suffix: string,
+  context: Pick<RenderContext, 'activeLocale' | 'activeVersion'>
+): string {
+  return (
+    buildCanonicalDocsPath(resolveDocumentPath(stripDocExtension(docPath)), {
+      version: context.activeVersion,
+      locale: context.activeLocale,
+    }) + suffix
+  );
+}
+
+function resolveInternalHref(
+  href: string,
+  context: Pick<RenderContext, 'currentPath' | 'activeLocale' | 'activeVersion'>
+): string | null {
+  if (!href || href === '#' || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href)) {
+    return null;
+  }
+
+  if (href === '/') {
+    return href;
+  }
+
+  if (href === '/llms' || href === '/llms.txt') {
+    return '/llms.txt';
+  }
+
+  if (href.startsWith('/docs/')) {
+    const parsed = new URL(href, 'https://docs.local');
+    const docPath = parsed.pathname.replace(/^\/docs\/?/, '');
+    return buildResolvedDocsHref(docPath, `${parsed.search}${parsed.hash}`, context);
+  }
+
+  if (href.startsWith('/')) {
+    const parsed = new URL(href, 'https://docs.local');
+    const docPath = parsed.pathname.replace(/^\/+/, '');
+    return buildResolvedDocsHref(docPath, `${parsed.search}${parsed.hash}`, context);
+  }
+
+  const { pathname, suffix } = splitPathSuffix(href);
+  const baseDirectory = context.currentPath.includes('/')
+    ? context.currentPath.slice(0, context.currentPath.lastIndexOf('/') + 1)
+    : '';
+  const resolved = new URL(pathname, `https://docs.local/docs/${baseDirectory}`);
+  const docPath = resolved.pathname.replace(/^\/docs\/?/, '');
+  return buildResolvedDocsHref(docPath, suffix, context);
+}
 
 function detectChainFromAddress(address: string): string {
   if (/^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address)) {
@@ -192,6 +266,7 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
     const dataUrl = element.getAttribute('data-url');
     const props = getElementProps(element, key);
     const children = renderNodes(element.childNodes, key, context);
+    const internalHref = resolveInternalHref(href, context);
 
     if (dataFile) {
       return (
@@ -214,11 +289,11 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       );
     }
 
-    if (href.startsWith('/docs/') || href === '/llms' || href === '/') {
+    if (internalHref) {
       return (
         <MarkdownRouteLink
           key={key}
-          href={href}
+          href={internalHref}
           className={element.getAttribute('class') || ''}
           title={element.getAttribute('title') || undefined}
           onNavigate={context.navigate}
@@ -380,7 +455,7 @@ function MarkdownWalletAddress({
   );
 }
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [processedData, setProcessedData] = useState<ProcessedMarkdownData | null>(null);
@@ -442,22 +517,32 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
     return parseHtmlToReactNodes(processedData, {
       codeBlocks: processedData.codeBlocks,
+      currentPath: path,
+      activeLocale: routeContext.activeLocale,
+      activeVersion: routeContext.activeVersion,
       navigate: (href) => {
-        if (href === '/' || href === '/llms') {
+        if (href === '/') {
           navigate(href);
           return;
         }
 
+        if (href === '/llms.txt') {
+          window.location.assign(href);
+          return;
+        }
+
         if (href.startsWith('/docs')) {
-          const targetSlug = href.replace(/^\/docs\/?/, '');
-          const parsedTarget = parseDocsRoutePath(targetSlug);
-          const resolvedTargetPath = resolveDocumentPath(parsedTarget.docPath);
+          const parsedTargetUrl = new URL(href, 'https://docs.local');
+          const targetSlug = parsedTargetUrl.pathname.replace(/^\/docs\/?/, '');
+          const parsedTargetRoute = parseDocsRoutePath(targetSlug);
+          const resolvedTargetPath = resolveDocumentPath(parsedTargetRoute.docPath);
+          const suffix = `${parsedTargetUrl.search}${parsedTargetUrl.hash}`;
 
           navigate(
             buildCanonicalDocsPath(resolvedTargetPath, {
               version: routeContext.activeVersion,
               locale: routeContext.activeLocale,
-            })
+            }) + suffix
           );
           return;
         }
@@ -465,7 +550,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
         navigate(href);
       },
     });
-  }, [navigate, processedData, routeContext.activeLocale, routeContext.activeVersion]);
+  }, [navigate, path, processedData, routeContext.activeLocale, routeContext.activeVersion]);
 
   if (!processedData && isProcessing) {
     return (

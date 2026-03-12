@@ -42,7 +42,9 @@ export function truncateText(text, maxLength = 160) {
 }
 
 export function extractDescriptionFromMarkdown(content, maxLength = 160) {
-  const body = stripFrontmatter(content).replace(/^```[\s\S]*?^```$/gm, ' ').trim();
+  const body = stripFrontmatter(content)
+    .replace(/^```[\s\S]*?^```$/gm, ' ')
+    .trim();
 
   for (const paragraph of body.split(/\n\s*\n/)) {
     const trimmed = paragraph.trim();
@@ -159,7 +161,7 @@ export function getDirectoryAliasEntries(items = documentationTree) {
 
 export function getHomeMetadataDefaults() {
   return {
-    siteName: homepageConfig.hero?.title || 'papers',
+    siteName: homepageConfig.hero?.title || 'Phantasy Docs',
     siteSubtitle: homepageConfig.hero?.subtitle || 'Documentation',
     siteDescription: homepageConfig.hero?.description || '',
   };

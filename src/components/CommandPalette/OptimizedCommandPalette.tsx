@@ -48,6 +48,12 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
         return;
       }
 
+      if (result.path.endsWith('.txt')) {
+        window.location.assign(result.path);
+        onClose();
+        return;
+      }
+
       navigate(result.path);
       onClose();
     },

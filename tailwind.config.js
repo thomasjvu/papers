@@ -6,7 +6,6 @@ export default {
       fontFamily: {
         'mona-sans': ['Mona Sans', 'sans-serif'],
         'hubot-sans': ['Hubot Sans', 'sans-serif'],
-        'maple-mono': ['MapleMono', 'monospace'],
       },
       colors: {
         dark: {

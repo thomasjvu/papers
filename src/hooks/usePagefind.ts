@@ -39,7 +39,7 @@ function normalizePagefindUrl(url: string): string {
       .replace(/^\/search-pages\//, '')
       .replace(/\.html$/, '')
       .replace(/_/g, '/');
-    return docPath === 'llms' ? '/llms' : buildCanonicalDocsPath(docPath);
+    return docPath === 'llms' ? '/llms.txt' : buildCanonicalDocsPath(docPath);
   }
 
   return url.replace(/\/index\.html$/, '/');

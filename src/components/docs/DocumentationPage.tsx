@@ -94,7 +94,10 @@ const DocumentationPage = React.memo(
     const { prefersReducedMotion } = useTheme();
     const content = useMemo(() => stripMarkdownBom(initialContent), [initialContent]);
     const path = currentPath;
-    const siteName = import.meta.env.VITE_SITE_NAME || 'papers';
+    const siteName = import.meta.env.VITE_SITE_NAME || 'Phantasy Docs';
+    const siteNameWords = siteName.trim().split(/\s+/);
+    const hasBrandWord = siteNameWords[0]?.toLowerCase() === 'phantasy';
+    const brandWord = hasBrandWord ? siteNameWords[0] : siteName;
     const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
     const shortcutLabel = isMac ? 'Cmd + K' : 'Ctrl + K';
     const nextPathLabel = useMemo(
@@ -358,28 +361,35 @@ const DocumentationPage = React.memo(
                     style={{ color: 'var(--text-color)' }}
                   >
                     <span
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-black"
+                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border"
                       style={{
                         borderColor: 'var(--border-unified)',
                         backgroundColor: 'var(--card-color)',
-                        color: 'var(--text-color)',
-                        fontFamily: 'var(--mono-font)',
                       }}
                     >
-                      P
+                      <img
+                        src="/images/phantasy-logo.png"
+                        alt=""
+                        aria-hidden="true"
+                        className="logo-image"
+                      />
                     </span>
                     <span className="min-w-0">
                       <span
-                        className="block truncate text-sm uppercase tracking-[0.28em]"
+                        className="block truncate text-2xs uppercase tracking-[0.24em]"
                         style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
                       >
                         Docs
                       </span>
                       <span
-                        className="block truncate text-lg font-black uppercase tracking-[0.18em]"
-                        style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+                        className="block truncate text-xl"
+                        style={{
+                          color: 'var(--text-color)',
+                          fontFamily: hasBrandWord ? 'var(--brand-font)' : 'var(--title-font)',
+                          letterSpacing: '-0.03em',
+                        }}
                       >
-                        {siteName}
+                        {brandWord}
                       </span>
                     </span>
                   </Link>
@@ -436,7 +446,10 @@ const DocumentationPage = React.memo(
                   type="button"
                 >
                   <span className="flex items-center gap-2">
-                    <Icon icon="mingcute:brain-line" className="h-4 w-4 transition duration-150 group-hover:invert" />
+                    <Icon
+                      icon="mingcute:brain-line"
+                      className="h-4 w-4 transition duration-150 group-hover:invert"
+                    />
                     <span>
                       {isMobile ? 'Open map' : rightSidebarVisible ? 'Hide map' : 'Show map'}
                     </span>
@@ -451,8 +464,8 @@ const DocumentationPage = React.memo(
                   />
                 </button>
 
-                <Link
-                  to="/llms"
+                <a
+                  href="/llms.txt"
                   className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
                   style={utilityButtonStyle}
                 >
@@ -461,7 +474,7 @@ const DocumentationPage = React.memo(
                     <span>LLMs.txt</span>
                   </span>
                   <Icon icon="mingcute:arrow-right-line" className="h-4 w-4" />
-                </Link>
+                </a>
 
                 <div
                   className="flex items-center justify-between rounded-lg border px-3 py-2"
@@ -538,7 +551,6 @@ const DocumentationPage = React.memo(
                 </div>
               )}
 
-
               <ContentRenderer content={content} path={path} sourcePath={sourcePath} />
             </div>
           </div>
@@ -614,7 +626,10 @@ const DocumentationPage = React.memo(
                     className="absolute inset-0 flex h-full flex-col py-4 will-change-[opacity]"
                   >
                     <div className="flex min-h-0 flex-1 items-center justify-center">
-                      <div className="w-full max-w-[15rem]" style={{ transform: 'translateY(-15%)' }}>
+                      <div
+                        className="w-full max-w-[15rem]"
+                        style={{ transform: 'translateY(-15%)' }}
+                      >
                         <TableOfContents
                           content={content}
                           onToggleRightSidebar={toggleRightSidebar}
@@ -698,6 +713,3 @@ const DocumentationPage = React.memo(
 DocumentationPage.displayName = 'DocumentationPage';
 
 export default DocumentationPage;
-
-
-

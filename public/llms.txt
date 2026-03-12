@@ -1,46 +1,73 @@
-# papers Documentation
+# Phantasy Documentation
 
-> Static documentation template
+> Verified docs for the flagship companion runtime
 
-A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.
+Build an AI companion or VTuber who can run her own site, content, automations, and business.
 
 ## Getting Started
 
-- [Introduction](/docs/getting-started/introduction): `papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
-- [Quick Start](/docs/getting-started/quick-start): Use this path if you want your own docs site running quickly with the least amount of ceremony.
-- [Installation](/docs/getting-started/installation): - Node.js 18 or newer
+- [Introduction](/docs/getting-started/introduction): Phantasy lets you build an AI companion or VTuber who can run her own site, content, automations, and business.
+- [Use Cases](/docs/getting-started/use-cases): Phantasy is broad. The docs are opinionated about where it lands best.
+- [Installation](/docs/getting-started/installation): Phantasy is Bun-first in the repo and npm-friendly when you install the published package.
+- [First Run](/docs/getting-started/first-run): This is the quickest honest demo of Phantasy.
+- [Local Development](/docs/getting-started/local-development): Phantasy is Bun-first in the main product repo and ships two common local paths: a fast repo loop and a production-like Docker loop.
+- [Configuration](/docs/getting-started/configuration): Phantasy merges configuration from a few places. The order matters.
+- [Bootstrapping](/docs/getting-started/bootstrapping): Phantasy has two filesystem stories:
 
-## User Guide
+## Product
 
-- [Basic Usage](/docs/user-guide/basic-usage): The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.
-- [Advanced Features](/docs/user-guide/advanced-features): `papers` ships with more than plain Markdown rendering.
-- [Configuration](/docs/user-guide/configuration): Most customization happens in a small set of files.
-- [Troubleshooting](/docs/user-guide/troubleshooting): The app reads generated JSON, not raw Markdown directly.
-- [Command Palette](/docs/user-guide/command-palette): The command palette is the fastest way to move through the site.
-- [Interactive Map](/docs/user-guide/interactive-map): The interactive map renders the documentation tree as a graph in the right rail.
+- [Workspaces](/docs/workspaces): Every first-party Phantasy feature belongs to one primary workspace.
+- [Avatar System](/docs/avatars): Phantasy supports four avatar types:
+- [Website Modes](/docs/website-mode): Phantasy keeps content, themes, and public APIs in one system, but lets you choose how much of the built-in website is exposed at runtime.
+- [Chronicle](/docs/features/chronicle): Chronicle is Phantasy's publishing surface.
+- [Integration Model](/docs/integrations/integrations-guide): Phantasy has five extension surfaces.
+- [Workflow Overview](/docs/workflows/overview): Workflows are declarative automation graphs executed by the scheduling engine.
 
-## API Reference
+## Guides
 
-- [Overview](/docs/api-reference/overview): This section covers the internal runtime and build APIs that power the template.
-- [Content Pipeline](/docs/api-reference/content-pipeline): The content pipeline turns Markdown source files into static artifacts the app can load directly.
-- [Runtime APIs](/docs/api-reference/runtime-apis): Fetches and caches `/docs-index.json` for the current session.
+- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES): This is the shortest honest demo of Phantasy's flagship shape: a companion who runs her own site, content, automations, and business from one runtime.
+- [Live2D Setup](/docs/guides/LIVE2D_SETUP): Live2D in Phantasy is intentionally pinned.
+- [Authentication Setup](/docs/guides/AUTHENTICATION_SETUP): Most installs only need one thing: protect `/admin` with a local admin login and a real JWT secret.
+- [Deploy](/docs/guides/DEPLOY): The primary self-hosting path is Docker.
+- [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY): Build an AI companion/VTuber, then layer site, content, automations, and business around her on the same foundation.
+- [Launch Playbook](/docs/guides/LAUNCH_PLAYBOOK): This is the launch filter for Phantasy.
 
-## Developer Guides
+## Architecture
 
-- [Code Examples](/docs/developer-guides/code-examples): This page shows the main authoring patterns supported by the current runtime.
-- [Best Practices](/docs/developer-guides/best-practices): Treat `shared/documentation-config.js` as the source of truth for navigation.
-- [Design System](/docs/developer-guides/design-system): The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
-- [UI Configuration](/docs/developer-guides/ui-configuration): The docs shell is mostly configured through a few focused files.
-- [Icon Customization](/docs/developer-guides/icon-customization): The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
+- [Design Principles](/docs/architecture/design-principles): Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
+- [Runtime Packages](/docs/architecture/runtime-packages): Phantasy exposes one default package plus focused runtime surfaces for advanced composition.
+- [System Design](/docs/architecture/system-design): Phantasy has two runtime entrypoints that share one core:
+- [Memory System](/docs/architecture/memory-system): Phantasy is markdown-first by default.
+- [Agent Compatibility](/docs/architecture/agent-compatibility): Phantasy intentionally supports the common local-agent surfaces people already use across modern coding-agent stacks:
+- [Heartbeat](/docs/architecture/heartbeat): Heartbeat is the lightweight background loop.
+- [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy): This is the style contract for Phantasy's admin UI.
+- [Repository Standards](/docs/architecture/repo-standards): `bun run validate:standards` is the repo-specific guardrail layer.
 
-## Platform Guides
+## Extensions
 
-- [Cloudflare](/docs/deployment/platforms/cloudflare): Use these values in Cloudflare Pages:
-- [Vercel](/docs/deployment/platforms/vercel): When importing the repo, use:
-- [Netlify](/docs/deployment/platforms/netlify): Use these values in Netlify:
+- [Plugin Overview](/docs/plugins/overview): Phantasy uses a code-first plugin framework built around:
+- [Developing Plugins](/docs/plugins/developing): Build a plugin when profiles, skills, and MCP are not enough.
 
-## Deployment
+## API & Reference
 
-- [Overview](/docs/deployment/overview): `papers` builds to a static site with route-specific HTML output.
-- [Production Setup](/docs/deployment/production-setup): Before you ship, set the values users and crawlers should actually see. You can provide them through `.env.local`, `.env.production`, or your host's build environment.
+- [CLI](/docs/cli): The CLI is the coder-first path through Phantasy.
+- [Public API](/docs/api/public-api): Phantasy exposes a small public HTTP surface alongside the authenticated admin shell.
+- [Admin API](/docs/api/admin-api): The admin surface is mounted under `/admin/api/*` and is protected by the same auth system as the admin UI.
+
+## Generated Inventories
+
+- [Defaults](/docs/generated/defaults): This file is generated from `src/config/constants.ts`.
+- [Providers](/docs/generated/providers): This file is generated from the registered runtime provider definitions.
+- [Package Exports](/docs/generated/package-exports): This file is generated from `package.json` exports.
+- [Plugins](/docs/generated/plugins): This file is generated from the built-in profile descriptors.
+- [Skills](/docs/generated/skills): This file is generated from bundled `skills/*/SKILL.md` files.
+- [Themes](/docs/generated/themes): This file is generated from bundled `themes/*/theme.json` manifests.
+- [CLI Commands](/docs/generated/cli-commands): This file is generated from the CLI entrypoint command dispatch table.
+- [Admin Tabs](/docs/generated/admin-tabs): This file is generated from the shared admin tab registry used by the layout, URL resolver, and command palette.
+- [Party-HQ Protocol](/docs/generated/party-hq-protocol): This file is generated from `apps/party-hq/packages/shared/src/protocol.ts`.
+- [API Routes](/docs/generated/api-routes): This file is generated from mounted admin route handlers and explicit Express admin router mounts.
+
+## Development
+
+- [Verification](/docs/development/verification): Prefer targeted verification first, then escalate to the broader suite when the change surface warrants it.
 

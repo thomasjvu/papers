@@ -2,11 +2,11 @@
   "name": "papers",
   "version": "0.1.0",
   "private": true,
-  "description": "Static documentation template built with React, Vite, and TypeScript.",
+  "description": "Phantasy documentation site built with React, Vite, and TypeScript.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/thomasjvu/papers.git"
+    "url": "git+https://github.com/phantasy-bot/papers.git"
   },
   "type": "module",
   "scripts": {
@@ -19,6 +19,8 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
     "type-check": "tsc --noEmit",
     "test": "node --import ./test/register-ts-node.mjs ./test/run-tests.mjs",
+    "docs:check": "node scripts/check-docs.mjs",
+    "sync:generated": "node scripts/sync-generated-docs.mjs",
     "release:check": "npm run release:artifact-check && npm run release:preview-check",
     "deploy": "npx wrangler pages deploy dist",
     "deploy:create": "npx wrangler pages deploy dist --create",

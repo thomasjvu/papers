@@ -1,8 +1,0 @@
-{
-  "path": "developer-guides/best-practices",
-  "title": "Best Practices",
-  "description": "Treat shared/documentation-config.js as the source of truth for navigation.",
-  "frontmatter": {},
-  "content": "# Best Practices\n\n## Keep The Tree And Files In Sync\n\nTreat `shared/documentation-config.js` as the source of truth for navigation.\n\nIf a Markdown file exists without a matching tree entry, users will not reach it through generated output.\n\n## Write For Scanning\n\nPrefer short pages, clear headings, and purposeful section names.\n\nThat improves the table of contents, the interactive map, Pagefind excerpts, and `llms.txt` output.\n\n## Use Real Examples\n\nCode samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.\n\n## Regenerate Early\n\nRerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.\n\n## Verify Before Shipping\n\n```bash\nnpm test\nnpm run lint\nnpm run build\n```\n\n## Remove Sample Surface Area You Do Not Need\n\nTrim unused sections, placeholder pages, and dead links early. The starter is easiest to maintain when the tree only contains content you actually intend to support.\n",
-  "sourcePath": "src/docs/content/developer-guides/best-practices.md"
-}

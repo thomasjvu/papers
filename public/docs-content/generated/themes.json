@@ -1,0 +1,8 @@
+{
+  "path": "generated/themes",
+  "title": "Generated Theme Inventory",
+  "description": "This file is generated from bundled themes//theme.json manifests.",
+  "frontmatter": {},
+  "content": "# Generated Theme Inventory\n\nThis file is generated from bundled `themes/*/theme.json` manifests.\n\nBundled themes: **1**\n\n| Workspace | Kind | Theme | Version | Display Name | Source |\n| --- | --- | --- | --- | --- | --- |\n| Site | `presentation` | `blog` | 1.0.0 | Chronicle Blog | `themes/blog/theme.json` |\n",
+  "sourcePath": "src/docs/content/generated/themes.md"
+}

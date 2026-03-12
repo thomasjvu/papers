@@ -23,12 +23,24 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
           className="text-center mb-16"
         >
           <h2
-            className="text-2xl md:text-3xl font-bold mb-4"
-            style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
+            className="font-bold mb-4"
+            style={{
+              fontFamily: 'var(--title-font)',
+              color: 'var(--text-color)',
+              fontSize: 'clamp(var(--text-2xl), 4vw, var(--text-4xl))',
+              letterSpacing: '-0.03em',
+            }}
           >
             Everything You Need
           </h2>
-          <p className="text-lg max-w-2xl mx-auto" style={{ color: 'var(--muted-color)' }}>
+          <p
+            className="max-w-2xl mx-auto"
+            style={{
+              color: 'var(--muted-color)',
+              fontSize: 'var(--text-lg)',
+              lineHeight: 'var(--leading-loose)',
+            }}
+          >
             Built with modern tools and best practices for the best developer experience.
           </p>
         </motion.div>
@@ -61,12 +73,24 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
                 />
               </div>
               <h3
-                className="text-lg font-semibold mb-2"
-                style={{ fontFamily: 'var(--title-font)', color: 'var(--text-color)' }}
+                className="font-semibold mb-2"
+                style={{
+                  fontFamily: 'var(--title-font)',
+                  color: 'var(--text-color)',
+                  fontSize: 'var(--text-lg)',
+                }}
               >
                 {feature.title}
               </h3>
-              <p style={{ color: 'var(--muted-color)' }}>{feature.description}</p>
+              <p
+                style={{
+                  color: 'var(--muted-color)',
+                  fontSize: 'var(--text-base)',
+                  lineHeight: 'var(--leading-relaxed)',
+                }}
+              >
+                {feature.description}
+              </p>
             </motion.div>
           ))}
         </div>

@@ -125,7 +125,7 @@ export const useSearchLogic = (query: string) => {
 
     results.push({
       title: 'LLMs.txt - AI Documentation',
-      path: '/llms',
+      path: '/llms.txt',
       type: 'page',
       description: 'View and download AI-friendly documentation format',
       icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),

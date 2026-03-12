@@ -146,7 +146,7 @@ async function main() {
 
   const docsIndex = JSON.parse(readText(join(distDir, 'docs-index.json')));
   const defaultDocPath = getDefaultDocumentPath(documentationTree);
-  const sampleDocPath = docsIndex.paths.find((path) => path !== 'llms') || defaultDocPath;
+  const sampleDocPath = docsIndex.paths[0] || defaultDocPath;
 
   assert(defaultDocPath, 'Could not resolve the default documentation path.');
   assert(sampleDocPath, 'Could not resolve a sample documentation path.');
@@ -180,10 +180,9 @@ async function main() {
       );
     }
 
-    const llmsRoute = await fetchText(baseUrl, '/llms');
-    assert(llmsRoute.body.includes('<title>LLMs.txt |'), 'Served /llms route has unexpected metadata.');
-
-    await fetchText(baseUrl, '/llms.txt');
+    const llmsTxt = await fetchText(baseUrl, '/llms.txt');
+    assert(llmsTxt.body.startsWith('# '), 'Served /llms.txt has unexpected content.');
+    await fetchText(baseUrl, '/llms-full.txt');
     await fetchText(baseUrl, '/robots.txt');
     await fetchText(baseUrl, '/sitemap.xml');
     await fetchText(baseUrl, '/docs-index.json');

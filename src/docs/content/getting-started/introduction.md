@@ -1,50 +1,52 @@
 # Introduction
 
-`papers` is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.
+Phantasy lets you build an AI companion or VTuber who can run her own site, content, automations, and business.
 
-It ships with a docs shell, generated Markdown content, Pagefind search, `llms.txt` exports, and a deployable static build with sitemap, robots, and route-level metadata support.
+That is the whole idea. The companion is the product surface. The CMS, workflows, channels, and operations live around her on the same runtime.
 
-## What You Actually Customize
+```bash
+npm install @phantasy/agent
+```
 
-Most projects only need to touch four places:
+## The Product Model
 
-- `shared/documentation-config.js` for the docs tree and homepage copy
-- `src/docs/content/` for the Markdown pages users read
-- `.env.local` for site metadata, canonical URL, and GitHub links
-- `src/globals.css` for theme and typography tokens
+Phantasy organizes first-party features into five workspaces:
 
-## How The Template Works
+- `Character`: identity, memory, behavior, voice, avatar
+- `Site`: website, themes, media, Chronicle publishing
+- `Business`: channels, integrations, notifications, monetization
+- `Automations`: workflows, schedules, approvals, background activity
+- `Operations`: providers, auth, monitoring, logs, testing, admin tools
 
-There are three layers:
+If you remember those five, the repo makes sense quickly.
 
-1. structure in `shared/documentation-config.js`
-2. page content in `src/docs/content/`
-3. generated output in `public/docs-content/`, `public/docs-index.json`, and SEO artifacts in `public/`
+## Why The Runtime Split Exists
 
-The browser reads the generated JSON, not the raw Markdown files. That keeps the runtime fast and host-friendly, but it also means content changes need regeneration.
+Phantasy keeps a small trusted core, then layers product surfaces and privileged profiles on top.
 
-## What Ships Out Of The Box
+That means:
 
-- left-rail docs navigation with search and settings
-- right-rail table of contents and interactive map
-- command palette with local results, FAQ answers, and Pagefind results
-- tabbed code blocks, live HTML/CSS previews, color palettes, and wallet copy blocks
-- dark and light themes, reduced-motion support, and font cycling
-- `llms.txt` and `llms-full.txt` generation during build
-- robots, sitemap, social preview images, and route-level metadata generation
+- the default runtime stays on `core-runtime`
+- coding tools are opt-in through `coder`
+- companion/media features are opt-in through `character`
+- server/admin surfaces are opt-in through `server-admin`
 
-## Learn These Files First
+The product stays broad without pretending everything belongs in the base trust boundary.
 
-- `shared/documentation-config.js`
-- `src/docs/content/`
-- `src/lib/content.ts`
-- `src/utils/markdownCore.ts`
-- `src/components/MarkdownRenderer.tsx`
-- `scripts/generate-docs.mjs`
-- `scripts/generate-seo.mjs`
+## Start With These Shapes
 
-## Next Steps
+Most teams should begin with one of three front-door shapes:
 
-- [Quick Start](/docs/getting-started/quick-start)
+- `business-cms`: the flagship path
+- `operator`: the same runtime with operations foregrounded
+- `creator`: publishing and media foregrounded
+
+If you are unsure, choose `business-cms`.
+
+## Read Next
+
 - [Installation](/docs/getting-started/installation)
-- [Basic Usage](/docs/user-guide/basic-usage)
+- [First Run](/docs/getting-started/first-run)
+- [Use Cases](/docs/getting-started/use-cases)
+- [Workspaces](/docs/workspaces)
+- [Runtime Packages](/docs/architecture/runtime-packages)

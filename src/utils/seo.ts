@@ -15,7 +15,11 @@ type SeoMetadataInput = {
   noIndex?: boolean;
 };
 
-function upsertMetaTag(attributeName: 'name' | 'property', attributeValue: string, content: string) {
+function upsertMetaTag(
+  attributeName: 'name' | 'property',
+  attributeValue: string,
+  content: string
+) {
   const selector = `meta[${attributeName}="${attributeValue}"]`;
   let element = document.head.querySelector(selector) as HTMLMetaElement | null;
 
@@ -66,7 +70,7 @@ export function applySeoMetadata({
     return;
   }
 
-  const siteName = env.SITE_NAME || 'papers';
+  const siteName = env.SITE_NAME || 'Phantasy Docs';
   const siteUrl = getSiteUrl();
   const canonicalTarget = canonicalPath || path;
   const canonicalUrl = buildAbsoluteUrl(canonicalTarget, siteUrl) || canonicalTarget;

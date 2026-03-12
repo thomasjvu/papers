@@ -1,0 +1,101 @@
+# Repository Standards
+
+`bun run validate:standards` is the repo-specific guardrail layer.
+
+Use it alongside:
+
+- `bun run typecheck`
+- `bun run stylelint`
+- `bun run lint`
+
+The important difference is scope. ESLint, TypeScript, and Stylelint know generic language rules. `validate-standards` knows Phantasy's architecture contract.
+
+## What It Enforces
+
+### Runtime integrity
+
+- provider directories must match registered runtime providers
+- bundled plugin manifests must validate and point at real files
+- mounted admin routes cannot drift away from the route registry
+- the Party-HQ protocol mirror cannot silently diverge
+
+### Product metadata integrity
+
+- primary admin tabs must map to valid workspaces
+- workspace launcher tabs must exist and stay aligned with their section
+- dashboard-promoted tabs and specialist admin surfaces must declare icons
+- product admin surfaces cannot duplicate names or tab ids
+- admin API route metadata cannot duplicate endpoint strings
+- bundled dashboard widgets cannot silently collide on `plugin:widgetId`
+- bundled widgets inherit ownership from plugin taxonomy, so widgets without plugin taxonomy are rejected
+
+### Admin UI style discipline
+
+- the repo-wide admin inline-style count is budgeted and non-regressing
+- clean-room files may only use inline styles for explicit runtime hooks
+- feature files cannot borrow CSS modules from unrelated tabs
+- product surfaces cannot hardcode custom font families
+- component CSS must use shared font tokens or `inherit`
+
+### Admin UI size budgets
+
+These are budget freezes, not ideal targets:
+
+- max component file size: `1770` lines
+- files over `700` lines: `18`
+- files over `1200` lines: `6`
+
+This keeps debt from growing while the repo is still being split by domain.
+
+## Why Budget Freezes Instead Of Perfect Rules
+
+The point is to stop regressions without pretending the codebase is already fully normalized.
+
+That means:
+
+- existing debt is fenced
+- new debt must justify itself explicitly
+- intentional refactors can ratchet budgets downward
+- the standards script should fail on drift, not on history
+
+## How To Tighten Or Adjust A Rule
+
+When a cleanup pass lands:
+
+1. lower the matching budget in `scripts/validate-standards.ts`
+2. add newly-clean files to the clean-room list when appropriate
+3. document new allowed dynamic-style hooks if the component still needs them
+4. rerun `bun run validate:standards`, `bun run stylelint`, and `bun run typecheck`
+
+When a rule is too strict:
+
+1. fix the underlying drift if possible
+2. if the exception is legitimate, encode it narrowly in `validate-standards.ts`
+3. document the reason here or in [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy)
+
+Do not widen budgets casually. If a budget changes upward, it should be tied to an intentional architectural decision, not convenience.
+
+## What We Are Not Enforcing Yet
+
+Deliberately out of scope for now:
+
+- repo-wide raw color-token purity
+- full domain-boundary import rules between every workspace module
+- perfect file-size ceilings across all historical surfaces
+- browser-level UI smoke coverage in the standards script itself
+
+Those can be added later, but only if the rule is cheap to understand and cheap to maintain.
+
+## Practical Workflow
+
+For contributors:
+
+- run `bun run validate:standards` before large UI or manifest changes
+- treat a standards failure as architecture drift, not just lint noise
+- prefer shrinking budgets after cleanup passes rather than creating one-off exemptions
+
+For maintainers:
+
+- use this file as the explanation layer
+- use `scripts/validate-standards.ts` as the enforcement layer
+- keep the policy intentionally boring, explicit, and easy to tune

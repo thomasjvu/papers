@@ -7,11 +7,17 @@ interface FooterLink {
 
 interface FooterProps {
   footer: {
+    brandName?: string;
+    tagline?: string;
     links: FooterLink[];
   };
 }
 
 export function Footer({ footer }: FooterProps) {
+  const siteName = import.meta.env.VITE_SITE_NAME || footer.brandName || 'Documentation';
+  const brandName = footer.brandName || siteName;
+  const tagline = footer.tagline || 'Documentation';
+
   return (
     <footer className="py-8 border-t" style={{ borderColor: 'var(--border-unified)' }}>
       <div className="container mx-auto px-6">
@@ -19,13 +25,11 @@ export function Footer({ footer }: FooterProps) {
           <div className="flex items-center gap-2">
             <span
               className="font-bold text-lg"
-              style={{ fontFamily: 'var(--mono-font)', color: 'var(--primary-color)' }}
+              style={{ fontFamily: 'var(--title-font)', color: 'var(--primary-color)' }}
             >
-              papers
+              {brandName}
             </span>
-            <span style={{ color: 'var(--muted-color)' }}>
-              — Open Source Documentation Framework
-            </span>
+            <span style={{ color: 'var(--muted-color)' }}>{tagline}</span>
           </div>
 
           <div className="flex items-center gap-6">

@@ -22,12 +22,16 @@ type NavigationProps = {
 type NavItem = {
   label: string;
   href: string;
+  direct?: boolean;
 };
 
+const NAV_LOGO_SRC = '/images/phantasy-logo.png';
+
 const navItems: NavItem[] = [
-  { label: 'Design System', href: '/docs/developer-guides/design-system' },
-  { label: 'Deployment', href: '/docs/deployment/overview' },
-  { label: 'LLMs.txt', href: '/llms' },
+  { label: 'Install', href: '/docs/getting-started/installation' },
+  { label: 'Workspaces', href: '/docs/workspaces' },
+  { label: 'Reference', href: '/docs/generated/package-exports' },
+  { label: 'LLMs.txt', href: '/llms.txt', direct: true },
 ];
 
 const bracketAnimationConfig = {
@@ -51,7 +55,11 @@ export default function Navigation({
   const { prefersReducedMotion } = useTheme();
   const { openCommandPalette } = useCommandPalette();
   const isDocsPage = docsPath !== undefined;
-  const siteName = import.meta.env.VITE_SITE_NAME || 'papers';
+  const siteName = import.meta.env.VITE_SITE_NAME || 'Phantasy Docs';
+  const siteNameWords = siteName.trim().split(/\s+/);
+  const hasBrandWord = siteNameWords[0]?.toLowerCase() === 'phantasy';
+  const brandWord = hasBrandWord ? siteNameWords[0] : siteName;
+  const siteSuffix = hasBrandWord ? siteNameWords.slice(1).join(' ') : '';
   const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
   const shortcutLabel = isMac ? 'Cmd + K' : 'Ctrl + K';
 
@@ -198,21 +206,22 @@ export default function Navigation({
   }, [onToggleSidebar]);
 
   const renderNavLink = useCallback(
-    (item: NavItem, isMobile = false): React.ReactElement => (
-      <Link
-        key={item.label}
-        to={item.href}
-        className={`transition-colors nav-link ${isMobile ? 'py-2 px-4' : ''} relative`}
-        style={{
+    (item: NavItem, isMobile = false): React.ReactElement => {
+      const commonProps = {
+        key: item.label,
+        className: `transition-colors nav-link ${isMobile ? 'py-2 px-4' : ''} relative`,
+        style: {
           color: 'var(--text-color)',
           fontFamily: 'var(--mono-font)',
           ...(isMobile ? {} : { letterSpacing: '-0.02em' }),
-        }}
-        onClick={isMobile ? handleMobileNavClick : undefined}
-        onMouseEnter={() => setHoveredItem(item.label)}
-        onMouseLeave={() => setHoveredItem(null)}
-        tabIndex={0}
-      >
+        },
+        onClick: isMobile ? handleMobileNavClick : undefined,
+        onMouseEnter: () => setHoveredItem(item.label),
+        onMouseLeave: () => setHoveredItem(null),
+        tabIndex: 0 as const,
+      };
+
+      const content = (
         <div className="flex items-center relative">
           <AnimatePresence>
             {hoveredItem === item.label ? (
@@ -248,8 +257,22 @@ export default function Navigation({
             ) : null}
           </AnimatePresence>
         </div>
-      </Link>
-    ),
+      );
+
+      if (item.direct) {
+        return (
+          <a {...commonProps} href={item.href}>
+            {content}
+          </a>
+        );
+      }
+
+      return (
+        <Link {...commonProps} to={item.href}>
+          {content}
+        </Link>
+      );
+    },
     [hoveredItem, leftBracketVariants, rightBracketVariants, handleMobileNavClick]
   );
 
@@ -266,21 +289,32 @@ export default function Navigation({
           tabIndex={0}
         >
           <span
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-black"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border"
             style={{
               borderColor: 'var(--border-unified)',
               backgroundColor: 'var(--card-color)',
-              color: 'var(--text-color)',
-              fontFamily: 'var(--mono-font)',
             }}
           >
-            P
+            <img src={NAV_LOGO_SRC} alt="" aria-hidden="true" className="logo-image" />
           </span>
-          <span
-            className="text-lg tracking-wider uppercase font-black"
-            style={{ fontFamily: 'var(--mono-font)' }}
-          >
-            {siteName}
+          <span className="flex items-baseline gap-2 leading-none">
+            <span
+              className="text-xl md:text-2xl"
+              style={{
+                fontFamily: hasBrandWord ? 'var(--brand-font)' : 'var(--title-font)',
+                letterSpacing: '-0.03em',
+              }}
+            >
+              {brandWord}
+            </span>
+            {siteSuffix ? (
+              <span
+                className="text-sm font-semibold uppercase tracking-[0.16em] md:text-base"
+                style={{ fontFamily: 'var(--title-font)' }}
+              >
+                {siteSuffix}
+              </span>
+            ) : null}
           </span>
         </Link>
 
