@@ -13576,14 +13576,7 @@ This file is generated from `src/config/constants.ts`.
     "http://localhost:3000",
     "http://localhost:3001"
   ],
-  "ALLOWED_METHODS": [
-    "GET",
-    "POST",
-    "PUT",
-    "DELETE",
-    "PATCH",
-    "OPTIONS"
-  ],
+  "ALLOWED_METHODS": ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
   "ALLOWED_HEADERS": [
     "Content-Type",
     "Authorization",
@@ -13608,36 +13601,36 @@ This file is generated from the registered runtime provider definitions.
 
 Registered runtime providers: **28**
 
-| ID | Name | Compatibility | Capabilities | Auth Env Vars | Base Endpoint |
-| --- | --- | --- | --- | --- | --- |
-| `alkahest` | Alkahest | custom | `chat.completions`, `images.generate`, `audio.speech` | `ALKAHEST_API_KEY` | `https://alkahest-api.phantasybot.workers.dev/api/v1` |
-| `animalese` | Animalese | custom | `audio.speech` | - | `-` |
-| `anthropic` | Anthropic | anthropic | `chat.completions` | `ANTHROPIC_API_KEY` | `https://api.anthropic.com` |
-| `chutes` | Chutes | openai | `chat.completions`, `audio.speech`, `audio.transcriptions` | `CHUTES_API_KEY` | `https://llm.chutes.ai/v1` |
-| `cloudflare` | Cloudflare Workers AI | custom | `chat.completions` | `CLOUDFLARE_API_KEY` | `https://api.cloudflare.com/client/v4` |
-| `comfyui` | ComfyUI | custom | `images.generate` | - | `http://localhost:8188` |
-| `deepgram` | Deepgram | custom | `audio.transcriptions` | `DEEPGRAM_API_KEY` | `https://api.deepgram.com` |
-| `featherless` | Featherless AI | openai | `chat.completions` | `FEATHERLESS_API_KEY` | `https://api.featherless.ai/v1` |
-| `fireworks` | Fireworks AI | openai | `chat.completions` | `FIREWORKS_API_KEY` | `https://api.fireworks.ai/inference/v1` |
-| `google` | Google (Gemini) | google | `chat.completions` | `GOOGLE_API_KEY` | `https://generativelanguage.googleapis.com` |
-| `gpt-sovits` | GPT-SoVITS | custom | `audio.speech` | `GPT_SOVITS_API_KEY` | `https://9880-01jyv64hpdj48897cjn3mgjx8y.cloudspaces.litng.ai` |
-| `grok` | Grok | openai | `chat.completions` | `GROK_API_KEY` | `https://api.x.ai/v1` |
-| `groq` | Groq | openai | `chat.completions` | `GROQ_API_KEY` | `https://api.groq.com/openai/v1` |
-| `kilo-gateway` | Kilo Gateway | openai | `chat.completions` | `KILO_GATEWAY_API_KEY` | `https://api.kilo.ai/api/gateway` |
-| `local` | Local LLM | openai | `chat.completions` | - | `local://` |
-| `mistral` | Mistral | openai | `chat.completions` | `MISTRAL_API_KEY` | `https://api.mistral.ai/v1` |
-| `mlc-llm` | MLC LLM (Local) | custom | `chat.completions`, `embeddings.create` | - | `-` |
-| `nim` | NVIDIA NIM | openai | `chat.completions` | `NVIDIA_API_KEY` | `https://integrate.api.nvidia.com` |
-| `openai` | OpenAI | openai | `chat.completions`, `images.generate`, `audio.speech`, `audio.transcriptions`, `embeddings.create` | `OPENAI_API_KEY` | `https://api.openai.com/v1` |
-| `openai-codex` | OpenAI Codex | openai | `chat.completions` | `OPENAI_CODEX_ACCESS_TOKEN` | `https://api.openai.com/v1` |
-| `openai-compatible` | OpenAI Compatible | openai | `chat.completions` | `OPENAI_COMPATIBLE_API_KEY` | `http://localhost:11434/v1` |
-| `openrouter` | OpenRouter | openai | `chat.completions` | `OPENROUTER_API_KEY` | `https://openrouter.ai/api/v1` |
-| `redpill` | RedPill AI | openai | `chat.completions`, `embeddings.create` | `REDPILL_API_KEY` | `https://api.redpill.ai/v1` |
-| `replicate` | Replicate | custom | `chat.completions`, `audio.speech`, `video.generate` | `REPLICATE_API_TOKEN` | `https://api.replicate.com/v1` |
-| `salad` | Salad (Whisper via Salad Cloud) | custom | `audio.transcriptions` | `SALAD_API_KEY` | `-` |
-| `together` | Together | openai | `chat.completions` | `TOGETHER_API_KEY` | `https://api.together.xyz/v1` |
-| `venice` | Venice.ai | custom | `chat.completions`, `images.generate`, `audio.speech`, `embeddings.create` | `VENICE_API_KEY` | `https://api.venice.ai/api/v1` |
-| `vn-tts` | Visual Novel TTS | custom | `audio.speech` | - | `-` |
+| ID                  | Name                            | Compatibility | Capabilities                                                                                       | Auth Env Vars               | Base Endpoint                                                  |
+| ------------------- | ------------------------------- | ------------- | -------------------------------------------------------------------------------------------------- | --------------------------- | -------------------------------------------------------------- |
+| `alkahest`          | Alkahest                        | custom        | `chat.completions`, `images.generate`, `audio.speech`                                              | `ALKAHEST_API_KEY`          | `https://alkahest-api.phantasybot.workers.dev/api/v1`          |
+| `animalese`         | Animalese                       | custom        | `audio.speech`                                                                                     | -                           | `-`                                                            |
+| `anthropic`         | Anthropic                       | anthropic     | `chat.completions`                                                                                 | `ANTHROPIC_API_KEY`         | `https://api.anthropic.com`                                    |
+| `chutes`            | Chutes                          | openai        | `chat.completions`, `audio.speech`, `audio.transcriptions`                                         | `CHUTES_API_KEY`            | `https://llm.chutes.ai/v1`                                     |
+| `cloudflare`        | Cloudflare Workers AI           | custom        | `chat.completions`                                                                                 | `CLOUDFLARE_API_KEY`        | `https://api.cloudflare.com/client/v4`                         |
+| `comfyui`           | ComfyUI                         | custom        | `images.generate`                                                                                  | -                           | `http://localhost:8188`                                        |
+| `deepgram`          | Deepgram                        | custom        | `audio.transcriptions`                                                                             | `DEEPGRAM_API_KEY`          | `https://api.deepgram.com`                                     |
+| `featherless`       | Featherless AI                  | openai        | `chat.completions`                                                                                 | `FEATHERLESS_API_KEY`       | `https://api.featherless.ai/v1`                                |
+| `fireworks`         | Fireworks AI                    | openai        | `chat.completions`                                                                                 | `FIREWORKS_API_KEY`         | `https://api.fireworks.ai/inference/v1`                        |
+| `google`            | Google (Gemini)                 | google        | `chat.completions`                                                                                 | `GOOGLE_API_KEY`            | `https://generativelanguage.googleapis.com`                    |
+| `gpt-sovits`        | GPT-SoVITS                      | custom        | `audio.speech`                                                                                     | `GPT_SOVITS_API_KEY`        | `https://9880-01jyv64hpdj48897cjn3mgjx8y.cloudspaces.litng.ai` |
+| `grok`              | Grok                            | openai        | `chat.completions`                                                                                 | `GROK_API_KEY`              | `https://api.x.ai/v1`                                          |
+| `groq`              | Groq                            | openai        | `chat.completions`                                                                                 | `GROQ_API_KEY`              | `https://api.groq.com/openai/v1`                               |
+| `kilo-gateway`      | Kilo Gateway                    | openai        | `chat.completions`                                                                                 | `KILO_GATEWAY_API_KEY`      | `https://api.kilo.ai/api/gateway`                              |
+| `local`             | Local LLM                       | openai        | `chat.completions`                                                                                 | -                           | `local://`                                                     |
+| `mistral`           | Mistral                         | openai        | `chat.completions`                                                                                 | `MISTRAL_API_KEY`           | `https://api.mistral.ai/v1`                                    |
+| `mlc-llm`           | MLC LLM (Local)                 | custom        | `chat.completions`, `embeddings.create`                                                            | -                           | `-`                                                            |
+| `nim`               | NVIDIA NIM                      | openai        | `chat.completions`                                                                                 | `NVIDIA_API_KEY`            | `https://integrate.api.nvidia.com`                             |
+| `openai`            | OpenAI                          | openai        | `chat.completions`, `images.generate`, `audio.speech`, `audio.transcriptions`, `embeddings.create` | `OPENAI_API_KEY`            | `https://api.openai.com/v1`                                    |
+| `openai-codex`      | OpenAI Codex                    | openai        | `chat.completions`                                                                                 | `OPENAI_CODEX_ACCESS_TOKEN` | `https://api.openai.com/v1`                                    |
+| `openai-compatible` | OpenAI Compatible               | openai        | `chat.completions`                                                                                 | `OPENAI_COMPATIBLE_API_KEY` | `http://localhost:11434/v1`                                    |
+| `openrouter`        | OpenRouter                      | openai        | `chat.completions`                                                                                 | `OPENROUTER_API_KEY`        | `https://openrouter.ai/api/v1`                                 |
+| `redpill`           | RedPill AI                      | openai        | `chat.completions`, `embeddings.create`                                                            | `REDPILL_API_KEY`           | `https://api.redpill.ai/v1`                                    |
+| `replicate`         | Replicate                       | custom        | `chat.completions`, `audio.speech`, `video.generate`                                               | `REPLICATE_API_TOKEN`       | `https://api.replicate.com/v1`                                 |
+| `salad`             | Salad (Whisper via Salad Cloud) | custom        | `audio.transcriptions`                                                                             | `SALAD_API_KEY`             | `-`                                                            |
+| `together`          | Together                        | openai        | `chat.completions`                                                                                 | `TOGETHER_API_KEY`          | `https://api.together.xyz/v1`                                  |
+| `venice`            | Venice.ai                       | custom        | `chat.completions`, `images.generate`, `audio.speech`, `embeddings.create`                         | `VENICE_API_KEY`            | `https://api.venice.ai/api/v1`                                 |
+| `vn-tts`            | Visual Novel TTS                | custom        | `audio.speech`                                                                                     | -                           | `-`                                                            |
 
 
 ---
@@ -13657,24 +13650,24 @@ Default runtime capabilities are `coding` and `character`; `admin` stays separat
 
 Built-in plugin descriptors: **16**
 
-| Workspace | Kind | Capability | Package | Plugin | Tier | Privileged |
-| --- | --- | --- | --- | --- | --- | --- |
-| Automations | `automation` | `admin` | `@phantasy/server-admin` | `browseruse` | `capability` | yes |
-| Operations | `capability` | `admin` | `@phantasy/server-admin` | `monitoring` | `capability` | no |
-| Character | `behavior` | `character` | `@phantasy/plugin-adventure` | `adventure` | `capability` | no |
-| Site | `capability` | `character` | `@phantasy/plugin-chronicle` | `chronicle` | `capability` | no |
-| Site | `capability` | `character` | `@phantasy/agent-core` | `image` | `capability` | no |
-| Character | `behavior` | `character` | `@phantasy/agent-core` | `memory` | `capability` | no |
-| Character | `behavior` | `character` | `@phantasy/agent-core` | `romance-affection` | `capability` | no |
-| Character | `capability` | `character` | `@phantasy/agent-core` | `voice` | `capability` | no |
-| Character | `capability` | `character` | `@phantasy/agent-core` | `weather` | `capability` | no |
-| Character | `capability` | `character` | `@phantasy/agent-core` | `web-search` | `capability` | no |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `doctor` | `capability` | no |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `edit` | `capability` | yes |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `filesystem` | `capability` | yes |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `glob` | `capability` | yes |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `search` | `capability` | yes |
-| Operations | `capability` | `coding` | `@phantasy/agent-core` | `shell` | `capability` | yes |
+| Workspace   | Kind         | Capability  | Package                      | Plugin              | Tier         | Privileged |
+| ----------- | ------------ | ----------- | ---------------------------- | ------------------- | ------------ | ---------- |
+| Automations | `automation` | `admin`     | `@phantasy/server-admin`     | `browseruse`        | `capability` | yes        |
+| Operations  | `capability` | `admin`     | `@phantasy/server-admin`     | `monitoring`        | `capability` | no         |
+| Character   | `behavior`   | `character` | `@phantasy/plugin-adventure` | `adventure`         | `capability` | no         |
+| Site        | `capability` | `character` | `@phantasy/plugin-chronicle` | `chronicle`         | `capability` | no         |
+| Site        | `capability` | `character` | `@phantasy/agent-core`       | `image`             | `capability` | no         |
+| Character   | `behavior`   | `character` | `@phantasy/agent-core`       | `memory`            | `capability` | no         |
+| Character   | `behavior`   | `character` | `@phantasy/agent-core`       | `romance-affection` | `capability` | no         |
+| Character   | `capability` | `character` | `@phantasy/agent-core`       | `voice`             | `capability` | no         |
+| Character   | `capability` | `character` | `@phantasy/agent-core`       | `weather`           | `capability` | no         |
+| Character   | `capability` | `character` | `@phantasy/agent-core`       | `web-search`        | `capability` | no         |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `doctor`            | `capability` | no         |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `edit`              | `capability` | yes        |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `filesystem`        | `capability` | yes        |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `glob`              | `capability` | yes        |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `search`            | `capability` | yes        |
+| Operations  | `capability` | `coding`    | `@phantasy/agent-core`       | `shell`             | `capability` | yes        |
 
 
 ---
@@ -13690,12 +13683,12 @@ This file is generated from bundled `skills/*/SKILL.md` files.
 
 Bundled skills: **4**
 
-| Workspace | Kind | Skill | Version | Category | Tags | Source |
-| --- | --- | --- | --- | --- | --- | --- |
-| Operations | `behavior` | `docker` | 1.0.0 | - | - | `skills/docker/SKILL.md` |
-| Site | `behavior` | `ffmpeg` | 1.0.0 | - | - | `skills/ffmpeg/SKILL.md` |
-| Operations | `integration` | `github` | 1.0.0 | - | - | `skills/github/SKILL.md` |
-| Operations | `behavior` | `phantasy-extension-authoring` | 0.1.0 | - | - | `skills/phantasy-extension-authoring/SKILL.md` |
+| Workspace  | Kind          | Skill                          | Version | Category | Tags | Source                                         |
+| ---------- | ------------- | ------------------------------ | ------- | -------- | ---- | ---------------------------------------------- |
+| Operations | `behavior`    | `docker`                       | 1.0.0   | -        | -    | `skills/docker/SKILL.md`                       |
+| Site       | `behavior`    | `ffmpeg`                       | 1.0.0   | -        | -    | `skills/ffmpeg/SKILL.md`                       |
+| Operations | `integration` | `github`                       | 1.0.0   | -        | -    | `skills/github/SKILL.md`                       |
+| Operations | `behavior`    | `phantasy-extension-authoring` | 0.1.0   | -        | -    | `skills/phantasy-extension-authoring/SKILL.md` |
 
 
 ---
@@ -13711,20 +13704,20 @@ This file is generated from bundled `themes/*/theme.json` manifests.
 
 Bundled themes: **12**
 
-| Workspace | Kind | Theme | Version | Display Name | Source |
-| --- | --- | --- | --- | --- | --- |
-| Site | `presentation` | `blog` | 1.0.0 | Chronicle Blog | `themes/blog/theme.json` |
-| Site | `presentation` | `creator` | 1.0.0 | Creator | `themes/creator/theme.json` |
-| Site | `presentation` | `developer` | 1.0.0 | Developer | `themes/developer/theme.json` |
-| Site | `presentation` | `docs` | 1.0.0 | Docs | `themes/docs/theme.json` |
-| Site | `presentation` | `linkinbio` | 1.0.0 | Link in Bio | `themes/linkinbio/theme.json` |
-| Site | `presentation` | `minimal` | 1.0.0 | Minimal | `themes/minimal/theme.json` |
-| Site | `presentation` | `newsletter` | 1.0.0 | Newsletter | `themes/newsletter/theme.json` |
-| Site | `presentation` | `podcast` | 1.0.0 | Podcast | `themes/podcast/theme.json` |
-| Site | `presentation` | `portfolio` | 1.0.0 | Portfolio | `themes/portfolio/theme.json` |
-| Site | `presentation` | `resume` | 1.0.0 | Resume | `themes/resume/theme.json` |
-| Site | `presentation` | `services` | 1.0.0 | Services | `themes/services/theme.json` |
-| Site | `presentation` | `shop` | 1.0.0 | Shop | `themes/shop/theme.json` |
+| Workspace | Kind           | Theme        | Version | Display Name   | Source                         |
+| --------- | -------------- | ------------ | ------- | -------------- | ------------------------------ |
+| Site      | `presentation` | `blog`       | 1.0.0   | Chronicle Blog | `themes/blog/theme.json`       |
+| Site      | `presentation` | `creator`    | 1.0.0   | Creator        | `themes/creator/theme.json`    |
+| Site      | `presentation` | `developer`  | 1.0.0   | Developer      | `themes/developer/theme.json`  |
+| Site      | `presentation` | `docs`       | 1.0.0   | Docs           | `themes/docs/theme.json`       |
+| Site      | `presentation` | `linkinbio`  | 1.0.0   | Link in Bio    | `themes/linkinbio/theme.json`  |
+| Site      | `presentation` | `minimal`    | 1.0.0   | Minimal        | `themes/minimal/theme.json`    |
+| Site      | `presentation` | `newsletter` | 1.0.0   | Newsletter     | `themes/newsletter/theme.json` |
+| Site      | `presentation` | `podcast`    | 1.0.0   | Podcast        | `themes/podcast/theme.json`    |
+| Site      | `presentation` | `portfolio`  | 1.0.0   | Portfolio      | `themes/portfolio/theme.json`  |
+| Site      | `presentation` | `resume`     | 1.0.0   | Resume         | `themes/resume/theme.json`     |
+| Site      | `presentation` | `services`   | 1.0.0   | Services       | `themes/services/theme.json`   |
+| Site      | `presentation` | `shop`       | 1.0.0   | Shop           | `themes/shop/theme.json`       |
 
 
 ---
@@ -13740,12 +13733,12 @@ This file is generated from bundled `workflows/*.workflow.json` files.
 
 Bundled workflows: **4**
 
-| ID | Name | Description | Source |
-| --- | --- | --- | --- |
-| `approval-loop` | Approval Loop | Draft work, branch on approval, and either publish or revise. | `workflows/approval-loop.workflow.json` |
-| `content-pipeline` | Content Pipeline | Capture a brief, generate a draft, and produce a publication review handoff. | `workflows/content-pipeline.workflow.json` |
-| `daily-operator-brief` | Daily Operator Brief | Generate a daily operating summary across publishing, approvals, and system health. | `workflows/daily-operator-brief.workflow.json` |
-| `site-launch-readiness` | Site Launch Readiness | Run a lightweight launch checklist before publishing a companion site update. | `workflows/site-launch-readiness.workflow.json` |
+| ID                      | Name                  | Description                                                                         | Source                                          |
+| ----------------------- | --------------------- | ----------------------------------------------------------------------------------- | ----------------------------------------------- |
+| `approval-loop`         | Approval Loop         | Draft work, branch on approval, and either publish or revise.                       | `workflows/approval-loop.workflow.json`         |
+| `content-pipeline`      | Content Pipeline      | Capture a brief, generate a draft, and produce a publication review handoff.        | `workflows/content-pipeline.workflow.json`      |
+| `daily-operator-brief`  | Daily Operator Brief  | Generate a daily operating summary across publishing, approvals, and system health. | `workflows/daily-operator-brief.workflow.json`  |
+| `site-launch-readiness` | Site Launch Readiness | Run a lightweight launch checklist before publishing a companion site update.       | `workflows/site-launch-readiness.workflow.json` |
 
 
 ---
@@ -13761,12 +13754,12 @@ This file is generated from `src/mcp/server-presets.json`.
 
 Curated MCP presets: **4**
 
-| Server | Workspace | Kind | Package | Transport | Tags |
-| --- | --- | --- | --- | --- | --- |
-| Filesystem | Operations | `capability` | `@modelcontextprotocol/server-filesystem` | `stdio` | `filesystem`, `local`, `tools`, `mcp` |
-| GitHub | Operations | `integration` | `@modelcontextprotocol/server-github` | `stdio` | `github`, `developer`, `git`, `mcp` |
-| Brave Search | Operations | `capability` | `@modelcontextprotocol/server-brave-search` | `stdio` | `search`, `research`, `web`, `mcp` |
-| Puppeteer | Automations | `automation` | `@modelcontextprotocol/server-puppeteer` | `stdio` | `browser`, `automation`, `puppeteer`, `mcp` |
+| Server       | Workspace   | Kind          | Package                                     | Transport | Tags                                        |
+| ------------ | ----------- | ------------- | ------------------------------------------- | --------- | ------------------------------------------- |
+| Filesystem   | Operations  | `capability`  | `@modelcontextprotocol/server-filesystem`   | `stdio`   | `filesystem`, `local`, `tools`, `mcp`       |
+| GitHub       | Operations  | `integration` | `@modelcontextprotocol/server-github`       | `stdio`   | `github`, `developer`, `git`, `mcp`         |
+| Brave Search | Operations  | `capability`  | `@modelcontextprotocol/server-brave-search` | `stdio`   | `search`, `research`, `web`, `mcp`          |
+| Puppeteer    | Automations | `automation`  | `@modelcontextprotocol/server-puppeteer`    | `stdio`   | `browser`, `automation`, `puppeteer`, `mcp` |
 
 
 ---
@@ -13782,19 +13775,19 @@ This file is generated from `src/config/presets/index.ts`.
 
 Each preset keeps the trusted core lean by declaring its own selected installable bundles.
 
-| Preset | Name | Product Shape | Built-in Plugins | Installable Plugins | Themes | Skills | Workflows | MCP |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| `vtuber` | VTuber Creator | `vtuber` | `chronicle`, `image` | `@phantasy/plugin-x`, `@phantasy/plugin-discord`, `@phantasy/plugin-twitch` | `@phantasy/theme-creator` | `ffmpeg`, `gws-drive`, `market` | `content-pipeline` | `filesystem`, `brave-search`, `puppeteer` |
-| `operator` | Operator | `operator` | `chronicle` | - | - | `github`, `cloudflare`, `docker` | `approval-loop`, `daily-operator-brief` | `filesystem`, `github` |
-| `companion` | AI Companion | - | `memory`, `web-search` | - | `@phantasy/theme-minimal` | `gws` | - | `filesystem` |
-| `kurisu` | Makise Kurisu Starter | - | `chronicle`, `memory`, `web-search` | `@phantasy/plugin-x`, `@phantasy/plugin-discord`, `@phantasy/plugin-twitch` | `@phantasy/theme-creator` | `ffmpeg`, `gws-drive`, `market` | `content-pipeline` | `filesystem`, `brave-search`, `puppeteer` |
-| `twitter-bot` | Twitter/X Bot | - | `x-plugin`, `web-search`, `memory`, `image` | `@phantasy/plugin-x` | `@phantasy/theme-linkinbio` | `market` | `content-pipeline` | `filesystem`, `brave-search` |
-| `trader` | DeFi Trader | - | `wallet-plugin`, `web-search`, `kalshi-plugin` | `@phantasy/plugin-wallet`, `@phantasy/plugin-financial`, `@phantasy/plugin-kalshi` | `@phantasy/theme-minimal` | `market` | `daily-operator-brief` | `brave-search` |
-| `discord-mod` | Discord Moderator | - | `discord-plugin`, `memory`, `web-search` | `@phantasy/plugin-discord` | `@phantasy/theme-linkinbio` | `github` | - | `filesystem` |
-| `knowledge-base` | Knowledge Assistant | - | `knowledge`, `memory`, `web-search` | - | `@phantasy/theme-docs` | `gws-docs`, `gws-drive` | `site-launch-readiness` | `filesystem`, `brave-search` |
-| `influencer` | Social Influencer | - | `x-plugin`, `image`, `memory`, `web-search` | `@phantasy/plugin-x` | `@phantasy/theme-linkinbio` | `ffmpeg`, `market` | `content-pipeline` | `filesystem`, `brave-search` |
-| `telegram-assistant` | Telegram Assistant | - | `telegram-plugin`, `memory`, `web-search` | `@phantasy/plugin-telegram` | `@phantasy/theme-minimal` | `gws-calendar` | - | `filesystem` |
-| `developer` | Developer | - | - | - | `@phantasy/theme-developer` | `github`, `docker`, `cloudflare` | `approval-loop`, `daily-operator-brief` | `filesystem`, `github`, `puppeteer` |
+| Preset               | Name                  | Product Shape | Built-in Plugins                               | Installable Plugins                                                                | Themes                      | Skills                           | Workflows                               | MCP                                       |
+| -------------------- | --------------------- | ------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------- | --------------------------- | -------------------------------- | --------------------------------------- | ----------------------------------------- |
+| `vtuber`             | VTuber Creator        | `vtuber`      | `chronicle`, `image`                           | `@phantasy/plugin-x`, `@phantasy/plugin-discord`, `@phantasy/plugin-twitch`        | `@phantasy/theme-creator`   | `ffmpeg`, `gws-drive`, `market`  | `content-pipeline`                      | `filesystem`, `brave-search`, `puppeteer` |
+| `operator`           | Operator              | `operator`    | `chronicle`                                    | -                                                                                  | -                           | `github`, `cloudflare`, `docker` | `approval-loop`, `daily-operator-brief` | `filesystem`, `github`                    |
+| `companion`          | AI Companion          | -             | `memory`, `web-search`                         | -                                                                                  | `@phantasy/theme-minimal`   | `gws`                            | -                                       | `filesystem`                              |
+| `kurisu`             | Makise Kurisu Starter | -             | `chronicle`, `memory`, `web-search`            | `@phantasy/plugin-x`, `@phantasy/plugin-discord`, `@phantasy/plugin-twitch`        | `@phantasy/theme-creator`   | `ffmpeg`, `gws-drive`, `market`  | `content-pipeline`                      | `filesystem`, `brave-search`, `puppeteer` |
+| `twitter-bot`        | Twitter/X Bot         | -             | `x-plugin`, `web-search`, `memory`, `image`    | `@phantasy/plugin-x`                                                               | `@phantasy/theme-linkinbio` | `market`                         | `content-pipeline`                      | `filesystem`, `brave-search`              |
+| `trader`             | DeFi Trader           | -             | `wallet-plugin`, `web-search`, `kalshi-plugin` | `@phantasy/plugin-wallet`, `@phantasy/plugin-financial`, `@phantasy/plugin-kalshi` | `@phantasy/theme-minimal`   | `market`                         | `daily-operator-brief`                  | `brave-search`                            |
+| `discord-mod`        | Discord Moderator     | -             | `discord-plugin`, `memory`, `web-search`       | `@phantasy/plugin-discord`                                                         | `@phantasy/theme-linkinbio` | `github`                         | -                                       | `filesystem`                              |
+| `knowledge-base`     | Knowledge Assistant   | -             | `knowledge`, `memory`, `web-search`            | -                                                                                  | `@phantasy/theme-docs`      | `gws-docs`, `gws-drive`          | `site-launch-readiness`                 | `filesystem`, `brave-search`              |
+| `influencer`         | Social Influencer     | -             | `x-plugin`, `image`, `memory`, `web-search`    | `@phantasy/plugin-x`                                                               | `@phantasy/theme-linkinbio` | `ffmpeg`, `market`               | `content-pipeline`                      | `filesystem`, `brave-search`              |
+| `telegram-assistant` | Telegram Assistant    | -             | `telegram-plugin`, `memory`, `web-search`      | `@phantasy/plugin-telegram`                                                        | `@phantasy/theme-minimal`   | `gws-calendar`                   | -                                       | `filesystem`                              |
+| `developer`          | Developer             | -             | -                                              | -                                                                                  | `@phantasy/theme-developer` | `github`, `docker`, `cloudflare` | `approval-loop`, `daily-operator-brief` | `filesystem`, `github`, `puppeteer`       |
 
 
 ---
@@ -13810,31 +13803,31 @@ This file is generated from the shared admin tab registry used by the layout, UR
 
 Navigable admin tabs: **23**
 
-| ID | Label | Workspace | Audience | Required Plugins | Aliases | Keywords |
-| --- | --- | --- | --- | --- | --- | --- |
-| `dashboard` | Dashboard | Operations | all users | - | `overview` | `home`, `overview`, `main` |
-| `status` | Status | Operations | all users | - | - | `health`, `online`, `running` |
-| `companion` | Companion | Character | all users | - | `basic`, `memory`, `knowledge` | `identity`, `personality`, `character`, `memory`, `knowledge` |
-| `providers` | Providers | Operations | all users | - | - | `ai`, `models`, `llm`, `routing` |
-| `mcp` | MCP | Operations | all users | - | `mcp-servers` | `mcp`, `model context protocol`, `servers`, `tools` |
-| `comfyui` | Creator Studio | Site | all users | - | `creator-studio`, `creator`, `studio`, `comfyui` | `image`, `workflow`, `diffusion`, `nodes`, `creator`, `studio` |
-| `integrations` | Integrations | Business | all users | - | `platforms` | `api`, `connect`, `platforms`, `third-party` |
-| `developer` | Developer | Operations | all users | - | - | `dev`, `debug`, `tools` |
-| `workbench` | Workbench | Operations | all users | - | `editor`, `terminal` | `editor`, `terminal`, `files`, `code`, `vim` |
-| `chronicle` | Content | Site | all users | - | `writing`, `chronicle`, `posts` | `content`, `publishing`, `posts`, `timeline`, `records` |
-| `media` | Media | Site | all users | - | - | `images`, `photos`, `upload`, `voice` |
-| `video` | Video Studio | Site | all users | - | `video-studio` | `videos`, `clips`, `generation`, `creator`, `studio` |
-| `workflows` | Automations | Automations | all users | - | `workflows` | `automation`, `tasks`, `schedule` |
-| `games` | Games | Character | all users | - | - | `play`, `entertainment` |
-| `plugins` | Capabilities | Operations | all users | - | - | `tools`, `extensions`, `plugins`, `add-ons` |
-| `skills` | Skills | Character | all users | - | - | `abilities`, `capabilities` |
-| `themes` | Themes | Site | all users | - | `appearance` | `appearance`, `style`, `design`, `colors` |
-| `test` | Test | Operations | all users | - | - | `testing`, `debug`, `qa` |
-| `logs` | Logs | Operations | all users | - | - | `log`, `debug`, `errors` |
-| `users` | Users | Operations | admin | - | - | `user`, `accounts`, `members` |
-| `notifications` | Notifications | Business | all users | - | - | `alerts`, `messages`, `push` |
-| `admin` | Admin | Operations | all users | - | - | `administration`, `management`, `settings` |
-| `website` | Website | Site | all users | - | - | `web`, `site`, `pages`, `seo` |
+| ID              | Label          | Workspace   | Audience  | Required Plugins | Aliases                                          | Keywords                                                       |
+| --------------- | -------------- | ----------- | --------- | ---------------- | ------------------------------------------------ | -------------------------------------------------------------- |
+| `dashboard`     | Dashboard      | Operations  | all users | -                | `overview`                                       | `home`, `overview`, `main`                                     |
+| `status`        | Status         | Operations  | all users | -                | -                                                | `health`, `online`, `running`                                  |
+| `companion`     | Companion      | Character   | all users | -                | `basic`, `memory`, `knowledge`                   | `identity`, `personality`, `character`, `memory`, `knowledge`  |
+| `providers`     | Providers      | Operations  | all users | -                | -                                                | `ai`, `models`, `llm`, `routing`                               |
+| `mcp`           | MCP            | Operations  | all users | -                | `mcp-servers`                                    | `mcp`, `model context protocol`, `servers`, `tools`            |
+| `comfyui`       | Creator Studio | Site        | all users | -                | `creator-studio`, `creator`, `studio`, `comfyui` | `image`, `workflow`, `diffusion`, `nodes`, `creator`, `studio` |
+| `integrations`  | Integrations   | Business    | all users | -                | `platforms`                                      | `api`, `connect`, `platforms`, `third-party`                   |
+| `developer`     | Developer      | Operations  | all users | -                | -                                                | `dev`, `debug`, `tools`                                        |
+| `workbench`     | Workbench      | Operations  | all users | -                | `editor`, `terminal`                             | `editor`, `terminal`, `files`, `code`, `vim`                   |
+| `chronicle`     | Content        | Site        | all users | -                | `writing`, `chronicle`, `posts`                  | `content`, `publishing`, `posts`, `timeline`, `records`        |
+| `media`         | Media          | Site        | all users | -                | -                                                | `images`, `photos`, `upload`, `voice`                          |
+| `video`         | Video Studio   | Site        | all users | -                | `video-studio`                                   | `videos`, `clips`, `generation`, `creator`, `studio`           |
+| `workflows`     | Automations    | Automations | all users | -                | `workflows`                                      | `automation`, `tasks`, `schedule`                              |
+| `games`         | Games          | Character   | all users | -                | -                                                | `play`, `entertainment`                                        |
+| `plugins`       | Capabilities   | Operations  | all users | -                | -                                                | `tools`, `extensions`, `plugins`, `add-ons`                    |
+| `skills`        | Skills         | Character   | all users | -                | -                                                | `abilities`, `capabilities`                                    |
+| `themes`        | Themes         | Site        | all users | -                | `appearance`                                     | `appearance`, `style`, `design`, `colors`                      |
+| `test`          | Test           | Operations  | all users | -                | -                                                | `testing`, `debug`, `qa`                                       |
+| `logs`          | Logs           | Operations  | all users | -                | -                                                | `log`, `debug`, `errors`                                       |
+| `users`         | Users          | Operations  | admin     | -                | -                                                | `user`, `accounts`, `members`                                  |
+| `notifications` | Notifications  | Business    | all users | -                | -                                                | `alerts`, `messages`, `push`                                   |
+| `admin`         | Admin          | Operations  | all users | -                | -                                                | `administration`, `management`, `settings`                     |
+| `website`       | Website        | Site        | all users | -                | -                                                | `web`, `site`, `pages`, `seo`                                  |
 
 
 ---
@@ -13850,25 +13843,25 @@ This file is generated from the CLI entrypoint command dispatch table.
 
 Top-level CLI commands: **17**
 
-| Command | Role | Module |
-| --- | --- | --- |
-| `chat` | Default interactive TUI session | `src/cli/commands/chat.ts` |
-| `create` | Top-level CLI command | `src/cli/commands/create.ts` |
-| `extensions` | Top-level CLI command | `src/cli/commands/extensions.ts` |
-| `hub` | Top-level CLI command | `src/cli/commands/hub.ts` |
-| `init` | Top-level CLI command | `src/cli/commands/init.ts` |
-| `knowledge` | Top-level CLI command | `src/cli/commands/knowledge.ts` |
-| `mcp` | Top-level CLI command | `src/cli/commands/mcp.ts` |
-| `memory` | Top-level CLI command | `src/cli/commands/memory.ts` |
-| `models` | Top-level CLI command | `src/cli/commands/models.ts` |
-| `plugins` | Top-level CLI command | `src/cli/commands/plugins.ts` |
-| `setup` | Top-level CLI command | `src/cli/commands/setup.ts` |
-| `site` | Top-level CLI command | `src/cli/commands/site.ts` |
-| `skills` | Top-level CLI command | `src/cli/commands/skills.ts` |
-| `start` | Top-level CLI command | `src/cli/commands/start.ts` |
-| `validate` | Top-level CLI command | `src/cli/commands/validate.ts` |
-| `video` | Top-level CLI command | `src/cli/commands/video.ts` |
-| `workflow` | Top-level CLI command | `src/cli/commands/workflow.ts` |
+| Command      | Role                            | Module                           |
+| ------------ | ------------------------------- | -------------------------------- |
+| `chat`       | Default interactive TUI session | `src/cli/commands/chat.ts`       |
+| `create`     | Top-level CLI command           | `src/cli/commands/create.ts`     |
+| `extensions` | Top-level CLI command           | `src/cli/commands/extensions.ts` |
+| `hub`        | Top-level CLI command           | `src/cli/commands/hub.ts`        |
+| `init`       | Top-level CLI command           | `src/cli/commands/init.ts`       |
+| `knowledge`  | Top-level CLI command           | `src/cli/commands/knowledge.ts`  |
+| `mcp`        | Top-level CLI command           | `src/cli/commands/mcp.ts`        |
+| `memory`     | Top-level CLI command           | `src/cli/commands/memory.ts`     |
+| `models`     | Top-level CLI command           | `src/cli/commands/models.ts`     |
+| `plugins`    | Top-level CLI command           | `src/cli/commands/plugins.ts`    |
+| `setup`      | Top-level CLI command           | `src/cli/commands/setup.ts`      |
+| `site`       | Top-level CLI command           | `src/cli/commands/site.ts`       |
+| `skills`     | Top-level CLI command           | `src/cli/commands/skills.ts`     |
+| `start`      | Top-level CLI command           | `src/cli/commands/start.ts`      |
+| `validate`   | Top-level CLI command           | `src/cli/commands/validate.ts`   |
+| `video`      | Top-level CLI command           | `src/cli/commands/video.ts`      |
+| `workflow`   | Top-level CLI command           | `src/cli/commands/workflow.ts`   |
 
 
 ---
@@ -13884,41 +13877,41 @@ This file is generated from mounted admin route handlers and explicit Express ad
 
 Mounted admin route modules: **33**
 
-| Workspace | Group | Mount Paths | Mounted Via | Route File |
-| --- | --- | --- | --- | --- |
-| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/agent-notes-routes.ts` |
-| Operations | agent | `/admin/api/agent` | `route-registry` | `src/admin-api/routes/agent/agent-ops-routes.ts` |
-| Character | agent | `/admin/api/agent` | `route-registry` | `src/admin-api/routes/agent/agent-routes.ts` |
-| Character | agent | `/admin/api/knowledge` | `route-registry` | `src/admin-api/routes/agent/knowledge-routes.ts` |
-| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/markdown-memory-routes.ts` |
-| Character | agent | `/admin/api/memory` | `route-registry` | `src/admin-api/routes/agent/memory-routes.ts` |
-| Operations | agent | `/admin/api/threads` | `route-registry` | `src/admin-api/routes/agent/threads-routes.ts` |
-| Operations | analytics | `/admin/api/analytics` | `route-registry` | `src/admin-api/routes/analytics/preferences-routes.ts` |
-| Operations | config | `/admin/api/config` | `route-registry` | `src/admin-api/routes/config/config-routes.ts` |
-| Operations | config | `/admin/api/user-settings` | `route-registry` | `src/admin-api/routes/config/user-settings-routes.ts` |
-| Operations | config | `/admin/api/users` | `route-registry` | `src/admin-api/routes/config/users-routes.ts` |
-| Operations | config | `/admin/api/validate` | `route-registry` | `src/admin-api/routes/config/validation-routes.ts` |
-| Operations | core | `/admin/api/admin-surfaces` | `route-registry` | `src/admin-api/routes/core/admin-surface-routes.ts` |
-| Character | core | `/admin/api/character-card` | `route-registry` | `src/admin-api/routes/core/character-card-routes.ts` |
-| Site | core | `/admin/api/content` | `route-registry` | `src/admin-api/routes/core/content-routes.ts` |
-| Site | core | `/admin/api/skills`, `/admin/api/themes`, `/admin/api/website` | `route-registry` | `src/admin-api/routes/core/extensions-routes.ts` |
-| Operations | core | `/admin/api/mlc-llm` | `route-registry` | `src/admin-api/routes/core/mlc-llm-routes.ts` |
-| Operations | core | `/admin/api/plugins` | `route-registry` | `src/admin-api/routes/core/plugin-routes.ts` |
-| Operations | core | `/admin/api/setup` | `route-registry` | `src/admin-api/routes/core/setup-routes.ts` |
-| Operations | core | `/admin/api/endpoints`, `/admin/api/analyze-request` | `route-registry` | `src/admin-api/routes/core/utility-routes.ts` |
-| Character | media | `/admin/api/adventures` | `route-registry` | `src/admin-api/routes/media/adventures-routes.ts` |
-| Site | media | `/admin/api/comfyui` | `route-registry` | `src/admin-api/routes/media/comfyui-routes.ts` |
-| Site | media | `/admin/api/media` | `route-registry` | `src/admin-api/routes/media/media-routes.ts` |
-| Operations | monitoring | `/admin/api/logs` | `route-registry` | `src/admin-api/routes/monitoring/logs-routes.ts` |
-| Operations | monitoring | `/admin/api/test-provider`, `/admin/api/test-chat`, `/admin/api/test-image`, `/admin/api/test-speech`, `/admin/api/test-transcription`, `/admin/api/venice`, `/admin/api/tools` | `route-registry` | `src/admin-api/routes/monitoring/testing-routes.ts` |
-| Business | platform | `/admin/api/notifications` | `route-registry` | `src/admin-api/routes/platform/notifications-routes.ts` |
-| Business | platform | `/admin/api/platforms` | `route-registry` | `src/admin-api/routes/platform/platform-routes.ts` |
-| Business | plugin:x | `/admin/api/webhooks`, `/admin/api/integrations` | `route-registry` | `src/plugins/x/party-hq-routes.ts` |
-| Business | plugin:x | `/admin/api/integrations` | `route-registry` | `src/plugins/x/twitter-routes.ts` |
-| Business | provider | `/admin/api/integrations` | `route-registry` | `src/admin-api/routes/provider/integrations-routes.ts` |
-| Operations | provider | `/admin/api/providers` | `route-registry` | `src/admin-api/routes/provider/provider-routes.ts` |
-| Operations | status | `/admin/api/status` | `route-registry` | `src/admin-api/routes/status/status-routes.ts` |
-| Site | video | `/admin/api/video` | `route-registry` | `src/admin-api/routes/video/video-routes.ts` |
+| Workspace  | Group      | Mount Paths                                                                                                                                                                     | Mounted Via      | Route File                                              |
+| ---------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------- |
+| Character  | agent      | `/admin/api/memory`                                                                                                                                                             | `route-registry` | `src/admin-api/routes/agent/agent-notes-routes.ts`      |
+| Operations | agent      | `/admin/api/agent`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/agent/agent-ops-routes.ts`        |
+| Character  | agent      | `/admin/api/agent`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/agent/agent-routes.ts`            |
+| Character  | agent      | `/admin/api/knowledge`                                                                                                                                                          | `route-registry` | `src/admin-api/routes/agent/knowledge-routes.ts`        |
+| Character  | agent      | `/admin/api/memory`                                                                                                                                                             | `route-registry` | `src/admin-api/routes/agent/markdown-memory-routes.ts`  |
+| Character  | agent      | `/admin/api/memory`                                                                                                                                                             | `route-registry` | `src/admin-api/routes/agent/memory-routes.ts`           |
+| Operations | agent      | `/admin/api/threads`                                                                                                                                                            | `route-registry` | `src/admin-api/routes/agent/threads-routes.ts`          |
+| Operations | analytics  | `/admin/api/analytics`                                                                                                                                                          | `route-registry` | `src/admin-api/routes/analytics/preferences-routes.ts`  |
+| Operations | config     | `/admin/api/config`                                                                                                                                                             | `route-registry` | `src/admin-api/routes/config/config-routes.ts`          |
+| Operations | config     | `/admin/api/user-settings`                                                                                                                                                      | `route-registry` | `src/admin-api/routes/config/user-settings-routes.ts`   |
+| Operations | config     | `/admin/api/users`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/config/users-routes.ts`           |
+| Operations | config     | `/admin/api/validate`                                                                                                                                                           | `route-registry` | `src/admin-api/routes/config/validation-routes.ts`      |
+| Operations | core       | `/admin/api/admin-surfaces`                                                                                                                                                     | `route-registry` | `src/admin-api/routes/core/admin-surface-routes.ts`     |
+| Character  | core       | `/admin/api/character-card`                                                                                                                                                     | `route-registry` | `src/admin-api/routes/core/character-card-routes.ts`    |
+| Site       | core       | `/admin/api/content`                                                                                                                                                            | `route-registry` | `src/admin-api/routes/core/content-routes.ts`           |
+| Site       | core       | `/admin/api/skills`, `/admin/api/themes`, `/admin/api/website`                                                                                                                  | `route-registry` | `src/admin-api/routes/core/extensions-routes.ts`        |
+| Operations | core       | `/admin/api/mlc-llm`                                                                                                                                                            | `route-registry` | `src/admin-api/routes/core/mlc-llm-routes.ts`           |
+| Operations | core       | `/admin/api/plugins`                                                                                                                                                            | `route-registry` | `src/admin-api/routes/core/plugin-routes.ts`            |
+| Operations | core       | `/admin/api/setup`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/core/setup-routes.ts`             |
+| Operations | core       | `/admin/api/endpoints`, `/admin/api/analyze-request`                                                                                                                            | `route-registry` | `src/admin-api/routes/core/utility-routes.ts`           |
+| Character  | media      | `/admin/api/adventures`                                                                                                                                                         | `route-registry` | `src/admin-api/routes/media/adventures-routes.ts`       |
+| Site       | media      | `/admin/api/comfyui`                                                                                                                                                            | `route-registry` | `src/admin-api/routes/media/comfyui-routes.ts`          |
+| Site       | media      | `/admin/api/media`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/media/media-routes.ts`            |
+| Operations | monitoring | `/admin/api/logs`                                                                                                                                                               | `route-registry` | `src/admin-api/routes/monitoring/logs-routes.ts`        |
+| Operations | monitoring | `/admin/api/test-provider`, `/admin/api/test-chat`, `/admin/api/test-image`, `/admin/api/test-speech`, `/admin/api/test-transcription`, `/admin/api/venice`, `/admin/api/tools` | `route-registry` | `src/admin-api/routes/monitoring/testing-routes.ts`     |
+| Business   | platform   | `/admin/api/notifications`                                                                                                                                                      | `route-registry` | `src/admin-api/routes/platform/notifications-routes.ts` |
+| Business   | platform   | `/admin/api/platforms`                                                                                                                                                          | `route-registry` | `src/admin-api/routes/platform/platform-routes.ts`      |
+| Business   | plugin:x   | `/admin/api/webhooks`, `/admin/api/integrations`                                                                                                                                | `route-registry` | `src/plugins/x/party-hq-routes.ts`                      |
+| Business   | plugin:x   | `/admin/api/integrations`                                                                                                                                                       | `route-registry` | `src/plugins/x/twitter-routes.ts`                       |
+| Business   | provider   | `/admin/api/integrations`                                                                                                                                                       | `route-registry` | `src/admin-api/routes/provider/integrations-routes.ts`  |
+| Operations | provider   | `/admin/api/providers`                                                                                                                                                          | `route-registry` | `src/admin-api/routes/provider/provider-routes.ts`      |
+| Operations | status     | `/admin/api/status`                                                                                                                                                             | `route-registry` | `src/admin-api/routes/status/status-routes.ts`          |
+| Site       | video      | `/admin/api/video`                                                                                                                                                              | `route-registry` | `src/admin-api/routes/video/video-routes.ts`            |
 
 
 ---
@@ -13934,38 +13927,38 @@ This file is generated from `package.json` exports.
 
 Public exports: **30**
 
-| Package | Export | Types | Import | Require |
-| --- | --- | --- | --- | --- |
-| @phantasy/agent | `.` | `./dist/index.d.ts` | `./dist/index.js` | `./dist/index.js` |
-| @phantasy/admin-web-ui | `./admin-web-ui` | `./dist/admin-web-ui/index.d.ts` | `./dist/admin-web-ui/index.js` | `./dist/admin-web-ui/index.js` |
-| @phantasy/agent-core | `./agent-core` | `./dist/agent-core/index.d.ts` | `./dist/agent-core/index.js` | `./dist/agent-core/index.js` |
-| @phantasy/cli | `./cli` | `./dist/cli/index.d.ts` | `./dist/cli/index.js` | `./dist/cli/index.js` |
-| - | `./config` | `./dist/config/config-loader.d.ts` | `./dist/config/config-loader.js` | `./dist/config/config-loader.js` |
-| @phantasy/plugin-acp | `./plugin-acp` | `./dist/plugin-acp.d.ts` | `./dist/plugin-acp.js` | `./dist/plugin-acp.js` |
-| @phantasy/agent/plugin-admin-ui | `./plugin-admin-ui` | `./dist/plugin-admin-ui.d.ts` | `./dist/plugin-admin-ui.js` | `./dist/plugin-admin-ui.js` |
-| @phantasy/plugin-browseruse | `./plugin-browseruse` | `./dist/plugin-browseruse.d.ts` | `./dist/plugin-browseruse.js` | `./dist/plugin-browseruse.js` |
-| - | `./plugin-discord` | `./dist/plugin-discord.d.ts` | `./dist/plugin-discord.js` | `./dist/plugin-discord.js` |
-| - | `./plugin-erc8004` | `./dist/plugin-erc8004.d.ts` | `./dist/plugin-erc8004.js` | `./dist/plugin-erc8004.js` |
-| @phantasy/plugin-fanvue | `./plugin-fanvue` | `./dist/plugin-fanvue.d.ts` | `./dist/plugin-fanvue.js` | `./dist/plugin-fanvue.js` |
-| @phantasy/plugin-financial | `./plugin-financial` | `./dist/plugin-financial.d.ts` | `./dist/plugin-financial.js` | `./dist/plugin-financial.js` |
-| - | `./plugin-github` | `./dist/plugin-github.d.ts` | `./dist/plugin-github.js` | `./dist/plugin-github.js` |
-| - | `./plugin-gitlab` | `./dist/plugin-gitlab.d.ts` | `./dist/plugin-gitlab.js` | `./dist/plugin-gitlab.js` |
-| - | `./plugin-instagram` | `./dist/plugin-instagram.d.ts` | `./dist/plugin-instagram.js` | `./dist/plugin-instagram.js` |
-| @phantasy/plugin-kalshi | `./plugin-kalshi` | `./dist/plugin-kalshi.d.ts` | `./dist/plugin-kalshi.js` | `./dist/plugin-kalshi.js` |
-| @phantasy/plugin-monitoring | `./plugin-monitoring` | `./dist/plugin-monitoring.d.ts` | `./dist/plugin-monitoring.js` | `./dist/plugin-monitoring.js` |
-| @phantasy/plugin-polymarket | `./plugin-polymarket` | `./dist/plugin-polymarket.d.ts` | `./dist/plugin-polymarket.js` | `./dist/plugin-polymarket.js` |
-| - | `./plugin-runtime` | `./dist/plugin-runtime.d.ts` | `./dist/plugin-runtime.js` | `./dist/plugin-runtime.js` |
-| - | `./plugin-telegram` | `./dist/plugin-telegram.d.ts` | `./dist/plugin-telegram.js` | `./dist/plugin-telegram.js` |
-| - | `./plugin-twitch` | `./dist/plugin-twitch.d.ts` | `./dist/plugin-twitch.js` | `./dist/plugin-twitch.js` |
-| @phantasy/plugin-wallet | `./plugin-wallet` | `./dist/plugin-wallet.d.ts` | `./dist/plugin-wallet.js` | `./dist/plugin-wallet.js` |
-| @phantasy/plugin-x | `./plugin-x` | `./dist/plugin-x.d.ts` | `./dist/plugin-x.js` | `./dist/plugin-x.js` |
-| - | `./plugins` | `./dist/plugins/base-plugin.d.ts` | `./dist/plugins/base-plugin.js` | `./dist/plugins/base-plugin.js` |
-| @phantasy/providers | `./providers` | `./dist/providers/index.d.ts` | `./dist/providers/index.js` | `./dist/providers/index.js` |
-| - | `./server` | `./dist/server/server.d.ts` | `./dist/server/server.js` | `./dist/server/server.js` |
-| @phantasy/server-admin | `./server-admin` | `./dist/server-admin/index.d.ts` | `./dist/server-admin/index.js` | `./dist/server-admin/index.js` |
-| - | `./skills` | `./dist/skills/index.d.ts` | `./dist/skills/index.js` | `./dist/skills/index.js` |
-| @phantasy/tui | `./tui` | `./dist/tui/index.d.ts` | `./dist/tui/index.js` | `./dist/tui/index.js` |
-| - | `./types` | `./dist/types/index.d.ts` | `./dist/types/index.js` | `./dist/types/index.js` |
+| Package                         | Export                | Types                              | Import                           | Require                          |
+| ------------------------------- | --------------------- | ---------------------------------- | -------------------------------- | -------------------------------- |
+| @phantasy/agent                 | `.`                   | `./dist/index.d.ts`                | `./dist/index.js`                | `./dist/index.js`                |
+| @phantasy/admin-web-ui          | `./admin-web-ui`      | `./dist/admin-web-ui/index.d.ts`   | `./dist/admin-web-ui/index.js`   | `./dist/admin-web-ui/index.js`   |
+| @phantasy/agent-core            | `./agent-core`        | `./dist/agent-core/index.d.ts`     | `./dist/agent-core/index.js`     | `./dist/agent-core/index.js`     |
+| @phantasy/cli                   | `./cli`               | `./dist/cli/index.d.ts`            | `./dist/cli/index.js`            | `./dist/cli/index.js`            |
+| -                               | `./config`            | `./dist/config/config-loader.d.ts` | `./dist/config/config-loader.js` | `./dist/config/config-loader.js` |
+| @phantasy/plugin-acp            | `./plugin-acp`        | `./dist/plugin-acp.d.ts`           | `./dist/plugin-acp.js`           | `./dist/plugin-acp.js`           |
+| @phantasy/agent/plugin-admin-ui | `./plugin-admin-ui`   | `./dist/plugin-admin-ui.d.ts`      | `./dist/plugin-admin-ui.js`      | `./dist/plugin-admin-ui.js`      |
+| @phantasy/plugin-browseruse     | `./plugin-browseruse` | `./dist/plugin-browseruse.d.ts`    | `./dist/plugin-browseruse.js`    | `./dist/plugin-browseruse.js`    |
+| -                               | `./plugin-discord`    | `./dist/plugin-discord.d.ts`       | `./dist/plugin-discord.js`       | `./dist/plugin-discord.js`       |
+| -                               | `./plugin-erc8004`    | `./dist/plugin-erc8004.d.ts`       | `./dist/plugin-erc8004.js`       | `./dist/plugin-erc8004.js`       |
+| @phantasy/plugin-fanvue         | `./plugin-fanvue`     | `./dist/plugin-fanvue.d.ts`        | `./dist/plugin-fanvue.js`        | `./dist/plugin-fanvue.js`        |
+| @phantasy/plugin-financial      | `./plugin-financial`  | `./dist/plugin-financial.d.ts`     | `./dist/plugin-financial.js`     | `./dist/plugin-financial.js`     |
+| -                               | `./plugin-github`     | `./dist/plugin-github.d.ts`        | `./dist/plugin-github.js`        | `./dist/plugin-github.js`        |
+| -                               | `./plugin-gitlab`     | `./dist/plugin-gitlab.d.ts`        | `./dist/plugin-gitlab.js`        | `./dist/plugin-gitlab.js`        |
+| -                               | `./plugin-instagram`  | `./dist/plugin-instagram.d.ts`     | `./dist/plugin-instagram.js`     | `./dist/plugin-instagram.js`     |
+| @phantasy/plugin-kalshi         | `./plugin-kalshi`     | `./dist/plugin-kalshi.d.ts`        | `./dist/plugin-kalshi.js`        | `./dist/plugin-kalshi.js`        |
+| @phantasy/plugin-monitoring     | `./plugin-monitoring` | `./dist/plugin-monitoring.d.ts`    | `./dist/plugin-monitoring.js`    | `./dist/plugin-monitoring.js`    |
+| @phantasy/plugin-polymarket     | `./plugin-polymarket` | `./dist/plugin-polymarket.d.ts`    | `./dist/plugin-polymarket.js`    | `./dist/plugin-polymarket.js`    |
+| -                               | `./plugin-runtime`    | `./dist/plugin-runtime.d.ts`       | `./dist/plugin-runtime.js`       | `./dist/plugin-runtime.js`       |
+| -                               | `./plugin-telegram`   | `./dist/plugin-telegram.d.ts`      | `./dist/plugin-telegram.js`      | `./dist/plugin-telegram.js`      |
+| -                               | `./plugin-twitch`     | `./dist/plugin-twitch.d.ts`        | `./dist/plugin-twitch.js`        | `./dist/plugin-twitch.js`        |
+| @phantasy/plugin-wallet         | `./plugin-wallet`     | `./dist/plugin-wallet.d.ts`        | `./dist/plugin-wallet.js`        | `./dist/plugin-wallet.js`        |
+| @phantasy/plugin-x              | `./plugin-x`          | `./dist/plugin-x.d.ts`             | `./dist/plugin-x.js`             | `./dist/plugin-x.js`             |
+| -                               | `./plugins`           | `./dist/plugins/base-plugin.d.ts`  | `./dist/plugins/base-plugin.js`  | `./dist/plugins/base-plugin.js`  |
+| @phantasy/providers             | `./providers`         | `./dist/providers/index.d.ts`      | `./dist/providers/index.js`      | `./dist/providers/index.js`      |
+| -                               | `./server`            | `./dist/server/server.d.ts`        | `./dist/server/server.js`        | `./dist/server/server.js`        |
+| @phantasy/server-admin          | `./server-admin`      | `./dist/server-admin/index.d.ts`   | `./dist/server-admin/index.js`   | `./dist/server-admin/index.js`   |
+| -                               | `./skills`            | `./dist/skills/index.d.ts`         | `./dist/skills/index.js`         | `./dist/skills/index.js`         |
+| @phantasy/tui                   | `./tui`               | `./dist/tui/index.d.ts`            | `./dist/tui/index.js`            | `./dist/tui/index.js`            |
+| -                               | `./types`             | `./dist/types/index.d.ts`          | `./dist/types/index.js`          | `./dist/types/index.js`          |
 
 
 ---
@@ -13983,96 +13976,96 @@ Protocol version: **`party-hq.v1`**
 
 ## Frameworks
 
-| Framework |
-| --- |
-| `phantasy` |
-| `openclaw` |
+| Framework     |
+| ------------- |
+| `phantasy`    |
+| `openclaw`    |
 | `claude-code` |
-| `opencode` |
-| `codex` |
-| `paperclip` |
-| `custom` |
+| `opencode`    |
+| `codex`       |
+| `paperclip`   |
+| `custom`      |
 
 ## Capabilities
 
-| Capability |
-| --- |
+| Capability       |
+| ---------------- |
 | `tweet-approval` |
-| `tweet-posting` |
-| `chat` |
-| `messages` |
+| `tweet-posting`  |
+| `chat`           |
+| `messages`       |
 | `character-card` |
-| `voice` |
-| `memory` |
-| `tool-calling` |
-| `task-routing` |
-| `multi-agent` |
-| `workspaces` |
-| `observability` |
+| `voice`          |
+| `memory`         |
+| `tool-calling`   |
+| `task-routing`   |
+| `multi-agent`    |
+| `workspaces`     |
+| `observability`  |
 
 ## Party-HQ Webhook Paths
 
-| Name | Path |
-| --- | --- |
-| `tweet` | `/webhook/tweet` |
-| `message` | `/webhook/message` |
-| `agentSync` | `/webhook/agent-sync` |
+| Name          | Path                    |
+| ------------- | ----------------------- |
+| `tweet`       | `/webhook/tweet`        |
+| `message`     | `/webhook/message`      |
+| `agentSync`   | `/webhook/agent-sync`   |
 | `tweetStatus` | `/webhook/tweet-status` |
-| `heartbeat` | `/webhook/heartbeat` |
-| `runTrace` | `/webhook/run-trace` |
-| `runResult` | `/webhook/run-result` |
-| `health` | `/health` |
+| `heartbeat`   | `/webhook/heartbeat`    |
+| `runTrace`    | `/webhook/run-trace`    |
+| `runResult`   | `/webhook/run-result`   |
+| `health`      | `/health`               |
 
 ## Goal Statuses
 
-| Status |
-| --- |
-| `draft` |
-| `active` |
-| `blocked` |
+| Status      |
+| ----------- |
+| `draft`     |
+| `active`    |
+| `blocked`   |
 | `completed` |
-| `archived` |
+| `archived`  |
 
 ## Ticket Statuses
 
-| Status |
-| --- |
-| `queued` |
-| `ready` |
+| Status        |
+| ------------- |
+| `queued`      |
+| `ready`       |
 | `in_progress` |
-| `blocked` |
-| `completed` |
-| `failed` |
-| `cancelled` |
+| `blocked`     |
+| `completed`   |
+| `failed`      |
+| `cancelled`   |
 
 ## Run Statuses
 
-| Status |
-| --- |
-| `assigned` |
-| `running` |
-| `blocked` |
+| Status      |
+| ----------- |
+| `assigned`  |
+| `running`   |
+| `blocked`   |
 | `completed` |
-| `failed` |
+| `failed`    |
 | `cancelled` |
 
 ## Approval Statuses
 
-| Status |
-| --- |
-| `pending` |
-| `approved` |
-| `rejected` |
+| Status      |
+| ----------- |
+| `pending`   |
+| `approved`  |
+| `rejected`  |
 | `cancelled` |
 
 ## Phantasy Endpoint Paths
 
-| Name | Path |
-| --- | --- |
-| `callback` | `/admin/api/webhooks/party-hq` |
-| `characterCard` | `/admin/api/character-card` |
-| `health` | `/health` |
-| `status` | `/admin/api/integrations/party-hq/status` |
+| Name            | Path                                      |
+| --------------- | ----------------------------------------- |
+| `callback`      | `/admin/api/webhooks/party-hq`            |
+| `characterCard` | `/admin/api/character-card`               |
+| `health`        | `/health`                                 |
+| `status`        | `/admin/api/integrations/party-hq/status` |
 
 ## Agent Sync Example
 
@@ -14150,11 +14143,7 @@ Protocol version: **`party-hq.v1`**
   "specVersion": "party-hq.v1",
   "status": "idle",
   "frameworkType": "phantasy",
-  "supportedCapabilities": [
-    "tool-calling",
-    "chat",
-    "memory"
-  ],
+  "supportedCapabilities": ["tool-calling", "chat", "memory"],
   "maxAssignments": 1
 }
 ```
