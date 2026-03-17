@@ -3,6 +3,6 @@
   "title": "OpenAI Compatible API",
   "description": "Phantasy Agent exposes an OpenAI-compatible API.",
   "frontmatter": {},
-  "content": "# OpenAI Compatible API\n\nPhantasy Agent exposes an OpenAI-compatible API.\n\n## Usage\n\n```bash\ncurl -X POST http://localhost:2000/api/integrations/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer your-key\" \\\n  -d '{\n    \"model\": \"phantasy-agent\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello!\"}]\n  }'\n```\n\n",
+  "content": "# OpenAI Compatible API\n\nPhantasy Agent exposes an OpenAI-compatible API.\n\n## Usage\n\n```bash\ncurl -X POST http://localhost:2000/api/integrations/v1/chat/completions \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer your-key\" \\\n  -d '{\n    \"model\": \"phantasy-agent\",\n    \"messages\": [{\"role\": \"user\", \"content\": \"Hello!\"}]\n  }'\n```\n",
   "sourcePath": "src/docs/content/api/openai-compatible.md"
 }

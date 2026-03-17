@@ -3,6 +3,6 @@
   "title": "Storage Options",
   "description": "Configure database and storage backends.",
   "frontmatter": {},
-  "content": "# Storage Options\n\nConfigure database and storage backends.\n\nSee: [Storage Options Guide](/docs/guides/STORAGE_OPTIONS)\n\n",
+  "content": "# Storage Options\n\nConfigure database and storage backends.\n\nSee: [Storage Options Guide](/docs/guides/STORAGE_OPTIONS)\n",
   "sourcePath": "src/docs/content/deployment/storage.md"
 }

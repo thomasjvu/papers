@@ -697,6 +697,7 @@ bun run dev:up
 ```
 
 This starts:
+
 - **Server** at `http://localhost:2000` (API + Admin UI)
 - **Vite dev server** at `http://localhost:5173` (proxies API to port 2000)
 
@@ -722,6 +723,7 @@ curl http://localhost:2000/health
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -807,6 +809,7 @@ bun run start 2>&1 | tee agent.log
 ### Metrics
 
 Access metrics at:
+
 - `http://localhost:2000/metrics` - Prometheus format
 - `http://localhost:2000/health` - Health status
 
@@ -815,16 +818,19 @@ Access metrics at:
 ### Common Issues
 
 **"Cannot connect to database"**
+
 ```bash
 # Ensure PostgreSQL is running
 bun run db:migrate
 ```
 
 **"No AI provider configured"**
+
 - Check that at least one API key is set in `.env`
 - Verify the key is valid by testing with curl
 
 **"Plugin initialization failed"**
+
 - Check logs for specific error messages
 - Ensure required environment variables are set
 - Verify plugin configuration is valid
@@ -1058,6 +1064,7 @@ phantasy validate config/agents/my-agent.json
 ```
 
 `kilo-gateway` dynamic model list keeps only free entries:
+
 - zero prompt/completion pricing
 - model name/id containing `"free"`
 
@@ -1109,15 +1116,15 @@ This creates the global workspace structure:
 
 Each agent workspace is initialized with these files:
 
-| File | Purpose |
-|------|---------|
-| `AGENTS.md` | Agent instructions and capabilities |
-| `SOUL.md` | Core values and personality |
-| `USER.md` | User preferences and context |
-| `IDENTITY.md` | Agent identity and name |
-| `TOOLS.md` | Available tools documentation |
-| `HEARTBEAT.md` | Session state tracking |
-| `BOOT.md` | Initialization logic |
+| File           | Purpose                             |
+| -------------- | ----------------------------------- |
+| `AGENTS.md`    | Agent instructions and capabilities |
+| `SOUL.md`      | Core values and personality         |
+| `USER.md`      | User preferences and context        |
+| `IDENTITY.md`  | Agent identity and name             |
+| `TOOLS.md`     | Available tools documentation       |
+| `HEARTBEAT.md` | Session state tracking              |
+| `BOOT.md`      | Initialization logic                |
 
 ## Compatibility Surfaces
 
@@ -1166,15 +1173,16 @@ phantasy setup --model-url "https://huggingface.co/..."
 
 ### Recommended Local Models
 
-| Model | Purpose | Size | Notes |
-|-------|---------|------|-------|
-| `llama3:8b` | General chat | 4.7GB | Best overall |
-| `mistral:7b` | Fast chat | 4.1GB | Good balance |
-| `phi3:14b` | Reasoning | 7.9GB | Better reasoning |
-| `embeddinggemma` | Embeddings | 300M params | Efficient |
-| `llava:7b` | Vision | 4.5GB | Image understanding |
+| Model            | Purpose      | Size        | Notes               |
+| ---------------- | ------------ | ----------- | ------------------- |
+| `llama3:8b`      | General chat | 4.7GB       | Best overall        |
+| `mistral:7b`     | Fast chat    | 4.1GB       | Good balance        |
+| `phi3:14b`       | Reasoning    | 7.9GB       | Better reasoning    |
+| `embeddinggemma` | Embeddings   | 300M params | Efficient           |
+| `llava:7b`       | Vision       | 4.5GB       | Image understanding |
 
 Install with Ollama:
+
 ```bash
 # Chat models
 ollama pull llama3
@@ -1202,6 +1210,7 @@ bun run dev          # Start server + admin UI
 ```
 
 **Access:**
+
 - Server/API: http://localhost:2000
 - Admin UI dev: http://localhost:5173
 
@@ -1250,9 +1259,9 @@ export AGENT_MODEL=claude-3-opus
 
 ### Providers
 
-| Provider | Description | Requirements |
-|----------|-------------|--------------|
-| `markdown` | Zero-config filesystem mode | None |
+| Provider   | Description                           | Requirements   |
+| ---------- | ------------------------------------- | -------------- |
+| `markdown` | Zero-config filesystem mode           | None           |
 | `pgvector` | **Recommended** - PostgreSQL + vector | `DATABASE_URL` |
 
 ### Local Embeddings
@@ -1402,6 +1411,7 @@ URL: /docs/guides/AUTHENTICATION_SETUP
 # Authentication & Rate Limiting Setup
 
 ## Overview
+
 This guide covers the supported v1 auth paths and the rate limiting that protects them.
 
 Most self-hosted installs only need the built-in admin login. If you just want to protect `/admin`, set an admin username, password hash, and JWT secret, then ignore the GitHub/GitLab OAuth settings entirely.
@@ -1414,12 +1424,14 @@ Recommended modes:
 ## Features
 
 ### Authentication Methods
+
 1. **Local Admin Login** (Username/Password with bcrypt)
 2. **OAuth Providers** (GitHub, GitLab)
 3. **JWT Token-based Sessions**
 4. **API Key Authentication** (for integrations)
 
 ### Rate Limiting
+
 1. **Global Rate Limiting** (100 req/min default)
 2. **Authentication Rate Limiting** (5 attempts/15min)
 3. **API Endpoint Rate Limiting** (customizable per endpoint)
@@ -1507,6 +1519,7 @@ AUTH_GITHUB_ALLOWED_USERS=johndoe,janedoe
 Only org-level and user-level GitHub restrictions are supported in v1. `AUTH_GITHUB_ALLOWED_TEAMS` is intentionally rejected because team-level enforcement is not implemented.
 
 #### Setting up GitHub OAuth App:
+
 1. Go to GitHub Settings → Developer settings → OAuth Apps
 2. Click "New OAuth App"
 3. Set Authorization callback URL to: `https://your-domain.com/auth/github/callback`
@@ -1529,6 +1542,7 @@ AUTH_GITLAB_ALLOWED_USERS=johndoe,janedoe
 ```
 
 #### Setting up GitLab OAuth App:
+
 1. Go to GitLab → User Settings → Applications
 2. Create new application with scopes: `read_user`, `read_api`
 3. Set Redirect URI to: `https://your-domain.com/auth/gitlab/callback`
@@ -1560,11 +1574,11 @@ AUTH_SESSION_SAME_SITE=lax     # CSRF protection
 
 `TRUST_PROXY` only matters when something forwards requests to the app first, such as Nginx, Caddy, Traefik, Cloudflare Tunnel, or a managed platform ingress.
 
-| Deployment path | Example | `TRUST_PROXY` |
-| --- | --- | --- |
-| Direct bind | local dev, direct VPS port | unset |
-| One reverse proxy | Caddy, Nginx, Traefik | `1` |
-| Managed ingress | Railway, Coolify domain routing | `1` |
+| Deployment path   | Example                         | `TRUST_PROXY` |
+| ----------------- | ------------------------------- | ------------- |
+| Direct bind       | local dev, direct VPS port      | unset         |
+| One reverse proxy | Caddy, Nginx, Traefik           | `1`           |
+| Managed ingress   | Railway, Coolify domain routing | `1`           |
 
 ```env
 # Local dev or direct public bind
@@ -1634,12 +1648,12 @@ const response = await fetch('/auth/login', {
   method: 'POST',
   credentials: 'include', // Important for cookies
   headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ username, password })
+  body: JSON.stringify({ username, password }),
 });
 
 // Subsequent requests will use the session cookie
 const agent = await fetch('/admin/api/agent', {
-  credentials: 'include'
+  credentials: 'include',
 });
 ```
 
@@ -1800,6 +1814,7 @@ Retry-After: 60 (only when limit exceeded)
 ## Support
 
 For issues or questions:
+
 - Check logs for detailed error messages
 - Review environment variable configuration
 - Ensure all dependencies are installed: `npm install`
@@ -1839,10 +1854,10 @@ Run the app with the shipped `Dockerfile` or `docker-compose.yml`, set your auth
 
 ## Proxy Rule
 
-| Deployment shape | Example | `TRUST_PROXY` |
-| --- | --- | --- |
-| Direct bind | Docker published directly on a server port | unset |
-| One reverse proxy | Docker behind Caddy, Nginx, Traefik | `1` |
+| Deployment shape  | Example                                    | `TRUST_PROXY` |
+| ----------------- | ------------------------------------------ | ------------- |
+| Direct bind       | Docker published directly on a server port | unset         |
+| One reverse proxy | Docker behind Caddy, Nginx, Traefik        | `1`           |
 
 Use local admin login by default. GitHub and GitLab OAuth are optional advanced SSO.
 
@@ -1952,16 +1967,16 @@ This guide is for teams embedding Phantasy into another repo, product, or platfo
 
 ## Choose The Surface
 
-| Need | Install | Notes |
-|------|---------|-------|
-| Full framework | `@phantasy/agent` | Easiest way to get a companion/VTuber, CMS, CLI, server, and shared runtime in one package |
-| Headless runtime | `@phantasy/agent-core` | Public `AgentRuntime`, config, workflows, memory, approvals, and provider contracts |
-| Provider layer | `@phantasy/providers` | Unified multi-provider model and media adapters |
-| CLI | `@phantasy/cli` | Command parsing, scaffolding, and non-visual runtime lifecycle |
-| TUI | `@phantasy/tui` | Interactive terminal UI on top of `AgentRuntime` |
-| Admin frontend | `@phantasy/admin-web-ui` | Admin CMS frontend assets and path resolution |
-| Admin/server surfaces | `@phantasy/server-admin` | Express server, admin API, CMS, publishing, and operational route layer |
-| Plugin authoring | `@phantasy/plugin-sdk` | Build first-party or external plugins against the stable SDK |
+| Need                  | Install                  | Notes                                                                                      |
+| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------ |
+| Full framework        | `@phantasy/agent`        | Easiest way to get a companion/VTuber, CMS, CLI, server, and shared runtime in one package |
+| Headless runtime      | `@phantasy/agent-core`   | Public `AgentRuntime`, config, workflows, memory, approvals, and provider contracts        |
+| Provider layer        | `@phantasy/providers`    | Unified multi-provider model and media adapters                                            |
+| CLI                   | `@phantasy/cli`          | Command parsing, scaffolding, and non-visual runtime lifecycle                             |
+| TUI                   | `@phantasy/tui`          | Interactive terminal UI on top of `AgentRuntime`                                           |
+| Admin frontend        | `@phantasy/admin-web-ui` | Admin CMS frontend assets and path resolution                                              |
+| Admin/server surfaces | `@phantasy/server-admin` | Express server, admin API, CMS, publishing, and operational route layer                    |
+| Plugin authoring      | `@phantasy/plugin-sdk`   | Build first-party or external plugins against the stable SDK                               |
 
 ## Default Recommendation
 
@@ -2019,8 +2034,8 @@ npm install @phantasy/agent-core @phantasy/providers
 Typical import shape:
 
 ```ts
-import { createAgentRuntime, ConfigLoader } from "@phantasy/agent-core";
-import { registerBuiltInProviders } from "@phantasy/providers";
+import { createAgentRuntime, ConfigLoader } from '@phantasy/agent-core';
+import { registerBuiltInProviders } from '@phantasy/providers';
 
 registerBuiltInProviders();
 
@@ -2071,7 +2086,7 @@ npx @phantasy/agent chat --config ./agent-config.json
 ### Server Example
 
 ```ts
-import { Server } from "@phantasy/agent";
+import { Server } from '@phantasy/agent';
 
 const server = new Server();
 await server.start();
@@ -2197,6 +2212,7 @@ bun run setup:live2d
 ```
 
 This script:
+
 - downloads the official Cubism Core runtime into local public asset paths
 - downloads a pinned copy of `pixi.js@6.5.2`
 - refreshes the local `pixi-live2d-display` Cubism 4 plugin asset
@@ -2298,6 +2314,7 @@ This verifies the pinned local boot order and the model boot patch path.
 - **Live2D Cubism Core**: proprietary runtime by Live2D Inc.; use and redistribution are governed by Live2D's terms
 
 Review the official terms before shipping bundles that include Cubism runtime artifacts:
+
 - https://www.live2d.com/eula/live2d-open-software-license-agreement_en.html
 - https://docs.live2d.com/en/cubism-sdk-manual/license/
 
@@ -2315,12 +2332,12 @@ Review the official terms before shipping bundles that include Cubism runtime ar
 
 URL: /docs/guides/LIVE2D_PROD_READY
 
-Live2D Production Readiness Guide (Agent UI)
-===========================================
+# Live2D Production Readiness Guide (Agent UI)
 
 This document captures the exact configuration that makes Live2D work reliably in development previews and production. Follow it to avoid regressions.
 
 Key Points (Do These)
+
 - Use the ungated proxy path for assets in production: `/r2-assets`, not `/admin/r2-assets`.
   - `src/admin-ui/utils/assetUrl.ts` → `PROD_PREFIX = '/r2-assets'`.
   - Any pre-existing `/admin/r2-assets` URLs are rewritten to `/r2-assets` at runtime.
@@ -2347,11 +2364,13 @@ Key Points (Do These)
   - It logs one “Model preflight report” entry so we can distinguish fetch vs XHR failures without changing the loader behaviour.
 
 What NOT to do
+
 - Do not point the UI to `/admin/r2-assets` in production — admin path is often gated and subject to extra rules.
 - Do not monkey-patch pixi-live2d-display XHRLoader responseType. It may throw InvalidStateError and cause UI crashes.
 - Do not change Hooks order in React components (don’t introduce hooks after conditional returns).
 
 File Changes (Reference)
+
 - `src/admin-ui/utils/assetUrl.ts`
   - `PROD_PREFIX = '/r2-assets'`
 
@@ -2369,20 +2388,21 @@ File Changes (Reference)
   - Proxy: JSON model files served with `Content-Type: application/json` and `Cache-Control: no-transform`
 
 Operational Checklist
-1) Development preview sanity checks
+
+1. Development preview sanity checks
    - Open DevTools Network: `/r2-assets/live2d/brand-companion.model3.json` → 200, `content-type: application/json`
    - Console: `[Phantasy-SDK:ModelManager] Loading Live2D model from: /r2-assets/...`
    - Console: Preflight shows fetch ok:true, xhr ok:true
 
-2) Production
+2. Production
    - The agent server must expose `/r2-assets/*` publicly (do not gate under `/admin/*`).
    - Confirm Cloudflare does not transform JSON (no-transform header applied).
 
-3) Debugging
+3. Debugging
    - If XHR still shows status 0 but fetch is ok: check cache/proxy and encoding headers; ensure `no-transform` is present.
    - If assets 403: re-check admin gating/CF Access; `/r2-assets/*` should be accessible with same-origin credentials.
 
-4) Dependencies
+4. Dependencies
    - Pixi v6.5.2, Cubism 4 core, local cubism4 plugin build.
    - Verify `bun run test -- src/live2d-plugin-loader.smoke.test.ts` before shipping loader changes.
 
@@ -2569,6 +2589,7 @@ URL: /docs/guides/ENVIRONMENT_SETUP
 This guide explains how to properly configure environment variables for Phantasy Agent across different deployment scenarios.
 
 ## Table of Contents
+
 - [Quick Start](#quick-start)
 - [Environment Files Overview](#environment-files-overview)
 - [Configuration Strategies](#configuration-strategies)
@@ -2582,11 +2603,13 @@ This guide explains how to properly configure environment variables for Phantasy
 ### Local Development
 
 1. **Copy the template**:
+
    ```bash
    cp .env.local.template .env.local
    ```
 
 2. **Configure minimum required variables**:
+
    ```env
    # Database
    DATABASE_URL=postgresql://localhost:5432/phantasy_agent
@@ -2622,17 +2645,18 @@ bun run start
 
 ### Repository Files
 
-| File | Purpose | Git Status | When to Use |
-|------|---------|------------|-------------|
-| `.env.example` | Complete template with all variables | ✅ Committed | Reference for all options |
-| `.env.local.template` | Quick start template | ✅ Committed | Starting point for developers |
-| `.env.infisical` | Infisical configuration | ✅ Committed | Secret management setup |
-| `.env.local` | Your local configuration | ❌ Gitignored | Local development |
-| `.env` | Legacy (do not use) | ❌ Gitignored | Being phased out |
+| File                  | Purpose                              | Git Status    | When to Use                   |
+| --------------------- | ------------------------------------ | ------------- | ----------------------------- |
+| `.env.example`        | Complete template with all variables | ✅ Committed  | Reference for all options     |
+| `.env.local.template` | Quick start template                 | ✅ Committed  | Starting point for developers |
+| `.env.infisical`      | Infisical configuration              | ✅ Committed  | Secret management setup       |
+| `.env.local`          | Your local configuration             | ❌ Gitignored | Local development             |
+| `.env`                | Legacy (do not use)                  | ❌ Gitignored | Being phased out              |
 
 ### File Priority
 
 Environment variables are loaded in this order (later overrides earlier):
+
 1. `.env.example` (defaults)
 2. `.env.local` (your configuration)
 3. System environment variables
@@ -2650,6 +2674,7 @@ cp .env.local.template .env.local
 ```
 
 **Advantages**:
+
 - Simple setup
 - All config in one place
 - Easy to change values
@@ -2666,6 +2691,7 @@ INFISICAL_CLIENT_SECRET=preview-secret
 ```
 
 **Advantages**:
+
 - Centralized secrets
 - Team collaboration
 - Audit trails
@@ -2681,6 +2707,7 @@ INFISICAL_ENVIRONMENT=prod
 ```
 
 **Advantages**:
+
 - Maximum security
 - No local files
 - Platform-managed secrets
@@ -2792,6 +2819,7 @@ OPENAI_API_KEY=sk-prod-...
 ### Setup Steps
 
 1. **Create Infisical Account**:
+
    ```bash
    # Visit https://app.infisical.com
    # Create new project
@@ -2799,6 +2827,7 @@ OPENAI_API_KEY=sk-prod-...
    ```
 
 2. **Create Machine Identity**:
+
    ```bash
    # In Infisical Dashboard:
    # Project Settings → Machine Identities → Create
@@ -2806,6 +2835,7 @@ OPENAI_API_KEY=sk-prod-...
    ```
 
 3. **Configure Connection**:
+
    ```env
    # .env.infisical or .env.local
    INFISICAL_ENABLED=true
@@ -2816,6 +2846,7 @@ OPENAI_API_KEY=sk-prod-...
    ```
 
 4. **Verify Secret Resolution**:
+
    ```bash
    LOG_LEVEL=debug bun run dev
    curl http://localhost:2000/health
@@ -2842,49 +2873,51 @@ Each environment maintains separate secrets in Infisical.
 
 ### Core Configuration
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `PORT` | Yes | 3001 | Server port |
-| `NODE_ENV` | Yes | development | Environment mode |
-| `LOG_LEVEL` | No | info | Logging verbosity |
+| Variable    | Required | Default     | Description       |
+| ----------- | -------- | ----------- | ----------------- |
+| `PORT`      | Yes      | 3001        | Server port       |
+| `NODE_ENV`  | Yes      | development | Environment mode  |
+| `LOG_LEVEL` | No       | info        | Logging verbosity |
 
 ### Database Configuration
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DATABASE_URL` | Yes | - | PostgreSQL connection string |
-| `DB_TRUSTED_PLAINTEXT_HOSTS` | No | localhost,127.0.0.1,::1,host.docker.internal | CSV allowlist for intentional plaintext Postgres |
-| `DB_POOL_MAX` | No | 10 | Maximum pool connections |
-| `DB_POOL_MIN` | No | 2 | Minimum pool connections |
+| Variable                     | Required | Default                                      | Description                                      |
+| ---------------------------- | -------- | -------------------------------------------- | ------------------------------------------------ |
+| `DATABASE_URL`               | Yes      | -                                            | PostgreSQL connection string                     |
+| `DB_TRUSTED_PLAINTEXT_HOSTS` | No       | localhost,127.0.0.1,::1,host.docker.internal | CSV allowlist for intentional plaintext Postgres |
+| `DB_POOL_MAX`                | No       | 10                                           | Maximum pool connections                         |
+| `DB_POOL_MIN`                | No       | 2                                            | Minimum pool connections                         |
 
 ### Authentication
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `AUTH_REQUIRED` | No | true | Require authentication |
-| `AUTH_BASIC_ENABLED` | No | true | Enable local admin username/password login |
-| `AUTH_ADMIN_USERNAME` | No | admin | Admin username |
-| `AUTH_ADMIN_PASSWORD_HASH` | No | - | Bcrypt password hash |
-| `AUTH_JWT_SECRET` | Yes* | - | JWT signing secret |
-| `AUTH_SESSION_SECRET` | Yes* | - | Session/cookie signing secret |
-| `PHANTASY_SECRET_ENCRYPTION_KEY` | Yes* | - | Stable encryption key for stored provider and integration credentials |
-| `AUTH_JWT_EXPIRES_IN` | No | 30d | Token expiration |
-| `TRUST_PROXY` | No | false | Trust forwarded headers from a reverse proxy |
-| `AUTH_GITHUB_ENABLED` | No | false | Enable GitHub OAuth login |
-| `AUTH_GITLAB_ENABLED` | No | false | Enable GitLab OAuth login |
+| Variable                         | Required | Default | Description                                                           |
+| -------------------------------- | -------- | ------- | --------------------------------------------------------------------- |
+| `AUTH_REQUIRED`                  | No       | true    | Require authentication                                                |
+| `AUTH_BASIC_ENABLED`             | No       | true    | Enable local admin username/password login                            |
+| `AUTH_ADMIN_USERNAME`            | No       | admin   | Admin username                                                        |
+| `AUTH_ADMIN_PASSWORD_HASH`       | No       | -       | Bcrypt password hash                                                  |
+| `AUTH_JWT_SECRET`                | Yes\*    | -       | JWT signing secret                                                    |
+| `AUTH_SESSION_SECRET`            | Yes\*    | -       | Session/cookie signing secret                                         |
+| `PHANTASY_SECRET_ENCRYPTION_KEY` | Yes\*    | -       | Stable encryption key for stored provider and integration credentials |
+| `AUTH_JWT_EXPIRES_IN`            | No       | 30d     | Token expiration                                                      |
+| `TRUST_PROXY`                    | No       | false   | Trust forwarded headers from a reverse proxy                          |
+| `AUTH_GITHUB_ENABLED`            | No       | false   | Enable GitHub OAuth login                                             |
+| `AUTH_GITLAB_ENABLED`            | No       | false   | Enable GitLab OAuth login                                             |
 
-*Required if AUTH_REQUIRED=true
+\*Required if AUTH_REQUIRED=true
 
 Most installs only need `AUTH_BASIC_ENABLED=true` with an admin password hash, JWT/session secrets, and a stable `PHANTASY_SECRET_ENCRYPTION_KEY`. GitHub and GitLab OAuth are supported, but they are advanced optional SSO features.
 
 ### AI Providers
 
 Each provider follows this pattern:
+
 - `{PROVIDER}_ENABLED` - Enable the provider
 - `{PROVIDER}_API_KEY` - API key
 - `{PROVIDER}_API_URL` - API endpoint (optional)
 
 Example:
+
 ```env
 OPENAI_ENABLED=true
 OPENAI_API_KEY=sk-...
@@ -2892,6 +2925,7 @@ OPENAI_API_URL=https://api.openai.com/v1
 ```
 
 Supported providers:
+
 - OPENAI
 - ANTHROPIC
 - GOOGLE
@@ -2910,16 +2944,17 @@ Use `MEMORY_PROVIDER=pgvector` when you want vector retrieval on the supported P
 
 ### Platform Integrations
 
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| `DISCORD_BOT_TOKEN` | No | - | Discord bot token |
-| `DISCORD_GUILD_ID` | No | - | Discord server ID |
+| Variable            | Required | Default | Description       |
+| ------------------- | -------- | ------- | ----------------- |
+| `DISCORD_BOT_TOKEN` | No       | -       | Discord bot token |
+| `DISCORD_GUILD_ID`  | No       | -       | Discord server ID |
 
 ## Troubleshooting
 
 ### Common Issues
 
 #### Database Connection Failed
+
 ```bash
 # Check PostgreSQL is running
 pg_isready
@@ -2933,6 +2968,7 @@ DB_TRUSTED_PLAINTEXT_HOSTS=localhost,127.0.0.1
 ```
 
 #### API Key Invalid
+
 ```bash
 # Verify key format
 echo $OPENAI_API_KEY | grep "^sk-"
@@ -2943,6 +2979,7 @@ curl https://api.openai.com/v1/models \
 ```
 
 #### Infisical Connection Failed
+
 ```bash
 # Start with debug logs to confirm provider initialization
 LOG_LEVEL=debug bun run dev
@@ -2954,6 +2991,7 @@ echo $INFISICAL_CLIENT_ID
 ```
 
 #### Port Already in Use
+
 ```bash
 # Find process using port
 lsof -i :3001
@@ -2985,6 +3023,7 @@ curl http://localhost:2000/health
 ```
 
 This confirms:
+
 - the repo resolves and typechecks
 - the server boots with your current environment
 - the health endpoint responds successfully
@@ -2996,11 +3035,13 @@ This confirms:
 If you're upgrading from older versions:
 
 1. **Backup existing configuration**:
+
    ```bash
    cp .env .env.backup
    ```
 
 2. **Create new local config**:
+
    ```bash
    cp .env.local.template .env.local
    ```
@@ -3010,6 +3051,7 @@ If you're upgrading from older versions:
    - Update variable names as needed (see audit report)
 
 4. **Test configuration**:
+
    ```bash
    bun run typecheck
    LOG_LEVEL=debug bun run dev
@@ -3023,16 +3065,19 @@ If you're upgrading from older versions:
 ### To Infisical
 
 1. **Install Infisical CLI** (optional):
+
    ```bash
    brew install infisical/get-cli/infisical
    ```
 
 2. **Login to Infisical**:
+
    ```bash
    infisical login
    ```
 
 3. **Import existing secrets**:
+
    ```bash
    infisical secrets set --env=dev < .env.local
    ```
@@ -3046,6 +3091,7 @@ If you're upgrading from older versions:
 ## Support
 
 For help with environment configuration:
+
 - Check the [configuration guide](../configuration.md)
 - Review the repository root `.env.example` for all options
 - Open an issue on GitHub
@@ -3062,6 +3108,7 @@ URL: /docs/guides/STORAGE_OPTIONS
 # Storage Options for the Phantasy Agent Platform
 
 ## Current Issues
+
 - File-based KV storage is not production-ready
 - No concurrency control
 - No atomic operations
@@ -3071,7 +3118,9 @@ URL: /docs/guides/STORAGE_OPTIONS
 ## Recommended Storage Solutions
 
 ### 1. PostgreSQL with JSON columns (RECOMMENDED)
+
 **Pros:**
+
 - Already using PostgreSQL (Neon) for other data
 - JSONB columns provide excellent JSON support
 - ACID compliance
@@ -3081,6 +3130,7 @@ URL: /docs/guides/STORAGE_OPTIONS
 - Low cost with Neon's serverless model
 
 **Implementation:**
+
 ```sql
 CREATE TABLE agent_config (
   id VARCHAR(255) PRIMARY KEY,
@@ -3091,63 +3141,78 @@ CREATE TABLE agent_config (
 ```
 
 ### 2. Redis
+
 **Pros:**
+
 - Fast in-memory storage
 - Native JSON support (RedisJSON)
 - Pub/sub for real-time updates
 - TTL support
 
 **Cons:**
+
 - Additional infrastructure
 - Memory-based (more expensive)
 - Needs persistence configuration
 
 ### 3. MongoDB
+
 **Pros:**
+
 - Native JSON document storage
 - Flexible schema
 - Good for complex queries
 
 **Cons:**
+
 - Additional database to manage
 - Overkill for simple key-value needs
 
 ### 4. Cloudflare KV (if returning to Workers)
+
 **Pros:**
+
 - Built for edge computing
 - Global distribution
 - Simple API
 
 **Cons:**
+
 - Tied to Cloudflare Workers
 - Eventually consistent
 
 ## Implementation Plan
 
 ### Phase 1: PostgreSQL Implementation
+
 1. Create agent_config table
 2. Implement PostgreSQL KV adapter
 3. Migrate existing data
 4. Test thoroughly
 
 ### Phase 2: Caching Layer
+
 1. Add Redis for caching (optional)
 2. Implement cache invalidation
 3. Monitor performance
 
 ### Phase 3: Backup & Recovery
+
 1. Set up automated backups
 2. Test recovery procedures
 3. Document processes
 
 ## Cost Analysis
+
 - **PostgreSQL (Neon)**: ~$0-20/month for small-medium usage
 - **Redis (Upstash)**: ~$0-10/month with pay-per-request
 - **MongoDB Atlas**: ~$0-60/month
 - **File System**: $0 but not production-ready
 
 ## Recommendation
+
 Use PostgreSQL with JSONB columns since you're already using Neon. This provides:
+
 - Single database for all data
 - ACID compliance
 - Low cost
@@ -3295,22 +3360,22 @@ Phantasy is not a byte-for-byte clone of OpenClaw, but the local operating model
 
 ## What Carries Over Directly
 
-| OpenClaw surface | Phantasy surface | Notes |
-| --- | --- | --- |
-| `AGENTS.md` | `AGENTS.md` | Same role: workspace operating rules and local expectations |
-| `SKILL.md` | `SKILL.md` | Same progressive-disclosure skill model |
-| `metadata.openclaw.requires` | `metadata.openclaw.requires` | Preserved for gating |
-| `metadata.openclaw.install` | `metadata.openclaw.install` | Preserved for install hints |
-| `.mcp.json` | `.mcp.json` | Project-level MCP discovery still works |
-| runtime `mcpServers` | `agentConfig.mcpServers` | Per-agent MCP override path |
+| OpenClaw surface             | Phantasy surface             | Notes                                                       |
+| ---------------------------- | ---------------------------- | ----------------------------------------------------------- |
+| `AGENTS.md`                  | `AGENTS.md`                  | Same role: workspace operating rules and local expectations |
+| `SKILL.md`                   | `SKILL.md`                   | Same progressive-disclosure skill model                     |
+| `metadata.openclaw.requires` | `metadata.openclaw.requires` | Preserved for gating                                        |
+| `metadata.openclaw.install`  | `metadata.openclaw.install`  | Preserved for install hints                                 |
+| `.mcp.json`                  | `.mcp.json`                  | Project-level MCP discovery still works                     |
+| runtime `mcpServers`         | `agentConfig.mcpServers`     | Per-agent MCP override path                                 |
 
 ## What Changes
 
-| OpenClaw habit | Phantasy equivalent |
-| --- | --- |
-| one terminal-first runtime story | terminal TUI, admin CMS web UI, and Party-HQ all sit on the same runtime |
-| ad hoc workspace identity | explicit presets such as `vtuber`, `operator`, and `developer` |
-| session recall as an external concern | markdown-first session history with ranked `/session-search` and `/session-list` |
+| OpenClaw habit                                  | Phantasy equivalent                                                                 |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------- |
+| one terminal-first runtime story                | terminal TUI, admin CMS web UI, and Party-HQ all sit on the same runtime            |
+| ad hoc workspace identity                       | explicit presets such as `vtuber`, `operator`, and `developer`                      |
+| session recall as an external concern           | markdown-first session history with ranked `/session-search` and `/session-list`    |
 | auto-generated skills mixed into the active set | reflection artifacts start as drafts and only enter skill discovery after promotion |
 
 ## Migration Steps
@@ -3463,8 +3528,8 @@ bun run dev
 
 - Admin UI: http://localhost:2000/admin
 - Health Check: http://localhost:2000/health
-- Agent API: http://localhost:2000/agent/*
-- Admin API: http://localhost:2000/admin/api/*
+- Agent API: http://localhost:2000/agent/\*
+- Admin API: http://localhost:2000/admin/api/\*
 
 ## Next Steps
 
@@ -3583,21 +3648,25 @@ URL: /docs/guides/NEON_SETUP
 ## Quick Start
 
 ### 1. Create a Neon Account
+
 1. Go to [console.neon.tech](https://console.neon.tech)
 2. Sign up for a free account (0.5GB storage, perfect for starting)
 
 ### 2. Create Your Database
+
 1. Click "New Project"
 2. Choose a region close to your users
 3. Select PostgreSQL version (16 recommended)
 4. Name your project (ex: "phantasy-agent")
 
 ### 3. Get Your Connection String
+
 1. In the Neon console, go to "Connection Details"
 2. Copy the connection string (looks like: `postgresql://user:pass@xxx.neon.tech/dbname`)
 3. **IMPORTANT**: For production, use the pooler endpoint (ends with `.pooler.neon.tech`)
 
 ### 4. Configure Your Environment
+
 ```bash
 # Copy the example env file
 cp .env.example .env
@@ -3610,6 +3679,7 @@ DATABASE_URL=postgresql://user:password@xxx.neon.tech/dbname?sslmode=require
 ```
 
 ### 5. Run Database Migrations
+
 ```bash
 # Install dependencies
 npm install
@@ -3621,6 +3691,7 @@ npm run db:migrate
 ## Performance Optimization
 
 ### Connection Pooling (CRITICAL)
+
 Neon provides a built-in connection pooler. **Always use it in production:**
 
 1. In Neon console, go to "Connection Pooling"
@@ -3631,33 +3702,40 @@ Neon provides a built-in connection pooler. **Always use it in production:**
 ### Best Practices for Neon
 
 #### 1. Use Fewer Connections
+
 ```javascript
 // ✅ Good - Limited connections
-DB_MAX_CONNECTIONS=10
+DB_MAX_CONNECTIONS = 10;
 
 // ❌ Bad - Too many connections
-DB_MAX_CONNECTIONS=100
+DB_MAX_CONNECTIONS = 100;
 ```
 
 #### 2. Enable Auto-Suspend
+
 - Neon auto-suspends after 5 minutes of inactivity
 - This saves money but first query after suspend takes ~1 second
 - Keep-alive queries can prevent suspension if needed
 
 #### 3. Use Prepared Statements
+
 Our adapter automatically uses prepared statements for:
+
 - Repeated queries
 - Protection against SQL injection
 - Better performance
 
 #### 4. Index Optimization
+
 We've created indexes for:
+
 - KV lookups by key
 - Prefix searches
 - JSONB queries
 - Recent data queries
 
 #### 5. JSONB for Flexibility
+
 ```sql
 -- We use JSONB for agent configs
 SELECT value->'providers'->'openai'
@@ -3672,13 +3750,16 @@ WHERE value @> '{"type": "agent"}';
 ## Monitoring
 
 ### Database Metrics
+
 Check in Neon console:
+
 - Active connections
 - Query performance
 - Storage usage
 - Compute hours used
 
 ### Application Metrics
+
 ```javascript
 // Get pool statistics
 const stats = db.getPoolStats();
@@ -3694,17 +3775,20 @@ app.get('/health', async (req, res) => {
 ## Cost Management
 
 ### Free Tier Limits
+
 - 0.5 GB storage
 - 3 GB-hours compute/month
 - Perfect for development and small projects
 
 ### When to Upgrade
+
 - More than 100 active users
 - Need > 0.5GB storage
 - Want longer history retention
 - Need point-in-time recovery > 7 days
 
 ### Pro Tier ($19/month)
+
 - 10 GB storage
 - 100 compute hours
 - 30-day point-in-time recovery
@@ -3713,6 +3797,7 @@ app.get('/health', async (req, res) => {
 ## Troubleshooting
 
 ### Connection Refused
+
 ```bash
 # Check if using correct endpoint
 # Direct: xxx.neon.tech:5432
@@ -3720,6 +3805,7 @@ app.get('/health', async (req, res) => {
 ```
 
 ### Too Many Connections
+
 ```bash
 # Reduce max connections
 DB_MAX_CONNECTIONS=10
@@ -3728,6 +3814,7 @@ DB_MAX_CONNECTIONS=10
 ```
 
 ### Slow Queries
+
 ```sql
 -- Check slow queries
 SELECT query, calls, mean_exec_time
@@ -3737,6 +3824,7 @@ LIMIT 10;
 ```
 
 ### Database Suspended
+
 - First query after suspension takes ~1 second
 - Normal behavior for serverless
 - Use keep-alive if needed
@@ -3756,16 +3844,19 @@ node scripts/import-to-neon.js
 ## Security
 
 ### Connection Security
+
 - Always use SSL (automatic with Neon)
 - Use connection pooler in production
 - Rotate passwords regularly
 
 ### API Key Storage
+
 - Never commit DATABASE_URL to git
 - Use environment variables
 - Consider using secrets management service
 
 ### IP Allowlisting (Optional)
+
 1. Go to Settings → IP Allow
 2. Add your server IPs
 3. Enhances security but not required
@@ -3773,10 +3864,12 @@ node scripts/import-to-neon.js
 ## Backup & Recovery
 
 ### Automatic Backups
+
 - Free tier: 7-day point-in-time recovery
 - Pro tier: 30-day point-in-time recovery
 
 ### Manual Backups
+
 ```bash
 # Export database
 pg_dump $DATABASE_URL > backup.sql
@@ -3895,6 +3988,7 @@ URL: /docs/guides/R2_QUICK_SETUP
 ## 🚀 Quick Start (5 Minutes)
 
 ### 1. Create CORS file (`cors.json`)
+
 ```json
 [
   {
@@ -3908,6 +4002,7 @@ URL: /docs/guides/R2_QUICK_SETUP
 ```
 
 ### 2. Apply CORS to your bucket
+
 ```bash
 # Install wrangler if needed
 npm install -g wrangler
@@ -3923,6 +4018,7 @@ wrangler r2 bucket cors get YOUR_BUCKET_NAME
 ```
 
 ### 3. Get your R2 credentials
+
 1. Go to [Cloudflare Dashboard](https://dash.cloudflare.com) → R2
 2. Click "Manage R2 API tokens"
 3. Create new API token with:
@@ -3935,33 +4031,37 @@ wrangler r2 bucket cors get YOUR_BUCKET_NAME
 
 ### 4. Configure in MediaTab
 
-| Field | Value |
-|-------|-------|
-| **Enable Media Storage** | ✅ Checked |
-| **Storage Provider** | Cloudflare R2 |
-| **S3 Endpoint** | `https://[ACCOUNT_ID].r2.cloudflarestorage.com` |
-| **Region** | `auto` |
-| **Bucket Name** | `your-bucket-name` |
-| **Access Key** | `[Your R2 Access Key ID]` |
-| **Secret Key** | `[Your R2 Secret Access Key]` |
-| **Public URL** (optional) | `https://pub-[HASH].r2.dev` or custom domain |
+| Field                     | Value                                           |
+| ------------------------- | ----------------------------------------------- |
+| **Enable Media Storage**  | ✅ Checked                                      |
+| **Storage Provider**      | Cloudflare R2                                   |
+| **S3 Endpoint**           | `https://[ACCOUNT_ID].r2.cloudflarestorage.com` |
+| **Region**                | `auto`                                          |
+| **Bucket Name**           | `your-bucket-name`                              |
+| **Access Key**            | `[Your R2 Access Key ID]`                       |
+| **Secret Key**            | `[Your R2 Secret Access Key]`                   |
+| **Public URL** (optional) | `https://pub-[HASH].r2.dev` or custom domain    |
 
 ### 5. Test Connection
+
 Click "Test Connection" button - you should see "✅ S3 connection successful"
 
 ## 🔍 Common Issues
 
 ### ❌ "Fetch failed" error
+
 1. Check CORS is applied: `wrangler r2 bucket cors get YOUR_BUCKET`
 2. Verify endpoint format: Must be `https://` not `http://`
 3. Check credentials are correct
 
 ### ❌ "403 Forbidden" error
+
 1. Verify Access Key has read/write permissions
 2. Check bucket name is correct
 3. Ensure bucket exists
 
 ### ❌ "Network error" or timeout
+
 1. Check if you're behind a firewall/VPN
 2. Try using a different network
 3. Verify R2 endpoint is accessible
@@ -3969,10 +4069,12 @@ Click "Test Connection" button - you should see "✅ S3 connection successful"
 ## 📝 Example Endpoint Formats
 
 ### ✅ Correct formats:
+
 - `https://abc123def456.r2.cloudflarestorage.com`
 - `https://your-account-id.r2.cloudflarestorage.com`
 
 ### ❌ Wrong formats:
+
 - `abc123def456.r2.cloudflarestorage.com` (missing https://)
 - `https://r2.cloudflarestorage.com` (missing account ID)
 - `https://abc123def456.r2.cloudflarestorage.com/bucket-name` (bucket goes in separate field)
@@ -3980,6 +4082,7 @@ Click "Test Connection" button - you should see "✅ S3 connection successful"
 ## 🎯 Test with curl
 
 Quick test to verify your setup:
+
 ```bash
 # Replace with your values
 ENDPOINT="https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com"
@@ -4005,6 +4108,7 @@ curl -X GET \
 
 Check the browser console (F12) and server logs for detailed error messages after applying the enhanced logging from this PR.
 
+
 ---
 
 
@@ -4015,6 +4119,7 @@ URL: /docs/guides/R2_CORS_SETUP
 # Cloudflare R2 CORS Configuration Guide
 
 ## Overview
+
 This guide explains how to configure CORS (Cross-Origin Resource Sharing) for your Cloudflare R2 bucket to work with the Phantasy agent media storage system.
 
 ## Required CORS Configuration
@@ -4031,23 +4136,9 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
       "http://localhost:2002",
       "http://localhost:2003"
     ],
-    "AllowedMethods": [
-      "GET",
-      "HEAD",
-      "PUT",
-      "POST",
-      "DELETE"
-    ],
-    "AllowedHeaders": [
-      "*"
-    ],
-    "ExposeHeaders": [
-      "ETag",
-      "Content-Type",
-      "Content-Length",
-      "x-amz-request-id",
-      "x-amz-id-2"
-    ],
+    "AllowedMethods": ["GET", "HEAD", "PUT", "POST", "DELETE"],
+    "AllowedHeaders": ["*"],
+    "ExposeHeaders": ["ETag", "Content-Type", "Content-Length", "x-amz-request-id", "x-amz-id-2"],
     "MaxAgeSeconds": 3600
   }
 ]
@@ -4063,13 +4154,7 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
       "https://admin.your-agent-domain.com",
       "https://api.your-agent-domain.com"
     ],
-    "AllowedMethods": [
-      "GET",
-      "HEAD",
-      "PUT",
-      "POST",
-      "DELETE"
-    ],
+    "AllowedMethods": ["GET", "HEAD", "PUT", "POST", "DELETE"],
     "AllowedHeaders": [
       "Authorization",
       "Content-Type",
@@ -4098,16 +4183,19 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
 ### Method 1: Using Wrangler CLI
 
 1. **Install Wrangler** (if not already installed):
+
    ```bash
    npm install -g wrangler
    ```
 
 2. **Login to Cloudflare**:
+
    ```bash
    wrangler login
    ```
 
 3. **Create a CORS configuration file** named `cors.json`:
+
    ```json
    [
      {
@@ -4121,6 +4209,7 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
    ```
 
 4. **Apply the CORS rules**:
+
    ```bash
    wrangler r2 bucket cors put [BUCKET_NAME] --file cors.json
    ```
@@ -4138,27 +4227,22 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
 4. **Find "CORS Policy"** section
 5. **Click "Add CORS Policy"**
 6. **Configure the following**:
-
    - **Allowed Origins**:
      - For development: Add all localhost ports
      - For production: Add your specific domains
-
    - **Allowed Methods**: Select all:
      - GET
      - HEAD
      - PUT
      - POST
      - DELETE
-
    - **Allowed Headers**:
      - Click "Allow all headers" OR
      - Specify the headers listed above
-
    - **Exposed Headers**: Add:
      - ETag
      - Content-Type
      - Content-Length
-
    - **Max Age**: 3600 (1 hour)
 
 7. **Save the configuration**
@@ -4168,6 +4252,7 @@ This guide explains how to configure CORS (Cross-Origin Resource Sharing) for yo
 Since R2 is S3-compatible, you can also use the AWS CLI:
 
 1. **Configure AWS CLI for R2**:
+
    ```bash
    aws configure set aws_access_key_id YOUR_R2_ACCESS_KEY
    aws configure set aws_secret_access_key YOUR_R2_SECRET_KEY
@@ -4227,16 +4312,19 @@ After setting up CORS, configure your MediaTab with:
 1. **Storage Provider**: Select "Cloudflare R2"
 
 2. **S3 Endpoint**:
+
    ```
    https://YOUR_ACCOUNT_ID.r2.cloudflarestorage.com
    ```
 
 3. **Region**:
+
    ```
    auto
    ```
 
 4. **Bucket Name**:
+
    ```
    your-bucket-name
    ```
@@ -4254,6 +4342,7 @@ After setting up CORS, configure your MediaTab with:
 ## Security Considerations
 
 ### For Production:
+
 1. **Never use wildcard (`*`) for AllowedOrigins** in production
 2. **Limit AllowedMethods** to only what you need
 3. **Specify exact headers** instead of using wildcard for AllowedHeaders
@@ -4261,6 +4350,7 @@ After setting up CORS, configure your MediaTab with:
 5. **Regularly review and update** your CORS policies
 
 ### For Development:
+
 - It's acceptable to use more permissive settings for local development
 - Remember to tighten security before deploying to production
 
@@ -4278,22 +4368,11 @@ If you need additional access control, you can also set a bucket policy:
       "Principal": {
         "AWS": ["*"]
       },
-      "Action": [
-        "s3:GetObject",
-        "s3:PutObject",
-        "s3:DeleteObject",
-        "s3:ListBucket"
-      ],
-      "Resource": [
-        "arn:aws:s3:::your-bucket-name/*",
-        "arn:aws:s3:::your-bucket-name"
-      ],
+      "Action": ["s3:GetObject", "s3:PutObject", "s3:DeleteObject", "s3:ListBucket"],
+      "Resource": ["arn:aws:s3:::your-bucket-name/*", "arn:aws:s3:::your-bucket-name"],
       "Condition": {
         "StringLike": {
-          "aws:Referer": [
-            "https://your-domain.com/*",
-            "http://localhost:*/*"
-          ]
+          "aws:Referer": ["https://your-domain.com/*", "http://localhost:*/*"]
         }
       }
     }
@@ -4343,11 +4422,13 @@ URL: /docs/guides/RELEASE_POLICY
 Release and Relicensing Policy
 
 Goals
+
 - Keep the repository and published framework artifacts aligned with the MIT license in the repo root.
 - Treat generated docs, live manifest inventories, and examples as part of that licensing surface so they do not drift.
 - Keep trademark policy and contribution policy aligned with the release surface so open-source code and official branding do not get conflated.
 
 Policy
+
 1. Current branch and released framework code: MIT.
 2. On release, update docs and generated inventories together with the code.
 3. If commercial add-ons exist, keep them out of the MIT-licensed core repo unless their licensing is made explicit and isolated.
@@ -4355,12 +4436,14 @@ Policy
 5. Contributions to the MIT core should remain inbound-equals-outbound unless and until a different contribution policy is explicitly adopted.
 
 Implementation Notes
+
 - The repository root `LICENSE` file is the source of truth.
 - Generated docs, manifest schemas, and example manifests should mirror the repo license.
 - Root `TRADEMARKS.md` is the source of truth for brand usage around the open-source repo.
 - `../development/contributing.md` is the source of truth for contribution hygiene expectations.
 
 Automation (optional)
+
 - Add a release check that validates `LICENSE`, docs, and live manifest inventories before tagging.
 
 
@@ -4454,7 +4537,7 @@ function MyComponent() {
 
   // Use agentId for display or downstream scoped APIs.
   // The main agent config route always resolves the active runtime.
-  const response = await fetch("/admin/api/agent");
+  const response = await fetch('/admin/api/agent');
 }
 ```
 
@@ -4550,6 +4633,7 @@ NODE_ENV=development              # Environment mode
 To run multiple agents simultaneously, deploy separate Phantasy instances with different environment variables and manage them from Party-HQ:
 
 #### Instance 1 (Primary Agent)
+
 ```bash
 AGENT_ID=default
 SERVER_PORT=2000
@@ -4558,6 +4642,7 @@ bun run start
 ```
 
 #### Instance 2 (Custom Agent)
+
 ```bash
 AGENT_ID=my-custom-agent
 SERVER_PORT=2002
@@ -4614,11 +4699,13 @@ tsx scripts/init-agent-v2.ts my-agent
 ### Configuration Not Persisting
 
 **Check**:
+
 1. Database connection is working
 2. `AGENT_ID` matches the agent in the database
 3. Frontend is using `useAgentId()` hook
 
 **Debug**:
+
 ```bash
 # Check database
 tsx scripts/test-config-persistence.ts
@@ -4630,11 +4717,13 @@ curl http://localhost:2000/admin/api/config/runtime
 ### Wrong Agent Loaded
 
 **Check** your `.env` file:
+
 ```bash
 grep AGENT_ID .env
 ```
 
 **Verify** the server is using the correct agent:
+
 ```bash
 # Server logs will show:
 # Runtime configuration requested { agentId: 'your-agent-id' }
@@ -4645,20 +4734,24 @@ grep AGENT_ID .env
 ## Best Practices
 
 ### 1. Use Environment Variables
+
 Never hardcode agent IDs. Always use `getActiveAgentId()` or `useAgentId()`.
 
 ❌ **Bad**:
+
 ```typescript
-const agentId = "default";
+const agentId = 'default';
 ```
 
 ✅ **Good**:
+
 ```typescript
 import { useAgentId } from '@admin/contexts/AgentContext';
 const agentId = useAgentId();
 ```
 
 ### 2. Initialize Before Use
+
 Always initialize agents in the database before starting the server:
 
 ```bash
@@ -4667,6 +4760,7 @@ AGENT_ID=my-agent bun run dev
 ```
 
 ### 3. Version Control
+
 Keep agent templates in `config/agents/` and commit them:
 
 ```
@@ -4678,6 +4772,7 @@ config/
 ```
 
 ### 4. Database Backups
+
 Backup your agent configurations:
 
 ```bash
@@ -4691,12 +4786,14 @@ pg_dump -t agent_configs -t config_audit_log DATABASE_URL > agent_backup.sql
 If you have existing code with hardcoded repo-specific agent IDs or `"single-agent"`:
 
 ### Before:
+
 ```typescript
-const agentId = "default";
+const agentId = 'default';
 const config = await getConfig(agentId);
 ```
 
 ### After:
+
 ```typescript
 import { getActiveAgentId } from '@/config/runtime-config';
 
@@ -4705,6 +4802,7 @@ const config = await getConfig(agentId);
 ```
 
 Or in React:
+
 ```typescript
 import { useAgentId } from '@admin/contexts/AgentContext';
 
@@ -4719,6 +4817,7 @@ function Component() {
 ## Support
 
 For issues or questions:
+
 - Check logs for agent ID resolution: `grep "Runtime configuration" logs/*`
 - Verify database has the agent: `SELECT * FROM agent_configs;`
 - Ensure environment variable is set: `echo $AGENT_ID`
@@ -4768,6 +4867,7 @@ Place your PNGTuber assets in:
 ```
 
 For example, for an agent named "kurisu":
+
 ```
 ./.phantasy/pngtuber/kurisu/
 ```
@@ -4875,16 +4975,16 @@ Starter preset path:
 
 #### Configuration Fields
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `url` | string | Base URL for avatar images (e.g., `/admin/avatars/kurisu`, `/admin/media/uploads/avatars/kurisu`, or `https://cdn.example.com/kurisu`) |
-| `cellWidth` | number | Image cell width in pixels (default: 16) |
-| `cellHeight` | number | Image cell height in pixels (default: 32) |
-| `flipHorizontal` | boolean | Flip image horizontally (default: false) |
-| `offsetPxX` | number | Horizontal offset in pixels |
-| `offsetPxY` | number | Vertical offset in pixels |
-| `expressions` | object | Mapping of expression names to outfit/expression/variation |
-| `outfits` | array | Available outfit directories |
+| Field            | Type    | Description                                                                                                                            |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `url`            | string  | Base URL for avatar images (e.g., `/admin/avatars/kurisu`, `/admin/media/uploads/avatars/kurisu`, or `https://cdn.example.com/kurisu`) |
+| `cellWidth`      | number  | Image cell width in pixels (default: 16)                                                                                               |
+| `cellHeight`     | number  | Image cell height in pixels (default: 32)                                                                                              |
+| `flipHorizontal` | boolean | Flip image horizontally (default: false)                                                                                               |
+| `offsetPxX`      | number  | Horizontal offset in pixels                                                                                                            |
+| `offsetPxY`      | number  | Vertical offset in pixels                                                                                                              |
+| `expressions`    | object  | Mapping of expression names to outfit/expression/variation                                                                             |
+| `outfits`        | array   | Available outfit directories                                                                                                           |
 
 ### Expression Auto-Switching
 
@@ -4923,6 +5023,7 @@ http://localhost:2000/admin/avatars/<agentId>/<outfit>/<expression>/<variation>/
 ```
 
 For example:
+
 - `http://localhost:2000/admin/avatars/kurisu/lab/idle/0/0.png`
 - `http://localhost:2000/admin/avatars/kurisu/casual/happy/0/0.png`
 
@@ -4963,11 +5064,11 @@ Phantasy keeps content, themes, and public APIs in one system, but lets you choo
 
 ## Modes
 
-| Mode | Embedded HTML site | Public content API | Intended use |
-| --- | --- | --- | --- |
-| `public` | Yes | Yes | Default CMS + website experience |
-| `private` | Admin preview only | No | Drafting or client review before launch |
-| `api-only` | No | Yes | Headless/Jamstack setups or external consumers |
+| Mode       | Embedded HTML site | Public content API | Intended use                                   |
+| ---------- | ------------------ | ------------------ | ---------------------------------------------- |
+| `public`   | Yes                | Yes                | Default CMS + website experience               |
+| `private`  | Admin preview only | No                 | Drafting or client review before launch        |
+| `api-only` | No                 | Yes                | Headless/Jamstack setups or external consumers |
 
 Legacy config values still work:
 
@@ -5056,16 +5157,16 @@ Chronicle is the Phantasy Agent's built-in journaling and blogging system. It en
 
 ### File Structure
 
-| File | Purpose |
-|---|---|
-| `src/plugins/chronicle-plugin.ts` | Plugin entry point, REST API, ChronicleEntry interface |
-| `src/services/scheduling/chronicle/chronicle-service.ts` | Core service: entry creation, approval, daily journal, stats |
-| `src/services/scheduling/chronicle/content-generator.ts` | Template-driven AI content generation |
-| `src/services/scheduling/chronicle/slug-utils.ts` | URL-friendly slug generation |
-| `src/services/scheduling/chronicle/blog-service.ts` | Public blog queries, RSS/JSON Feed/sitemap generation |
-| `src/server/routes/blog-routes.ts` | Express router for public blog endpoints |
-| `src/services/scheduling/chronicle/syndication-service.ts` | Cross-platform publishing (Twitter, Discord) |
-| `src/admin-ui/components/tabs/ChronicleTab.tsx` | Admin dashboard UI |
+| File                                                       | Purpose                                                      |
+| ---------------------------------------------------------- | ------------------------------------------------------------ |
+| `src/plugins/chronicle-plugin.ts`                          | Plugin entry point, REST API, ChronicleEntry interface       |
+| `src/services/scheduling/chronicle/chronicle-service.ts`   | Core service: entry creation, approval, daily journal, stats |
+| `src/services/scheduling/chronicle/content-generator.ts`   | Template-driven AI content generation                        |
+| `src/services/scheduling/chronicle/slug-utils.ts`          | URL-friendly slug generation                                 |
+| `src/services/scheduling/chronicle/blog-service.ts`        | Public blog queries, RSS/JSON Feed/sitemap generation        |
+| `src/server/routes/blog-routes.ts`                         | Express router for public blog endpoints                     |
+| `src/services/scheduling/chronicle/syndication-service.ts` | Cross-platform publishing (Twitter, Discord)                 |
+| `src/admin-ui/components/tabs/ChronicleTab.tsx`            | Admin dashboard UI                                           |
 
 ---
 
@@ -5073,25 +5174,25 @@ Chronicle is the Phantasy Agent's built-in journaling and blogging system. It en
 
 ```typescript
 interface ChronicleEntry {
-  id: string;                     // Unique ID (ent_<timestamp>_<random>)
-  title?: string;                 // Entry title
-  content: string;                // Markdown content body
-  tags?: string[];                // Up to 20 tags
-  author?: string;                // "agent" or username
+  id: string; // Unique ID (ent_<timestamp>_<random>)
+  title?: string; // Entry title
+  content: string; // Markdown content body
+  tags?: string[]; // Up to 20 tags
+  author?: string; // "agent" or username
   visibility?: 'private' | 'public' | 'unlisted';
 
   // Publishing lifecycle
-  slug?: string;                  // URL-friendly identifier (auto-generated)
-  excerpt?: string;               // Short summary for listings/social
+  slug?: string; // URL-friendly identifier (auto-generated)
+  excerpt?: string; // Short summary for listings/social
   status?: 'draft' | 'published' | 'archived';
-  publishedAt?: number;           // Distinct from createdAt
-  featuredImage?: string;         // Hero image URL
+  publishedAt?: number; // Distinct from createdAt
+  featuredImage?: string; // Hero image URL
 
   // Journaling metadata
-  mood?: string;                  // Emotional context
-  template?: string;              // Which template generated this
+  mood?: string; // Emotional context
+  template?: string; // Which template generated this
   metadata?: Record<string, any>; // Extensible bucket
-  publishedPlatforms?: string[];  // Syndication tracking
+  publishedPlatforms?: string[]; // Syndication tracking
 
   createdAt: number;
   updatedAt: number;
@@ -5115,14 +5216,14 @@ Example: `"My First Reflection on AI Consciousness"` → `my-first-reflection-on
 
 The content generator (`content-generator.ts`) supports 6 template categories with weighted random selection:
 
-| Template | Weight | Purpose |
-|---|---|---|
-| `daily_journal` | 30% | Reflections on today's interactions and learnings |
-| `calendar` | 20% | Calendar-aware entries with temporal context (day, season, month) |
-| `thought_dump` | 20% | Stream-of-consciousness, unfiltered observations |
-| `learning_notes` | 15% | Synthesized knowledge entries |
-| `weekly_summary` | 10% | Week-in-review across projects and conversations |
-| `milestone_reflection` | 5% | Celebrate achievements and reflect on growth |
+| Template               | Weight | Purpose                                                           |
+| ---------------------- | ------ | ----------------------------------------------------------------- |
+| `daily_journal`        | 30%    | Reflections on today's interactions and learnings                 |
+| `calendar`             | 20%    | Calendar-aware entries with temporal context (day, season, month) |
+| `thought_dump`         | 20%    | Stream-of-consciousness, unfiltered observations                  |
+| `learning_notes`       | 15%    | Synthesized knowledge entries                                     |
+| `weekly_summary`       | 10%    | Week-in-review across projects and conversations                  |
+| `milestone_reflection` | 5%     | Celebrate achievements and reflect on growth                      |
 
 Each template contains multiple prompt variants and configurable parameters (mood, focus, subject, etc.).
 
@@ -5135,7 +5236,7 @@ The `calendar` template injects real-time temporal context into prompts:
 - **season**: spring (Mar-May), summer (Jun-Aug), autumn (Sep-Nov), winter (Dec-Feb)
 - **dateStr**: Full formatted date string
 
-Example prompt: *"It's Monday, February 10, 2026. Write a journal entry that reflects the energy and rhythm of this particular day in winter."*
+Example prompt: _"It's Monday, February 10, 2026. Write a journal entry that reflects the energy and rhythm of this particular day in winter."_
 
 ---
 
@@ -5186,14 +5287,14 @@ Routes serve entries with `visibility: 'public'` and `status: 'published'`, but 
 - `private`: routes are admin/operator preview only
 - `api-only`: embedded blog HTML is disabled
 
-| Route | Content-Type | Purpose |
-|---|---|---|
-| `GET /blog` | HTML or JSON | Paginated entry listing |
-| `GET /blog/:slug` | HTML or JSON | Single post with Open Graph meta tags |
-| `GET /blog/tag/:tag` | HTML or JSON | Entries filtered by tag |
-| `GET /blog/feed.xml` | RSS+XML | RSS 2.0 feed (up to 50 entries) |
-| `GET /blog/feed.json` | JSON Feed | JSON Feed 1.1 for headless CMS |
-| `GET /blog/sitemap.xml` | XML | SEO sitemap |
+| Route                   | Content-Type | Purpose                               |
+| ----------------------- | ------------ | ------------------------------------- |
+| `GET /blog`             | HTML or JSON | Paginated entry listing               |
+| `GET /blog/:slug`       | HTML or JSON | Single post with Open Graph meta tags |
+| `GET /blog/tag/:tag`    | HTML or JSON | Entries filtered by tag               |
+| `GET /blog/feed.xml`    | RSS+XML      | RSS 2.0 feed (up to 50 entries)       |
+| `GET /blog/feed.json`   | JSON Feed    | JSON Feed 1.1 for headless CMS        |
+| `GET /blog/sitemap.xml` | XML          | SEO sitemap                           |
 
 ### Content Negotiation
 
@@ -5225,10 +5326,10 @@ The syndication service (`syndication-service.ts`) follows the **POSSE** princip
 
 ### Supported Platforms
 
-| Platform | Format | Details |
-|---|---|---|
+| Platform      | Format     | Details                                                         |
+| ------------- | ---------- | --------------------------------------------------------------- |
 | **Twitter/X** | Plain text | Excerpt + blog URL, truncated at word boundary to fit 280 chars |
-| **Discord** | Rich embed | Themed accent color, tags, mood, featured image, timestamp |
+| **Discord**   | Rich embed | Themed accent color, tags, mood, featured image, timestamp      |
 
 ### How It Works
 
@@ -5248,26 +5349,26 @@ Requires `platforms.discord.chronicleChannelId` or `discord_channel_id` in agent
 
 The Chronicle plugin exposes admin endpoints (authenticated via session/bearer token):
 
-| Method | Endpoint | Permission | Description |
-|---|---|---|---|
-| `GET` | `/api/chronicle/entries` | viewer+ | List entries (paginated, filterable) |
-| `GET` | `/api/chronicle/entries/:id` | viewer+ | Get single entry |
-| `POST` | `/api/chronicle/entries` | editor+ | Create new entry |
-| `PUT` | `/api/chronicle/entries/:id` | editor+ | Update entry |
-| `DELETE` | `/api/chronicle/entries/:id` | admin | Delete entry |
-| `POST` | `/api/chronicle/approve/:id` | editor+ | Approve pending entry |
-| `POST` | `/api/chronicle/reject/:id` | editor+ | Reject pending entry |
+| Method   | Endpoint                     | Permission | Description                          |
+| -------- | ---------------------------- | ---------- | ------------------------------------ |
+| `GET`    | `/api/chronicle/entries`     | viewer+    | List entries (paginated, filterable) |
+| `GET`    | `/api/chronicle/entries/:id` | viewer+    | Get single entry                     |
+| `POST`   | `/api/chronicle/entries`     | editor+    | Create new entry                     |
+| `PUT`    | `/api/chronicle/entries/:id` | editor+    | Update entry                         |
+| `DELETE` | `/api/chronicle/entries/:id` | admin      | Delete entry                         |
+| `POST`   | `/api/chronicle/approve/:id` | editor+    | Approve pending entry                |
+| `POST`   | `/api/chronicle/reject/:id`  | editor+    | Reject pending entry                 |
 
 ### Query Parameters (GET /entries)
 
-| Parameter | Type | Default | Description |
-|---|---|---|---|
-| `page` | number | 1 | Page number |
-| `pageSize` / `limit` | number | 20 | Entries per page (max 200) |
-| `q` | string | — | Full-text search (title, content, tags) |
-| `visibility` | string | `all` | Filter: `private`, `public`, `unlisted`, `all` |
-| `tags` | string | — | Comma-separated tag filter |
-| `sort` | string | `newest` | Sort order: `newest`, `oldest`, `title` |
+| Parameter            | Type   | Default  | Description                                    |
+| -------------------- | ------ | -------- | ---------------------------------------------- |
+| `page`               | number | 1        | Page number                                    |
+| `pageSize` / `limit` | number | 20       | Entries per page (max 200)                     |
+| `q`                  | string | —        | Full-text search (title, content, tags)        |
+| `visibility`         | string | `all`    | Filter: `private`, `public`, `unlisted`, `all` |
+| `tags`               | string | —        | Comma-separated tag filter                     |
+| `sort`               | string | `newest` | Sort order: `newest`, `oldest`, `title`        |
 
 ---
 
@@ -5327,29 +5428,29 @@ Chronicle is configured via `chronicleConfig` in the agent configuration:
 
 ### Configuration Fields
 
-| Field | Type | Default | Description |
-|---|---|---|---|
-| `enabled` | boolean | `true` | Enable/disable the Chronicle plugin |
-| `storageProvider` | `"kv"` \| `"external"` | `"kv"` | Storage backend |
-| `webhookUrl` | string | — | Webhook URL for frontend notifications |
-| **autonomousPosting** | | | |
-| `.enabled` | boolean | `false` | Enable scheduled entry generation |
-| `.intervalMinutes` | number | `1440` | Generation interval (min 15) |
-| `.requireApproval` | boolean | `true` | Require human approval before publishing |
-| `.templates` | string[] | `["daily_journal", "thought_dump"]` | Active template categories |
-| `.postingHours` | string | `"0-23"` | Allowed hours for posting (24h format) |
-| `.maxPostsPerDay` | number | `3` | Daily entry limit (1-50) |
-| **syndication** | | | |
-| `.enabled` | boolean | `false` | Enable cross-platform publishing |
-| `.platforms` | string[] | `[]` | Target platforms: `"twitter"`, `"discord"` |
-| `.includeLink` | boolean | `true` | Include blog URL in syndicated posts |
-| **blog** | | | |
-| `.enabled` | boolean | `true` | Enable public blog routes |
-| `.title` | string | `"Chronicle"` | Blog title (HTML + RSS) |
-| `.description` | string | *default* | Blog description |
-| `.customCss` | string | — | Additional CSS injected into HTML |
-| `.postsPerPage` | number | `10` | Entries per page (1-100) |
-| `.showAuthor` | boolean | `true` | Display author on posts |
+| Field                 | Type                   | Default                             | Description                                |
+| --------------------- | ---------------------- | ----------------------------------- | ------------------------------------------ |
+| `enabled`             | boolean                | `true`                              | Enable/disable the Chronicle plugin        |
+| `storageProvider`     | `"kv"` \| `"external"` | `"kv"`                              | Storage backend                            |
+| `webhookUrl`          | string                 | —                                   | Webhook URL for frontend notifications     |
+| **autonomousPosting** |                        |                                     |                                            |
+| `.enabled`            | boolean                | `false`                             | Enable scheduled entry generation          |
+| `.intervalMinutes`    | number                 | `1440`                              | Generation interval (min 15)               |
+| `.requireApproval`    | boolean                | `true`                              | Require human approval before publishing   |
+| `.templates`          | string[]               | `["daily_journal", "thought_dump"]` | Active template categories                 |
+| `.postingHours`       | string                 | `"0-23"`                            | Allowed hours for posting (24h format)     |
+| `.maxPostsPerDay`     | number                 | `3`                                 | Daily entry limit (1-50)                   |
+| **syndication**       |                        |                                     |                                            |
+| `.enabled`            | boolean                | `false`                             | Enable cross-platform publishing           |
+| `.platforms`          | string[]               | `[]`                                | Target platforms: `"twitter"`, `"discord"` |
+| `.includeLink`        | boolean                | `true`                              | Include blog URL in syndicated posts       |
+| **blog**              |                        |                                     |                                            |
+| `.enabled`            | boolean                | `true`                              | Enable public blog routes                  |
+| `.title`              | string                 | `"Chronicle"`                       | Blog title (HTML + RSS)                    |
+| `.description`        | string                 | _default_                           | Blog description                           |
+| `.customCss`          | string                 | —                                   | Additional CSS injected into HTML          |
+| `.postsPerPage`       | number                 | `10`                                | Entries per page (1-100)                   |
+| `.showAuthor`         | boolean                | `true`                              | Display author on posts                    |
 
 ---
 
@@ -5400,18 +5501,21 @@ Phantasy supports running AI models entirely in your browser using WebGPU. These
 **No API keys required**
 
 Chatterbox provides zero-shot voice cloning in the browser:
+
 - Record a 5-10 second voice sample
 - Generate speech in that voice
 - Adjust expressiveness (0-1.5)
 - WebGPU acceleration with WASM fallback
 
 **Features:**
+
 - Zero-shot voice cloning
 - Expressiveness control
 - WebGPU acceleration
 - Offline after first load
 
 **Known Limitations:**
+
 - No paralinguistic tag support ([laugh], [sigh] tags ignored)
 - First visit requires model download (~1.5GB)
 - Audio limited to ~5-10 seconds per call (longer text should be split)
@@ -5428,6 +5532,7 @@ Browser-based LLM inference using MLC AI's WebLLM.
 **Core Runtime Impact:** Optional. Removing it disables browser-local LLMs without breaking the server/runtime provider stack.
 
 **Available Models:**
+
 - Llama 3.1 8B (~4GB)
 - Gemma 2 2B (~1.4GB)
 - Phi 3.5 Mini (~2.5GB)
@@ -5444,16 +5549,19 @@ Browser-based LLM inference using MLC AI's WebLLM.
 Browser-based image generation using web-txt2img library.
 
 **Available Models:**
+
 - **SD-Turbo** - Fast single-step diffusion, 512×512 output, seeded generation support
 - **Janus-Pro-1B** - Higher quality autoregressive model, better prompts understanding
 
 **Features:**
+
 - Generate images entirely in browser
 - No API keys required
 - WebGPU acceleration
 - Cached after first download
 
 **Known Limitations:**
+
 - Fixed output size (512×512 for SD-Turbo)
 - Janus has limited controls (no seed/size)
 
@@ -5475,12 +5583,12 @@ This allows voice profiles to persist across sessions and work with both browser
 
 Browser-based providers require WebGPU support:
 
-| Browser | WebGPU Support |
-|---------|---------------|
-| Chrome 113+ | ✓ Full |
-| Edge 113+ | ✓ Full |
-| Firefox | ✗ None |
-| Safari 18+ | △ Partial |
+| Browser     | WebGPU Support |
+| ----------- | -------------- |
+| Chrome 113+ | ✓ Full         |
+| Edge 113+   | ✓ Full         |
+| Firefox     | ✗ None         |
+| Safari 18+  | △ Partial      |
 
 If WebGPU is unavailable, the Admin UI will show a message directing users to select an alternative provider (Venice, OpenAI, etc.).
 
@@ -5515,6 +5623,7 @@ Phantasy's browser UI can expose browser-local providers immediately, but the co
 ## Fallback Behavior
 
 When WebGPU is unavailable:
+
 1. **Voice:** Users can select Venice AI (Kokoro), OpenAI TTS, or other providers
 2. **LLM:** Users can select cloud providers like Chutes, RedPill, etc.
 
@@ -5523,6 +5632,7 @@ All providers remain available in the Admin UI under the Providers tab.
 ## Browser Cache
 
 Model files are cached by the browser after first download:
+
 - Subsequent visits load from cache (much faster)
 - Users can clear cache via browser settings if needed
 - Cache size: ~1.5-4GB depending on loaded models
@@ -5530,6 +5640,7 @@ Model files are cached by the browser after first download:
 ## Security & Privacy
 
 All inference runs locally on the user's device:
+
 - No data sent to external servers for inference
 - Voice samples stay on device
 - No API key exposure risk
@@ -5604,13 +5715,13 @@ Phantasy has five extension surfaces. They solve different problems and should n
 
 ## Quick Map
 
-| Need | Use | Why |
-|------|-----|-----|
-| Workspace-specific operating behavior | `AGENTS.md` | Repo or workspace instructions |
-| Teach the model how to do something | `SKILL.md` | Declarative instructions, examples, progressive disclosure |
-| Give the model executable external tools | MCP | Real API and system tool access |
-| Add runtime capability or platform integration | Plugin | Deeper runtime hooks, tools, lifecycle behavior |
-| Bundle first-party capability | Capability | Stable set of built-in plugins selected as one unit |
+| Need                                           | Use         | Why                                                        |
+| ---------------------------------------------- | ----------- | ---------------------------------------------------------- |
+| Workspace-specific operating behavior          | `AGENTS.md` | Repo or workspace instructions                             |
+| Teach the model how to do something            | `SKILL.md`  | Declarative instructions, examples, progressive disclosure |
+| Give the model executable external tools       | MCP         | Real API and system tool access                            |
+| Add runtime capability or platform integration | Plugin      | Deeper runtime hooks, tools, lifecycle behavior            |
+| Bundle first-party capability                  | Capability  | Stable set of built-in plugins selected as one unit        |
 
 ## The Mental Model
 
@@ -5783,6 +5894,7 @@ URL: /docs/integrations/live2d
 ## Overview
 
 Live2D provides smooth 2D avatar animation with:
+
 - Real-time parameter control
 - Expression switching
 - Motion playback
@@ -5791,6 +5903,7 @@ Live2D provides smooth 2D avatar animation with:
 ## Setup
 
 See the detailed guides:
+
 - [Live2D Setup](/docs/guides/LIVE2D_SETUP)
 - [Live2D Production Ready](/docs/guides/LIVE2D_PROD_READY)
 
@@ -5819,12 +5932,12 @@ Repo strategy: [Party-HQ Control Plane](/docs/architecture/party-hq-control-plan
 
 Phantasy exposes four Party-HQ surfaces:
 
-| Surface | Path | Purpose |
-| --- | --- | --- |
-| Approval callback | `/admin/api/webhooks/party-hq` | Receives approved tweets and posts through the local X integration |
-| Character card | `/admin/api/character-card` | Exposes agent identity, avatars, and personality for Party-HQ rendering |
-| Integration status | `/admin/api/integrations/party-hq/status` | Shows whether the bridge is configured and which endpoints are active |
-| Runtime bridge | `src/plugins/x/party-hq-sync-service.ts` | Registers the agent with Party-HQ on boot and sends heartbeats, traces, and run results |
+| Surface            | Path                                      | Purpose                                                                                 |
+| ------------------ | ----------------------------------------- | --------------------------------------------------------------------------------------- |
+| Approval callback  | `/admin/api/webhooks/party-hq`            | Receives approved tweets and posts through the local X integration                      |
+| Character card     | `/admin/api/character-card`               | Exposes agent identity, avatars, and personality for Party-HQ rendering                 |
+| Integration status | `/admin/api/integrations/party-hq/status` | Shows whether the bridge is configured and which endpoints are active                   |
+| Runtime bridge     | `src/plugins/x/party-hq-sync-service.ts`  | Registers the agent with Party-HQ on boot and sends heartbeats, traces, and run results |
 
 ## Config
 
@@ -5931,7 +6044,6 @@ Complete guide for setting up Twitch integration.
 Detailed setup available at: [Twitch Setup Guide](/docs/integrations/twitch-setup-guide)
 
 
-
 ---
 
 
@@ -6031,11 +6143,11 @@ Generate a token with the standard Twitch OAuth authorize URL:
 
 Authorize URL:
 
-   ```
-   https://id.twitch.tv/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:read+chat:edit+channel:manage:broadcast+channel:read:subscriptions+moderator:manage:banned_users+channel:manage:polls+clips:edit
-   ```
+```
+https://id.twitch.tv/oauth2/authorize?client_id=YOUR_CLIENT_ID&redirect_uri=http://localhost&response_type=token&scope=chat:read+chat:edit+channel:manage:broadcast+channel:read:subscriptions+moderator:manage:banned_users+channel:manage:polls+clips:edit
+```
 
-   (Replace `YOUR_CLIENT_ID` with your actual Client ID)
+(Replace `YOUR_CLIENT_ID` with your actual Client ID)
 
 5. You will be redirected to a URL like: `http://localhost/#access_token=...`
 6. Copy the **access_token** value (the long string after `access_token=` and before `&`)
@@ -6169,6 +6281,7 @@ Once your bot is working, you can use these advanced features:
 Your agent can update your stream title and category:
 
 **Example Chat Message to Agent**:
+
 ```
 Change my stream title to "Building a cool AI bot!" and set the game to "Software and Game Development"
 ```
@@ -6178,6 +6291,7 @@ The agent will use the `twitch_update_channel` tool automatically.
 ### Create Clips
 
 **Example**:
+
 ```
 Create a clip of the last 30 seconds!
 ```
@@ -6187,6 +6301,7 @@ The agent uses the `twitch_create_clip` tool.
 ### Moderation
 
 **Example** (if bot has moderator permissions):
+
 ```
 Timeout the user "SpamBot123" for 10 minutes
 ```
@@ -6194,6 +6309,7 @@ Timeout the user "SpamBot123" for 10 minutes
 ### Polls
 
 **Example**:
+
 ```
 Create a poll asking "What should we build next?" with choices: "Discord Bot", "Twitter Bot", "Web App"
 ```
@@ -6205,11 +6321,13 @@ Create a poll asking "What should we build next?" with choices: "Discord Bot", "
 ### ❌ "Failed to connect to Twitch IRC"
 
 **Possible Causes**:
+
 - Incorrect access token
 - Token expired (tokens last ~60 days)
 - Invalid Client ID or Client Secret
 
 **Solution**:
+
 1. Generate a new access token using the steps above
 2. Update your configuration in Admin UI
 3. Try starting the bot again
@@ -6219,11 +6337,13 @@ Create a poll asking "What should we build next?" with choices: "Discord Bot", "
 ### ❌ Bot appears offline in chat
 
 **Possible Causes**:
+
 - Bot not started
 - Connection lost
 - Twitch server issues
 
 **Solution**:
+
 1. Check bot status in Admin UI
 2. Click **"Stop Bot"** then **"Start Bot"** to reconnect
 3. Check your internet connection
@@ -6233,6 +6353,7 @@ Create a poll asking "What should we build next?" with choices: "Discord Bot", "
 ### ❌ Bot doesn't respond to mentions
 
 **Check These Settings**:
+
 1. Go to Twitch plugin configuration
 2. Verify **"Respond to Mentions"** is toggled ON
 3. Verify **"Enable Chat Responses"** is toggled ON
@@ -6247,6 +6368,7 @@ Create a poll asking "What should we build next?" with choices: "Discord Bot", "
 Twitch limits how many messages bots can send to prevent spam.
 
 **Solution**:
+
 - Default limit is 10 messages per minute
 - Add 3-second cooldown between messages
 - These are already configured in the plugin defaults
@@ -6256,11 +6378,13 @@ Twitch limits how many messages bots can send to prevent spam.
 ### ❌ Bot can't create clips or polls
 
 **Possible Causes**:
+
 - Your access token doesn't have the required scopes
 - Channel must be live for clips
 - Channel must be affiliate or partner for polls
 
 **Solution**:
+
 1. Generate a new token with all the required scopes listed earlier
 2. Make sure your stream is live before creating clips
 3. Verify your channel status (affiliate/partner)
@@ -6288,6 +6412,7 @@ Twitch limits how many messages bots can send to prevent spam.
 ### Q: Is this against Twitch TOS?
 
 **A**: No! Using approved bots via the official IRC and Helix APIs is allowed. Just make sure to:
+
 - Respect rate limits
 - Don't spam
 - Follow Twitch Community Guidelines
@@ -6295,6 +6420,7 @@ Twitch limits how many messages bots can send to prevent spam.
 ### Q: Can the bot be a moderator?
 
 **A**: Yes! To give the bot moderator powers:
+
 1. Type this in your Twitch chat: `/mod YourBotUsername`
 2. The bot will gain moderator permissions
 3. It can then use moderation tools like timeout
@@ -6356,7 +6482,6 @@ TWITTER_BEARER_TOKEN=...
 - [Twitter Plugin Configuration](/docs/plugins/platforms/twitter)
 
 
-
 ---
 
 
@@ -6371,6 +6496,7 @@ URL: /docs/integrations/vrm
 ## Overview
 
 Phantasy supports VRM 3D avatars with:
+
 - Real-time lip sync (audio-driven)
 - Expression control (happy, sad, angry, etc.)
 - Mixamo animation support
@@ -6406,16 +6532,16 @@ In your agent config, add VRM settings:
 
 ## Configuration Options
 
-| Option | Type | Description |
-|--------|------|-------------|
-| `url` | string | URL to the VRM model file |
-| `enableLipSync` | boolean | Enable audio-driven lip sync |
-| `enableAutoRotate` | boolean | Auto-rotate the avatar |
-| `initialRotation` | number | Initial rotation in degrees |
-| `animations` | object | Mixamo animation configuration |
-| `autoplay` | boolean | Auto-play default animation |
-| `entranceEnabled` | boolean | Play entrance animation on load |
-| `cameraPosition` | object | Initial camera position |
+| Option             | Type    | Description                     |
+| ------------------ | ------- | ------------------------------- |
+| `url`              | string  | URL to the VRM model file       |
+| `enableLipSync`    | boolean | Enable audio-driven lip sync    |
+| `enableAutoRotate` | boolean | Auto-rotate the avatar          |
+| `initialRotation`  | number  | Initial rotation in degrees     |
+| `animations`       | object  | Mixamo animation configuration  |
+| `autoplay`         | boolean | Auto-play default animation     |
+| `entranceEnabled`  | boolean | Play entrance animation on load |
+| `cameraPosition`   | object  | Initial camera position         |
 
 ## Animations
 
@@ -6451,6 +6577,7 @@ Lip sync is automatically enabled when `enableLipSync` is true. The avatar's mou
 ## TTS Integration
 
 VRM avatars work seamlessly with TTS. When the agent speaks:
+
 1. Audio is generated via TTS provider
 2. Lip sync animates the mouth based on audio
 3. Expression changes can be triggered by sentiment analysis
@@ -6594,18 +6721,14 @@ npm run build
 ## Minimal Example
 
 ```ts
-import {
-  BasePlugin,
-  type PluginContext,
-  type PluginTool,
-} from "@phantasy/agent/plugins";
+import { BasePlugin, type PluginContext, type PluginTool } from '@phantasy/agent/plugins';
 
 export class MyPlugin extends BasePlugin {
-  name = "my-plugin";
-  version = "1.0.0";
-  description = "Example plugin";
-  protected workspace = "operations" as const;
-  protected extensionKind = "capability" as const;
+  name = 'my-plugin';
+  version = '1.0.0';
+  description = 'Example plugin';
+  protected workspace = 'operations' as const;
+  protected extensionKind = 'capability' as const;
 
   async beforeChat(context: PluginContext) {
     return { shouldContinue: true };
@@ -6614,15 +6737,15 @@ export class MyPlugin extends BasePlugin {
   getTools(): PluginTool[] {
     return [
       {
-        name: "my_tool",
-        description: "Does something useful",
+        name: 'my_tool',
+        description: 'Does something useful',
         parameters: {
-          type: "object",
-          required: ["input"],
+          type: 'object',
+          required: ['input'],
           properties: {
             input: {
-              type: "string",
-              description: "Input value",
+              type: 'string',
+              description: 'Input value',
             },
           },
         },
@@ -6752,6 +6875,7 @@ The Plugin Marketplace is your one-stop shop for extending your Phantasy Agent w
 ### What Can Plugins Do?
 
 Plugins can add:
+
 - 🎮 **Platform Integrations** (Twitch, Discord, Twitter, YouTube, etc.)
 - 🤖 **AI Tools** (Image generation, voice synthesis, translation)
 - 📊 **Analytics** (Usage tracking, sentiment analysis)
@@ -6785,6 +6909,7 @@ The Marketplace tab labels are the source of truth. The UI changes faster than s
 ### Featured Plugins (One-Click Install)
 
 The marketplace showcases featured plugins that are:
+
 - ✅ Tested and verified by the Phantasy team
 - ✅ Actively maintained
 - ✅ Well-documented
@@ -6805,11 +6930,13 @@ The plugin is now installed and ready to configure!
 Can't find what you're looking for? Use the search and filter tools:
 
 **Search Bar:**
+
 - Type plugin names, keywords, or descriptions
 - Results update in real-time
 - Example searches: "twitch", "discord bot", "image generation"
 
 **Category Filter:**
+
 - Select from categories like:
   - 🎮 **Streaming** - Twitch, YouTube Live, etc.
   - 💬 **Social Media** - Twitter, Discord, Instagram
@@ -6835,18 +6962,21 @@ Want to install a plugin not in the marketplace? Use the **Custom Install** feat
 Select the appropriate type based on your plugin source:
 
 #### Git Repository
+
 - **When to use:** Plugin hosted on GitHub, GitLab, or other git platforms
 - **Example:** `https://github.com/username/my-plugin`
 - **Options:**
   - Branch: Specify a branch (default: `main`)
 
 #### NPM Package
+
 - **When to use:** Plugin published to NPM registry
 - **Example:** `@phantasy/plugin-example` or `phantasy-plugin-example`
 - **Options:**
   - Version: Specify a version (default: `latest`)
 
 #### ZIP Archive
+
 - **When to use:** Plugin distributed as a .zip file via URL
 - **Example:** `https://example.com/plugins/my-plugin.zip`
 - **Note:** ZIP must contain a valid `phantasy.plugin.json` manifest or `package.json#phantasy` metadata
@@ -6935,6 +7065,7 @@ Keep your plugins up-to-date to get the latest features and security fixes.
 ### Automatic Update Checks
 
 The system automatically checks for updates when you:
+
 - Open the Plugins page
 - Click the refresh button
 - Restart the agent
@@ -6961,12 +7092,14 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### ❌ "Installation Failed" Error
 
 **Possible Causes:**
+
 - Invalid repository URL or package name
 - Plugin already installed
 - Network connection issues
 - Missing required dependencies
 
 **Solutions:**
+
 1. Verify the source URL is correct and accessible
 2. Check if plugin is already installed in "My Plugins"
 3. Try refreshing the marketplace
@@ -6978,12 +7111,14 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### ❌ "Plugin Not Found" (Custom Install)
 
 **Possible Causes:**
+
 - Incorrect Git URL
 - Private repository without access token
 - NPM package doesn't exist
 - ZIP URL returns 404
 
 **Solutions:**
+
 1. Double-check the URL/package name for typos
 2. Ensure repository is public or you have access
 3. Try visiting the URL in a browser to verify
@@ -6994,11 +7129,13 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### ❌ "Invalid Plugin Manifest"
 
 **Possible Causes:**
+
 - Plugin missing `phantasy.plugin.json` or `package.json#phantasy` metadata
 - Malformed JSON in manifest
 - Missing required fields (name, version)
 
 **Solutions:**
+
 1. Contact the plugin developer
 2. Check if plugin is compatible with Phantasy Agent
 3. Verify plugin is in the correct format (see Developer Guide)
@@ -7008,11 +7145,13 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### ❌ Plugin Won't Start After Install
 
 **Possible Causes:**
+
 - Missing configuration (API keys, etc.)
 - Dependency conflicts
 - Incompatible plugin version
 
 **Solutions:**
+
 1. Configure the plugin in "My Plugins" → "Configure"
 2. Check plugin documentation for required setup
 3. Review logs in Admin UI for error details
@@ -7026,6 +7165,7 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 **Don't worry!** The update system creates automatic backups.
 
 **Recovery Steps:**
+
 1. The system automatically rolls back to the previous version on failure
 2. If plugin is broken, go to "My Plugins"
 3. Find the plugin and click **"Restore from Backup"** (if available)
@@ -7038,6 +7178,7 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### Q: Are plugins safe to install?
 
 **A:** Featured marketplace plugins are reviewed by the Phantasy team. For custom plugins:
+
 - Only install from trusted sources
 - Review the repository/package before installing
 - Check for active maintenance and community feedback
@@ -7050,6 +7191,7 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### Q: How do I find more plugins?
 
 **A:**
+
 - Browse the marketplace
 - Visit the Phantasy Community Forum
 - Check GitHub for plugins with the `phantasy-plugin` topic
@@ -7070,6 +7212,7 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### Q: How do I report a bug in a plugin?
 
 **A:**
+
 1. For featured plugins: File an issue on the Phantasy GitHub repository
 2. For community plugins: File an issue on the plugin's repository
 3. Include error logs and steps to reproduce
@@ -7081,6 +7224,7 @@ Update plugins one at a time today. That keeps the failure surface small and mak
 ### Q: What happens if a plugin repository is deleted?
 
 **A:** Your installed version will continue to work, but you won't receive updates. Consider:
+
 - Backing up the plugin directory
 - Finding an alternative plugin
 - Forking the repository if it's open-source
@@ -7123,12 +7267,14 @@ Quick fixes for common plugin configuration issues.
 ### Issue 1: `/agent.json` returns error
 
 **Symptoms:**
+
 ```bash
 curl http://localhost:2000/agent.json
 # Returns: {"error":"Failed to generate agent metadata"}
 ```
 
 **Causes:**
+
 1. Agent config file is invalid or missing required fields
 2. ERC-8004 plugin not enabled
 3. Server compilation error
@@ -7136,6 +7282,7 @@ curl http://localhost:2000/agent.json
 **Fixes:**
 
 #### Fix 1A: Enable ERC-8004 Plugin via Admin UI
+
 1. Open http://localhost:2000/admin
 2. Click **Plugins** tab
 3. Find **erc8004** plugin
@@ -7144,6 +7291,7 @@ curl http://localhost:2000/agent.json
 6. Restart server: `bun run dev`
 
 #### Fix 1B: Check Agent Config
+
 ```bash
 # Validate your config
 bun run config:validate config/agents/your-config.json
@@ -7156,7 +7304,9 @@ bun run config:validate config/agents/your-config.json
 ```
 
 #### Fix 1C: Minimal Working Config
+
 Add this to your agent config JSON:
+
 ```json
 {
   "id": "my-agent",
@@ -7175,6 +7325,7 @@ Add this to your agent config JSON:
 ### Issue 2: Plugin status returns null
 
 **Symptoms:**
+
 ```bash
 curl http://localhost:2000/admin/api/plugins/status
 # Returns: {"error": "Authentication required"}
@@ -7183,6 +7334,7 @@ curl http://localhost:2000/admin/api/plugins/status
 **This is NORMAL for curl!** Admin API requires authentication.
 
 **Proper Way to Check:**
+
 1. Open http://localhost:2000/admin in browser
 2. Go to **Plugins** tab
 3. Look for status indicators:
@@ -7191,6 +7343,7 @@ curl http://localhost:2000/admin/api/plugins/status
    - ○ Gray = Disabled
 
 **Alternative (if admin auth is disabled):**
+
 ```bash
 # From browser console or with session cookie
 fetch('http://localhost:2000/admin/api/plugins/status')
@@ -7203,6 +7356,7 @@ fetch('http://localhost:2000/admin/api/plugins/status')
 ### Issue 3: X402 simulate endpoint not found
 
 **Symptoms:**
+
 ```bash
 curl http://localhost:2000/api/plugins/x402-gateway/simulate
 # Returns: Cannot GET /api/plugins/x402-gateway/simulate
@@ -7213,12 +7367,14 @@ curl http://localhost:2000/api/plugins/x402-gateway/simulate
 **Working Alternatives:**
 
 #### Method 1: Test via Admin UI
+
 1. Open http://localhost:2000/admin
 2. Go to **Plugins** tab
 3. Click **x402-gateway** plugin
 4. Check the health message shows: `rules=X, network=base-sepolia, asset=USDC`
 
 #### Method 2: Test a Protected Endpoint Directly
+
 ```bash
 # First, configure a rule in Admin UI:
 # Pattern: /api/test
@@ -7233,6 +7389,7 @@ curl -i http://localhost:2000/api/test
 ```
 
 #### Method 3: Check Health Status
+
 ```bash
 # In browser console (logged into admin):
 fetch('/admin/api/plugins/status')
@@ -7260,6 +7417,7 @@ fetch('/admin/api/plugins/status')
 ### 2. Configure ERC-8004
 
 **Minimal Configuration:**
+
 ```json
 {
   "enabled": true,
@@ -7275,6 +7433,7 @@ fetch('/admin/api/plugins/status')
 ### 3. Configure X402 Gateway
 
 **Minimal Configuration:**
+
 ```json
 {
   "enabled": true,
@@ -7343,11 +7502,13 @@ curl http://localhost:2000/health
 ### "Failed to generate agent metadata"
 
 **Check:**
+
 - [ ] Is agent config valid JSON?
 - [ ] Does config have `name` and `id` fields?
 - [ ] Did you restart after making changes?
 
 **Solution:**
+
 ```bash
 # Validate config
 bun run config:validate config/agents/your-config.json
@@ -7371,11 +7532,13 @@ bun run config:init
 ### Plugin shows as "disabled" or "unhealthy"
 
 **Check in Admin UI:**
+
 1. Is the toggle switch ON (green)?
 2. Is configuration saved?
 3. Are there validation errors below the form?
 
 **Common Fixes:**
+
 - Click plugin → Enable toggle → Save
 - Check logs for errors: Look at terminal where `bun run dev` is running
 - Restart server after configuration changes
@@ -7385,12 +7548,14 @@ bun run config:init
 ### X402 not blocking endpoints
 
 **Checklist:**
+
 - [ ] Plugin is enabled (toggle ON)
 - [ ] At least one rule is configured
 - [ ] Rule pattern matches the path you're testing
 - [ ] Server was restarted after config change
 
 **Debug:**
+
 ```bash
 # Check if any rules are configured:
 # In Admin UI → x402-gateway plugin → check health message
@@ -7407,6 +7572,7 @@ curl -i http://localhost:2000/api/test
 ### ERC-8004 registrations not showing
 
 **First time setup requires:**
+
 1. Enable plugin
 2. Set environment variable:
    ```bash
@@ -7419,6 +7585,7 @@ curl -i http://localhost:2000/api/test
 4. Use Admin UI → erc8004 → Registration tab → Register
 
 **Check:**
+
 - Admin UI → erc8004 plugin → Registrations tab
 - Should show registration form and table
 
@@ -7429,21 +7596,25 @@ curl -i http://localhost:2000/api/test
 Use this to verify everything is working:
 
 ### ✅ Server Running
+
 - [ ] `bun run dev` shows no errors
 - [ ] http://localhost:2000/health returns `{"status":"ok"}`
 - [ ] http://localhost:2000/admin loads
 
 ### ✅ ERC-8004 Working
+
 - [ ] http://localhost:2000/agent.json returns valid JSON
 - [ ] Admin UI → Plugins → erc8004 shows ✓ Healthy
 - [ ] Admin UI → erc8004 detail shows management panel
 
 ### ✅ X402 Working
+
 - [ ] Admin UI → Plugins → x402-gateway shows ✓ Healthy
 - [ ] Health message shows "rules=X" (X > 0)
 - [ ] Testing protected endpoint returns 402
 
 ### ✅ Configuration Saved
+
 - [ ] Both plugins show as "Enabled" in list
 - [ ] Configuration forms show saved values
 - [ ] Restart didn't reset configuration
@@ -7494,12 +7665,14 @@ If all else fails, reset plugin configuration:
 `★ Insight ─────────────────────────────────────`
 
 **Most Issues Come From:**
+
 1. **Forgetting to enable plugins** - Toggle must be ON!
 2. **Not saving configuration** - Must click "Save Configuration"
 3. **Not restarting after changes** - Restart to apply config
 4. **Testing wrong paths** - X402 rules are path-specific
 
 **Pro Tips:**
+
 - Use Admin UI instead of curl (easier to see status)
 - Check plugin health message for quick diagnostics
 - Always restart after major config changes
@@ -7543,7 +7716,6 @@ The image plugin provides AI image generation capabilities.
 - Prompt parsing and enhancement
 
 
-
 ---
 
 
@@ -7572,7 +7744,6 @@ The voice plugin provides text-to-speech capabilities.
   }
 }
 ```
-
 
 
 ---
@@ -7633,7 +7804,6 @@ The cache plugin provides intelligent response caching for improved performance.
 - Personal message detection (skips caching)
 - Time-sensitive content detection
 - Configurable cache size limits
-
 
 
 ---
@@ -7710,11 +7880,13 @@ Visit admin UI at `http://localhost:2000`:
 ### Option A: Via Chat
 
 Talk to your agent:
+
 ```
 Please register me on the Base Sepolia ERC-8004 identity registry.
 ```
 
 The agent will use the `register_agent_erc8004` tool and respond with:
+
 ```
 Success! I've registered you as agent ID 123 on Base Sepolia.
 Identity Registry: 0x...
@@ -7773,11 +7945,13 @@ curl -X POST http://localhost:2000/admin/api/plugins/erc8004/validation/request 
 ### Check Reputation
 
 Ask your agent:
+
 ```
 What's my current reputation on Base Sepolia?
 ```
 
 Response:
+
 ```
 You have 5 feedback entries with an average score of 85/100.
 ```
@@ -7791,6 +7965,7 @@ Is agent ID 456 on Base Sepolia trustworthy?
 ```
 
 The agent analyzes reputation and validations, then responds:
+
 ```
 Agent 456 is TRUSTED with a trust score of 88/100.
 - Reputation: 20 feedback entries, 86/100 average
@@ -7807,16 +7982,13 @@ Register on multiple networks:
 ```json
 {
   "erc8004Config": {
-    "networks": [
-      "base-sepolia",
-      "base",
-      "ethereum"
-    ]
+    "networks": ["base-sepolia", "base", "ethereum"]
   }
 }
 ```
 
 Then register on each:
+
 ```
 Register me on Base mainnet.
 Register me on Ethereum.
@@ -7910,7 +8082,6 @@ These are external plugins bundled as `@phantasy/plugin-games`.
 :::
 
 
-
 ---
 
 
@@ -7960,7 +8131,6 @@ The Twitch plugin enables your agent to operate as a Twitch chat bot.
 See the [Twitch Integration Guide](/docs/integrations/twitch) for detailed setup.
 
 
-
 ---
 
 
@@ -7989,7 +8159,6 @@ TWITTER_ACCESS_SECRET=...
 - Tweet posting
 - Reply handling
 - Mention monitoring
-
 
 
 ---
@@ -8022,6 +8191,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "id": "chatcmpl-...",
@@ -8049,6 +8219,7 @@ Content-Type: application/json
 ## Agent Commands
 
 ### Send Message
+
 ```
 POST /api/chat
 Authorization: Bearer <api-key>
@@ -8060,11 +8231,13 @@ Authorization: Bearer <api-key>
 ```
 
 ### Get Agent Info
+
 ```
 GET /api/agent/info
 ```
 
 ### Debug Report
+
 ```
 GET /api/agent/diagnose
 ```
@@ -8072,6 +8245,7 @@ GET /api/agent/diagnose
 ## Memory API
 
 ### Search Memory
+
 ```
 POST /api/memory/search
 {
@@ -8080,6 +8254,7 @@ POST /api/memory/search
 ```
 
 ### Remember Fact
+
 ```
 POST /api/memory/remember
 {
@@ -8090,11 +8265,13 @@ POST /api/memory/remember
 ## Workflows
 
 ### List Workflows
+
 ```
 GET /api/workflows
 ```
 
 ### Run Workflow
+
 ```
 POST /api/workflows/run
 {
@@ -8116,11 +8293,11 @@ ws.onmessage = (event) => {
 
 ## Environment Variables
 
-| Variable | Description |
-|----------|-------------|
-| `PORT` | Server port (default: 2000) |
-| `DATABASE_URL` | PostgreSQL connection |
-| `DEBUG_AGENT` | Enable debug logging |
+| Variable       | Description                 |
+| -------------- | --------------------------- |
+| `PORT`         | Server port (default: 2000) |
+| `DATABASE_URL` | PostgreSQL connection       |
+| `DEBUG_AGENT`  | Enable debug logging        |
 
 
 ---
@@ -8154,7 +8331,6 @@ GET /health
 ```
 
 
-
 ---
 
 
@@ -8169,7 +8345,7 @@ Real-time WebSocket API for live updates.
 ## Connection
 
 ```javascript
-const ws = new WebSocket("ws://localhost:2000/ws");
+const ws = new WebSocket('ws://localhost:2000/ws');
 ```
 
 ## Events
@@ -8177,7 +8353,6 @@ const ws = new WebSocket("ws://localhost:2000/ws");
 - `chat` - Chat messages
 - `status` - Status updates
 - `bot_event` - Platform bot events
-
 
 
 ---
@@ -8204,7 +8379,6 @@ curl -X POST http://localhost:2000/api/integrations/v1/chat/completions \
 ```
 
 
-
 ---
 
 
@@ -8222,11 +8396,12 @@ All Admin API routes must use standardized response wrappers to ensure consisten
 
 ```typescript
 interface StandardApiResponse<T = unknown> {
-  success: boolean;      // Indicates if request succeeded
-  data?: T;              // Response data (present on success)
-  error?: string;        // Error message (present on failure)
-  errors?: string[];     // Detailed errors (optional, for validation)
-  metadata?: {           // Response metadata
+  success: boolean; // Indicates if request succeeded
+  data?: T; // Response data (present on success)
+  error?: string; // Error message (present on failure)
+  errors?: string[]; // Detailed errors (optional, for validation)
+  metadata?: {
+    // Response metadata
     timestamp: string;
     requestId?: string;
     version?: string;
@@ -8240,54 +8415,60 @@ interface StandardApiResponse<T = unknown> {
 Located in `src/admin-api/types/responses.ts`:
 
 ### `apiSuccess<T>(data: T, metadata?: Partial<ResponseMetadata>)`
+
 Wraps successful responses with standard format.
 
 **Usage:**
+
 ```typescript
 // Simple success
 return {
-  response: Response.json(apiSuccess({ userId: "123" })),
-  handled: true
+  response: Response.json(apiSuccess({ userId: '123' })),
+  handled: true,
 };
 
 // With custom headers
 return {
   response: Response.json(apiSuccess(data), { headers }),
-  handled: true
+  handled: true,
 };
 
 // With status code
 return {
   response: Response.json(apiSuccess(data), { status: 201, headers }),
-  handled: true
+  handled: true,
 };
 ```
 
 ### `apiError(error: string, errors?: string[], metadata?: Partial<ResponseMetadata>)`
+
 Wraps error responses with standard format.
 
 **Usage:**
+
 ```typescript
 // Simple error
 return {
-  response: Response.json(apiError("User not found"), { status: 404, headers }),
-  handled: true
+  response: Response.json(apiError('User not found'), { status: 404, headers }),
+  handled: true,
 };
 
 // With validation errors
 return {
   response: Response.json(
-    apiError("Validation failed", ["Email is required", "Password too short"]),
+    apiError('Validation failed', ['Email is required', 'Password too short']),
     { status: 400, headers }
   ),
-  handled: true
+  handled: true,
 };
 ```
 
 ### `apiPaginated<T>(data: T, pagination: PaginationMetadata, metadata?: Partial<ResponseMetadata>)`
+
 Wraps paginated responses.
 
 **Usage:**
+
 ```typescript
 return {
   response: Response.json(
@@ -8296,11 +8477,11 @@ return {
       pageSize: 20,
       total: 100,
       hasMore: true,
-      totalPages: 5
+      totalPages: 5,
     }),
     { headers }
   ),
-  handled: true
+  handled: true,
 };
 ```
 
@@ -8311,26 +8492,20 @@ return {
 ```typescript
 // Error response - OLD
 return {
-  response: Response.json(
-    { error: "Not found" },
-    { status: 404, headers }
-  ),
-  handled: true
+  response: Response.json({ error: 'Not found' }, { status: 404, headers }),
+  handled: true,
 };
 
 // Success response - OLD
 return {
-  response: Response.json(
-    { success: true, data: result },
-    { headers }
-  ),
-  handled: true
+  response: Response.json({ success: true, data: result }, { headers }),
+  handled: true,
 };
 
 // Raw data - OLD
 return {
   response: Response.json(data, { headers }),
-  handled: true
+  handled: true,
 };
 ```
 
@@ -8339,48 +8514,43 @@ return {
 ```typescript
 // Error response - NEW
 return {
-  response: Response.json(
-    apiError("Not found"),
-    { status: 404, headers }
-  ),
-  handled: true
+  response: Response.json(apiError('Not found'), { status: 404, headers }),
+  handled: true,
 };
 
 // Success response - NEW
 return {
-  response: Response.json(
-    apiSuccess(result),
-    { headers }
-  ),
-  handled: true
+  response: Response.json(apiSuccess(result), { headers }),
+  handled: true,
 };
 
 // Raw data - NEW
 return {
-  response: Response.json(
-    apiSuccess(data),
-    { headers }
-  ),
-  handled: true
+  response: Response.json(apiSuccess(data), { headers }),
+  handled: true,
 };
 ```
 
 ## Step-by-Step Migration Guide
 
 ### 1. Add Import
+
 Add to the top of your route file:
+
 ```typescript
-import { apiSuccess, apiError } from "@/admin-api/types/responses";
+import { apiSuccess, apiError } from '@/admin-api/types/responses';
 ```
 
 ### 2. Identify Response Patterns
 
 **Error Responses:**
+
 - `{ error: "..." }` → `apiError("...")`
 - `{ success: false, error: "..." }` → `apiError("...")`
 - `new Response(JSON.stringify({ error: "..." }))` → `Response.json(apiError("..."))`
 
 **Success Responses:**
+
 - `{ success: true, data: X }` → `apiSuccess(X)`
 - `someData` → `apiSuccess(someData)`
 - `{}` → `apiSuccess({})`
@@ -8389,42 +8559,48 @@ import { apiSuccess, apiError } from "@/admin-api/types/responses";
 ### 3. Replace Response Calls
 
 **Pattern 1: Error with status**
+
 ```typescript
 // Before
-Response.json({ error: "Invalid input" }, { status: 400, headers })
+Response.json({ error: 'Invalid input' }, { status: 400, headers });
 
 // After
-Response.json(apiError("Invalid input"), { status: 400, headers })
+Response.json(apiError('Invalid input'), { status: 400, headers });
 ```
 
 **Pattern 2: Success with data**
+
 ```typescript
 // Before
-Response.json({ success: true, data: user }, { headers })
+Response.json({ success: true, data: user }, { headers });
 
 // After
-Response.json(apiSuccess(user), { headers })
+Response.json(apiSuccess(user), { headers });
 ```
 
 **Pattern 3: Conditional responses**
+
 ```typescript
 // Before
-Response.json({
-  success: result.success,
-  message: result.message,
-  error: result.error
-}, { headers })
+Response.json(
+  {
+    success: result.success,
+    message: result.message,
+    error: result.error,
+  },
+  { headers }
+);
 
 // After
 if (result.success) {
   return {
     response: Response.json(apiSuccess({ message: result.message }), { headers }),
-    handled: true
+    handled: true,
   };
 } else {
   return {
-    response: Response.json(apiError(result.error || "Operation failed"), { headers }),
-    handled: true
+    response: Response.json(apiError(result.error || 'Operation failed'), { headers }),
+    handled: true,
   };
 }
 ```
@@ -8435,12 +8611,12 @@ The `fetchJson` utility automatically unwraps standard responses:
 
 ```typescript
 // Backend returns: { success: true, data: { userId: "123" } }
-const user = await fetchJson<{ userId: string }>("/admin/api/user");
+const user = await fetchJson<{ userId: string }>('/admin/api/user');
 // user = { userId: "123" } (automatically unwrapped!)
 
 // Backend returns: { success: false, error: "Not found" }
 try {
-  const user = await fetchJson("/admin/api/user");
+  const user = await fetchJson('/admin/api/user');
 } catch (err) {
   console.error(err.message); // "Not found"
 }
@@ -8449,73 +8625,77 @@ try {
 ## Common Patterns
 
 ### Error Handling
+
 ```typescript
 try {
   const result = await someOperation();
   return {
     response: Response.json(apiSuccess(result), { headers }),
-    handled: true
+    handled: true,
   };
 } catch (error) {
-  logger.error("Operation failed:", error);
+  logger.error('Operation failed:', error);
   return {
-    response: Response.json(
-      apiError(error instanceof Error ? error.message : "Operation failed"),
-      { status: 500, headers }
-    ),
-    handled: true
+    response: Response.json(apiError(error instanceof Error ? error.message : 'Operation failed'), {
+      status: 500,
+      headers,
+    }),
+    handled: true,
   };
 }
 ```
 
 ### Validation Errors
+
 ```typescript
 const errors: string[] = [];
-if (!data.email) errors.push("Email is required");
-if (!data.password) errors.push("Password is required");
+if (!data.email) errors.push('Email is required');
+if (!data.password) errors.push('Password is required');
 
 if (errors.length > 0) {
   return {
-    response: Response.json(
-      apiError("Validation failed", errors),
-      { status: 400, headers }
-    ),
-    handled: true
+    response: Response.json(apiError('Validation failed', errors), { status: 400, headers }),
+    handled: true,
   };
 }
 ```
 
 ### Empty Responses
+
 ```typescript
 // DELETE operation with no data
 return {
   response: Response.json(apiSuccess({}), { headers }),
-  handled: true
+  handled: true,
 };
 
 // List endpoint with no results
 return {
   response: Response.json(apiSuccess([]), { headers }),
-  handled: true
+  handled: true,
 };
 ```
 
 ## Migration Status
 
 ### ✅ Fully Migrated
+
 - `agent-routes.ts`
 - `config-routes.ts`
 - `erc8004-routes.ts`
 - `provider-routes.ts`
 
 ### 🔄 Partially Migrated
+
 - `testing-routes.ts` - 4 of 22 calls migrated
 - `memory-routes.ts` - some calls migrated
 - `knowledge-routes.ts` - import added, calls need wrapping
 - Others - see below
 
 ### 📋 Remaining Files
+
 Files with non-wrapped Response.json calls:
+
 - `testing-routes.ts`: ~18 remaining
 - `memory-routes.ts`: ~19 remaining
 - `knowledge-routes.ts`: ~6 remaining
@@ -8528,21 +8708,25 @@ Files with non-wrapped Response.json calls:
 ## Benefits
 
 ### Type Safety
+
 - Frontend automatically gets correct types
 - No need to manually unwrap `{ success, data }` objects
 - TypeScript catches mismatches
 
 ### Consistency
+
 - All endpoints return predictable format
 - Same error handling everywhere
 - Easy to add global interceptors
 
 ### Developer Experience
+
 - Less boilerplate in frontend code
 - Automatic error extraction
 - Clear migration path for new routes
 
 ### Future-Proofing
+
 - Easy to add metadata (request IDs, timing, etc.)
 - Standardized pagination
 - Consistent versioning strategy
@@ -8550,6 +8734,7 @@ Files with non-wrapped Response.json calls:
 ## Testing
 
 After migration, verify:
+
 1. ✅ No TypeScript errors
 2. ✅ Frontend receives unwrapped data
 3. ✅ Errors are properly caught and displayed
@@ -8559,6 +8744,7 @@ After migration, verify:
 ## Questions?
 
 See:
+
 - `src/admin-api/types/responses.ts` - Type definitions and helpers
 - `src/admin-ui/utils/api/http-client.ts` - Frontend transport and response unwrapping
 - `src/admin-api/routes/agent-routes.ts` - Example of fully migrated file
@@ -8597,16 +8783,16 @@ URL: /docs/architecture
 
 ## Key Directories
 
-| Path | Purpose |
-|------|---------|
-| `src/cli/` | CLI commands and TUI |
-| `src/server/` | Express server |
-| `src/services/` | Business logic |
-| `src/plugins/` | 48 plugins |
+| Path             | Purpose              |
+| ---------------- | -------------------- |
+| `src/cli/`       | CLI commands and TUI |
+| `src/server/`    | Express server       |
+| `src/services/`  | Business logic       |
+| `src/plugins/`   | 48 plugins           |
 | `src/providers/` | AI provider adapters |
-| `src/admin-ui/` | React dashboard |
+| `src/admin-ui/`  | React dashboard      |
 | `config/agents/` | Agent configurations |
-| `workflows/` | Workflow files |
+| `workflows/`     | Workflow files       |
 
 ## Configuration Priority
 
@@ -8790,12 +8976,12 @@ That matches the practical setup most teams expect: shared project defaults with
 
 ## Skills vs MCP vs Plugins
 
-| Need | Use |
-| --- | --- |
-| Teach the model a workflow or CLI | `SKILL.md` |
-| Give the model executable external tools | MCP |
-| Add runtime/platform capability | capability or plugin |
-| Set local workspace behavior | `AGENTS.md` |
+| Need                                     | Use                  |
+| ---------------------------------------- | -------------------- |
+| Teach the model a workflow or CLI        | `SKILL.md`           |
+| Give the model executable external tools | MCP                  |
+| Add runtime/platform capability          | capability or plugin |
+| Set local workspace behavior             | `AGENTS.md`          |
 
 ## Example Composition
 
@@ -9342,6 +9528,7 @@ URL: /docs/architecture/websocket-system
 ## Current State
 
 The existing WebSocket implementation (`src/server/websocket-manager.ts`) is **minimal** and only supports:
+
 - Log streaming to admin UI
 - Single endpoint: `/admin/api/logs/stream`
 - No room/channel concept
@@ -9351,6 +9538,7 @@ The existing WebSocket implementation (`src/server/websocket-manager.ts`) is **m
 ## Requirements for Livestreaming Platforms
 
 ### Livestream Platform Requirements
+
 1. **Persistent Connections**: Streams last 2-8 hours typically
 2. **Multi-Room Support**: Multiple concurrent streams
 3. **Real-time Chat**: <100ms latency for chat messages
@@ -9359,6 +9547,7 @@ The existing WebSocket implementation (`src/server/websocket-manager.ts`) is **m
 6. **Scalability**: 100-10,000 viewers per stream
 
 ### Twitch Integration Requirements
+
 1. **IRC over WebSocket**: Twitch uses IRC protocol
 2. **Rate Limiting**: 20 messages per 30 seconds
 3. **Mod Actions**: Timeouts, bans, slow mode
@@ -9461,7 +9650,7 @@ class WebSocketManager {
   // Add heartbeat for connection health
   private setupHeartbeat() {
     setInterval(() => {
-      this.wss.clients.forEach(ws => {
+      this.wss.clients.forEach((ws) => {
         if (!this.isAlive(ws)) {
           ws.terminate();
           return;
@@ -9486,10 +9675,16 @@ class LivestreamWebSocketHandler {
 
   handleMessage(ws: WebSocket, message: any): void {
     // Route to appropriate handler
-    switch(message.type) {
-      case 'chat': this.handleChat(ws, message); break;
-      case 'tip': this.handleTip(ws, message); break;
-      case 'react': this.handleReaction(ws, message); break;
+    switch (message.type) {
+      case 'chat':
+        this.handleChat(ws, message);
+        break;
+      case 'tip':
+        this.handleTip(ws, message);
+        break;
+      case 'react':
+        this.handleReaction(ws, message);
+        break;
     }
   }
 }
@@ -9505,13 +9700,14 @@ class ReconnectionManager {
   saveSession(clientId: string, data: SessionData): void {
     this.sessions.set(clientId, {
       ...data,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     });
   }
 
   restoreSession(clientId: string): SessionData | null {
     const session = this.sessions.get(clientId);
-    if (session && Date.now() - session.timestamp < 300000) { // 5 min
+    if (session && Date.now() - session.timestamp < 300000) {
+      // 5 min
       return session;
     }
     return null;
@@ -9531,7 +9727,7 @@ class MessageQueue {
 
   flush(clientId: string, ws: WebSocket): void {
     const messages = this.queues.get(clientId) || [];
-    messages.forEach(msg => ws.send(JSON.stringify(msg)));
+    messages.forEach((msg) => ws.send(JSON.stringify(msg)));
     this.queues.delete(clientId);
   }
 }
@@ -9540,6 +9736,7 @@ class MessageQueue {
 ## Security Considerations
 
 ### 1. Authentication
+
 ```typescript
 // JWT-based auth for WebSocket
 async authenticateWebSocket(ws: WebSocket, token: string): Promise<boolean> {
@@ -9558,6 +9755,7 @@ async authenticateWebSocket(ws: WebSocket, token: string): Promise<boolean> {
 ```
 
 ### 2. Rate Limiting
+
 ```typescript
 // Per-client rate limiting
 class WebSocketRateLimiter {
@@ -9568,9 +9766,10 @@ class WebSocketRateLimiter {
     const timestamps = this.limits.get(clientId) || [];
 
     // Remove old timestamps (older than 30 seconds)
-    const recent = timestamps.filter(t => now - t < 30000);
+    const recent = timestamps.filter((t) => now - t < 30000);
 
-    if (recent.length >= 20) { // Twitch-like limit
+    if (recent.length >= 20) {
+      // Twitch-like limit
       return false;
     }
 
@@ -9582,6 +9781,7 @@ class WebSocketRateLimiter {
 ```
 
 ### 3. Input Validation
+
 ```typescript
 // Message validation
 function validateMessage(message: any): boolean {
@@ -9603,6 +9803,7 @@ function validateMessage(message: any): boolean {
 ## Performance Optimizations
 
 ### 1. Message Compression
+
 ```typescript
 // Enable per-message deflate
 const wss = new WebSocket.Server({
@@ -9611,11 +9812,12 @@ const wss = new WebSocket.Server({
       level: 6,
     },
     threshold: 1024, // Compress messages > 1KB
-  }
+  },
 });
 ```
 
 ### 2. Binary Protocol (Future)
+
 ```typescript
 // Use MessagePack for binary encoding
 import msgpack from 'msgpack-lite';
@@ -9627,6 +9829,7 @@ function sendBinary(ws: WebSocket, data: any): void {
 ```
 
 ### 3. Connection Pooling
+
 ```typescript
 // Reuse connections for multiple rooms
 class ConnectionPool {
@@ -9650,6 +9853,7 @@ class ConnectionPool {
 ## Monitoring & Metrics
 
 ### Key Metrics to Track
+
 ```typescript
 interface WebSocketMetrics {
   totalConnections: number;
@@ -9666,22 +9870,23 @@ interface WebSocketMetrics {
 const wsMetrics = {
   connections: new prometheus.Gauge({
     name: 'websocket_connections_active',
-    help: 'Active WebSocket connections'
+    help: 'Active WebSocket connections',
   }),
   messages: new prometheus.Counter({
     name: 'websocket_messages_total',
-    help: 'Total WebSocket messages'
+    help: 'Total WebSocket messages',
   }),
   errors: new prometheus.Counter({
     name: 'websocket_errors_total',
-    help: 'Total WebSocket errors'
-  })
+    help: 'Total WebSocket errors',
+  }),
 };
 ```
 
 ## Testing Strategy
 
 ### 1. Load Testing
+
 ```bash
 # Artillery.io config for WebSocket load testing
 config:
@@ -9707,11 +9912,14 @@ scenarios:
 ```
 
 ### 2. Integration Tests
+
 ```typescript
 describe('WebSocket Integration', () => {
   it('should handle 1000 concurrent connections', async () => {
     const clients = await Promise.all(
-      Array(1000).fill(0).map(() => createWebSocketClient())
+      Array(1000)
+        .fill(0)
+        .map(() => createWebSocketClient())
     );
     // Test broadcasting
     await broadcast(clients[0], 'test message');
@@ -9739,6 +9947,7 @@ describe('WebSocket Integration', () => {
 4. **Week 4**: Performance optimizations and monitoring
 
 ### Backward Compatibility
+
 ```typescript
 // Keep existing log streaming endpoint
 if (pathname === '/admin/api/logs/stream') {
@@ -9761,6 +9970,7 @@ The current WebSocket implementation needs significant enhancement for productio
 6. **Monitoring** - Track performance and errors
 
 With these enhancements, the system will support:
+
 - **10,000+ concurrent connections**
 - **<100ms message latency**
 - **99.9% uptime** for long streams
@@ -9830,6 +10040,7 @@ The service parses unchecked items (`- [ ]`) as tasks to process. Checked items 
 **Location**: `src/services/core/heartbeat-service.ts`
 
 **Key Methods**:
+
 - `start()` - Start the heartbeat timer
 - `stop()` - Stop the heartbeat timer
 - `executeHeartbeat()` - Run a heartbeat cycle
@@ -9842,11 +10053,10 @@ The service parses unchecked items (`- [ ]`) as tasks to process. Checked items 
 import { getHeartbeatService } from '@/services/core/heartbeat-service';
 
 // Create/get heartbeat service
-const heartbeat = getHeartbeatService(
-  'agent-id',
-  './workspace/agents/agent-id',
-  { enabled: true, interval_minutes: 30 }
-);
+const heartbeat = getHeartbeatService('agent-id', './workspace/agents/agent-id', {
+  enabled: true,
+  interval_minutes: 30,
+});
 
 // Set custom callback for heartbeat tasks
 heartbeat.setCallback(async () => {
@@ -9861,6 +10071,7 @@ heartbeat.start();
 ## Response Format
 
 After processing, the agent responds with:
+
 - `HEARTBEAT_OK` - Successful heartbeat
 - `HEARTBEAT_ERROR` - Error during processing
 
@@ -9889,6 +10100,7 @@ curl http://localhost:2000/admin/api/status/health/detailed
 ```
 
 Response includes:
+
 ```json
 {
   "agents": {
@@ -10250,10 +10462,10 @@ Memory compaction runs automatically when using dual embeddings:
 }
 ```
 
-| Option | Description | Default |
-|--------|-------------|---------|
+| Option                      | Description                 | Default       |
+| --------------------------- | --------------------------- | ------------- |
 | `compactionIntervalMinutes` | How often to run compaction | 360 (6 hours) |
-| `embedding.large.ttlDays` | Short-term memory retention | 7 days |
+| `embedding.large.ttlDays`   | Short-term memory retention | 7 days        |
 
 ### Conversation Compaction (CLI)
 
@@ -10270,6 +10482,7 @@ Or let it auto-trigger when approaching context limit.
 When a session nears or exceeds the model's context window, Phantasy triggers auto-compaction.
 
 You'll see:
+
 - `🧹 Auto-compaction complete` in verbose mode
 - `/status` showing `🧹 Compactions: <count>`
 
@@ -10280,6 +10493,7 @@ You'll see:
 ```
 
 Examples:
+
 ```
 /compact
 /compact Focus on important decisions and action items
@@ -10303,19 +10517,19 @@ Examples:
 
 Context window limits vary by model. Phantasy uses the configured provider's model definition to determine limits.
 
-| Provider | Model | Context Window |
-|----------|-------|----------------|
-| OpenAI | gpt-4o | 128K |
-| Anthropic | claude-3-5-sonnet | 200K |
-| Google | gemini-2.0-flash | 1M |
+| Provider  | Model             | Context Window |
+| --------- | ----------------- | -------------- |
+| OpenAI    | gpt-4o            | 128K           |
+| Anthropic | claude-3-5-sonnet | 200K           |
+| Google    | gemini-2.0-flash  | 1M             |
 
 ## Compaction vs Pruning
 
-| Feature | Compaction | Pruning |
-|---------|------------|----------|
-| **What** | Summarizes and persists | Trims tool results only |
-| **Storage** | Markdown file | In-memory |
-| **Trigger** | Context limit / manual | Per-request |
+| Feature     | Compaction              | Pruning                 |
+| ----------- | ----------------------- | ----------------------- |
+| **What**    | Summarizes and persists | Trims tool results only |
+| **Storage** | Markdown file           | In-memory               |
+| **Trigger** | Context limit / manual  | Per-request             |
 
 ## Identifier Preservation
 
@@ -10332,11 +10546,13 @@ This ensures the agent can still recognize users and important context after com
 ### Compaction Not Working
 
 1. Check memory config:
+
    ```bash
    phantasy memory status
    ```
 
 2. Verify dual embeddings enabled:
+
    ```json
    "memoryConfig": {
      "dual_embeddings": true
@@ -10382,11 +10598,11 @@ Database values always win at runtime. The Admin UI writes to PostgreSQL via `Co
 
 ### How Each Surface Reads Config
 
-| Surface | Source | Real-Time Updates |
-|---------|--------|-------------------|
-| **Admin UI** | PostgreSQL via `ConfigManagementService` | Yes — writes directly to DB |
-| **CLI** | `ConfigLoader` (files → env → DB → defaults) | No — must restart CLI |
-| **Server** | `ConfigLoader` with file watcher (hot-reload) | Partial — file changes hot-reload (500ms debounce), DB changes require restart |
+| Surface      | Source                                        | Real-Time Updates                                                              |
+| ------------ | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| **Admin UI** | PostgreSQL via `ConfigManagementService`      | Yes — writes directly to DB                                                    |
+| **CLI**      | `ConfigLoader` (files → env → DB → defaults)  | No — must restart CLI                                                          |
+| **Server**   | `ConfigLoader` with file watcher (hot-reload) | Partial — file changes hot-reload (500ms debounce), DB changes require restart |
 
 ### Key Files
 
@@ -10409,6 +10625,7 @@ The Admin UI uses JWT-based authentication with two credential sources:
 GitHub team-based allowlists are not implemented in v1.
 
 Token lifecycle:
+
 - JWT signed with configurable expiration, issuer, and audience
 - Stored in httpOnly secure cookie (`phantasy.sid`)
 - Auto-refreshed on every response via `X-New-Token` header
@@ -10439,12 +10656,12 @@ External systems connect via the REST API using API key authentication:
 
 Each platform integration uses its native auth mechanism:
 
-| Platform | Auth Method |
-|----------|-------------|
-| Discord | Bot token (`discord_bot_token`) |
+| Platform  | Auth Method                                             |
+| --------- | ------------------------------------------------------- |
+| Discord   | Bot token (`discord_bot_token`)                         |
 | Twitter/X | OAuth 1.0a (API key + access token) or OAuth 2.0 bearer |
-| Twitch | Client ID + Client Secret (IRC) |
-| Telegram | Bot token (`telegram_bot_token`) |
+| Twitch    | Client ID + Client Secret (IRC)                         |
+| Telegram  | Bot token (`telegram_bot_token`)                        |
 
 Platform tokens are stored in the agent config and never exposed via the Admin API.
 
@@ -10456,11 +10673,11 @@ Role-based access control (RBAC) with three built-in roles.
 
 ### Roles
 
-| Role | Access |
-|------|--------|
-| `admin` | Full access — config changes, plugin management, user management |
+| Role     | Access                                                            |
+| -------- | ----------------------------------------------------------------- |
+| `admin`  | Full access — config changes, plugin management, user management  |
 | `editor` | Content management — chronicle entries, knowledge base, approvals |
-| `guest` | Read-only access — view config, view entries |
+| `guest`  | Read-only access — view config, view entries                      |
 
 ### Storage
 
@@ -10537,12 +10754,14 @@ URL: /docs/architecture/conversation-unification
 ## Current State (Updated)
 
 ### CLI Runtime (`src/cli/runtime/agent-runtime.ts`)
+
 - **Active conversations**: In-memory `conversationHistory` array
 - **Persistence**: Auto-saves to markdown on every message
 - **Startup**: Loads existing conversation from markdown
 - **Storage**: `workspace/agents/{id}/conversations/active.md`
 
 ### CMS/Admin API (`src/admin-api/`, `src/memory/conversation-memory.ts`)
+
 - **Storage**: `ConversationMemoryManager` class
 - **Default**: Markdown backend (no env var needed)
 - **Opt-out**: Set `PHANTASY_CONVERSATION_MARKDOWN=false` to use KV/DB
@@ -10895,6 +11114,7 @@ Agents are defined in the top-level `agents` array of the agent config:
 ```
 
 Each agent entry supports:
+
 - `preset` — reference to an existing preset (resolved at load time)
 - `configPath` — path to a separate agent JSON config
 - `role` — `primary` (Tab-cycled) or `subagent` (@mention-invoked)
@@ -10903,14 +11123,15 @@ Each agent entry supports:
 
 ### CLI Routing (Phase 1 — Implemented)
 
-| Mechanism | Behavior |
-|-----------|----------|
-| **Tab key** | Cycles through `primary` agents |
-| **Shift+Tab** | Cycles through views (chat, plugins, etc.) |
-| **@mention** | `@agentName message` routes to a subagent temporarily, then returns to the previous agent |
-| **Command palette** | "Switch Agent" command cycles to next primary agent |
+| Mechanism           | Behavior                                                                                  |
+| ------------------- | ----------------------------------------------------------------------------------------- |
+| **Tab key**         | Cycles through `primary` agents                                                           |
+| **Shift+Tab**       | Cycles through views (chat, plugins, etc.)                                                |
+| **@mention**        | `@agentName message` routes to a subagent temporarily, then returns to the previous agent |
+| **Command palette** | "Switch Agent" command cycles to next primary agent                                       |
 
 Each agent switch:
+
 1. Updates `activeAgentId` in the runtime
 2. Swaps `agentConfig` reference
 3. Re-routes provider (model/provider from the agent's config)
@@ -10979,25 +11200,25 @@ Config-driven, no magic routing — explicit > implicit.
 
 ## Migration Path
 
-| Phase | Scope | Status |
-|-------|-------|--------|
+| Phase       | Scope                                                          | Status          |
+| ----------- | -------------------------------------------------------------- | --------------- |
 | **Phase 1** | `agents` config array + CLI Tab switching + @mention subagents | **Implemented** |
-| **Phase 2** | Platform routing rules + Party-HQ control-plane expansion | Planned |
-| **Phase 3** | Inter-agent communication + Party-HQ bidirectional sync | Planned |
-| **Phase 4** | Agent marketplace / template sharing | Future |
+| **Phase 2** | Platform routing rules + Party-HQ control-plane expansion      | Planned         |
+| **Phase 3** | Inter-agent communication + Party-HQ bidirectional sync        | Planned         |
+| **Phase 4** | Agent marketplace / template sharing                           | Future          |
 
 ## Implementation Details
 
 ### Files Modified (Phase 1)
 
-| File | Changes |
-|------|---------|
-| `src/config/schemas/agent-config.schema.ts` | Added `agents` Zod array schema |
-| `src/cli/runtime/agent-runtime.ts` | Added `AgentEntry`, agent registry, `getAgents()`, `switchAgent()`, `getActiveAgent()` |
-| `src/cli/tui/app.ts` | Tab -> agent cycling, Shift+Tab -> view cycling |
-| `src/cli/tui/sidebar.ts` | Multi-agent display with active/inactive indicators |
-| `src/cli/tui/chat-view.ts` | @mention detection and subagent routing |
-| `src/cli/tui/command-palette.ts` | "Switch Agent" command |
+| File                                        | Changes                                                                                |
+| ------------------------------------------- | -------------------------------------------------------------------------------------- |
+| `src/config/schemas/agent-config.schema.ts` | Added `agents` Zod array schema                                                        |
+| `src/cli/runtime/agent-runtime.ts`          | Added `AgentEntry`, agent registry, `getAgents()`, `switchAgent()`, `getActiveAgent()` |
+| `src/cli/tui/app.ts`                        | Tab -> agent cycling, Shift+Tab -> view cycling                                        |
+| `src/cli/tui/sidebar.ts`                    | Multi-agent display with active/inactive indicators                                    |
+| `src/cli/tui/chat-view.ts`                  | @mention detection and subagent routing                                                |
+| `src/cli/tui/command-palette.ts`            | "Switch Agent" command                                                                 |
 
 
 ---
@@ -11016,16 +11237,19 @@ The Phantasy Agent framework is designed as a **no-code agent CMS/command center
 ## Architecture Principles
 
 ### KISS (Keep It Simple, Stupid)
+
 - Single source of truth: Database
 - Automatic persistence: No manual save logic per plugin
 - Convention over configuration: `pluginName` → `{pluginName}Config`
 
 ### DRY (Don't Repeat Yourself)
+
 - One persistence mechanism for ALL plugins
 - Shared ConfigManagementService + PluginManager
 - No duplicate config storage
 
 ### Modular
+
 - Plugin developers add ONE config field → get full UI support
 - No custom routes needed per plugin
 - Extensible via plugin system
@@ -11092,9 +11316,9 @@ myPluginConfig: z.object({
 // src/plugins/my-plugin.ts
 
 export class MyPlugin extends BasePlugin {
-  name = "my-plugin"; // ← MUST match "myPluginConfig" (without "Config" suffix)
-  version = "1.0.0";
-  description = "My awesome plugin";
+  name = 'my-plugin'; // ← MUST match "myPluginConfig" (without "Config" suffix)
+  version = '1.0.0';
+  description = 'My awesome plugin';
 
   // Plugin config is automatically loaded from agentConfig.myPluginConfig
   async onInit(agentConfig: any, config?: any) {
@@ -11110,8 +11334,8 @@ export class MyPlugin extends BasePlugin {
   getTools() {
     return [
       {
-        name: "my_tool",
-        description: "Does something cool",
+        name: 'my_tool',
+        description: 'Does something cool',
         handler: async (params) => {
           // Use this.config.endpoint, etc.
         },
@@ -11126,15 +11350,16 @@ export class MyPlugin extends BasePlugin {
 ```typescript
 // src/plugins/index.ts
 
-import { MyPlugin } from "./my-plugin";
+import { MyPlugin } from './my-plugin';
 
 export const PLUGIN_REGISTRY = {
   // ... existing plugins
-  "my-plugin": MyPlugin,
+  'my-plugin': MyPlugin,
 };
 ```
 
 **That's it!** Your plugin now has:
+
 - ✅ Full Admin UI support
 - ✅ Database persistence
 - ✅ Enable/disable toggle
@@ -11234,12 +11459,14 @@ export const PLUGIN_REGISTRY = {
 ### 1. ConfigManagementService (`src/services/config-management-service.ts`)
 
 **Responsibilities:**
+
 - Load config from database or templates
 - Persist config changes to database
 - Manage config versioning and history
 - Cache for performance
 
 **Key Methods:**
+
 ```typescript
 getAgentConfig(agentId): Promise<AgentConfig>
 saveAgentConfig(agentId, config): Promise<AgentConfig>
@@ -11250,12 +11477,14 @@ rollback(agentId, version): Promise<AgentConfig>
 ### 2. PluginManager (`src/plugins/plugin-manager.ts`)
 
 **Responsibilities:**
+
 - Manage plugin lifecycle (init, enable, disable)
 - Validate plugin configs
 - Persist plugin config changes to ConfigManagementService
 - Provide plugin metadata and health status
 
 **Key Methods:**
+
 ```typescript
 initializePlugins(agentConfig): Promise<void>
 updatePluginConfig(name, config): Promise<boolean>  // Auto-persists!
@@ -11264,6 +11493,7 @@ getEnabledPlugins(): BasePlugin[]
 ```
 
 **Auto-Persistence Logic:**
+
 ```typescript
 async updatePluginConfig(name: string, config: Partial<PluginConfig>) {
   // 1. Update in-memory
@@ -11286,19 +11516,21 @@ async updatePluginConfig(name: string, config: Partial<PluginConfig>) {
 ### 3. BasePlugin (`src/plugins/base-plugin.ts`)
 
 **Responsibilities:**
+
 - Abstract base class for all plugins
 - Standard lifecycle hooks
 - Config management
 - Tool/webhook registration
 
 **Key Lifecycle:**
+
 ```typescript
-onInit(agentConfig, config)      // Called once at startup
-onEnabled()                       // Called when plugin is enabled
-onActivate()                      // Called when plugin activates
-updateConfig(newConfig)           // Called when config changes
-onDeactivate()                    // Called when plugin deactivates
-onDisabled()                      // Called when plugin is disabled
+onInit(agentConfig, config); // Called once at startup
+onEnabled(); // Called when plugin is enabled
+onActivate(); // Called when plugin activates
+updateConfig(newConfig); // Called when config changes
+onDeactivate(); // Called when plugin deactivates
+onDisabled(); // Called when plugin is disabled
 ```
 
 ## Naming Convention (Critical!)
@@ -11321,6 +11553,7 @@ const agentConfig = {
 ```
 
 **For hyphenated names:**
+
 ```typescript
 name = "erc8004"       → erc8004Config
 name = "x402-gateway"  → x402-gatewayConfig
@@ -11332,12 +11565,14 @@ name = "kalshi"        → kalshiConfig
 The current runtime contract is PostgreSQL-first:
 
 ### PostgreSQL (Authoritative Runtime Store)
+
 - **Primary tables:** `agent_configs`, `config_audit_log`, `kv_store`
 - **Format:** JSONB for config and flexible metadata, relational tables for product-owned state
 - **Best for:** Local development, self-hosted production, and multi-instance deployments
 - **Features:** Transactions, versioning, audit trail, migration-owned schema
 
 ### In-Memory KV (Test Only)
+
 - **Use:** Automated tests and isolated local test runs
 - **Scope:** Temporary fallback used when the runtime is explicitly running under test
 
@@ -11348,6 +11583,7 @@ For a fuller persistence inventory, see [Database Shape](./database-shape.md).
 ### For Plugin Developers
 
 ✅ **DO:**
+
 - Use descriptive config field names
 - Provide sensible defaults
 - Add field descriptions in schema
@@ -11355,6 +11591,7 @@ For a fuller persistence inventory, see [Database Shape](./database-shape.md).
 - Log when config is used
 
 ❌ **DON'T:**
+
 - Store config in plugin instance variables (use `this.config`)
 - Bypass ConfigManagementService for persistence
 - Hardcode values that should be configurable
@@ -11363,12 +11600,14 @@ For a fuller persistence inventory, see [Database Shape](./database-shape.md).
 ### For Users (Via Admin UI)
 
 ✅ **DO:**
+
 - Use the Plugins tab for all plugin configuration
 - Save changes before navigating away
 - Check plugin health status after enabling
 - Review logs if plugin fails to activate
 
 ❌ **DON'T:**
+
 - Edit config files manually (unless you know what you're doing)
 - Enable plugins without required credentials
 - Modify database directly
@@ -11378,6 +11617,7 @@ For a fuller persistence inventory, see [Database Shape](./database-shape.md).
 ### Adding a New Config Field to Existing Plugin
 
 1. **Update schema:**
+
 ```typescript
 // src/config/schemas/agent-config.schema.ts
 erc8004Config: z.object({
@@ -11388,6 +11628,7 @@ erc8004Config: z.object({
 ```
 
 2. **Update plugin to use new field:**
+
 ```typescript
 // src/plugins/erc8004-plugin.ts
 async onInit(agentConfig: any, config?: any) {
@@ -11400,12 +11641,14 @@ async onInit(agentConfig: any, config?: any) {
 ```
 
 3. **Update Admin UI form** (if needed):
+
 ```typescript
 // src/admin-ui/components/tabs/PluginsTab.tsx
 // The form auto-generates from schema, but you can customize
 ```
 
 **That's it!** The new field automatically:
+
 - Appears in Admin UI
 - Gets validated
 - Persists to database
@@ -11427,15 +11670,15 @@ export class MyPluginRoutes implements RouteHandler {
     const agentConfig = await configService.getAgentConfig();
     const myConfig = agentConfig.myPluginConfig;
 
-    if (path === "/admin/api/my-plugin/custom-action" && method === "POST") {
+    if (path === '/admin/api/my-plugin/custom-action' && method === 'POST') {
       // Your custom logic
       return {
-        response: Response.json(apiSuccess({ result: "..." })),
+        response: Response.json(apiSuccess({ result: '...' })),
         handled: true,
       };
     }
 
-    return { response: new Response("Not found", { status: 404 }), handled: false };
+    return { response: new Response('Not found', { status: 404 }), handled: false };
   }
 }
 ```
@@ -11445,6 +11688,7 @@ export class MyPluginRoutes implements RouteHandler {
 ### Config not persisting?
 
 Check:
+
 1. Plugin name matches config field: `{name}Config`
 2. Config field exists in `agent-config.schema.ts`
 3. Database is writable (check permissions)
@@ -11453,6 +11697,7 @@ Check:
 ### Plugin not loading config?
 
 Check:
+
 1. Plugin is enabled (`enabled: true`)
 2. `onInit()` is called with config parameter
 3. Schema validation isn't rejecting config
@@ -11461,6 +11706,7 @@ Check:
 ### UI not showing latest values?
 
 Check:
+
 1. Config was saved (click "Save Configuration")
 2. Page was refreshed after save
 3. Cache was cleared (`configService.clearCache()`)
@@ -11803,13 +12049,13 @@ Instead of sending 2000+ tokens of system prompt on every message turn, Phantasy
 
 ## Supported Providers
 
-| Provider | Native Support | Notes |
-|----------|---------------|-------|
-| Anthropic | ✅ | Uses `cache_control` breakpoint |
-| Groq | ✅ | Uses `cache_control` breakpoint |
-| OpenAI | ✅ | Uses cached responses |
-| Mistral | ✅ | Uses native caching |
-| Others | ❌ | Uses truncated prompt fallback |
+| Provider  | Native Support | Notes                           |
+| --------- | -------------- | ------------------------------- |
+| Anthropic | ✅             | Uses `cache_control` breakpoint |
+| Groq      | ✅             | Uses `cache_control` breakpoint |
+| OpenAI    | ✅             | Uses cached responses           |
+| Mistral   | ✅             | Uses native caching             |
+| Others    | ❌             | Uses truncated prompt fallback  |
 
 ## Implementation
 
@@ -11818,6 +12064,7 @@ Instead of sending 2000+ tokens of system prompt on every message turn, Phantasy
 **Location**: `src/services/core/prompt-cache-service.ts`
 
 **Key Methods**:
+
 - `cachePrompt()` - Store system prompt in cache
 - `getCachedPrompt()` - Retrieve cached prompt
 - `buildMessagesWithCache()` - Build messages with cache optimization
@@ -11854,6 +12101,7 @@ DEBUG_AGENT=true phantasy start
 ```
 
 Look for log entries:
+
 - `Using cached prompt for {agentId}:{provider}` - Cache hit
 - `Cached prompt for {agentId}, hash: {hash}` - Cache miss (new cache entry)
 
@@ -11883,12 +12131,12 @@ Phantasy implements retry logic to handle transient failures gracefully.
 
 ## Defaults
 
-| Setting | Value |
-|---------|-------|
-| Max Retries | 2 |
-| Base Delay | 2 seconds |
-| Delay Growth | Linear |
-| Retry On | HTTP 429 (rate limit) |
+| Setting      | Value                 |
+| ------------ | --------------------- |
+| Max Retries  | 2                     |
+| Base Delay   | 2 seconds             |
+| Delay Growth | Linear                |
+| Retry On     | HTTP 429 (rate limit) |
 
 ## Behavior
 
@@ -12032,7 +12280,6 @@ Deployment with Coolify and GitLab CI.
 See: [Coolify Compose Guide](/docs/guides/COOLIFY_COMPOSE)
 
 
-
 ---
 
 
@@ -12045,7 +12292,6 @@ URL: /docs/deployment/environment
 Complete environment configuration guide.
 
 See: [Environment Setup Guide](/docs/guides/ENVIRONMENT_SETUP)
-
 
 
 ---
@@ -12135,7 +12381,6 @@ Configure database and storage backends.
 See: [Storage Options Guide](/docs/guides/STORAGE_OPTIONS)
 
 
-
 ---
 
 
@@ -12175,7 +12420,6 @@ Code style guidelines for Phantasy Agent.
 - camelCase for variables/functions
 - PascalCase for classes/types
 - UPPER_SNAKE_CASE for constants
-
 
 
 ---
@@ -12315,14 +12559,14 @@ This document outlines a comprehensive refactoring plan for the Phantasy Agent c
 
 ### Key Problems Identified
 
-| Problem | Severity | Impact |
-|---------|----------|--------|
-| Services directory too large (52 files flat) | 🔴 Critical | Hard to navigate, poor discoverability |
-| Overlapping directories (platforms/integrations/services) | 🔴 Critical | Confusion about source of truth |
-| Impure barrel files with business logic | 🟡 Medium | Breaks tree-shaking, harder to test |
-| Monolithic plugin implementations | 🟡 Medium | 4,469-line files are unmaintainable |
-| ~~Dead/incomplete code~~ | ~~🟡 Medium~~ | ~~6 services with no exports~~ (FALSE POSITIVE - all have exports) |
-| Duplicate files | 🟢 Low | `logger.ts` in 2 places |
+| Problem                                                   | Severity      | Impact                                                             |
+| --------------------------------------------------------- | ------------- | ------------------------------------------------------------------ |
+| Services directory too large (52 files flat)              | 🔴 Critical   | Hard to navigate, poor discoverability                             |
+| Overlapping directories (platforms/integrations/services) | 🔴 Critical   | Confusion about source of truth                                    |
+| Impure barrel files with business logic                   | 🟡 Medium     | Breaks tree-shaking, harder to test                                |
+| Monolithic plugin implementations                         | 🟡 Medium     | 4,469-line files are unmaintainable                                |
+| ~~Dead/incomplete code~~                                  | ~~🟡 Medium~~ | ~~6 services with no exports~~ (FALSE POSITIVE - all have exports) |
+| Duplicate files                                           | 🟢 Low        | `logger.ts` in 2 places                                            |
 
 ---
 
@@ -12331,11 +12575,13 @@ This document outlines a comprehensive refactoring plan for the Phantasy Agent c
 Based on [TkDodo's analysis](https://tkdodo.eu/blog/please-stop-using-barrel-files), we adopt these principles:
 
 ### When Barrel Files ARE Appropriate
+
 - **Public API boundaries** for packages/subsystems consumed externally
 - **Component libraries** (like `admin-ui/components/common/`)
 - **Plugin system entry points** (consumers need a stable API)
 
 ### When Barrel Files Are NOT Appropriate
+
 - **Internal application code** - use direct imports instead
 - **Files containing business logic** - barrels should be pure re-exports only
 - **Convenience groupings** - don't create barrels just to shorten imports
@@ -12343,6 +12589,7 @@ Based on [TkDodo's analysis](https://tkdodo.eu/blog/please-stop-using-barrel-fil
 ### Current Barrel File Status
 
 ✅ **Keep (Pure Public APIs):**
+
 - `src/storage/index.ts` - Factory pattern abstraction
 - `src/server/index.ts` - Modular server components
 - `src/admin-api/index.ts` - Route composition API
@@ -12352,11 +12599,13 @@ Based on [TkDodo's analysis](https://tkdodo.eu/blog/please-stop-using-barrel-fil
 - `src/plugins/image/index.ts` - Image plugin services
 
 ❌ **Refactor (Impure - Contains Logic):**
+
 - `src/memory/index.ts` - 200+ lines of business logic
 - `src/providers/index.ts` - Factory registration logic
 - `src/providers/secrets/index.ts` - Factory + singleton logic
 
 ❌ **Rename (Monolithic Implementations):**
+
 - `src/plugins/adventure/index.ts` - 4,469 lines → `adventure-plugin.ts`
 - `src/plugins/browseruse/index.ts` - 773 lines → `browseruse-plugin.ts`
 - `src/plugins/github/index.ts` - 456 lines → `github-plugin.ts`
@@ -12369,6 +12618,7 @@ Based on [TkDodo's analysis](https://tkdodo.eu/blog/please-stop-using-barrel-fil
 ### 1.1 Remove Dead Code and Artifacts ✅
 
 **Delete backup/empty files:**
+
 ```bash
 # ✅ DONE - Backup file removed
 rm src/admin-api/routes/erc8004-routes.ts.bak
@@ -12398,6 +12648,7 @@ No action needed - current structure is intentional.
 ### 1.3 Consolidate Duplicate Files (DEFERRED)
 
 **Logger duplication analysis:**
+
 ```
 src/logger.ts              → 184 files import this (CANONICAL - full-featured)
 src/utils/logger.ts        → 20 files import this (LEGACY - simplified)
@@ -12405,6 +12656,7 @@ src/admin-ui/utils/logger.ts → Browser-specific (KEEP - different purpose)
 ```
 
 **Finding:** `src/logger.ts` (412 lines) is the canonical server logger with:
+
 - Color output, structured logging, event listeners
 - Used by 184 files across the codebase
 
@@ -12425,15 +12677,16 @@ src/admin-ui/utils/logger.ts → Browser-specific (KEEP - different purpose)
 
 Upon deeper analysis, the three directories represent **proper separation of concerns**:
 
-| Directory | Role | Responsibility |
-|-----------|------|----------------|
-| `integrations/` | Config Layer | CRUD operations for platform configs, used by Admin UI |
-| `platforms/` | Adapter Layer | Thin wrappers for lifecycle management (start/stop) |
-| `services/` | Business Logic | Actual implementations (Discord.js, Twitter API, etc.) |
+| Directory       | Role           | Responsibility                                         |
+| --------------- | -------------- | ------------------------------------------------------ |
+| `integrations/` | Config Layer   | CRUD operations for platform configs, used by Admin UI |
+| `platforms/`    | Adapter Layer  | Thin wrappers for lifecycle management (start/stop)    |
+| `services/`     | Business Logic | Actual implementations (Discord.js, Twitter API, etc.) |
 
 **This is proper layered architecture, not duplication!**
 
 Import patterns confirm this:
+
 - Admin UI → `integrations/` (config management)
 - Server → `platforms/` (runtime control)
 - Plugins → `services/` (bot functionality)
@@ -12493,6 +12746,7 @@ src/platforms/
 ```
 
 **Delete after consolidation:**
+
 - `src/integrations/` - Entire directory (merged into platforms/)
 - `src/services/discord-bot-service.ts` - Moved to platforms/discord/
 - `src/services/twitter-bot-service.ts` - Moved to platforms/twitter/
@@ -12596,18 +12850,18 @@ src/services/
 
 ### Files Moved Summary
 
-| Category | Count | Key Services |
-|----------|-------|--------------|
-| core | 10 | agent, chat, config, tools |
-| ai | 6 | provider routing, models, embeddings |
-| bots | 14 | discord, twitter, twitch, telegram |
-| blockchain | 7 | wallets, ERC-8004, EVM |
-| media | 4 | image, voice, video |
-| auth | 4 | authentication, credentials |
-| external | 3 | kalshi, x-service, pricing |
-| integration | 3 | billing, permissions, plugins |
-| scheduling | 5 | chronicle, schedulers |
-| utilities | 6 | caching, logging, rate limiting |
+| Category    | Count | Key Services                         |
+| ----------- | ----- | ------------------------------------ |
+| core        | 10    | agent, chat, config, tools           |
+| ai          | 6     | provider routing, models, embeddings |
+| bots        | 14    | discord, twitter, twitch, telegram   |
+| blockchain  | 7     | wallets, ERC-8004, EVM               |
+| media       | 4     | image, voice, video                  |
+| auth        | 4     | authentication, credentials          |
+| external    | 3     | kalshi, x-service, pricing           |
+| integration | 3     | billing, permissions, plugins        |
+| scheduling  | 5     | chronicle, schedulers                |
+| utilities   | 6     | caching, logging, rate limiting      |
 
 ### Original "Proposed" Structure (for reference)
 
@@ -12678,6 +12932,7 @@ src/services/
 ### Files to Delete (after moving platform services)
 
 After Phase 2, these move to `src/platforms/`:
+
 - `discord-bot-service.ts`
 - `twitter-bot-service.ts`
 - `twitch-bot-service.ts`
@@ -12698,10 +12953,10 @@ After Phase 2, these move to `src/platforms/`:
 
 All impure barrel files have been refactored to follow the TkDodo principle: barrel files should be **pure re-exports only**. Business logic was extracted to dedicated files.
 
-| Original File | New Files | Description |
-|---------------|-----------|-------------|
-| `memory/index.ts` (337 lines) | `memory/factory.ts` + `memory/helpers.ts` | Factory and helper functions extracted |
-| `providers/index.ts` (41 lines) | `providers/builtin-registry.ts` | Provider registration logic extracted |
+| Original File                            | New Files                                     | Description                                |
+| ---------------------------------------- | --------------------------------------------- | ------------------------------------------ |
+| `memory/index.ts` (337 lines)            | `memory/factory.ts` + `memory/helpers.ts`     | Factory and helper functions extracted     |
+| `providers/index.ts` (41 lines)          | `providers/builtin-registry.ts`               | Provider registration logic extracted      |
 | `providers/secrets/index.ts` (145 lines) | `secrets/factory.ts` + `secrets/singleton.ts` | Factory and singleton management extracted |
 
 ### 4.1 `src/memory/index.ts` (336 lines → pure barrel) ✅
@@ -12709,6 +12964,7 @@ All impure barrel files have been refactored to follow the TkDodo principle: bar
 **Current:** Contains factory, initialization, and helper functions
 
 **Refactor into:**
+
 ```
 src/memory/
 ├── index.ts                      # Pure re-exports only
@@ -12723,6 +12979,7 @@ src/memory/
 ```
 
 **New `index.ts`:**
+
 ```typescript
 // Pure re-exports only
 export { MemoryManager } from './memory-manager';
@@ -12739,6 +12996,7 @@ export type { MemoryConfig, MemorySearchResult } from './types';
 **Current:** Contains `registerBuiltInProviders()` function
 
 **Refactor into:**
+
 ```
 src/providers/
 ├── index.ts                      # Pure re-exports only
@@ -12753,6 +13011,7 @@ src/providers/
 **Current:** Contains factory, singleton, and helper functions
 
 **Refactor into:**
+
 ```
 src/providers/secrets/
 ├── index.ts                      # Pure re-exports only
@@ -12777,13 +13036,13 @@ src/providers/secrets/
 
 Monolithic `index.ts` files containing implementations were renamed to descriptive names, and proper barrel files were created in their place.
 
-| Original File | New File | Size | Description |
-|---------------|----------|------|-------------|
-| `plugins/adventure/index.ts` | `adventure-plugin.ts` | 4,469 lines | Adventure/visual novel plugin |
-| `plugins/browseruse/index.ts` | `browseruse-plugin.ts` | 773 lines | Browser automation plugin |
-| `plugins/github/index.ts` | `github-plugin.ts` | 456 lines | GitHub integration plugin |
-| `plugins/memory/index.ts` | `memory-plugin.ts` | 590 lines | Memory context plugin |
-| `platforms/twitter/index.ts` | `twitter-adapter.ts` | 139 lines | Twitter platform adapter |
+| Original File                 | New File               | Size        | Description                   |
+| ----------------------------- | ---------------------- | ----------- | ----------------------------- |
+| `plugins/adventure/index.ts`  | `adventure-plugin.ts`  | 4,469 lines | Adventure/visual novel plugin |
+| `plugins/browseruse/index.ts` | `browseruse-plugin.ts` | 773 lines   | Browser automation plugin     |
+| `plugins/github/index.ts`     | `github-plugin.ts`     | 456 lines   | GitHub integration plugin     |
+| `plugins/memory/index.ts`     | `memory-plugin.ts`     | 590 lines   | Memory context plugin         |
+| `platforms/twitter/index.ts`  | `twitter-adapter.ts`   | 139 lines   | Twitter platform adapter      |
 
 Each renamed file now has a corresponding `index.ts` barrel that provides pure re-exports.
 
@@ -12793,13 +13052,13 @@ Plugin implementations are in `index.ts` files, which should be reserved for bar
 
 ### Renames Required (COMPLETED)
 
-| Current Path | New Path |
-|--------------|----------|
-| `src/plugins/adventure/index.ts` (4,469 lines) | `src/plugins/adventure/adventure-plugin.ts` |
-| `src/plugins/browseruse/index.ts` (773 lines) | `src/plugins/browseruse/browseruse-plugin.ts` |
-| `src/plugins/github/index.ts` (456 lines) | `src/plugins/github/github-plugin.ts` |
-| `src/plugins/memory/index.ts` (590 lines) | Split into multiple files |
-| `src/platforms/twitter/index.ts` (139 lines) | `src/platforms/twitter/twitter-adapter.ts` |
+| Current Path                                   | New Path                                      |
+| ---------------------------------------------- | --------------------------------------------- |
+| `src/plugins/adventure/index.ts` (4,469 lines) | `src/plugins/adventure/adventure-plugin.ts`   |
+| `src/plugins/browseruse/index.ts` (773 lines)  | `src/plugins/browseruse/browseruse-plugin.ts` |
+| `src/plugins/github/index.ts` (456 lines)      | `src/plugins/github/github-plugin.ts`         |
+| `src/plugins/memory/index.ts` (590 lines)      | Split into multiple files                     |
+| `src/platforms/twitter/index.ts` (139 lines)   | `src/platforms/twitter/twitter-adapter.ts`    |
 
 ### After Rename: Create Proper Barrels
 
@@ -12812,6 +13071,7 @@ export type { AdventureConfig } from './types';
 ### Special Case: `src/plugins/memory/index.ts`
 
 This file combines implementation + helper functions. Split into:
+
 ```
 src/plugins/memory/
 ├── index.ts                   # Pure barrel
@@ -12832,13 +13092,13 @@ src/plugins/memory/
 
 Analysis revealed the "consolidation" problem was actually **dead code**:
 
-| File | Status | Reason |
-|------|--------|--------|
-| `src/routes/custom-integration-routes.ts` | ❌ Deleted | Never imported, duplicate of `@api/custom-integration` |
-| `src/server/routes/integration-routes.ts` | ❌ Deleted | Class defined but never instantiated |
-| `src/server/routes/static-routes.ts` | ❌ Deleted | Class defined but never used (inline in route-handlers.ts) |
-| `src/server/routes/auth-routes.ts` | ✅ Kept | Actively used by route-handlers.ts |
-| `src/server/routes/middleware-setup.ts` | ✅ Kept | Actively used by route-handlers.ts |
+| File                                      | Status     | Reason                                                     |
+| ----------------------------------------- | ---------- | ---------------------------------------------------------- |
+| `src/routes/custom-integration-routes.ts` | ❌ Deleted | Never imported, duplicate of `@api/custom-integration`     |
+| `src/server/routes/integration-routes.ts` | ❌ Deleted | Class defined but never instantiated                       |
+| `src/server/routes/static-routes.ts`      | ❌ Deleted | Class defined but never used (inline in route-handlers.ts) |
+| `src/server/routes/auth-routes.ts`        | ✅ Kept    | Actively used by route-handlers.ts                         |
+| `src/server/routes/middleware-setup.ts`   | ✅ Kept    | Actively used by route-handlers.ts                         |
 
 The `src/routes/` directory was removed entirely as it only contained dead code.
 
@@ -12873,6 +13133,7 @@ src/admin-api/routes/          # 11 subdirectories
 **Keep `src/admin-api/routes/` as the admin API location**
 
 **Merge into `src/server/routes/`:**
+
 ```
 src/server/routes/
 ├── index.ts                   # Route composition
@@ -12884,6 +13145,7 @@ src/server/routes/
 ```
 
 **Delete:**
+
 - `src/routes/` directory entirely
 - `src/api/custom-integration.ts` - Merge with routes if needed
 
@@ -12899,17 +13161,20 @@ src/server/routes/
 ### What Was Done
 
 **Logger Consolidation (High Impact):**
+
 - Migrated 24 files from `@/utils/logger` to `@/logger`
 - Deleted legacy `src/utils/logger.ts` (54 lines)
 - Now single source of truth: `src/logger.ts` (412 lines, full-featured)
 
 **Utils Reorganization (Deferred):**
+
 - Analysis showed most utils files have 0-5 imports each
 - Current flat structure is acceptable for low-import utilities
 - `errors/` subdirectory already well-organized
 - Reorganization deferred as low-impact polish
 
 **Large Route Files (Deferred to Future):**
+
 - 4 files identified (700-1000+ lines each)
 - Marked for future splitting by HTTP method/resource type
 - Not critical for production readiness
@@ -12955,6 +13220,7 @@ src/utils/
 ### 7.2 Large Route Files (Future)
 
 These files are 700-1000+ lines and could be split:
+
 - `src/admin-api/routes/monitoring/testing-routes.ts` (1,004 lines)
 - `src/admin-api/routes/wallet/erc8004-routes.ts` (953 lines)
 - `src/admin-api/routes/agent/knowledge-routes.ts` (887 lines)
@@ -12967,23 +13233,27 @@ These files are 700-1000+ lines and could be split:
 ## Implementation Order
 
 ### Sprint 1: Foundation (Safe, No Breaking Changes)
+
 1. ✅ Delete backup/empty files
 2. ✅ Consolidate duplicate logger
 3. ✅ Move test files to proper location
 4. ✅ Audit incomplete services
 
 ### Sprint 2: Barrel File Cleanup
+
 1. Refactor `src/memory/index.ts` → extract to factory.ts + helpers.ts
 2. Refactor `src/providers/index.ts` → extract to builtin-registry.ts
 3. Refactor `src/providers/secrets/index.ts` → extract to factory.ts + singleton.ts
 4. Rename monolithic plugin files
 
 ### Sprint 3: Directory Consolidation
+
 1. Consolidate platforms/integrations/services into unified `src/platforms/`
 2. Reorganize `src/services/` into logical subdirectories
 3. Consolidate routes
 
 ### Sprint 4: Polish
+
 1. Organize `src/utils/` into subdirectories
 2. Review and split large route files
 3. Final import path updates
@@ -13004,6 +13274,7 @@ These files are 700-1000+ lines and could be split:
 ### Import Update Strategy
 
 Use automated tools to update import paths:
+
 ```bash
 # Example: Find files importing from old location
 grep -r "from '@/services/discord-bot-service'" src/
@@ -13039,6 +13310,7 @@ Each phase should be a separate PR/commit that can be reverted independently:
 ## Appendix: File Inventory
 
 ### Files to Delete
+
 ```
 src/admin-api/routes/erc8004-routes.ts.bak
 src/admin-ui/components/platforms/index.ts (empty)
@@ -13046,6 +13318,7 @@ src/logger.ts (duplicate)
 ```
 
 ### Files to Move
+
 ```
 src/services/discord-bot-service.ts → src/platforms/discord/discord-service.ts
 src/services/twitter-bot-service.ts → src/platforms/twitter/twitter-service.ts
@@ -13059,6 +13332,7 @@ src/utils/*.test.ts → src/test/
 ```
 
 ### Files to Rename
+
 ```
 src/plugins/adventure/index.ts → src/plugins/adventure/adventure-plugin.ts
 src/plugins/browseruse/index.ts → src/plugins/browseruse/browseruse-plugin.ts
@@ -13067,6 +13341,7 @@ src/platforms/twitter/index.ts → src/platforms/twitter/twitter-adapter.ts
 ```
 
 ### Files to Review (Incomplete)
+
 ```
 src/services/activity-tracking-service.ts
 src/services/auth-service.ts
@@ -14198,12 +14473,12 @@ When debug mode is enabled, every LLM call is logged:
 
 ## Troubleshooting
 
-| Issue | Solution |
-|-------|----------|
-| Agent not responding | Check `/debug` output for errors |
+| Issue                 | Solution                                                                                                         |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| Agent not responding  | Check `/debug` output for errors                                                                                 |
 | Memory not persisting | Verify `memoryConfig.provider` plus its backing store (`workspace/` for markdown or `DATABASE_URL` for pgvector) |
-| Provider errors | Check API keys in .env |
-| Plugins not loading | Check plugin health in `/debug` output |
+| Provider errors       | Check API keys in .env                                                                                           |
+| Plugins not loading   | Check plugin health in `/debug` output                                                                           |
 
 
 ---
@@ -14385,11 +14660,11 @@ Phantasy supports local AI models for LLM inference, speech-to-text (STT), and e
 
 ## Overview
 
-| Feature | Backend | Default Model | Requirements |
-|---------|---------|---------------|--------------|
-| **LLM** | Ollama | `qwen2.5-vl:2b` | [Ollama](https://ollama.com) |
-| Speech-to-Text | `nodejs-whisper` | `tiny` | `~/.phantasy/models/whisper/` |
-| Embeddings | `node-llama-cpp` | `ggml-org/embeddinggemma-300m-qat-q8_0-GGUF` | `~/.phantasy/models/` |
+| Feature        | Backend          | Default Model                                | Requirements                  |
+| -------------- | ---------------- | -------------------------------------------- | ----------------------------- |
+| **LLM**        | Ollama           | `qwen2.5-vl:2b`                              | [Ollama](https://ollama.com)  |
+| Speech-to-Text | `nodejs-whisper` | `tiny`                                       | `~/.phantasy/models/whisper/` |
+| Embeddings     | `node-llama-cpp` | `ggml-org/embeddinggemma-300m-qat-q8_0-GGUF` | `~/.phantasy/models/`         |
 
 ## Auto-Download
 
@@ -14404,15 +14679,15 @@ AUTODOWNLOAD_EMBEDDINGS=true
 
 ### Behavior Matrix
 
-| Feature | Backend Available | Env Var | Behavior |
-|---------|------------------|---------|----------|
-| LLM | Ollama running | `true` / not set | Auto-pull model via Ollama API |
-| LLM | Ollama running | `false` | Skip, fail gracefully (use cloud provider) |
-| LLM | Ollama not running | any | Skip, fail gracefully (use cloud provider) |
-| Whisper | ✅ | `true` / not set | Auto-download model on first use |
-| Whisper | ✅ | `false` | Skip, fail gracefully (use external STT) |
-| Embeddings | ✅ | `true` / not set | Auto-download model on first use |
-| Embeddings | ❌ | any | Skip, use cloud provider |
+| Feature    | Backend Available  | Env Var          | Behavior                                   |
+| ---------- | ------------------ | ---------------- | ------------------------------------------ |
+| LLM        | Ollama running     | `true` / not set | Auto-pull model via Ollama API             |
+| LLM        | Ollama running     | `false`          | Skip, fail gracefully (use cloud provider) |
+| LLM        | Ollama not running | any              | Skip, fail gracefully (use cloud provider) |
+| Whisper    | ✅                 | `true` / not set | Auto-download model on first use           |
+| Whisper    | ✅                 | `false`          | Skip, fail gracefully (use external STT)   |
+| Embeddings | ✅                 | `true` / not set | Auto-download model on first use           |
+| Embeddings | ❌                 | any              | Skip, use cloud provider                   |
 
 ---
 
@@ -14466,18 +14741,19 @@ AUTODOWNLOAD_LLM=true
 
 ### Available Models
 
-| Model | Ollama Name | Size | Context | Description |
-|-------|-------------|------|---------|-------------|
-| `qwen3-vl:2b` | `qwen2.5-vl:2b` | ~4GB | 32K | **Recommended** - Vision-enabled |
-| `qwen3:0.5b` | `qwen2.5:0.5b` | ~1GB | 8K | Fastest, lowest memory |
-| `qwen3:1.8b` | `qwen2.5:1.8b` | ~2GB | 16K | Balanced |
-| `qwen3:4b` | `qwen2.5:4b` | ~8GB | 32K | Higher quality |
-| `llama3:7b` | `llama3.2:3b` | ~2GB | 8K | Meta Llama 3.2 |
-| `tinyllama:1b` | `tinyllama:1b` | ~1GB | 4K | Minimal footprint |
+| Model          | Ollama Name     | Size | Context | Description                      |
+| -------------- | --------------- | ---- | ------- | -------------------------------- |
+| `qwen3-vl:2b`  | `qwen2.5-vl:2b` | ~4GB | 32K     | **Recommended** - Vision-enabled |
+| `qwen3:0.5b`   | `qwen2.5:0.5b`  | ~1GB | 8K      | Fastest, lowest memory           |
+| `qwen3:1.8b`   | `qwen2.5:1.8b`  | ~2GB | 16K     | Balanced                         |
+| `qwen3:4b`     | `qwen2.5:4b`    | ~8GB | 32K     | Higher quality                   |
+| `llama3:7b`    | `llama3.2:3b`   | ~2GB | 8K      | Meta Llama 3.2                   |
+| `tinyllama:1b` | `tinyllama:1b`  | ~1GB | 4K      | Minimal footprint                |
 
 ### GPU Support
 
 Ollama automatically uses:
+
 - **Apple Silicon (Metal)** - On Mac with M1/M2/M3/M4 chips
 - **NVIDIA (CUDA)** - On systems with NVIDIA GPUs
 - **CPU fallback** - If no GPU is available
@@ -14501,14 +14777,14 @@ In your agent config:
 
 ### Available Models
 
-| Model | Size | Description |
-|-------|------|-------------|
-| `tiny` | ~75MB | Fastest, lower accuracy |
-| `tiny.en` | ~75MB | English-only |
-| `base` | ~150MB | Balanced |
-| `base.en` | ~150MB | English-only |
-| `small` | ~500MB | Better accuracy |
-| `small.en` | ~500MB | English-only |
+| Model      | Size   | Description             |
+| ---------- | ------ | ----------------------- |
+| `tiny`     | ~75MB  | Fastest, lower accuracy |
+| `tiny.en`  | ~75MB  | English-only            |
+| `base`     | ~150MB | Balanced                |
+| `base.en`  | ~150MB | English-only            |
+| `small`    | ~500MB | Better accuracy         |
+| `small.en` | ~500MB | English-only            |
 
 ---
 
@@ -14530,6 +14806,7 @@ In your agent config:
 ```
 
 For markdown memory (no embeddings needed):
+
 ```json
 {
   "memoryConfig": {
@@ -14556,15 +14833,18 @@ AUTODOWNLOAD_EMBEDDINGS=false
 When auto-download is disabled, Phantasy will use these cloud providers:
 
 **LLM:**
+
 - Configure in `modelRouting` to use providers like `venice`, `groq`, `openai`, etc.
 
 **Speech-to-Text:**
+
 - `stt_provider: "openai"` - Whisper API
 - `stt_provider: "deepgram"` - Deepgram
 - `stt_provider: "chutes"` - Chutes
 - `stt_provider: "venice"` - Venice AI
 
 **Embeddings:**
+
 - `EMBEDDING_PROVIDER=venice` (default)
 - `EMBEDDING_PROVIDER=redpill`
 - `EMBEDDING_PROVIDER=openai`
@@ -14576,38 +14856,45 @@ When auto-download is disabled, Phantasy will use these cloud providers:
 ### Local LLM (Ollama)
 
 **"Ollama is not running":**
+
 - Install Ollama from https://ollama.com
 - Start Ollama: `ollama serve` (or it starts automatically on login)
 - Verify: `curl http://localhost:11434/api/tags`
 
 **Model pull fails:**
+
 - Check internet connection
 - Try pulling manually: `ollama pull qwen2.5-vl:2b`
 - Try a smaller model: `ollama pull tinyllama:1b`
 
 **GPU not detected:**
+
 - Ollama uses GPU automatically if available
 - On Mac, Metal is supported by default
 - On Linux with NVIDIA, install CUDA toolkit
 
 **Out of memory:**
+
 - Use a smaller model
 - Close other applications
 
 ### Whisper
 
 **Model download fails:**
+
 - Check internet connection
 - Verify `~/.phantasy/models/whisper/` is writable
 - Try a smaller model: `"stt_model": "tiny"`
 
 **Transcription fails:**
+
 - Check logs for error messages
 - Verify audio format (wav, mp3, m4a supported)
 
 ### Embeddings
 
 **Local embeddings not working:**
+
 - Verify `AUTODOWNLOAD_EMBEDDINGS=true`
 - Check that `memoryConfig.provider` is set to `pgvector`
 - Check that `memoryConfig.embedding.small.provider` is set to `local`
@@ -14710,9 +14997,9 @@ When updating between major versions, check:
 ## Version Compatibility
 
 | Phantasy Version | Node.js | PostgreSQL |
-|-----------------|---------|------------|
-| 0.4.x | 22.12+ | 14+ |
-| 0.3.x | 18+ | 14+ |
+| ---------------- | ------- | ---------- |
+| 0.4.x            | 22.12+  | 14+        |
+| 0.3.x            | 18+     | 14+        |
 
 ## Backup Before Update
 
@@ -14740,6 +15027,7 @@ bun run build
 ### Breaking Changes
 
 Check the migration guide for breaking changes:
+
 - [Migration Notes](/docs/guides/MIGRATION_NOTES)
 
 ## Next Steps
@@ -14773,20 +15061,20 @@ The TUI supports voice input via Ctrl+R. This document covers the architecture a
 
 ### Key Files
 
-| File | Purpose |
-|------|---------|
-| `src/cli/tui/voice-input.ts` | Recording logic (sox, file handling) |
-| `src/cli/tui/chat-view.ts` | UI handling, Enter/Escape keys |
-| `src/cli/tui/app.ts` | Key event routing |
-| `src/providers/chutes/stt.ts` | STT API integration |
+| File                          | Purpose                              |
+| ----------------------------- | ------------------------------------ |
+| `src/cli/tui/voice-input.ts`  | Recording logic (sox, file handling) |
+| `src/cli/tui/chat-view.ts`    | UI handling, Enter/Escape keys       |
+| `src/cli/tui/app.ts`          | Key event routing                    |
+| `src/providers/chutes/stt.ts` | STT API integration                  |
 
 ### Keyboard Controls
 
-| Key | Action |
-|-----|--------|
-| Ctrl+R | Start voice recording |
-| Enter | Stop recording and send for transcription |
-| Escape | Cancel recording (discard) |
+| Key    | Action                                    |
+| ------ | ----------------------------------------- |
+| Ctrl+R | Start voice recording                     |
+| Enter  | Stop recording and send for transcription |
+| Escape | Cancel recording (discard)                |
 
 ## Chutes STT API Integration
 
@@ -14805,6 +15093,7 @@ The TUI supports voice input via Ctrl+R. This document covers the architecture a
 ```
 
 **Important**:
+
 - Send **full WAV file** (with header), not raw PCM
 - Do NOT wrap in `args` object
 - The API returns a JSON array of segments
@@ -14813,19 +15102,19 @@ The TUI supports voice input via Ctrl+R. This document covers the architecture a
 
 ```json
 [
-  {"start": 0.0, "end": 1.58, "text": "Hello, how are you?"},
-  {"start": 1.58, "end": 3.2, "text": "I'm doing great thanks!"}
+  { "start": 0.0, "end": 1.58, "text": "Hello, how are you?" },
+  { "start": 1.58, "end": 3.2, "text": "I'm doing great thanks!" }
 ]
 ```
 
 ### Common Issues
 
-| Error | Cause | Fix |
-|-------|-------|-----|
+| Error                          | Cause                | Fix                                                                |
+| ------------------------------ | -------------------- | ------------------------------------------------------------------ |
 | `400 Invalid input parameters` | Wrong request format | Ensure `{ audio_b64: "..." }` not `{ args: { audio_b64: "..." } }` |
-| `400 Invalid audio format` | Wrong audio format | Send full WAV file, not raw PCM |
-| `Missing authorization` | No API key | Check `CHUTES_API_KEY` in KV store (`data/kv-store/`) |
-| Empty transcription | Audio not capturing | Check microphone permissions |
+| `400 Invalid audio format`     | Wrong audio format   | Send full WAV file, not raw PCM                                    |
+| `Missing authorization`        | No API key           | Check `CHUTES_API_KEY` in KV store (`data/kv-store/`)              |
+| Empty transcription            | Audio not capturing  | Check microphone permissions                                       |
 
 ## Audio Format
 
@@ -14886,11 +15175,12 @@ API keys stored in: `data/kv-store/default_provider_config.json`
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable         | Description                 |
+| ---------------- | --------------------------- |
 | `CHUTES_API_KEY` | API key for chutes services |
-| `CHUTES_STT_URL` | Override STT endpoint URL |
-| `CHUTES_TTS_URL` | Override TTS endpoint URL |
+| `CHUTES_STT_URL` | Override STT endpoint URL   |
+| `CHUTES_TTS_URL` | Override TTS endpoint URL   |
+
 
 ---
 
@@ -14923,6 +15213,7 @@ URL: /docs/TYPESCRIPT_GUIDELINES
 ## `any` Type Usage Policy
 
 ### Current Status
+
 - Do not hardcode debt totals here. They rot too quickly and become fake comfort.
 - Measure current debt before release with:
 
@@ -14938,9 +15229,11 @@ rg -n "@ts-ignore|eslint-disable" src --glob '!src/admin-ui/node_modules/**' --g
 The following patterns are acceptable uses of `any` and should be marked with an eslint-disable comment:
 
 #### 1. Test Files
+
 Test mocks and fixtures are exempt. No comments needed in `.test.ts` files.
 
 #### 2. External Library Integrations
+
 When integrating with libraries that lack TypeScript definitions:
 
 ```typescript
@@ -14949,6 +15242,7 @@ private client: any;
 ```
 
 #### 3. Dynamic JSON from Untyped APIs
+
 When parsing responses from external APIs without schema:
 
 ```typescript
@@ -14957,6 +15251,7 @@ const data: any = await response.json();
 ```
 
 #### 4. Plugin Handlers with Flexible Parameters
+
 Tool handlers that accept varied input structures:
 
 ```typescript
@@ -14965,19 +15260,20 @@ handler: (params: any) => Promise<any>;
 ```
 
 #### 5. Browser Automation (Puppeteer)
+
 DOM elements in page.evaluate() callbacks - types don't apply in browser context:
 
 ```typescript
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const data = await page.evaluate(() => {
-  const headings = Array.from(document.querySelectorAll('h1'))
-    .map((h: any) => h.innerText);
+  const headings = Array.from(document.querySelectorAll('h1')).map((h: any) => h.innerText);
   return headings;
 });
 /* eslint-enable @typescript-eslint/no-explicit-any */
 ```
 
 #### 6. OpenTUI Components
+
 VNodes and Renderables from OpenTUI lack TypeScript definitions:
 
 ```typescript
@@ -14986,6 +15282,7 @@ private layout: any;
 ```
 
 #### 7. Admin UI Dynamic Configurations
+
 Provider/integration configs that vary by type:
 
 ```typescript
@@ -15004,6 +15301,7 @@ const config: any = agent.providers?.[providerId] || {};
 ### Pattern: Unknown with Type Guards
 
 Instead of:
+
 ```typescript
 catch (e: any) {
   console.log(e.message);
@@ -15011,6 +15309,7 @@ catch (e: any) {
 ```
 
 Use:
+
 ```typescript
 catch (e: unknown) {
   console.log(e instanceof Error ? e.message : String(e));

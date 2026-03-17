@@ -3,6 +3,6 @@
   "title": "Coolify & GitLab CI",
   "description": "Deployment with Coolify and GitLab CI.",
   "frontmatter": {},
-  "content": "# Coolify & GitLab CI\n\nDeployment with Coolify and GitLab CI.\n\nSee: [Coolify Compose Guide](/docs/guides/COOLIFY_COMPOSE)\n\n",
+  "content": "# Coolify & GitLab CI\n\nDeployment with Coolify and GitLab CI.\n\nSee: [Coolify Compose Guide](/docs/guides/COOLIFY_COMPOSE)\n",
   "sourcePath": "src/docs/content/deployment/coolify-gitlab.md"
 }

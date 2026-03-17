@@ -22,7 +22,7 @@ Build an AI companion or VTuber who can run her own site, content, automations, 
 - [Deploy](/docs/guides/DEPLOY): The primary self-hosting path is Docker.
 - [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY): Build an AI companion/VTuber, then layer site, content, automations, and business around her on the same foundation.
 - [Live2D Setup](/docs/guides/LIVE2D_SETUP): This guide covers the Live2D runtime used by the Phantasy Agent admin UI.
-- [Live2D Prod Ready](/docs/guides/LIVE2D_PROD_READY)
+- [Live2D Prod Ready](/docs/guides/LIVE2D_PROD_READY): This document captures the exact configuration that makes Live2D work reliably in development previews and production. Follow it to avoid regressions.
 - [Custom Integration Guide](/docs/guides/CUSTOM_INTEGRATION_GUIDE): Custom Integrations let external products talk to your companion through Phantasy's admin-managed REST surface.
 - [Environment Setup](/docs/guides/ENVIRONMENT_SETUP): This guide explains how to properly configure environment variables for Phantasy Agent across different deployment scenarios.
 - [Storage Options](/docs/guides/STORAGE_OPTIONS): - File-based KV storage is not production-ready

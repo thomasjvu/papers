@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-17T17:35:51.194Z",
+  "generated": "2026-03-17T20:10:32.402Z",
   "paths": [
     "index",
     "getting-started",
@@ -136,7 +136,7 @@
     "guides/DEPLOY": "Deploy Your Phantasy Agent",
     "guides/CONSUMING_PHANTASY": "Consuming Phantasy",
     "guides/LIVE2D_SETUP": "Live2D Setup Guide",
-    "guides/LIVE2D_PROD_READY": "LIVE2D_PROD_READY",
+    "guides/LIVE2D_PROD_READY": "Live2D Production Readiness Guide (Agent UI)",
     "guides/CUSTOM_INTEGRATION_GUIDE": "Custom Integration Guide",
     "guides/ENVIRONMENT_SETUP": "Environment Configuration Guide",
     "guides/STORAGE_OPTIONS": "Storage Options for the Phantasy Agent Platform",
