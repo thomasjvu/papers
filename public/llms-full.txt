@@ -14081,13 +14081,7 @@ Protocol version: **`party-hq.v1`**
   "twitterUsername": "companion_ai",
   "frameworkType": "phantasy",
   "frameworkVersion": "2.0.0",
-  "capabilities": [
-    "tweet-approval",
-    "chat",
-    "character-card",
-    "voice",
-    "multi-agent"
-  ],
+  "capabilities": ["tweet-approval", "chat", "character-card", "voice", "multi-agent"],
   "endpoints": {
     "callback": "https://agent.example.com/admin/api/webhooks/party-hq",
     "characterCard": "https://agent.example.com/admin/api/character-card",

@@ -1,5 +1,6 @@
 import { readdir, writeFile } from 'fs/promises';
 import path from 'path';
+import { format } from 'prettier';
 
 const rootDir = process.cwd();
 const contentRoot = path.join(rootDir, 'src', 'docs', 'content');
@@ -249,8 +250,11 @@ async function main() {
 
 export const documentationTree = ${JSON.stringify(documentationTree, null, 2)};
 `;
+  const formattedFileContents = await format(fileContents, {
+    filepath: outputPath,
+  });
 
-  await writeFile(outputPath, fileContents, 'utf8');
+  await writeFile(outputPath, formattedFileContents, 'utf8');
   console.log(`Generated documentation tree: ${outputPath}`);
 }
 
