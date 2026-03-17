@@ -4,9 +4,9 @@ This is the style contract for Phantasy's admin UI.
 
 Reference docs:
 
-- `docs/architecture/repo-standards.md`
-- `docs/architecture/admin-ui-style-policy.md`
-- `docs/architecture/admin-ui-design-system.md`
+- [Repository Standards](./repo-standards.md)
+- [Admin UI Style Policy](./admin-ui-style-policy.md)
+- [Admin UI Design System](./admin-ui-design-system.md)
 
 ## Goal
 
@@ -31,15 +31,20 @@ The desired shape is:
 3. Shared patterns belong in shared modules.
 
 - Good: `src/admin-ui/components/common/Buttons.module.css`
+- Good: `src/admin-ui/components/common/MarketplaceSurface.module.css`
 - Good: `src/admin-ui/components/common/SurfacePrimitives.module.css`
 - Bad: importing `PluginsTab.module.css` into an unrelated page because it already has a convenient button class
+
+When the shell already supports the pattern, prefer that over cloning CSS.
+Example: use `PageTemplate` sub-tabs for simple installed/library switching
+instead of borrowing another tab's switcher styles.
 
 4. Inline styles are allowed only for dynamic values that cannot be expressed statically.
 
 Allowed examples:
 
 - runtime positioning like `top`, `left`, `bottom`
-- CSS custom property injection like `style={{ \"--duration\": value }}`
+- CSS custom property injection on the `style` prop for values such as `"--duration"`
 - canvas/SVG sizing
 - image aspect-ratio or measured dimensions
 

@@ -1,84 +1,213 @@
 # Bootstrapping
 
-Phantasy has two filesystem stories:
+This guide covers initializing your Phantasy workspace and the local files that shape agent behavior.
 
-- a machine-level home at `~/.phantasy/`
-- a product/runtime workspace, usually `./workspace`
+## Workspace Setup
 
-Keeping those separate makes the repo easier to reason about.
+### Interactive Setup
 
-## Global Home
-
-Use the global home for provider credentials, hooks, and a default personal workspace:
+The easiest way to set up your workspace:
 
 ```bash
+# Interactive wizard - creates ~/.phantasy/ workspace
 phantasy setup
-phantasy setup provider --list
-phantasy setup provider --provider openai --api-key <key>
+
+# Or specify custom workspace path
+phantasy setup --workspace ~/ai-agents
 ```
 
-`phantasy setup` creates a structure like this:
+This creates the global workspace structure:
 
-```text
+```
 ~/.phantasy/
-├── config.json
-├── credentials/
-├── hooks/
-└── workspace/
-    └── default/
-        ├── AGENTS.md
-        ├── SOUL.md
-        ├── USER.md
-        ├── IDENTITY.md
-        ├── TOOLS.md
-        ├── HEARTBEAT.md
-        ├── BOOT.md
-        ├── memory/MEMORY.md
-        └── sessions/
+├── config.json           # Global configuration
+├── workspace/           # Agent workspaces
+│   └── <agentId>/
+│       ├── MEMORY.md    # Long-term memory
+│       ├── YYYY-MM-DD.md # Daily logs
+│       ├── AGENTS.md    # Agent instructions
+│       ├── SOUL.md      # Core values & personality
+│       ├── USER.md      # User preferences
+│       └── IDENTITY.md # Agent identity
+├── hooks/               # Lifecycle hooks
+│   └── <hook-name>.ts
+└── data/                # Global data storage
 ```
 
-That is the personal operator home, not the only place a product runtime can live.
+### Agent Bootstrap Files
 
-## Runtime Workspace
+Each agent workspace is initialized with these files:
 
-The actual runtime resolves its workspace root from:
+| File           | Purpose                             |
+| -------------- | ----------------------------------- |
+| `AGENTS.md`    | Agent instructions and capabilities |
+| `SOUL.md`      | Core values and personality         |
+| `USER.md`      | User preferences and context        |
+| `IDENTITY.md`  | Agent identity and name             |
+| `TOOLS.md`     | Available tools documentation       |
+| `HEARTBEAT.md` | Session state tracking              |
+| `BOOT.md`      | Initialization logic                |
 
-1. `memoryConfig.workspacePath`
-2. `PHANTASY_WORKSPACE`
-3. `./workspace`
+## Compatibility Surfaces
 
-When it looks for agent context files, it checks these candidates in order:
+Phantasy treats the common agent workspace surfaces as first-class:
 
-- `<workspaceRoot>`
-- `<workspaceRoot>/<agentId>`
-- `<workspaceRoot>/agents/<agentId>`
-- `~/.phantasy/workspace/<agentId>`
+- `AGENTS.md` for workspace operating instructions
+- `SKILL.md` for reusable workflow knowledge
+- `.mcp.json` for external MCP tool servers
 
-So a repo-local workspace, an agent-specific subfolder, and the global fallback can all work.
+See [Agent Compatibility](/docs/architecture/agent-compatibility) for the full interaction model.
 
-## What Lives In The Workspace
+## Local Models
 
-Phantasy uses the workspace for a few different surfaces:
+Phantasy supports running with local models for privacy, cost savings, or offline operation.
 
-- context files such as `AGENTS.md`, `SOUL.md`, `IDENTITY.md`, `USER.md`, `TOOLS.md`, `BOOT.md`, and `HEARTBEAT.md`
-- markdown memory under `agents/<agentId>/memory/`
-- conversation history under `agents/<agentId>/conversations/`
-- per-user context under `users/<userId>/USER.md`
+### Environment Variables
 
-One subtle point: the bootstrapped global default workspace includes `memory/MEMORY.md`, while the repo/runtime memory path usually lands under `agents/<agentId>/memory/`. Both are understood by the current loader.
+```bash
+# Embedding models (for memory/vector search)
+EMBEDDING_PROVIDER=local
+EMBEDDING_MODEL=ggml-org/embeddinggemma-300m-qat-q8_0-GGUF
 
-## Good Default
+# Chat models (for agent reasoning)
+DEFAULT_PROVIDER=local
+DEFAULT_MODEL=mistral-7b-instruct-v0.2.Q4_K_M.gguf
 
-For a normal product setup:
+# Vision models (for image understanding)
+VISION_PROVIDER=local
+VISION_MODEL=llava-1.6-mistral-7b.Q4_K_M.gguf
+```
 
-- keep secrets in env vars or `~/.phantasy/config.json`
-- keep product memory and companion data in `./workspace`
-- let the CLI and admin shell point at the same workspace root
+### Model Download Flags
 
-If the data should travel with the repo, do not leave it only under `~/.phantasy/`.
+When using the CLI, you can download models during setup:
 
-## Next
+```bash
+# Download all recommended models
+phantasy setup --download-models
 
-- [Configuration](/docs/getting-started/configuration)
-- [Memory System](/docs/architecture/memory-system)
-- [Agent Compatibility](/docs/architecture/agent-compatibility)
+# Download specific model types
+phantasy setup --embedding-model --chat-model --vision-model
+
+# Use custom model URLs
+phantasy setup --model-url "https://huggingface.co/..."
+```
+
+### Recommended Local Models
+
+| Model            | Purpose      | Size        | Notes               |
+| ---------------- | ------------ | ----------- | ------------------- |
+| `llama3:8b`      | General chat | 4.7GB       | Best overall        |
+| `mistral:7b`     | Fast chat    | 4.1GB       | Good balance        |
+| `phi3:14b`       | Reasoning    | 7.9GB       | Better reasoning    |
+| `embeddinggemma` | Embeddings   | 300M params | Efficient           |
+| `llava:7b`       | Vision       | 4.5GB       | Image understanding |
+
+Install with Ollama:
+
+```bash
+# Chat models
+ollama pull llama3
+ollama pull mistral
+ollama pull phi3
+
+# Vision model
+ollama pull llava
+```
+
+## Development Modes
+
+### Bun (Recommended for Local Dev)
+
+Fastest iteration, native speed on Mac/Linux:
+
+```bash
+# Start PostgreSQL, create .env when needed, and boot the dev stack
+bun run dev:up
+
+# Or manage the local stack separately:
+bun run dev:infra    # Start Postgres
+bun run dev          # Start server + admin UI
+./start.sh stop      # Stop the managed Postgres container
+```
+
+**Access:**
+
+- Server/API: http://localhost:2000
+- Admin UI dev: http://localhost:5173
+
+### Docker Compose (Production-like)
+
+Full containerized environment:
+
+```bash
+# Build and run
+docker compose -f docker-compose.local.yml up -d
+
+# View logs
+docker compose -f docker-compose.local.yml logs -f
+
+# Skip Admin UI build for faster startup
+BUILD_ADMIN_UI=false docker compose -f docker-compose.local.yml up -d
+```
+
+### Production Deployment
+
+For deploying to servers (requires git clone + secrets):
+
+```bash
+# For Coolify or similar platforms
+docker compose up -d
+```
+
+## Configuration Sources
+
+Phantasy uses a layered configuration system (in priority order):
+
+1. **Database** - Highest priority (set via Admin UI)
+2. **Environment Variables** - Runtime overrides
+3. **Config Files** - JSON configs
+4. **Defaults** - Built-in sensible defaults
+
+```bash
+# Environment takes precedence
+export AGENT_MODEL=claude-3-opus
+
+# But database settings override env
+# (set via Admin UI → Settings)
+```
+
+## Memory Configuration
+
+### Providers
+
+| Provider   | Description                           | Requirements   |
+| ---------- | ------------------------------------- | -------------- |
+| `markdown` | Zero-config filesystem mode           | None           |
+| `pgvector` | **Recommended** - PostgreSQL + vector | `DATABASE_URL` |
+
+### Local Embeddings
+
+If you want local embedding generation without cloud APIs, pair it with `pgvector`:
+
+```json
+{
+  "memoryConfig": {
+    "provider": "pgvector",
+    "embedding": {
+      "small": {
+        "provider": "local"
+      }
+    }
+  }
+}
+```
+
+Install: `bun add node-llama-cpp`
+
+## Next Steps
+
+- [Configuration Guide](./configuration.md) - Full configuration options
+- [Agent Compatibility](../architecture/agent-compatibility.md) - AGENTS.md, SKILL.md, MCP, and plugins
+- [Memory System](../architecture/memory-system.md) - How memory works
+- [Plugin Development](../plugins/developing.md) - Extending Phantasy

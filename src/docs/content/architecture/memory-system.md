@@ -1,8 +1,8 @@
 # Memory System
 
-Phantasy is markdown-first by default.
+Phantasy keeps markdown as the readable zero-config default, but the flagship deployment path is PostgreSQL with `pgvector`.
 
-That means a fresh local install can persist memory without standing up a vector database first.
+That means you can still start small without a database, while the main production and Docker story stays on one authoritative Postgres stack.
 
 ## Memory vs Knowledge
 
@@ -11,10 +11,8 @@ That means a fresh local install can persist memory without standing up a vector
 
 ## Supported Memory Providers
 
-- `markdown`: default, filesystem-backed
-- `sqlite`: local vector search
-- `qdrant`: external vector database
-- `pgvector`: PostgreSQL vector storage
+- `markdown`: zero-config, filesystem-backed default
+- `pgvector`: recommended PostgreSQL vector storage
 
 The current defaults snapshot is here: [../generated/defaults.md](../generated/defaults.md).
 
@@ -49,11 +47,10 @@ Key pieces in the current codebase:
 
 ## Practical Guidance
 
-- Use `markdown` when you want zero-config local persistence.
-- Use `sqlite` when you want local semantic search without an external service.
-- Use `qdrant` or `pgvector` when you want a dedicated vector layer.
+- Use `markdown` when you want readable local persistence and the simplest setup.
+- Use `pgvector` when you want the main Docker/self-hosted Phantasy stack.
 
 ## Related Docs
 
-- [Configuration](/docs/getting-started/configuration)
-- [Workspaces](/docs/workspaces)
+- [Configuration](../configuration.md)
+- [Framework audit](./framework-audit.md)

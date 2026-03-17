@@ -1,0 +1,8 @@
+{
+  "path": "plugins/built-in/voice",
+  "title": "Voice Plugin",
+  "description": "The voice plugin provides text-to-speech capabilities.",
+  "frontmatter": {},
+  "content": "# Voice Plugin\n\nThe voice plugin provides text-to-speech capabilities.\n\n## Providers\n\n- ElevenLabs\n- OpenAI TTS\n- Custom endpoints\n\n## Configuration\n\n```json\n{\n  \"voice\": {\n    \"enabled\": true,\n    \"provider\": \"elevenlabs\",\n    \"voiceId\": \"your-voice-id\"\n  }\n}\n```\n\n",
+  "sourcePath": "src/docs/content/plugins/built-in/voice.md"
+}

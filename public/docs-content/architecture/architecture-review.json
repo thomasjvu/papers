@@ -1,0 +1,8 @@
+{
+  "path": "architecture/architecture-review",
+  "title": "Historical Architecture Review",
+  "description": "This page is archived.",
+  "frontmatter": {},
+  "content": "# Historical Architecture Review\n\nThis page is archived.\n\nIt originally captured a migration away from Cloudflare-Workers-specific deployment assumptions toward the current server-based runtime. That migration is no longer the live architecture plan, and this page should not be treated as current implementation guidance.\n\n## Current Source Of Truth\n\nUse these pages instead:\n\n- [System Design](./system-design.md)\n- [Framework Audit](./framework-audit.md)\n- [Runtime Packages](./runtime-packages.md)\n- [Generated Admin API Routes](../generated/api-routes.md)\n- [Generated Admin Tabs](../generated/admin-tabs.md)\n\n## Current Reality\n\n- Phantasy ships as a server-based runtime with a shared CLI and admin/server foundation.\n- Cloudflare may still appear as a provider integration, but not as the main deployment target.\n- The public product story is the companion/VTuber and the business stack around her, not an infrastructure migration.\n\n## Why Keep This Page\n\nThe historical note remains useful when old discussions or stale branches reference:\n\n- Cloudflare Workers migration work\n- `agent-core` cleanup discussions\n- older deployment assumptions that no longer define the product\n\nIf you are deciding how Phantasy works today, ignore the old migration steps and use the current architecture docs instead.\n",
+  "sourcePath": "src/docs/content/architecture/architecture-review.md"
+}

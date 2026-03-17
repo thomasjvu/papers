@@ -1,0 +1,8 @@
+{
+  "path": "plugins/optional/cache",
+  "title": "Cache Plugin",
+  "description": "The cache plugin provides intelligent response caching for improved performance.",
+  "frontmatter": {},
+  "content": "# Cache Plugin\n\nThe cache plugin provides intelligent response caching for improved performance.\n\n## Configuration\n\n```json\n{\n  \"cache\": {\n    \"enabled\": true,\n    \"ttl\": 3600,\n    \"skipPersonal\": true,\n    \"skipTimeSensitive\": true,\n    \"maxCacheSize\": 1000\n  }\n}\n```\n\n## Features\n\n- TTL-based cache expiration\n- Personal message detection (skips caching)\n- Time-sensitive content detection\n- Configurable cache size limits\n\n",
+  "sourcePath": "src/docs/content/plugins/optional/cache.md"
+}

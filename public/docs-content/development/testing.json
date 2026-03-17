@@ -1,0 +1,8 @@
+{
+  "path": "development/testing",
+  "title": "Testing",
+  "description": "Phantasy uses a layered release gate. Run the smallest useful check first, then escalate to the full release gate when the surface is broad.",
+  "frontmatter": {},
+  "content": "# Testing\n\nPhantasy uses a layered release gate. Run the smallest useful check first, then escalate to the full release gate when the surface is broad.\n\n## Fast Checks\n\n```bash\nbun run test:core\nbun run test:ui:components\nbun run typecheck\nbun run validate:standards\nbun run docs:check\n```\n\n## Flagship Smoke\n\n```bash\nbun run test:browser:smoke\n```\n\nThis Puppeteer flow verifies the flagship admin path against a real booted server:\n\n- login\n- dashboard\n- companion\n- website\n- notifications\n\nRun it against a clean PostgreSQL database. In CI, the workflow migrates `test_db` first; locally, set `PHANTASY_BROWSER_SMOKE_DATABASE_URL` if your default dev database contains stale encrypted provider secrets.\n\n## Release Gate\n\n```bash\nbun run build\nnpm pack --dry-run --json --ignore-scripts --cache /tmp/phantasy-npm-cache\n```\n\n## Frameworks\n\n- Vitest for unit and integration coverage\n- Puppeteer for the flagship browser smoke flow\n",
+  "sourcePath": "src/docs/content/development/testing.md"
+}

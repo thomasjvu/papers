@@ -1,0 +1,8 @@
+{
+  "path": "api/rest-api",
+  "title": "REST API",
+  "description": "OpenAI-compatible REST API endpoints.",
+  "frontmatter": {},
+  "content": "# REST API\n\nOpenAI-compatible REST API endpoints.\n\n## Base URL\n\n- Development: `http://localhost:2000`\n- Production: `https://your-domain/api`\n\n## Endpoints\n\n### Chat Completions\n\n```bash\nPOST /api/integrations/v1/chat/completions\n```\n\n### Health Check\n\n```bash\nGET /health\n```\n\n",
+  "sourcePath": "src/docs/content/api/rest-api.md"
+}

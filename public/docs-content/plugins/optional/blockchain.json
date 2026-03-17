@@ -1,0 +1,8 @@
+{
+  "path": "plugins/optional/blockchain",
+  "title": "Blockchain Plugins",
+  "description": "Optional plugins for blockchain and Web3 functionality.",
+  "frontmatter": {},
+  "content": "# Blockchain Plugins\n\nOptional plugins for blockchain and Web3 functionality.\n\n## Available Plugins\n\n- **wallet** - Multi-chain wallet management\n- **wallet-coinbase** - Coinbase integration\n- **wallet-solana** - Solana blockchain support\n- **agentkit** - Coinbase AgentKit integration\n- **x402-gateway** - Payment gateway\n\n::: info Installation\nThese are external plugins. Install via the plugins directory or npm.\n:::\n",
+  "sourcePath": "src/docs/content/plugins/optional/blockchain.md"
+}

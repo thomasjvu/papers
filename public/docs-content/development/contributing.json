@@ -1,0 +1,8 @@
+{
+  "path": "development/contributing",
+  "title": "Contributing",
+  "description": "Use this guide when you are opening a pull request against the open-source repo.",
+  "frontmatter": {},
+  "content": "# Contributing\n\nUse this guide when you are opening a pull request against the open-source repo.\n\n## Workflow\n\n1. Fork the repository.\n2. Create a descriptive branch from `development` unless a maintainer asks for something else.\n3. Open the PR against `development`.\n\n## Minimum Checks\n\n```bash\nbun run typecheck\nbun run validate:standards\nbun run docs:check\n```\n\nIf you touch shared runtime, admin UI behavior, or the publish surface, also run:\n\n```bash\nbun run test\nbun run build\nbun run test:publish-surface\n```\n\nIf you change a first-run flow or visible admin shell behavior, also run:\n\n```bash\nbun run test:browser:smoke\n```\n\n## Expectations\n\n- Stay aligned with the five-workspace model.\n- Prefer domain-first placement.\n- Update user-facing docs when behavior changes.\n- Use signed-off commits: `git commit -s`\n- Do not introduce secrets or incompatible licenses.\n",
+  "sourcePath": "src/docs/content/development/contributing.md"
+}

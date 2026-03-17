@@ -1,52 +1,67 @@
 # Introduction
 
-Phantasy lets you build an AI companion or VTuber who can run her own site, content, automations, and business.
+Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
 
-That is the whole idea. The companion is the product surface. The CMS, workflows, channels, and operations live around her on the same runtime.
+It is designed around one idea: the companion, the runtime, and the product surface should compose cleanly instead of being stitched together from separate systems.
 
 ```bash
 npm install @phantasy/agent
 ```
 
-## The Product Model
+## Five Workspaces
 
-Phantasy organizes first-party features into five workspaces:
+- `Character`: identity, memory, behavior, knowledge, avatar, and voice
+- `Site`: website, themes, pages, media, and Chronicle publishing
+- `Business`: channels, integrations, notifications, subscriptions, wallet/payments
+- `Automations`: workflows, jobs, schedules, approvals, and browser-driven tasks
+- `Operations`: providers, routing, monitoring, logs, auth, users, testing, developer tools
 
-- `Character`: identity, memory, behavior, voice, avatar
-- `Site`: website, themes, media, Chronicle publishing
-- `Business`: channels, integrations, notifications, monetization
-- `Automations`: workflows, schedules, approvals, background activity
-- `Operations`: providers, auth, monitoring, logs, testing, admin tools
+These are the top-level product workspaces. Plugins, themes, skills, workflows, and packages are how the system stays modular underneath that story, not how beginners are expected to think about the product.
 
-If you remember those five, the repo makes sense quickly.
+## Shared Foundation
 
-## Why The Runtime Split Exists
+Phantasy ships as a headless runtime core with a batteries-included product layer on top.
 
-Phantasy keeps a small trusted core, then layers product surfaces and privileged profiles on top.
+Exact exports live in [Package Exports](/docs/generated/package-exports).
 
-That means:
+That split matters for trust. The unified runtime uses explicit `capabilities` plus `approvals` instead of implicit always-on privileged tools.
 
-- the default runtime stays on `core-runtime`
-- coding tools are opt-in through `coder`
-- companion/media features are opt-in through `character`
-- server/admin surfaces are opt-in through `server-admin`
+## Product Shapes
 
-The product stays broad without pretending everything belongs in the base trust boundary.
+The main beginner stories are:
 
-## Start With These Shapes
+- `vtuber`
+- `operator`
+- `developer`
 
-Most teams should begin with one of three front-door shapes:
+They all map to the same runtime and the same five workspaces. The difference is which part of the companion's business users notice first.
 
-- `business-cms`: the flagship path
-- `operator`: the same runtime with operations foregrounded
-- `creator`: publishing and media foregrounded
+## What You Get
 
-If you are unsure, choose `business-cms`.
+- Plugin system with code-first built-ins and external plugin support
+- CLI runtime and Express server runtime
+- Markdown-first memory with optional vector backends
+- Provider routing across multiple model vendors
+- Workflow engine for deterministic multi-step execution
+- Built-in admin API, dashboard, and CMS surfaces for operating the companion business
+- Live2D and VRM support for 2D/3D companion/VTuber presentation
+- Website mode, headless publishing, and Chronicle content flows
 
-## Read Next
+## Trust Model
 
+- Public routes use exact or prefix rules with HTTP method scoping
+- Admin routes are protected by default
+- Remote plugins are fetched into quarantine, not auto-installed with lifecycle scripts
+- Published artifacts are allowlisted and tested so local workspace state does not leak into npm
+
+## Recommended Starting Points
+
+- [Use Cases](/docs/getting-started/use-cases)
 - [Installation](/docs/getting-started/installation)
 - [First Run](/docs/getting-started/first-run)
-- [Use Cases](/docs/getting-started/use-cases)
-- [Workspaces](/docs/workspaces)
+- [10-minute VTuber launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
+- [CLI](/docs/cli)
+- [Design Principles](/docs/architecture/design-principles)
 - [Runtime Packages](/docs/architecture/runtime-packages)
+- [Package Exports](/docs/generated/package-exports)
+- [System Design](/docs/architecture/system-design)

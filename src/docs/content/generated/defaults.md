@@ -55,8 +55,7 @@ This file is generated from `src/config/constants.ts`.
   "AUTO_FLUSH": true,
   "FLUSH_THRESHOLD": 0.8,
   "MAX_CONVERSATION_MESSAGES": 50,
-  "DUAL_EMBEDDINGS": false,
-  "SQLITE_VECTOR_PATH": "./workspace/.vector-index.db"
+  "DUAL_EMBEDDINGS": false
 }
 ```
 
@@ -114,7 +113,6 @@ This file is generated from `src/config/constants.ts`.
   "comfyui": "http://localhost:8188",
   "ollama": "http://localhost:11434/v1",
   "openai-compatible": "http://localhost:11434/v1",
-  "qdrant": "http://localhost:6333",
   "weaviate": "http://localhost:8080",
   "discord": "https://discord.com/api/v10",
   "twitter": "https://api.twitter.com/2",

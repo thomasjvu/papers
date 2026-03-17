@@ -18,7 +18,7 @@ Transport layers such as admin API, admin UI, CLI, and website mode should read 
 
 ## What Stays In Core
 
-`@phantasy/core-runtime` should contain only what every agent needs:
+`@phantasy/agent-core` should contain only what every agent needs:
 
 - config loading and validation
 - provider routing contracts
@@ -33,8 +33,10 @@ Core should stay small, low-privilege, and easy to audit.
 
 Anything privileged, product-specific, or operational should live outside the trusted base:
 
-- coding tools in `@phantasy/profile-coder`
-- persona, memory, voice, and media features in `@phantasy/profile-character`
+- provider adapters in `@phantasy/providers`
+- CLI orchestration in `@phantasy/cli`
+- terminal UI in `@phantasy/tui`
+- admin frontend in `@phantasy/admin-web-ui`
 - HTTP admin and dashboard concerns in `@phantasy/server-admin`
 - niche verticals and specialized integrations in extensions, plugins, or deeper docs
 
@@ -48,11 +50,11 @@ A coding agent can also be a companion. A companion can also be a coding agent.
 
 ```json
 {
-  "pluginProfiles": ["coder", "character"]
+  "capabilities": { "coding": true, "character": true, "admin": false }
 }
 ```
 
-That is the intended shape for agents like Kurisu: one runtime, one character layer, multiple capability profiles.
+That is the intended shape for agents like Kurisu: one runtime, one character layer, multiple explicit capabilities.
 
 ## Companions Are First-Class Product Surfaces
 

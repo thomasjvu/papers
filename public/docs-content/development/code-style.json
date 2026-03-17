@@ -1,0 +1,8 @@
+{
+  "path": "development/code-style",
+  "title": "Code Style",
+  "description": "Code style guidelines for Phantasy Agent.",
+  "frontmatter": {},
+  "content": "# Code Style\n\nCode style guidelines for Phantasy Agent.\n\n## TypeScript\n\n- Strict mode enabled\n- Explicit return types\n- Interface-first design\n\n## Naming\n\n- camelCase for variables/functions\n- PascalCase for classes/types\n- UPPER_SNAKE_CASE for constants\n\n",
+  "sourcePath": "src/docs/content/development/code-style.md"
+}

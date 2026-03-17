@@ -1,0 +1,8 @@
+{
+  "path": "integrations/twitter",
+  "title": "Twitter/X Integration",
+  "description": "Complete guide for setting up Twitter/X integration.",
+  "frontmatter": {},
+  "content": "# Twitter/X Integration\n\nComplete guide for setting up Twitter/X integration.\n\n## Prerequisites\n\n- Twitter Developer Account (Elevated access recommended)\n- API v2 access\n\n## Environment Variables\n\n```env\nTWITTER_API_KEY=...\nTWITTER_API_SECRET=...\nTWITTER_ACCESS_TOKEN=...\nTWITTER_ACCESS_SECRET=...\nTWITTER_BEARER_TOKEN=...\n```\n\n## Next Steps\n\n- [Twitter Plugin Configuration](/docs/plugins/platforms/twitter)\n\n",
+  "sourcePath": "src/docs/content/integrations/twitter.md"
+}

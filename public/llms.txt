@@ -6,68 +6,150 @@ Build an AI companion or VTuber who can run her own site, content, automations, 
 
 ## Getting Started
 
-- [Introduction](/docs/getting-started/introduction): Phantasy lets you build an AI companion or VTuber who can run her own site, content, automations, and business.
-- [Use Cases](/docs/getting-started/use-cases): Phantasy is broad. The docs are opinionated about where it lands best.
-- [Installation](/docs/getting-started/installation): Phantasy is Bun-first in the repo and npm-friendly when you install the published package.
-- [First Run](/docs/getting-started/first-run): This is the quickest honest demo of Phantasy.
-- [Local Development](/docs/getting-started/local-development): Phantasy is Bun-first in the main product repo and ships two common local paths: a fast repo loop and a production-like Docker loop.
-- [Configuration](/docs/getting-started/configuration): Phantasy merges configuration from a few places. The order matters.
-- [Bootstrapping](/docs/getting-started/bootstrapping): Phantasy has two filesystem stories:
-
-## Product
-
-- [Workspaces](/docs/workspaces): Every first-party Phantasy feature belongs to one primary workspace.
-- [Avatar System](/docs/avatars): Phantasy supports four avatar types:
-- [Website Modes](/docs/website-mode): Phantasy keeps content, themes, and public APIs in one system, but lets you choose how much of the built-in website is exposed at runtime.
-- [Chronicle](/docs/features/chronicle): Chronicle is Phantasy's publishing surface.
-- [Integration Model](/docs/integrations/integrations-guide): Phantasy has five extension surfaces.
-- [Workflow Overview](/docs/workflows/overview): Workflows are declarative automation graphs executed by the scheduling engine.
+- [Getting Started](/docs/getting-started): Phantasy is best understood as a companion/VTuber product, not just an install flow.
+- [Quickstart](/docs/getting-started/quickstart): This is the fastest path to a usable Phantasy runtime with the current chat surfaces:
+- [Introduction](/docs/getting-started/introduction): Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
+- [Use Cases](/docs/getting-started/use-cases): Phantasy is broad, so the docs should be explicit about the story it is best at: an AI companion/VTuber with a real operating stack around her.
+- [Installation](/docs/getting-started/installation): Phantasy is Bun-first for local development and npm-compatible for published package installs.
+- [First Run](/docs/getting-started/first-run): This guide gets you from zero to a running Phantasy companion/VTuber product with the current flagship story intact.
+- [Configuration](/docs/getting-started/configuration): Phantasy supports config from files, env, and persisted admin settings.
+- [Bootstrapping](/docs/getting-started/bootstrapping): This guide covers initializing your Phantasy workspace and the local files that shape agent behavior.
 
 ## Guides
 
-- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES): This is the shortest honest demo of Phantasy's flagship shape: a companion who runs her own site, content, automations, and business from one runtime.
-- [Live2D Setup](/docs/guides/LIVE2D_SETUP): Live2D in Phantasy is intentionally pinned.
-- [Authentication Setup](/docs/guides/AUTHENTICATION_SETUP): Most installs only need one thing: protect `/admin` with a local admin login and a real JWT secret.
+- [Business Agent CMS 10 Minutes](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES): This is the shortest path to the product story that matters most for launch: an AI companion/VTuber who runs her own site, content, automations, and business from one runtime.
+- [Authentication Setup](/docs/guides/AUTHENTICATION_SETUP): This guide covers the supported v1 auth paths and the rate limiting that protects them.
 - [Deploy](/docs/guides/DEPLOY): The primary self-hosting path is Docker.
 - [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY): Build an AI companion/VTuber, then layer site, content, automations, and business around her on the same foundation.
-- [Launch Playbook](/docs/guides/LAUNCH_PLAYBOOK): This is the launch filter for Phantasy.
+- [Live2D Setup](/docs/guides/LIVE2D_SETUP): This guide covers the Live2D runtime used by the Phantasy Agent admin UI.
+- [Live2D Prod Ready](/docs/guides/LIVE2D_PROD_READY)
+- [Custom Integration Guide](/docs/guides/CUSTOM_INTEGRATION_GUIDE): Custom Integrations let external products talk to your companion through Phantasy's admin-managed REST surface.
+- [Environment Setup](/docs/guides/ENVIRONMENT_SETUP): This guide explains how to properly configure environment variables for Phantasy Agent across different deployment scenarios.
+- [Storage Options](/docs/guides/STORAGE_OPTIONS): - File-based KV storage is not production-ready
+- [OPEN Source FAQ](/docs/guides/OPEN_SOURCE_FAQ): This FAQ is the public-facing answer set for common questions about Phantasy's open-source model.
+- [OpenClaw Migration](/docs/guides/OPENCLAW_MIGRATION): Phantasy is not a byte-for-byte clone of OpenClaw, but the local operating model is intentionally close enough that most teams can migrate by moving workspace files instead of rewriting everything.
+- [Migration Notes](/docs/guides/MIGRATION_NOTES): 1. **Package Manager**: Use `bun` for installs, scripts, and lockfile management
+- [Coolify Compose](/docs/guides/COOLIFY_COMPOSE): Use this when you want the Agent to bring its own Postgres dependency. Coolify manages the stack from the repo's `docker-compose.yml`.
+- [Neon Setup](/docs/guides/NEON_SETUP): 1. Go to [console.neon.tech](https://console.neon.tech)
+- [Infisical Setup](/docs/guides/INFISICAL_SETUP): Use Infisical for shared or production deployments. Keep only the Infisical bootstrap variables on the host platform. Store the application secrets inside Infisical.
+- [R2 Quick Setup](/docs/guides/R2_QUICK_SETUP): ```json
+- [R2 CORS Setup](/docs/guides/R2_CORS_SETUP): This guide explains how to configure CORS (Cross-Origin Resource Sharing) for your Cloudflare R2 bucket to work with the Phantasy agent media storage system.
+- [Release Policy](/docs/guides/RELEASE_POLICY)
+- [Multi Agent Setup](/docs/guides/multi-agent-setup): Phantasy supports many runtime configs, but the embedded admin app is single-runtime per deployment. If you need multiple live agents, run separate Phantasy deployments and manage them from Party-HQ.
+
+## Features
+
+- [Chronicle](/docs/features/chronicle): Chronicle is the Phantasy Agent's built-in journaling and blogging system. It enables agents to autonomously generate, review, publish, and syndicate content — functioning as a personal journal, a public blog, and a long-term memory source.
+
+## Integrations
+
+- [Browser Based Providers](/docs/integrations/browser-based-providers): Phantasy supports running AI models entirely in your browser using WebGPU. These providers require no API keys and run locally on your device.
+- [Custom](/docs/integrations/custom): Build custom REST API integrations for member apps, storefronts, mobile clients, or other external surfaces.
+- [Discord](/docs/integrations/discord): Complete guide for setting up Discord integration.
+- [Integrations Guide](/docs/integrations/integrations-guide): Phantasy has five extension surfaces. They solve different problems and should not be mixed together casually.
+- [Live2D](/docs/integrations/live2d): 2D avatar integration using Live2D Cubism models.
+- [Party HQ](/docs/integrations/party-hq): Party-HQ is the external control plane for multi-agent ops: approvals, chat, workspace context, and runtime visibility. Phantasy is the first-class integration, but the wire contract is framework-agnostic so OpenClaw-likes, Claude Code, OpenCode, Codex, Paperclip-style runtimes, and custom agents can register the same way.
+- [Twitch](/docs/integrations/twitch): Complete guide for setting up Twitch integration.
+- [Twitch Setup Guide](/docs/integrations/twitch-setup-guide): This guide will walk you through setting up the Twitch integration for your Phantasy Agent. No coding required!
+- [Twitter](/docs/integrations/twitter): Complete guide for setting up Twitter/X integration.
+- [Vrm](/docs/integrations/vrm): 3D avatar integration using VRM (Virtual Reality Model) format.
+
+## Built In
+
+- [Image](/docs/plugins/built-in/image): The image plugin provides AI image generation capabilities.
+- [Voice](/docs/plugins/built-in/voice): The voice plugin provides text-to-speech capabilities.
+
+## Optional
+
+- [Blockchain](/docs/plugins/optional/blockchain): Optional plugins for blockchain and Web3 functionality.
+- [Cache](/docs/plugins/optional/cache): The cache plugin provides intelligent response caching for improved performance.
+- [Erc8004](/docs/plugins/optional/erc8004): Get your AI agent registered on the ERC-8004 "Trustless Agents" standard in 5 minutes.
+- [Games](/docs/plugins/optional/games): Optional plugins for games and entertainment.
+
+## Platforms
+
+- [Discord](/docs/plugins/platforms/discord): The Discord plugin enables your agent to operate as a Discord bot.
+- [Twitch](/docs/plugins/platforms/twitch): The Twitch plugin enables your agent to operate as a Twitch chat bot.
+- [Twitter](/docs/plugins/platforms/twitter): The X plugin enables your agent to interact on Twitter/X.
+
+## Plugins
+
+- [Overview](/docs/plugins/overview): Phantasy uses a code-first plugin framework built around:
+- [Developing](/docs/plugins/developing): Phantasy uses a WordPress-inspired plugin architecture, but the runtime now treats plugins and built-in capabilities differently:
+- [Developing Plugins](/docs/plugins/developing-plugins): This page has moved to [Developing Plugins](./developing.md).
+- [Marketplace](/docs/plugins/marketplace): Welcome to the Phantasy Agent Plugin Marketplace! This guide will help you discover, install, and manage plugins to extend your agent's capabilities.
+- [Troubleshooting](/docs/plugins/troubleshooting): Quick fixes for common plugin configuration issues.
+
+## API
+
+- [API](/docs/api): ```
+- [Rest API](/docs/api/rest-api): OpenAI-compatible REST API endpoints.
+- [WebSocket API](/docs/api/websocket-api): Real-time WebSocket API for live updates.
+- [Openai Compatible](/docs/api/openai-compatible): Phantasy Agent exposes an OpenAI-compatible API.
+- [Standardization](/docs/api/standardization): All Admin API routes must use standardized response wrappers to ensure consistency across the system. This provides predictable error handling, automatic type safety, and seamless frontend integration.
 
 ## Architecture
 
+- [Architecture](/docs/architecture): ```
 - [Design Principles](/docs/architecture/design-principles): Phantasy lets you build an AI companion/VTuber who can run her own site, content, automations, and business.
-- [Runtime Packages](/docs/architecture/runtime-packages): Phantasy exposes one default package plus focused runtime surfaces for advanced composition.
-- [System Design](/docs/architecture/system-design): Phantasy has two runtime entrypoints that share one core:
-- [Memory System](/docs/architecture/memory-system): Phantasy is markdown-first by default.
 - [Agent Compatibility](/docs/architecture/agent-compatibility): Phantasy intentionally supports the common local-agent surfaces people already use across modern coding-agent stacks:
-- [Heartbeat](/docs/architecture/heartbeat): Heartbeat is the lightweight background loop.
+- [Runtime Packages](/docs/architecture/runtime-packages): Phantasy exposes one default package plus focused runtime surfaces for advanced composition.
+- [System Design](/docs/architecture/system-design): Phantasy is organized as one product with three layers:
+- [Repo Standards](/docs/architecture/repo-standards): `bun run validate:standards` is the repo-specific guardrail layer.
+- [Provider Routing](/docs/architecture/provider-routing): Phantasy uses a simple two-tier routing model:
+- [Framework Audit](/docs/architecture/framework-audit): This page summarizes the current state of the codebase after the truth-consolidation sweep.
+- [Memory System](/docs/architecture/memory-system): Phantasy keeps markdown as the readable zero-config default, but the flagship deployment path is PostgreSQL with `pgvector`.
+- [WebSocket System](/docs/architecture/websocket-system): The existing WebSocket implementation (`src/server/websocket-manager.ts`) is **minimal** and only supports:
+- [Heartbeat](/docs/architecture/heartbeat): Phantasy implements a heartbeat system inspired by OpenClaw, enabling periodic agent wake-ups for background tasks, maintenance, and proactive behaviors.
+- [Admin UI Design System](/docs/architecture/admin-ui-design-system): This is the shared token and primitive contract for Phantasy's admin UI.
 - [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy): This is the style contract for Phantasy's admin UI.
-- [Repository Standards](/docs/architecture/repo-standards): `bun run validate:standards` is the repo-specific guardrail layer.
+- [Architecture Review](/docs/architecture/architecture-review): This page is archived.
+- [Compaction](/docs/architecture/compaction): Every model has a **context window** - the maximum tokens it can process. Long-running conversations accumulate messages and tool results. When the conversation nears or exceeds this limit, Phantasy **compacts** older history to stay within limits.
+- [Config Sync Permissions](/docs/architecture/config-sync-permissions): How configuration stays in sync across Admin UI and CLI, how authentication works across surfaces, and how users are identified.
+- [Conversation Unification](/docs/architecture/conversation-unification): - **Active conversations**: In-memory `conversationHistory` array
+- [Database Shape](/docs/architecture/database-shape): Phantasy's primary database contract is PostgreSQL plus an ordered SQL migration set in `migrations/`.
+- [Licensing And Governance](/docs/architecture/licensing-and-governance): This memo documents the current recommendation for licensing, trademarks, contributions, and future commercial surfaces.
+- [Multi Agent](/docs/architecture/multi-agent): Party-HQ is the multi-agent control plane. The embedded Phantasy admin app is single-runtime per deployment and should not grow a second orchestration layer of its own.
+- [No Code Config](/docs/architecture/no-code-config): The Phantasy Agent framework is designed as a **no-code agent CMS/command center** where all configuration happens through the Admin UI dashboard. Config files are just defaults—the database is the source of truth for runtime configuration.
+- [Party HQ Control Plane](/docs/architecture/party-hq-control-plane): Party-HQ should be treated as a separate control-plane app for agents, not as a feature folded into the main Phantasy runtime package.
+- [Plugin Repository Strategy](/docs/architecture/plugin-repository-strategy): Phantasy has two different plugin concerns, and they should not be conflated:
+- [Prompt Caching](/docs/architecture/prompt-caching): Phantasy implements KV-cache-based prompt caching to dramatically reduce token usage and costs for long-running agents.
+- [Retry Policy](/docs/architecture/retry-policy): Phantasy implements retry logic to handle transient failures gracefully.
 
-## Extensions
+## Deployment
 
-- [Plugin Overview](/docs/plugins/overview): Phantasy uses a code-first plugin framework built around:
-- [Developing Plugins](/docs/plugins/developing): Build a plugin when profiles, skills, and MCP are not enough.
-
-## API & Reference
-
-- [CLI](/docs/cli): The CLI is the coder-first path through Phantasy.
-- [Public API](/docs/api/public-api): Phantasy exposes a small public HTTP surface alongside the authenticated admin shell.
-- [Admin API](/docs/api/admin-api): The admin surface is mounted under `/admin/api/*` and is protected by the same auth system as the admin UI.
-
-## Generated Inventories
-
-- [Defaults](/docs/generated/defaults): This file is generated from `src/config/constants.ts`.
-- [Providers](/docs/generated/providers): This file is generated from the registered runtime provider definitions.
-- [Package Exports](/docs/generated/package-exports): This file is generated from `package.json` exports.
-- [Plugins](/docs/generated/plugins): This file is generated from the built-in profile descriptors.
-- [Skills](/docs/generated/skills): This file is generated from bundled `skills/*/SKILL.md` files.
-- [Themes](/docs/generated/themes): This file is generated from bundled `themes/*/theme.json` manifests.
-- [CLI Commands](/docs/generated/cli-commands): This file is generated from the CLI entrypoint command dispatch table.
-- [Admin Tabs](/docs/generated/admin-tabs): This file is generated from the shared admin tab registry used by the layout, URL resolver, and command palette.
-- [Party-HQ Protocol](/docs/generated/party-hq-protocol): This file is generated from `apps/party-hq/packages/shared/src/protocol.ts`.
-- [API Routes](/docs/generated/api-routes): This file is generated from mounted admin route handlers and explicit Express admin router mounts.
+- [Cloud Services](/docs/deployment/cloud-services): Advanced deployment and operator guides for external services.
+- [Coolify GitLab](/docs/deployment/coolify-gitlab): Deployment with Coolify and GitLab CI.
+- [Environment](/docs/deployment/environment): Complete environment configuration guide.
+- [Phala Tee](/docs/deployment/phala-tee): Use this when validating Phantasy inside a Phala CVM or against the local dstack simulator.
+- [Storage](/docs/deployment/storage): Configure database and storage backends.
 
 ## Development
 
-- [Verification](/docs/development/verification): Prefer targeted verification first, then escalate to the broader suite when the change surface warrants it.
+- [Branching Cicd](/docs/development/branching-cicd): Git workflow and CI/CD pipeline.
+- [Code Style](/docs/development/code-style): Code style guidelines for Phantasy Agent.
+- [Contributing](/docs/development/contributing): Use this guide when you are opening a pull request against the open-source repo.
+- [Documentation](/docs/development/documentation): Public docs live in `apps/docs/src/docs/content`.
+- [Refactoring PLAN](/docs/development/REFACTORING_PLAN): > **Created:** January 2026
+- [Testing](/docs/development/testing): Phantasy uses a layered release gate. Run the smallest useful check first, then escalate to the full release gate when the surface is broad.
+
+## Generated
+
+- [Defaults](/docs/generated/defaults): This file is generated from `src/config/constants.ts`.
+- [Providers](/docs/generated/providers): This file is generated from the registered runtime provider definitions.
+- [Plugins](/docs/generated/plugins): This file is generated from the built-in capability descriptors.
+- [Skills](/docs/generated/skills): This file is generated from bundled `skills/*/SKILL.md` files.
+- [Themes](/docs/generated/themes): This file is generated from bundled `themes/*/theme.json` manifests.
+- [Workflows](/docs/generated/workflows): This file is generated from bundled `workflows/*.workflow.json` files.
+- [MCP](/docs/generated/mcp): This file is generated from `src/mcp/server-presets.json`.
+- [Presets](/docs/generated/presets): This file is generated from `src/config/presets/index.ts`.
+- [Admin Tabs](/docs/generated/admin-tabs): This file is generated from the shared admin tab registry used by the layout, URL resolver, and command palette.
+- [CLI Commands](/docs/generated/cli-commands): This file is generated from the CLI entrypoint command dispatch table.
+- [API Routes](/docs/generated/api-routes): This file is generated from mounted admin route handlers and explicit Express admin router mounts.
+- [Package Exports](/docs/generated/package-exports): This file is generated from `package.json` exports.
+- [Party HQ Protocol](/docs/generated/party-hq-protocol): This file is generated from `apps/party-hq/packages/shared/src/protocol.ts`.
+
+## Maintenance
+
+- [Updating](/docs/maintenance/updating): Keep your Phantasy installation up to date with regular updates.
 

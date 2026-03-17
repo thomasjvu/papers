@@ -1,0 +1,8 @@
+{
+  "path": "integrations/twitch",
+  "title": "Twitch Integration",
+  "description": "Complete guide for setting up Twitch integration.",
+  "frontmatter": {},
+  "content": "# Twitch Integration\n\nComplete guide for setting up Twitch integration.\n\nDetailed setup available at: [Twitch Setup Guide](/docs/integrations/twitch-setup-guide)\n\n",
+  "sourcePath": "src/docs/content/integrations/twitch.md"
+}

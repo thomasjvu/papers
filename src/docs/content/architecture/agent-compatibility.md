@@ -5,14 +5,14 @@ Phantasy intentionally supports the common local-agent surfaces people already u
 - `AGENTS.md` for local operating instructions
 - `SKILL.md` for on-demand capability instructions
 - `.mcp.json` and `mcpServers` for Model Context Protocol tools
-- profile and plugin config for runtime capability composition
+- capability and plugin config for runtime capability composition
 
 ## The Short Version
 
 - `AGENTS.md` tells the agent how to behave in a workspace
 - `SKILL.md` teaches the agent how to do a workflow
 - MCP gives the agent callable external tools
-- plugins and profiles extend the runtime itself
+- plugins and capabilities extend the runtime itself
 
 Use all four together when needed. They are complementary, not competing abstractions.
 
@@ -47,6 +47,8 @@ Skills are instruction surfaces. They teach the model when and how to use tools,
 
 Phantasy also supports OpenClaw-style gating and installer metadata through `metadata.openclaw`.
 
+Reflection-generated skills use the same `SKILL.md` format, but Phantasy keeps them staged: draft and archived reflection artifacts stay out of normal discovery until you promote them.
+
 ## MCP Compatibility
 
 Phantasy supports Model Context Protocol servers as external tool providers.
@@ -61,18 +63,18 @@ That matches the practical setup most teams expect: shared project defaults with
 
 ## Skills vs MCP vs Plugins
 
-| Need                                     | Use               |
-| ---------------------------------------- | ----------------- |
-| Teach the model a workflow or CLI        | `SKILL.md`        |
-| Give the model executable external tools | MCP               |
-| Add runtime/platform capability          | profile or plugin |
-| Set local workspace behavior             | `AGENTS.md`       |
+| Need                                     | Use                  |
+| ---------------------------------------- | -------------------- |
+| Teach the model a workflow or CLI        | `SKILL.md`           |
+| Give the model executable external tools | MCP                  |
+| Add runtime/platform capability          | capability or plugin |
+| Set local workspace behavior             | `AGENTS.md`          |
 
 ## Example Composition
 
 ```json
 {
-  "pluginProfiles": ["coder", "character"],
+  "capabilities": { "coding": true, "character": true, "admin": false },
   "skills": {
     "github": { "enabled": true }
   },
@@ -87,8 +89,8 @@ That matches the practical setup most teams expect: shared project defaults with
 
 This gives you:
 
-- coder tools from the runtime
-- persona and companion behavior from the character profile
+- coding tools from the runtime
+- persona and companion behavior from the character capability
 - GitHub workflow instructions from a skill
 - live GitHub actions through MCP
 
@@ -96,4 +98,6 @@ This gives you:
 
 Keep the base runtime boring.
 
-Put local behavior in `AGENTS.md`, reusable workflow knowledge in `SKILL.md`, external tools in MCP, and product/runtime concerns in profiles or plugins.
+Put local behavior in `AGENTS.md`, reusable workflow knowledge in `SKILL.md`, external tools in MCP, and product/runtime concerns in capabilities or plugins.
+
+If you are moving an existing OpenClaw-style workspace across, use [OpenClaw Migration](../guides/OPENCLAW_MIGRATION.md) as the practical checklist.

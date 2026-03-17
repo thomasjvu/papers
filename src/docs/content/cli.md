@@ -1,64 +1,139 @@
-# CLI
+# CLI Guide
 
-The CLI is the coder-first path through Phantasy.
+The CLI is the fastest way to reach the Phantasy runtime when you want direct control over the companion, coding tools, memory, workflows, and compatibility files.
 
-It runs on the same core runtime used by companion/VTuber products and server deployments, so you can combine coding capability with persona, memory, workflows, and later admin/server surfaces without switching frameworks.
+Today the main chat surfaces are:
 
-The entrypoint is `src/cli/index.ts`. If no top-level command is provided, Phantasy starts the interactive chat/TUI flow.
+- the terminal TUI
+- the admin CMS web UI
+- Party-HQ as the orchestration surface
 
-## Main Commands
+Messaging adapters remain separate work and are not required for the core local workflow.
 
-The generated command inventory is here: [generated/cli-commands.md](./generated/cli-commands.md).
+## Start The Runtime
 
-## Common Usage
+Published package:
 
 ```bash
 npx phantasy
-npx phantasy chat --config config/agents/my-brand.json
-npx phantasy chat --config config/agents/editorial-companion.json
-npx phantasy start
-npx phantasy workflow list
-npx phantasy create agent
-npx phantasy create business-cms my-brand
-npx phantasy create developer local-coder
-npx phantasy create plugin publishing-hook --workspace site --kind capability
-npx phantasy create skill editorial-voice --workspace character --kind behavior
-npx phantasy create theme atelier
-npx phantasy setup
-npx phantasy models auth import-codex --provider openai-codex
+npx phantasy chat --config config/agents/local-coder.json
+npx phantasy start --config config/agents/local-coder.json
 ```
 
-If the CLI is already installed globally or otherwise available on your `PATH`, you can use `phantasy` directly.
+Source checkout:
+
+```bash
+bun run phantasy
+bun run phantasy chat --config config/agents/local-coder.json
+bun run dev
+```
+
+If you need a starter config first:
+
+```bash
+npx phantasy create vtuber my-brand
+npx phantasy create operator ops-lead
+npx phantasy create developer local-coder
+```
+
+The full command inventory is still generated in [generated/cli-commands.md](./generated/cli-commands.md).
+
+## Use The TUI
+
+The default chat surface is a real full-screen TUI, not a one-line prompt loop.
+
+Input behavior:
+
+- `Enter` inserts a newline
+- `Ctrl+Enter` or `Cmd+Enter` sends
+- `Alt+Up` and `Alt+Down` recall prior drafted inputs
+- `/` opens slash-command autocomplete
+
+Useful slash commands:
+
+```text
+/delegate <subagent> <task>
+/delegate-parallel <agent>=<task> ;; <agent>=<task>
+/file <path>
+/memory <query>
+/session-search <query>
+/session-list [query]
+/stash [name]
+/fork [name]
+/load <id>
+/conversations
+/reflections
+/reflection-run
+/reflection-review <artifact>
+/reflection-promote <artifact>
+/reflection-archive <artifact>
+```
+
+What these do:
+
+- `@subagent task` and `/delegate` run the task in an isolated child runtime for that subagent
+- `/delegate-parallel` fans out multiple isolated subagent tasks at once and returns each result separately
+- `/session-search` searches prior sessions, including compacted summaries and topics
+- `/session-list` lists or ranks recent sessions
+- `/reflection-run` turns repeated successful tool patterns into reviewable artifacts
+- `/reflection-promote` promotes a reviewed artifact into the active skill set
+
+## Use The Web UI Or Party-HQ
+
+If you want a browser surface instead of the terminal:
+
+- admin route: [http://localhost:2000/admin](http://localhost:2000/admin)
+- admin dev server: [http://localhost:5173](http://localhost:5173)
+
+If you already operate through Party-HQ, keep doing that. Phantasy’s local runtime and Party-HQ are meant to describe the same agent, not two different stacks.
 
 ## Runtime Model
 
 The CLI runtime is implemented in `src/cli/runtime/agent-runtime.ts`.
 
-It loads agent config, bootstrap files, memory, selected profiles, skills, MCP servers, workflows, provider routing, and the terminal UI.
+It loads:
 
-Example profile selection:
+- agent config
+- bootstrap files such as `AGENTS.md`
+- skills and MCP
+- provider routing
+- memory
+- workflows
+- plugins
+- the TUI
+
+Capability selection stays explicit:
 
 ```json
 {
-  "pluginProfiles": ["coder", "character"]
+  "capabilities": { "coding": true, "character": true, "admin": false }
 }
 ```
 
-That gives you a persona-driven coding agent without changing runtimes.
+If `capabilities` is omitted, the runtime defaults to `coding` plus `character`.
 
-If you want the fully explicit local developer stack, use:
+## Compatibility Files
 
-```bash
-npx phantasy create developer local-coder
-```
+Phantasy keeps the familiar local-agent building blocks:
 
-That preset opts into the composite `agent` profile on purpose, rather than inheriting coder tools from beginner product shapes.
+- `AGENTS.md` for workspace behavior
+- `SKILL.md` for workflow knowledge
+- `.mcp.json` and `mcpServers` for external tools
 
-## Notes
+OpenClaw-style skill gating and installer metadata are preserved through `metadata.openclaw`.
 
-- The CLI is Bun-first in this repo.
-- Global workspace setup uses `~/.phantasy/`.
-- The CLI shares the same provider and plugin registries as the server path.
-- `phantasy models auth` manages session-backed providers such as `openai-codex`.
-- If no profile is requested, the runtime stays on `core-runtime`.
-- `AGENTS.md`, `SKILL.md`, and MCP are all first-class parts of the CLI path. See [Agent Compatibility](/docs/architecture/agent-compatibility).
+Related docs:
+
+- [Quickstart](./getting-started/quickstart.md)
+- [Agent Compatibility](./architecture/agent-compatibility.md)
+- [OpenClaw Migration](./guides/OPENCLAW_MIGRATION.md)
+
+## Reflection Lifecycle
+
+Reflection artifacts are intentionally staged:
+
+1. repeated successful sessions generate a draft
+2. you review the artifact
+3. you promote it into the active skill set
+
+Draft and archived reflection skills stay out of normal discovery. This keeps the learning loop useful without silently loading half-baked skills into the runtime.

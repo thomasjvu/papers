@@ -1,0 +1,8 @@
+{
+  "path": "plugins/optional/games",
+  "title": "Games Plugins",
+  "description": "Optional plugins for games and entertainment.",
+  "frontmatter": {},
+  "content": "# Games Plugins\n\nOptional plugins for games and entertainment.\n\n## Available Plugins\n\n- **adventure** - Text adventure game engine\n- **games-chess** - Chess game integration\n- **games-go** - Go game integration\n- **games-omok** - Omok/Gomoku game\n- **romance-affection** - Affection tracking system\n\n::: info Installation\nThese are external plugins bundled as `@phantasy/plugin-games`.\n:::\n\n",
+  "sourcePath": "src/docs/content/plugins/optional/games.md"
+}

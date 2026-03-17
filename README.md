@@ -21,13 +21,15 @@ npm run dev
 If `npm run dev` is already running and you changed Markdown or the docs tree, rerun:
 
 ```bash
+npm run generate:tree
 npm run generate:docs
 npm run generate:seo
 ```
 
 ## Main Files
 
-- `shared/documentation-config.js`: homepage copy and navigation tree
+- `shared/documentation-config.js`: homepage copy and docs feature config
+- `shared/documentation-tree.generated.js`: generated navigation tree
 - `src/docs/content/`: Markdown source
 - `.env.local`: site metadata and GitHub links
 - `src/globals.css`: theme and typography tokens

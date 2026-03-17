@@ -6,14 +6,16 @@ This guide is for teams embedding Phantasy into another repo, product, or platfo
 
 ## Choose The Surface
 
-| Need                  | Install                       | Notes                                                                                      |
-| --------------------- | ----------------------------- | ------------------------------------------------------------------------------------------ |
-| Full framework        | `@phantasy/agent`             | Easiest way to get a companion/VTuber, CMS, CLI, server, and shared runtime in one package |
-| Trusted base runtime  | `@phantasy/core-runtime`      | Smallest trust boundary                                                                    |
-| Coding capability     | `@phantasy/profile-coder`     | Shell, edit, search, glob, filesystem, doctor                                              |
-| Character capability  | `@phantasy/profile-character` | Persona, memory, voice, image, and Live2D/VRM-oriented companion features                  |
-| Admin/server surfaces | `@phantasy/server-admin`      | Express server, admin API, CMS, publishing, and operational route layer                    |
-| Plugin authoring      | `@phantasy/plugin-sdk`        | Build first-party or external plugins against the stable SDK                               |
+| Need                  | Install                  | Notes                                                                                      |
+| --------------------- | ------------------------ | ------------------------------------------------------------------------------------------ |
+| Full framework        | `@phantasy/agent`        | Easiest way to get a companion/VTuber, CMS, CLI, server, and shared runtime in one package |
+| Headless runtime      | `@phantasy/agent-core`   | Public `AgentRuntime`, config, workflows, memory, approvals, and provider contracts        |
+| Provider layer        | `@phantasy/providers`    | Unified multi-provider model and media adapters                                            |
+| CLI                   | `@phantasy/cli`          | Command parsing, scaffolding, and non-visual runtime lifecycle                             |
+| TUI                   | `@phantasy/tui`          | Interactive terminal UI on top of `AgentRuntime`                                           |
+| Admin frontend        | `@phantasy/admin-web-ui` | Admin CMS frontend assets and path resolution                                              |
+| Admin/server surfaces | `@phantasy/server-admin` | Express server, admin API, CMS, publishing, and operational route layer                    |
+| Plugin authoring      | `@phantasy/plugin-sdk`   | Build first-party or external plugins against the stable SDK                               |
 
 ## Default Recommendation
 
@@ -23,14 +25,23 @@ If you are building a companion-driven product, a VTuber business, or a workflow
 npm install @phantasy/agent
 ```
 
-Then compose profiles in config instead of hard-coding capabilities into your runtime:
+Then compose capabilities in config instead of hard-coding privileged behavior into your runtime:
 
 ```json
 {
   "id": "kurisu",
   "name": "Kurisu",
   "instructions": "You are sharp, technically rigorous, and emotionally expressive.",
-  "pluginProfiles": ["character", "server-admin", "coder"],
+  "capabilities": {
+    "coding": true,
+    "character": true,
+    "admin": true
+  },
+  "approvals": {
+    "commands": "ask",
+    "files": "ask",
+    "browser": "ask"
+  },
   "modelRouting": {
     "default": {
       "provider": "openai",
@@ -46,25 +57,48 @@ Then compose profiles in config instead of hard-coding capabilities into your ru
 
 That keeps companion identity, CMS surfaces, and capability composable:
 
-- `["character", "server-admin"]` for a character-native product
-- `["coder"]` for a coding agent
-- `["coder", "character"]` for an in-character coding agent
-- `["coder", "character", "server-admin"]` for a full operator stack
+- `{"character": true, "admin": true}` for a character-native product
+- `{"coding": true}` for a coding agent
+- `{"coding": true, "character": true}` for an in-character coding agent
+- `{"coding": true, "character": true, "admin": true}` for a full operator stack
 
 ## Focused Package Consumption
 
 If you want a smaller public surface and a narrower trust boundary, install only the packages you need:
 
 ```bash
-npm install @phantasy/core-runtime @phantasy/profile-coder
+npm install @phantasy/agent-core @phantasy/providers
 ```
 
 Typical import shape:
 
 ```ts
-import { ConfigLoader, PluginManager } from '@phantasy/core-runtime';
-import { CODER_PROFILE_PLUGIN_NAMES } from '@phantasy/profile-coder';
+import { createAgentRuntime, ConfigLoader } from '@phantasy/agent-core';
+import { registerBuiltInProviders } from '@phantasy/providers';
+
+registerBuiltInProviders();
+
+const runtime = createAgentRuntime({
+  agentConfig,
+  providerService,
+  routing,
+  pluginManager,
+  env: process.env,
+  cwd: process.cwd(),
+});
 ```
+
+`@phantasy/agent-core` does not ship the built-in provider implementations.
+Install `@phantasy/providers` when you want the default provider catalog, or
+register your own provider definitions through the standalone provider surface.
+If you want strict ownership boundaries, `@phantasy/providers` also supports
+instance-owned registry/service wiring via `createProviderRegistry()` and
+`createProviderService()`.
+The core runtime also does not silently inherit config discovery, dotenv,
+`process.env`, or `process.cwd()`; pass those explicitly when your host wants
+them.
+If you want Phantasy's default config discovery/bootstrap behavior, use
+`createDefaultAgentRuntime(...)` from `@phantasy/agent` instead of `agent-core`.
 
 The first-party packages are published as real package surfaces. Internally they stay aligned with the same shared implementation so public APIs do not drift.
 
@@ -72,15 +106,20 @@ The first-party packages are published as real package surfaces. Internally they
 
 Phantasy supports two main runtime paths:
 
-- CLI-first development with `npx phantasy chat` or `npx phantasy start`
+- CLI-first development with `npx phantasy chat` or `npx phantasy start` after a local install, or `npx @phantasy/agent ...` for a zero-install run
 - server deployment with the admin/server surface
 
 The important point is that both paths sit on the same runtime model. You do not switch frameworks when moving from a local companion prototype to a hosted product or workflow application.
 
+The CLI and TUI are intentionally composition shells, not alternate kernels.
+They should stay rich and opinionated, but the shared runtime should remain
+usable without them. That is why `@phantasy/agent-core` owns the host-first
+runtime API while `@phantasy/agent` owns the default Phantasy bootstrap path.
+
 ### CLI Example
 
 ```bash
-npx phantasy chat --config ./agent-config.json
+npx @phantasy/agent chat --config ./agent-config.json
 ```
 
 ### Server Example
@@ -106,7 +145,7 @@ Example config:
 
 ```json
 {
-  "pluginProfiles": ["coder", "character"],
+  "capabilities": { "coding": true, "character": true, "admin": false },
   "mcpServers": {
     "github": {
       "command": "npx",
@@ -135,9 +174,11 @@ Typical patterns:
 
 When doing that, keep the package boundaries intact:
 
-- `src/core-runtime/`
-- `src/profile-coder/`
-- `src/profile-character/`
+- `src/agent-core/`
+- `src/providers/`
+- `src/cli/`
+- `src/tui/`
+- `src/admin-web-ui/`
 - `src/server-admin/`
 - `src/admin-ui/` as the dashboard app boundary
 
@@ -156,14 +197,14 @@ External plugins should be treated as staged extensions, not as part of the trus
 ## What To Avoid
 
 - Do not treat the admin UI as part of the trusted core.
-- Do not put privileged tooling into the base runtime when a profile can own it.
+- Do not put privileged tooling into the base runtime when an explicit capability and approval policy can own it.
 - Do not couple persona to capability. Compose them.
 - Do not depend on legacy docs that assume “everything is core”.
 
 ## Recommended Architecture For Consumers
 
 1. Keep your product identity in config, prompts, bootstrap files, and content.
-2. Keep capability selection in `pluginProfiles`.
+2. Keep capability selection in `capabilities`.
 3. Treat companion presentation and the business surfaces around her as first-class product concerns, not theme polish.
 4. Use skills for “how to do the work”.
 5. Use MCP for “call the external system”.

@@ -1,0 +1,8 @@
+{
+  "path": "KNOWN_LIMITATIONS",
+  "title": "Known Limitations",
+  "description": "This page tracks only current gaps that materially affect release confidence.",
+  "frontmatter": {},
+  "content": "# Known Limitations\n\nThis page tracks only current gaps that materially affect release confidence.\n\n- Browser-level admin smoke coverage is still thinner than the unit and component test coverage.\n- `phantasy video generate` still hands off to the admin UI for capture instead of running as a fully unattended render pipeline.\n- Live2D still depends on the pinned Cubism Core plus PIXI compatibility stack.\n- TEE-backed attestation still depends on Phala Cloud verification or an explicitly enabled development-only fallback.\n\nIf a limitation stops being release-relevant, remove it instead of letting this page turn into a backlog dump.\n",
+  "sourcePath": "src/docs/content/KNOWN_LIMITATIONS.md"
+}

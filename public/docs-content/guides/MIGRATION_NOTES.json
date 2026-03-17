@@ -1,0 +1,8 @@
+{
+  "path": "guides/MIGRATION_NOTES",
+  "title": "Migration Notes - Cloudflare Workers to Node.js",
+  "description": "Package Manager: Use bun for installs, scripts, and lockfile management",
+  "frontmatter": {},
+  "content": "# Migration Notes - Cloudflare Workers to Node.js\n\n## Issues Fixed\n\n1. **Package Manager**: Use `bun` for installs, scripts, and lockfile management\n\n2. **Missing Durable Object Export**: \n   - Removed `export { AgentWebSocket } from './websocket/durable-object'`\n   - WebSocket handling is now in `server.ts`\n\n3. **Missing Services**:\n   - Created `agent-service.ts` stub\n\n4. **Database Adapter**:\n   - Created `database.ts` adapter to replace Cloudflare D1\n   - Currently using stub implementation\n\n5. **Environment Variables**:\n   - Added missing env vars (R2_BUCKET and related platform configs)\n   - Fixed import paths\n\n## Running the Server\n\n```bash\ncd apps/agent\nbun install\nbun run dev\n```\n\n## Available Endpoints\n\n- Admin UI: http://localhost:2000/admin\n- Health Check: http://localhost:2000/health\n- Agent API: http://localhost:2000/agent/*\n- Admin API: http://localhost:2000/admin/api/*\n\n## Next Steps\n\n1. ✅ ~~Replace stub database with real implementation~~ **DONE - Using Neon PostgreSQL**\n2. Add S3/MinIO for file storage (replacing R2)\n3. Implement real agent-service.ts\n4. ✅ ~~Add Redis for distributed KV storage~~ **DONE - Using Railway Redis**\n\n## Key Differences from Workers Version\n\n- Persistent connections ✅\n- No 30-second execution limit ✅\n- Full Discord bot support ✅\n- Traditional debugging tools ✅\n- Higher memory limits ✅\n",
+  "sourcePath": "src/docs/content/guides/MIGRATION_NOTES.md"
+}

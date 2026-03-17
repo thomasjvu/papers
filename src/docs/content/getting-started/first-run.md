@@ -1,97 +1,190 @@
 # First Run
 
-This is the quickest honest demo of Phantasy.
+This guide gets you from zero to a running Phantasy companion/VTuber product with the current flagship story intact.
 
-## Start The Flagship Shape
+## Default Path: `vtuber`
+
+If you are evaluating Phantasy for the first time, do not start with raw profile composition. Start with the flagship runtime shape:
 
 ```bash
 npm install @phantasy/agent
-npx phantasy create business-cms my-brand
+npx phantasy create vtuber my-brand
 npx phantasy start --config config/agents/my-brand.json
 ```
 
-Repo checkout path:
+That gives you the opinionated product surface Phantasy is best at:
+
+- a companion/VTuber identity
+- a built-in site and publishing stack around her
+- business channels and notifications
+- workflows and automations
+- operational controls in the same runtime
+
+If the CLI is already on your `PATH`, you can drop the `npx` prefix.
+
+## Source Checkout Path
+
+If you are working from the repo instead of the published package:
 
 ```bash
 bun install
-cp .env.example .env
-./start.sh
+bun run dev:up
 ```
 
-## Check The Main Surface
+This starts:
 
-1. Open `http://localhost:5173` in local dev or `http://localhost:2000/admin` in the server build.
+- **Server** at `http://localhost:2000` (API + Admin UI)
+- **Vite dev server** at `http://localhost:5173` (proxies API to port 2000)
+
+If `.env` does not exist yet, the command copies `.env.development`, ensures the local PostgreSQL container is running, and uses the local-only login `admin` / `phantasy-dev-password`.
+
+## Verify The Main Surface
+
+After boot:
+
+1. Open `http://localhost:5173` during local dev or `http://localhost:2000/admin` for the server build.
 2. Confirm the five workspaces are visible: Character, Site, Business, Automations, Operations.
-3. In `Website`, set the mode to `public`.
-4. In `Character`, give the companion a name, voice, or avatar.
+3. In `Website`, set the site mode to `public`.
+4. In `Character`, configure the companion's identity or appearance.
 5. In `Content`, publish a Chronicle entry.
-6. Confirm the public site or `/blog` reflects that same runtime.
+6. Confirm `/blog` renders from the same runtime.
 
-## Quick Server Smoke Test
+## Verify The Server
 
-Health:
+### Health check
 
 ```bash
 curl http://localhost:2000/health
 ```
 
-Expected shape:
+Expected response:
 
 ```json
 {
-  "status": "ok",
-  "timestamp": "2026-03-12T12:00:00.000Z"
+  "status": "healthy",
+  "version": "2.0.0",
+  "uptime": 123.45
 }
 ```
 
-Public agent summary:
+### Chat API smoke test
 
 ```bash
-curl http://localhost:2000/api/agent
+curl -X POST http://localhost:2000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "message": "List the active runtime capabilities.",
+    "userId": "test-user"
+  }'
 ```
 
-## What The Admin UI Is For
+## Use The Admin UI
 
-The admin shell is where you operate the companion, not where you escape the product story.
+Navigate to `http://localhost:5173` during local dev.
 
-Use it for:
+The admin UI is for:
 
+- operational visibility
 - config editing
-- publishing
-- media and avatar setup
-- workflow and notification handling
-- monitoring and diagnostics
+- plugin enable/disable flows
+- external plugin staging and review
 
-For avatar assets, the common paths are:
+For avatar assets, the CMS path is now straightforward:
 
-- `/public/vrm/...` for direct VRM files
-- `/public/live2d/...` for direct Live2D entry files
-- `/admin/avatars/<agentId>` for PNGTuber frame packs
-- Media workspace uploads when you want storage-backed URLs
+- upload files in the `Media` workspace to local storage, R2, or S3 and use the returned URL
+- use uploaded media URLs or small project-local `/public/vrm/...` and `/public/live2d/...` paths for direct model files; avoid checking large model packs into git
+- use `/admin/avatars/<agentId>` or a media/CDN pack root for PNGTuber frame packs
+- or import a local PNGTuber folder directly from Appearance and let Phantasy upload it into the default media provider with inferred outfits and expressions
+- choose **Makise Kurisu Starter** in onboarding if you want to feel a real PNGTuber companion immediately; Phantasy will copy the bundled Kurisu pack into `./.phantasy/pngtuber/<your-agent-id>/` and wire the config for you
 
-## When To Drop To Profiles
+It is part of the same runtime family, not a separate product bolted onto the companion.
 
-Once the flagship path feels clear, you can narrow capability on purpose:
+## Advanced: Compose Capabilities Directly
+
+Once the flagship path makes sense, drop down to explicit capability composition when you need a narrower trust boundary.
+
+Coding agent:
 
 ```json
-{ "pluginProfiles": ["coder"] }
+{
+  "capabilities": { "coding": true, "character": false, "admin": false }
+}
 ```
+
+In-character coding companion:
 
 ```json
-{ "pluginProfiles": ["coder", "character"] }
+{
+  "capabilities": { "coding": true, "character": true, "admin": false }
+}
 ```
 
-If `pluginProfiles` is omitted, the runtime stays on `["core-runtime"]`.
+If you do not set `capabilities`, the runtime defaults to `coding` plus `character`.
 
-## Operational Checks
+CLI-only flow:
 
-- logs: `bun run dev` locally, stdout in production
-- protected status endpoints: `/admin/api/status/health` and `/admin/api/status/health/detailed`
-- detailed route inventory: [Generated Admin API Route Inventory](/docs/generated/api-routes)
+```bash
+npx phantasy chat --config config/agents/my-brand.json
+```
 
-## Next
+## Monitoring
 
-- [10 Minute Launch](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
-- [Configuration](/docs/getting-started/configuration)
-- [Runtime Packages](/docs/architecture/runtime-packages)
-- [Deployment](/docs/guides/DEPLOY)
+### Logs
+
+View real-time logs:
+
+```bash
+# Development mode shows logs automatically
+bun run dev
+
+# Production: logs go to stdout
+bun run start 2>&1 | tee agent.log
+```
+
+### Metrics
+
+Access metrics at:
+
+- `http://localhost:2000/metrics` - Prometheus format
+- `http://localhost:2000/health` - Health status
+
+## Troubleshooting
+
+### Common Issues
+
+**"Cannot connect to database"**
+
+```bash
+# Ensure PostgreSQL is running
+bun run db:migrate
+```
+
+**"No AI provider configured"**
+
+- Check that at least one API key is set in `.env`
+- Verify the key is valid by testing with curl
+
+**"Plugin initialization failed"**
+
+- Check logs for specific error messages
+- Ensure required environment variables are set
+- Verify plugin configuration is valid
+
+### Debug Mode
+
+Enable verbose logging:
+
+```bash
+DEBUG=phantasy:* bun run dev
+```
+
+## Next Steps
+
+- [Build An AI VTuber In 10 Minutes](/docs/guides/BUSINESS_AGENT_CMS_10_MINUTES)
+- [Open Source FAQ](/docs/guides/OPEN_SOURCE_FAQ)
+- [CLI](/docs/cli) for the coder-first interaction path
+- [Configuration](/docs/getting-started/configuration) for capability selection, approvals, and model routing
+- [Runtime Packages](/docs/architecture/runtime-packages) for the public package surfaces
+- [Architecture Overview](/docs/architecture/system-design) - Understand the system design
+- [Plugin Development](/docs/plugins/developing) - Create custom plugins
+- [Deployment Guide](/docs/deployment/environment) - Deploy to production

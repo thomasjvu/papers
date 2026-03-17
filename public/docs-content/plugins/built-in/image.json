@@ -1,0 +1,8 @@
+{
+  "path": "plugins/built-in/image",
+  "title": "Image Plugin",
+  "description": "The image plugin provides AI image generation capabilities.",
+  "frontmatter": {},
+  "content": "# Image Plugin\n\nThe image plugin provides AI image generation capabilities.\n\n## Providers\n\n- OpenAI DALL-E\n- Replicate\n- Custom endpoints\n\n## Features\n\n- Multiple model support\n- Image storage management\n- Prompt parsing and enhancement\n\n",
+  "sourcePath": "src/docs/content/plugins/built-in/image.md"
+}

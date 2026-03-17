@@ -1,0 +1,8 @@
+{
+  "path": "integrations/discord",
+  "title": "Discord Integration",
+  "description": "Complete guide for setting up Discord integration.",
+  "frontmatter": {},
+  "content": "# Discord Integration\n\nComplete guide for setting up Discord integration.\n\n## Runtime Support\n\nThe admin/runtime path in this repo supports Discord bot authentication,\nchannels, commands, and auto-replies. Voice chat requires the dedicated\nDiscord.js runtime and is not available from the lightweight HTTP integration\nruntime.\n\n## Prerequisites\n\n- Discord Developer Account\n- Bot Application created\n\n## Setup Steps\n\n1. Create application at [Discord Developer Portal](https://discord.com/developers/applications)\n2. Enable bot features and get token\n3. Configure intents (Message Content, Guild Messages)\n4. Invite bot to your server\n\n## Environment Variables\n\n```env\nDISCORD_BOT_TOKEN=your-bot-token\nDISCORD_APPLICATION_ID=your-app-id\n```\n\n## Next Steps\n\n- [Discord Plugin Configuration](/docs/plugins/platforms/discord)\n",
+  "sourcePath": "src/docs/content/integrations/discord.md"
+}

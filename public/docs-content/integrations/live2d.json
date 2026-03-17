@@ -1,0 +1,8 @@
+{
+  "path": "integrations/live2d",
+  "title": "Live2D Integration",
+  "description": "2D avatar integration using Live2D Cubism models.",
+  "frontmatter": {},
+  "content": "# Live2D Integration\n\n2D avatar integration using Live2D Cubism models.\n\n## Overview\n\nLive2D provides smooth 2D avatar animation with:\n- Real-time parameter control\n- Expression switching\n- Motion playback\n- Lightweight rendering\n\n## Setup\n\nSee the detailed guides:\n- [Live2D Setup](/docs/guides/LIVE2D_SETUP)\n- [Live2D Production Ready](/docs/guides/LIVE2D_PROD_READY)\n\nPhantasy does not ship a public branded demo model by default. Bring your own Live2D asset pack and point the Appearance workspace at your hosted or local `.model3.json`.\n\n## Also See\n\n- [VRM Integration](./vrm.md) - For 3D avatar support\n",
+  "sourcePath": "src/docs/content/integrations/live2d.md"
+}

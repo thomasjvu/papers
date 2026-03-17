@@ -1,0 +1,8 @@
+{
+  "path": "integrations/custom",
+  "title": "Custom Integration",
+  "description": "Build custom REST API integrations for member apps, storefronts, mobile clients, or other external surfaces.",
+  "frontmatter": {},
+  "content": "# Custom Integration\n\nBuild custom REST API integrations for member apps, storefronts, mobile clients, or other external surfaces.\n\nStart with the generic guide: [Custom Integration Guide](/docs/guides/CUSTOM_INTEGRATION_GUIDE)\n",
+  "sourcePath": "src/docs/content/integrations/custom.md"
+}

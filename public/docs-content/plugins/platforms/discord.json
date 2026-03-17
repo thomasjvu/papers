@@ -1,0 +1,8 @@
+{
+  "path": "plugins/platforms/discord",
+  "title": "Discord Plugin",
+  "description": "The Discord plugin enables your agent to operate as a Discord bot.",
+  "frontmatter": {},
+  "content": "# Discord Plugin\n\nThe Discord plugin enables your agent to operate as a Discord bot.\n\nFor the admin HTTP runtime, supported features are bot auth, channels,\ncommands, and auto-replies. Voice chat requires the dedicated Discord.js\nruntime.\n\n## Setup\n\n1. Create a Discord Application at [Discord Developer Portal](https://discord.com/developers/applications)\n2. Enable the Bot feature\n3. Copy the bot token to your environment\n\n```env\nDISCORD_BOT_TOKEN=your-token-here\n```\n\n## Configuration\n\nSee the [Discord Integration Guide](/docs/integrations/discord) for detailed setup.\n",
+  "sourcePath": "src/docs/content/plugins/platforms/discord.md"
+}

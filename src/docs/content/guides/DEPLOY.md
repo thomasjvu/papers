@@ -98,7 +98,7 @@ If you intentionally want a headless build with no Admin UI, set `--build-arg BU
 
 ## Resources
 
-- [Introduction](../getting-started/introduction.md)
+- [Documentation](../index.md)
 - [Authentication & hosting](./AUTHENTICATION_SETUP.md)
-- [Local development](../getting-started/local-development.md)
+- [Environment setup](./ENVIRONMENT_SETUP.md)
 - [GitHub Repository](https://github.com/phantasy-bot/agent)

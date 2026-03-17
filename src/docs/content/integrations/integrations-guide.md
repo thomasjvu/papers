@@ -1,92 +1,109 @@
 # Integration Model
 
-Phantasy has five extension surfaces.
-
-They overlap just enough to be confusing if you treat them casually, so here is the clean version.
+Phantasy has five extension surfaces. They solve different problems and should not be mixed together casually.
 
 ## Quick Map
 
-| Need                          | Use         |
-| ----------------------------- | ----------- |
-| Workspace behavior            | `AGENTS.md` |
-| Reusable know-how             | `SKILL.md`  |
-| Executable external tools     | MCP         |
-| Runtime capability            | Plugin      |
-| First-party capability bundle | Profile     |
+| Need                                           | Use         | Why                                                        |
+| ---------------------------------------------- | ----------- | ---------------------------------------------------------- |
+| Workspace-specific operating behavior          | `AGENTS.md` | Repo or workspace instructions                             |
+| Teach the model how to do something            | `SKILL.md`  | Declarative instructions, examples, progressive disclosure |
+| Give the model executable external tools       | MCP         | Real API and system tool access                            |
+| Add runtime capability or platform integration | Plugin      | Deeper runtime hooks, tools, lifecycle behavior            |
+| Bundle first-party capability                  | Capability  | Stable set of built-in plugins selected as one unit        |
 
 ## The Mental Model
 
-- `AGENTS.md` changes how the agent behaves in a workspace
-- skills teach workflows
-- MCP gives the model real external tools
-- plugins change the runtime
-- profiles choose built-in plugin bundles
+- `AGENTS.md` changes behavior in a workspace.
+- Skills change what the model knows how to do.
+- MCP changes what external tools the model can call.
+- Plugins change the runtime itself.
+- Capabilities choose which built-in plugin sets are active.
 
-That separation keeps the trusted core smaller and the product easier to reason about.
+That separation is what keeps the core runtime smaller and easier to trust.
 
-## Common Shapes
+## Recommended Composition Patterns
 
 ### Coding Agent
 
 ```json
 {
-  "pluginProfiles": ["coder"]
+  "capabilities": { "coding": true, "character": false, "admin": false }
 }
 ```
 
-### Companion
+Use this when the agent should focus on shell, files, search, and editing.
+
+### Companion Or Persona Agent
 
 ```json
 {
-  "pluginProfiles": ["character"]
+  "capabilities": { "coding": false, "character": true, "admin": false }
 }
 ```
 
-### In-Character Coder
+Use this for personality-driven agents with memory, voice, image, and companion behavior.
+
+### In-Character Coding Agent
 
 ```json
 {
-  "pluginProfiles": ["coder", "character"]
+  "capabilities": { "coding": true, "character": true, "admin": false }
 }
 ```
+
+This is the intended way to build agents like Kurisu that should both act in-character and code effectively.
 
 ### Hosted Product Surface
 
 ```json
 {
-  "pluginProfiles": ["coder", "character", "server-admin"]
+  "capabilities": { "coding": true, "character": true, "admin": true }
 }
 ```
 
-That last shape is the one that adds the HTTP admin and server surface.
+Use `admin: true` or `@phantasy/server-admin` when you want the HTTP admin surface and dashboard deployment path.
 
-## `AGENTS.md`
+## AGENTS.md
 
-Use it for:
+Use `AGENTS.md` for:
 
-- repo rules
-- local workflow expectations
-- tone and collaboration style
-- "how we work here" guidance
+- repo-specific instructions
+- local workflow rules
+- preferred coding style
+- team expectations
 
-If the behavior belongs to one workspace or repo, start here.
+Good examples:
+
+- “Prefer short responses in this repo.”
+- “Run focused tests before broad suites.”
+- “Do not touch generated assets without explicit approval.”
 
 ## Skills
 
-Use skills when the model needs structured guidance, not new executable power.
+Skills are the right tool when the model needs structured guidance rather than new executable power.
 
-Good fits:
+Use skills for:
 
-- CLI playbooks
+- CLI workflows
+- operator playbooks
 - review checklists
-- operating procedures
-- environment-specific instructions
+- environment-specific procedures
+
+Skills can be discovered from:
+
+- project `skills/`
+- user `~/.phantasy/skills/`
+- bundled skills
+- npm packages that ship a `SKILL.md`
+
+If you publish skill packages, prefer the `@phantasy/skill-*` naming pattern so discovery stays obvious.
 
 ## MCP
 
 Use MCP when the model needs to call a real external system.
 
-Typical examples:
+Typical MCP uses:
 
 - GitHub
 - databases
@@ -106,43 +123,47 @@ Example:
 }
 ```
 
-Skills and MCP pair well: the skill explains the job, MCP does the job.
+Skills and MCP often pair well:
+
+- skill teaches the workflow
+- MCP provides the executable tool
 
 ## Plugins
 
-Use a plugin when you need deeper runtime hooks:
+Plugins are for runtime-level capability, not basic prompt guidance.
 
-- lifecycle behavior
-- tool registration
+Use a plugin when you need:
+
+- lifecycle hooks
+- runtime tool registration
 - platform adapters
-- provider or storage integration
+- memory/provider/runtime integration
 
-Plugins are the heaviest extension surface. Reach for them on purpose.
+Plugins are the heaviest extension surface and should be used deliberately.
 
-## Profiles
+## Capabilities
 
-Built-in profile groups:
+Capabilities are the stable, first-party runtime bundles:
 
-- `core-runtime`
-- `coder`
+- `coding`
 - `character`
-- `server-admin`
+- `admin`
 
-If `pluginProfiles` is omitted, Phantasy stays on `["core-runtime"]`.
+The default headless runtime stays explicit. Privileged tools and server surfaces do not silently expand beyond the selected capabilities and approval policy.
 
-## Decision Rule
+## Decision Rules
 
-Use this order:
+Use these rules in order:
 
-1. workspace behavior: `AGENTS.md`
-2. reusable know-how: skill
-3. external executable tools: MCP
-4. runtime hook or platform behavior: plugin
-5. first-party built-in bundle: profile
+1. If it is just workspace behavior, use `AGENTS.md`.
+2. If it is instructions or workflow knowledge, use a skill.
+3. If it is executable access to an external system, use MCP.
+4. If it must hook the runtime or platform layer, use a plugin.
+5. If it is a standard first-party capability bundle, use `capabilities`.
 
-## Related Docs
+## See Also
 
-- [Bootstrapping](/docs/getting-started/bootstrapping)
-- [Agent Compatibility](/docs/architecture/agent-compatibility)
-- [Plugin Overview](/docs/plugins/overview)
-- [Consuming Phantasy](/docs/guides/CONSUMING_PHANTASY)
+- [Agent Compatibility](../architecture/agent-compatibility.md)
+- [Bootstrapping](../getting-started/bootstrapping.md)
+- [Plugin Overview](../plugins/overview.md)
+- [Consuming Phantasy](../guides/CONSUMING_PHANTASY.md)

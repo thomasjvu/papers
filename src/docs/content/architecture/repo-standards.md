@@ -16,6 +16,8 @@ The important difference is scope. ESLint, TypeScript, and Stylelint know generi
 
 - provider directories must match registered runtime providers
 - bundled plugin manifests must validate and point at real files
+- installable first-party package-surface metadata must stay aligned with the source plugin manifest
+- source-extracted plugin payloads cannot add new host-private `@/` reach-through imports without an explicit, reviewed exception
 - mounted admin routes cannot drift away from the route registry
 - the Party-HQ protocol mirror cannot silently diverge
 
@@ -42,10 +44,22 @@ The important difference is scope. ESLint, TypeScript, and Stylelint know generi
 These are budget freezes, not ideal targets:
 
 - max component file size: `1770` lines
-- files over `700` lines: `18`
-- files over `1200` lines: `6`
+- files over `700` lines: `3`
+- files over `1200` lines: `0`
 
 This keeps debt from growing while the repo is still being split by domain.
+
+### Service-layer size budgets
+
+These are also budget freezes:
+
+- max service file size: `6155` lines
+- files over `700` lines: `14`
+- files over `1000` lines: `5`
+- files over `2000` lines: `2`
+- files over `4000` lines: `1`
+
+This keeps the deepest orchestration and language-tooling code from silently becoming even more monolithic while broader domain splits are still in progress.
 
 ## Why Budget Freezes Instead Of Perfect Rules
 
@@ -57,6 +71,9 @@ That means:
 - new debt must justify itself explicitly
 - intentional refactors can ratchet budgets downward
 - the standards script should fail on drift, not on history
+
+Today that specifically means the admin UI no longer permits any components above
+`1200` lines, and only three historical components remain above `700` lines.
 
 ## How To Tighten Or Adjust A Rule
 
@@ -71,7 +88,7 @@ When a rule is too strict:
 
 1. fix the underlying drift if possible
 2. if the exception is legitimate, encode it narrowly in `validate-standards.ts`
-3. document the reason here or in [Admin UI Style Policy](/docs/architecture/admin-ui-style-policy)
+3. document the reason here or in [admin-ui-style-policy.md](./admin-ui-style-policy.md)
 
 Do not widen budgets casually. If a budget changes upward, it should be tied to an intentional architectural decision, not convenience.
 
@@ -81,7 +98,7 @@ Deliberately out of scope for now:
 
 - repo-wide raw color-token purity
 - full domain-boundary import rules between every workspace module
-- perfect file-size ceilings across all historical surfaces
+- perfect file-size ceilings across every historical surface
 - browser-level UI smoke coverage in the standards script itself
 
 Those can be added later, but only if the rule is cheap to understand and cheap to maintain.

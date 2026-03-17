@@ -1,0 +1,8 @@
+{
+  "path": "development/branching-cicd",
+  "title": "Branching & CI/CD",
+  "description": "Git workflow and CI/CD pipeline.",
+  "frontmatter": {},
+  "content": "# Branching & CI/CD\n\nGit workflow and CI/CD pipeline.\n\nSee: [Contributing](./contributing.md)\n",
+  "sourcePath": "src/docs/content/development/branching-cicd.md"
+}

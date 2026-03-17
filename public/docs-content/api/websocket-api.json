@@ -1,0 +1,8 @@
+{
+  "path": "api/websocket-api",
+  "title": "WebSocket API",
+  "description": "Real-time WebSocket API for live updates.",
+  "frontmatter": {},
+  "content": "# WebSocket API\n\nReal-time WebSocket API for live updates.\n\n## Connection\n\n```javascript\nconst ws = new WebSocket(\"ws://localhost:2000/ws\");\n```\n\n## Events\n\n- `chat` - Chat messages\n- `status` - Status updates\n- `bot_event` - Platform bot events\n\n",
+  "sourcePath": "src/docs/content/api/websocket-api.md"
+}

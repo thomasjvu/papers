@@ -1,0 +1,8 @@
+{
+  "path": "configuration",
+  "title": "Configuration Guide",
+  "description": "Phantasy configuration resolves in this order:",
+  "frontmatter": {},
+  "content": "# Configuration Guide\n\nPhantasy configuration resolves in this order:\n\n1. Database values saved through the admin UI\n2. Environment variables\n3. Agent config files\n4. Defaults from `src/config/constants.ts`\n\nThe current generated defaults snapshot is here: [./generated/defaults.md](./generated/defaults.md).\n\n## Quick Start\n\n```bash\nbun run setup:env\n```\n\nMinimum practical configuration:\n\n```env\nDATABASE_URL=postgresql://user:password@localhost:5432/phantasy_agent_dev\nAUTH_SESSION_SECRET=replace-with-a-random-secret\nOPENAI_API_KEY=sk-...\n```\n\n## Defaults\n\n- Server port: `2000`\n- Admin UI dev server: `5173`\n- Default memory provider: `markdown`\n- Default workspace path: `./workspace`\n\n## Provider Config\n\nProvider registration is runtime-driven. Use the generated provider inventory for the current list of registered adapters and expected environment variables:\n\n- [./generated/providers.md](./generated/providers.md)\n\n## Memory Config\n\nSupported providers:\n\n- `markdown`\n- `pgvector`\n\n## Related Docs\n\n- [./architecture/memory-system.md](./architecture/memory-system.md)\n- [./generated/defaults.md](./generated/defaults.md)\n",
+  "sourcePath": "src/docs/content/configuration.md"
+}

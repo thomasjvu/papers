@@ -1,0 +1,8 @@
+{
+  "path": "plugins/platforms/twitter",
+  "title": "Twitter/X Plugin",
+  "description": "The X plugin enables your agent to interact on Twitter/X.",
+  "frontmatter": {},
+  "content": "# Twitter/X Plugin\n\nThe X plugin enables your agent to interact on Twitter/X.\n\n## Setup\n\n1. Create a Twitter Developer account\n2. Generate API credentials\n\n```env\nTWITTER_API_KEY=...\nTWITTER_API_SECRET=...\nTWITTER_ACCESS_TOKEN=...\nTWITTER_ACCESS_SECRET=...\n```\n\n## Features\n\n- Tweet posting\n- Reply handling\n- Mention monitoring\n\n",
+  "sourcePath": "src/docs/content/plugins/platforms/twitter.md"
+}

@@ -1,0 +1,8 @@
+{
+  "path": "deployment/environment",
+  "title": "Environment Setup",
+  "description": "Complete environment configuration guide.",
+  "frontmatter": {},
+  "content": "# Environment Setup\n\nComplete environment configuration guide.\n\nSee: [Environment Setup Guide](/docs/guides/ENVIRONMENT_SETUP)\n\n",
+  "sourcePath": "src/docs/content/deployment/environment.md"
+}

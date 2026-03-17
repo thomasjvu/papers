@@ -1,0 +1,8 @@
+{
+  "path": "getting-started",
+  "title": "Getting Started",
+  "description": "Phantasy is best understood as a companion/VTuber product, not just an install flow.",
+  "frontmatter": {},
+  "content": "# Getting Started\n\nPhantasy is best understood as a companion/VTuber product, not just an install flow.\n\nStart with:\n\n- [Quickstart](./getting-started/quickstart.md)\n- [Use Cases](./getting-started/use-cases.md)\n- [Introduction](./getting-started/introduction.md)\n- [Installation](./getting-started/installation.md)\n\n## Prerequisites\n\n- Node.js 22.12+ LTS\n- PostgreSQL 14+ (for production)\n- Bun 1.3+\n\n## Installation\n\n```bash\nnpm install @phantasy/agent\nnpx phantasy create vtuber my-brand\nnpx phantasy start --config config/agents/my-brand.json\n```\n\nIf you are working from a source checkout instead of the published package, use the repo flow from [Installation](./getting-started/installation.md).\n\n## Configuration\n\nEdit `.env` with your settings:\n\n```env\n# Database (required)\nDATABASE_URL=postgresql://user:password@localhost:5432/phantasy\n\n# AI Provider (at least one required)\nOPENAI_API_KEY=sk-...\nANTHROPIC_API_KEY=sk-...\n\n# Memory\nMEMORY_PROVIDER=pgvector\n```\n\n## Running\n\n```bash\n# Source checkout with hot reload\nbun run dev\n\n# Source checkout production build\nbun run build\nbun run start\n```\n\n## Access\n\n- Admin UI in dev: http://localhost:5173\n- Admin UI via server build: http://localhost:2000/admin\n- API: http://localhost:2000/api\n",
+  "sourcePath": "src/docs/content/getting-started.md"
+}

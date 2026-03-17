@@ -1,74 +1,178 @@
-# Heartbeat
+# Heartbeat System
 
-Heartbeat is the lightweight background loop.
+Phantasy implements a heartbeat system inspired by OpenClaw, enabling periodic agent wake-ups for background tasks, maintenance, and proactive behaviors.
 
-Use it for periodic checklists and small wake-up tasks. Use workflows when you need a real automation graph.
+## Overview
 
-## What It Actually Does
+The heartbeat system allows agents to periodically "wake up" and perform tasks without requiring an external trigger. This is useful for:
 
-When enabled, `HeartbeatService`:
+- Checking for urgent messages
+- Processing background tasks
+- Updating memory
+- Sending proactive notifications
+- Running scheduled workflows
 
-- resolves a workspace from config, `PHANTASY_WORKSPACE`, or `./workspace`
-- runs once immediately on startup
-- runs again every `interval_minutes`
-- optionally reads unchecked items from `HEARTBEAT.md`
-- records audit-trail events for enable, start, success, failure, and stop
+## Configuration
 
-The checklist items are task labels. They do not execute arbitrary code by themselves.
-
-## Config
-
-```json
+```typescript
+// Agent config (agent-config.schema.ts)
 {
-  "heartbeat": {
-    "enabled": true,
-    "interval_minutes": 30,
-    "read_heartbeat_md": true,
-    "message": "Checking in..."
+  heartbeat: {
+    enabled: false,              // Enable/disable heartbeat
+    interval_minutes: 30,        // Interval between heartbeats
+    read_heartbeat_md: true,     // Read HEARTBEAT.md checklist
+    message: "Checking in..."     // Optional custom message
   }
 }
 ```
 
-## `HEARTBEAT.md`
+## HEARTBEAT.md
 
-Only unchecked checklist lines are parsed:
+Agents can define a checklist in their workspace's `HEARTBEAT.md` file:
 
-```md
+```markdown
 # HEARTBEAT.md
 
-- [ ] Check pending approvals
-- [ ] Review urgent messages
-- [ ] Tidy memory if needed
+## Heartbeat Checklist
+
+- [ ] Check for urgent messages
+- [ ] Review any pending tasks
+- [ ] Update memory if needed
+- [ ] Check scheduled posts
 ```
 
-Checked items are ignored.
+### Checkbox Format
 
-## Return Shape
+The service parses unchecked items (`- [ ]`) as tasks to process. Checked items are ignored.
 
-A run returns one of these:
+## Implementation
 
-- `HEARTBEAT_OK - Processed N tasks`
-- `HEARTBEAT_OK - No tasks pending`
-- `HEARTBEAT_ERROR`
+### Service: `HeartbeatService`
 
-If you set `heartbeat.message`, that string becomes the success response instead.
+**Location**: `src/services/core/heartbeat-service.ts`
 
-## When To Use It
+**Key Methods**:
 
-Heartbeat is good for:
+- `start()` - Start the heartbeat timer
+- `stop()` - Stop the heartbeat timer
+- `executeHeartbeat()` - Run a heartbeat cycle
+- `loadHeartbeatMd()` - Read HEARTBEAT.md from workspace
+- `updateConfig()` - Update heartbeat configuration
 
-- lightweight recurring checks
-- companion "look around" behavior
-- audit-trail backed background nudges
+### Usage
 
-Workflows are better for:
+```typescript
+import { getHeartbeatService } from '@/services/core/heartbeat-service';
 
-- multi-step automation
-- branching or approvals
-- reusable recipes and scheduled graphs
+// Create/get heartbeat service
+const heartbeat = getHeartbeatService('agent-id', './workspace/agents/agent-id', {
+  enabled: true,
+  interval_minutes: 30,
+});
 
-## Related Docs
+// Set custom callback for heartbeat tasks
+heartbeat.setCallback(async () => {
+  // Custom heartbeat logic
+  console.log('Heartbeat triggered!');
+});
 
-- [Bootstrapping](/docs/getting-started/bootstrapping)
-- [Workflows Overview](/docs/workflows/overview)
-- [Admin API](/docs/api/admin-api)
+// Start the heartbeat
+heartbeat.start();
+```
+
+## Response Format
+
+After processing, the agent responds with:
+
+- `HEARTBEAT_OK` - Successful heartbeat
+- `HEARTBEAT_ERROR` - Error during processing
+
+### Example Response
+
+```
+HEARTBEAT_OK - Processed 3 tasks
+```
+
+## Integration with Agent Service
+
+The heartbeat system integrates with the main `AgentService` to automatically:
+
+1. Start heartbeat on agent initialization (if enabled)
+2. Execute HEARTBEAT.md checklist items
+3. Handle errors gracefully
+
+## Monitoring
+
+### Health Endpoint
+
+Check heartbeat status via the health endpoint:
+
+```bash
+curl http://localhost:2000/admin/api/status/health/detailed
+```
+
+Response includes:
+
+```json
+{
+  "agents": {
+    "heartbeatRunning": 1
+  }
+}
+```
+
+### Doctor Tool
+
+Use the doctor plugin to check heartbeat status:
+
+```
+Agent: Use the diagnose tool
+```
+
+## Use Cases
+
+### 1. Proactive Notifications
+
+```typescript
+// In heartbeat callback
+const messages = await checkForUrgentMessages();
+if (messages.length > 0) {
+  await sendNotification(messages);
+}
+```
+
+### 2. Scheduled Content
+
+```typescript
+// Check and post scheduled content
+const scheduledPosts = await getScheduledPosts();
+for (const post of scheduledPosts) {
+  if (post.shouldPost()) {
+    await postToPlatform(post);
+  }
+}
+```
+
+### 3. Memory Maintenance
+
+```typescript
+// Periodic memory compaction
+const memorySize = await getMemorySize();
+if (memorySize > MAX_MEMORY) {
+  await compactMemory();
+}
+```
+
+## Best Practices
+
+1. **Reasonable Intervals**: Default to 30 minutes to avoid excessive API calls
+2. **Error Handling**: Always handle errors gracefully in callbacks
+3. **Lightweight Tasks**: Keep heartbeat tasks lightweight
+4. **Disable When Not Needed**: Disable heartbeat if not using it
+
+## Related Features
+
+- [Prompt Caching](./prompt-caching.md) - Token optimization
+- [Debugging](../debugging.md) - Runtime monitoring and diagnostics
+- [Framework Audit](./framework-audit.md) - Current architecture cleanup status
+- [Bootstrapping](../getting-started/bootstrapping.md) - Workspace files including `HEARTBEAT.md`

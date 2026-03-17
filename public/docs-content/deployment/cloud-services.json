@@ -1,0 +1,8 @@
+{
+  "path": "deployment/cloud-services",
+  "title": "Cloud Services",
+  "description": "Advanced deployment and operator guides for external services.",
+  "frontmatter": {},
+  "content": "# Cloud Services\n\nAdvanced deployment and operator guides for external services.\n\nSetup guides for cloud services:\n\n- [Neon Database](/docs/guides/NEON_SETUP)\n- [Cloudflare R2](/docs/guides/R2_QUICK_SETUP)\n- [Infisical Secrets](/docs/guides/INFISICAL_SETUP)\n- [Phala TEE Testing](./phala-tee.md)\n",
+  "sourcePath": "src/docs/content/deployment/cloud-services.md"
+}

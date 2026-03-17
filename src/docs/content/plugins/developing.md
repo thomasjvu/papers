@@ -1,19 +1,26 @@
 # Developing Plugins
 
-Build a plugin when profiles, skills, and MCP are not enough.
+Phantasy uses a WordPress-inspired plugin architecture, but the runtime now treats plugins and built-in capabilities differently:
 
-That is the whole threshold.
+- the trusted core stays small
+- first-party capability bundles load through `capabilities`
+- plugins extend the runtime when built-in capabilities are not enough
 
-## Reach For A Plugin When You Need
+## When To Build A Plugin
+
+Build a plugin when you need one or more of these:
 
 - runtime lifecycle hooks
-- tool registration inside the Phantasy runtime
-- platform or provider integration
-- storage or admin behavior that cannot live in prompts
+- tool registration
+- platform integration
+- provider or storage integration
+- admin/runtime behavior that should not live in prompts or skills
 
-If the task is just instructions, use `AGENTS.md` or a skill first.
+Do not build a plugin for simple instructions. Use `AGENTS.md` or a skill first.
 
 ## Scaffold
+
+Start from the packaged scaffold:
 
 ```bash
 phantasy create plugin my-plugin --workspace operations --kind capability
@@ -22,9 +29,7 @@ npm install
 npm run build
 ```
 
-The scaffold lands under `./plugins/<slug>/`, which is the right place for trusted local development.
-
-## Minimal Shape
+## Minimal Example
 
 ```ts
 import { BasePlugin, type PluginContext, type PluginTool } from '@phantasy/agent/plugins';
@@ -36,7 +41,7 @@ export class MyPlugin extends BasePlugin {
   protected workspace = 'operations' as const;
   protected extensionKind = 'capability' as const;
 
-  async beforeChat(_context: PluginContext) {
+  async beforeChat(context: PluginContext) {
     return { shouldContinue: true };
   }
 
@@ -49,7 +54,10 @@ export class MyPlugin extends BasePlugin {
           type: 'object',
           required: ['input'],
           properties: {
-            input: { type: 'string', description: 'Input value' },
+            input: {
+              type: 'string',
+              description: 'Input value',
+            },
           },
         },
         handler: async ({ input }) => ({ result: `Processed: ${input}` }),
@@ -61,56 +69,70 @@ export class MyPlugin extends BasePlugin {
 export default MyPlugin;
 ```
 
-## Design Rules
+## Loading Model
 
-Prefer plugins that are:
+Phantasy now has two plugin paths:
 
-- narrow
-- explicit
-- low-privilege by default
-- honest about dependencies
+1. Built-in plugins selected through first-party capabilities
+2. External plugins loaded explicitly from config or package sources
 
-Avoid plugins that:
+That means a plugin should not assume it is part of the default runtime.
 
-- span multiple unrelated domains
-- assume other plugins are present
-- hide side effects in lifecycle hooks
-- quietly expand the trust boundary
+## Plugin Responsibilities
 
-## Profiles Versus Plugins
+A good plugin should:
 
-Phantasy has two capability lanes:
-
-1. first-party built-ins selected through `pluginProfiles`
-2. explicit plugins for extra capability
-
-A plugin should never assume it is part of the default runtime.
+- own one capability boundary
+- register only the tools it actually needs
+- keep config localized
+- avoid assuming unrelated plugins are present
+- fail safely when optional services are unavailable
 
 ## Installation And Trust
 
-Remote plugin installation is staged before enablement.
+Remote plugin installation is staged and verified before enablement.
 
-Practical implications:
+Important implications:
 
-- download is not the same as enablement
-- staging does not auto-run lifecycle scripts
-- staging does not auto-run `build`
+- remote install does not auto-run lifecycle scripts during staging
+- remote install does not auto-run `build`
+- enablement is a separate step from download
 
-If your plugin needs a build step, document it clearly.
+If your plugin requires a build step, document it clearly for maintainers and package consumers. Do not assume the runtime will execute it automatically.
 
-## Good Default
+For trusted local development, keep the compiled plugin under `./plugins/<slug>/`. The CLI scaffold targets that path directly.
 
-Before writing a plugin, ask the boring question first:
+## Config Guidance
 
-- can this be an `AGENTS.md` rule?
-- can this be a skill?
-- can this be MCP?
+Use capabilities for first-party capability selection:
 
-If the answer is still no, then a plugin is probably the right tool.
+```json
+{
+  "capabilities": { "coding": true, "character": true, "admin": false }
+}
+```
+
+Use explicit plugin config only for extra capability beyond the selected built-in capabilities.
+
+## Design Rules
+
+Prefer:
+
+- narrow tool surfaces
+- explicit config
+- low-privilege defaults
+- composable behavior
+
+Avoid:
+
+- large multi-domain plugins
+- implicit global state
+- hidden side effects in lifecycle hooks
+- assuming admin/server surfaces are always present
 
 ## Related Docs
 
-- [Plugin Overview](/docs/plugins/overview)
-- [Integration Model](/docs/integrations/integrations-guide)
-- [Runtime Packages](/docs/architecture/runtime-packages)
-- [Design Principles](/docs/architecture/design-principles)
+- [Plugin Overview](./overview.md)
+- [Runtime Packages](../architecture/runtime-packages.md)
+- [Design Principles](../architecture/design-principles.md)
+- [Agent Compatibility](../architecture/agent-compatibility.md)

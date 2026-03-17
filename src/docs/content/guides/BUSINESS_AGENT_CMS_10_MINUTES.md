@@ -1,77 +1,80 @@
-# Build An AI Companion Business In 10 Minutes
+# Build An AI VTuber In 10 Minutes
 
-This is the shortest honest demo of Phantasy's flagship shape: a companion who runs her own site, content, automations, and business from one runtime.
+This is the shortest path to the product story that matters most for launch: an AI companion/VTuber who runs her own site, content, automations, and business from one runtime.
 
-## 1. Install And Start
+## 1. Install and start
 
 ```bash
 npm install @phantasy/agent
-npx phantasy create business-cms my-brand
+npx phantasy create vtuber my-brand
 npx phantasy start --config config/agents/my-brand.json
 ```
 
-If you are working from source:
+If you are working from a source checkout instead of the published package:
 
 ```bash
 bun install
-cp .env.example .env
-./start.sh
+bun run dev:up
 ```
+
+`bun run dev:up` creates `.env` from `.env.development` when needed, starts the local PostgreSQL container, and uses the local-only login `admin` / `phantasy-dev-password`.
 
 Open:
 
-- admin dev shell: `http://localhost:5173`
-- server build: `http://localhost:2000/admin`
+- Admin UI: `http://localhost:5173`
+- Server build: `http://localhost:2000/admin`
 
-## 2. Make The Site Public
-
-In `Website`:
-
-1. set website mode to `public`
-2. add the brand title and description
-3. save
-
-If you want a headless setup instead, choose `api-only`. The content model stays the same.
-
-## 3. Publish Something Real
-
-In `Content`:
-
-1. create your first Chronicle entry
-2. publish it
-3. confirm `/blog` and `/blog/:slug` render correctly
-
-That is the quickest way to prove the companion, CMS, and public site are all reading from the same runtime.
-
-## 4. Add The Character Surface
-
-If you want the Live2D path, vendor the pinned runtime first:
+## 2. Vendor the pinned Live2D runtime
 
 ```bash
 bun run setup:live2d
 ```
 
-Then use the companion/avatar settings to point at a `Live2D` `.model3.json`, a `PNGTuber` pack root, or your preferred VRM asset.
+Phantasy supports one pinned runtime matrix for Live2D:
 
-Recommended Live2D smoke test:
+- Cubism Core
+- PIXI 6.5.2
+- `pixi-live2d-display` cubism4 build
+
+## 3. Configure the companion business shell
+
+In the admin UI:
+
+1. Open **Website / Content**
+2. Set website mode to `public`
+3. Add your brand title, description, and nav
+4. Save
+
+If you want a headless setup, use `api-only` and keep the same content model.
+
+## 4. Turn on Chronicle
+
+In **Chronicle**:
+
+1. Create your first entry
+2. Publish it
+3. Confirm `/blog` and `/blog/:slug` render correctly
+
+Chronicle gives you the built-in blog, feeds, sitemap, and syndication hooks without splitting into a separate CMS.
+
+## 5. Add the Live2D character
+
+In **Appearance**:
+
+1. Choose `Live2D`
+2. Enter a `.model3.json` URL
+3. Save
+4. Reload the page once to verify the pinned local runtime assets are present
+
+Recommended verification:
 
 ```bash
 bun run test -- src/live2d-plugin-loader.smoke.test.ts
 ```
 
-## 5. Check The Product Loop
+## 6. Verify the launch surface
 
-Before calling it a demo, make sure you can show all of this without hand-waving:
-
-- a named companion
-- a public site
-- a published entry
-- one automation or approval surface
-- one business or integration surface
-
-If those five land cleanly, the product story is working.
-
-## 6. Run The Release Checks
+Run the same checks you would run before posting a public demo:
 
 ```bash
 bun run typecheck
@@ -79,23 +82,17 @@ bun run lint
 bun run stylelint
 bun run docs:check
 bun run test
-npm pack --dry-run
+npm pack --dry-run --cache /tmp/phantasy-npm-cache
 ```
 
-## 7. Lead With The Wedge
+## 7. Ship the wedge, not the whole universe
 
 For launch copy, lead with:
 
-- the companion as the product surface
-- site and content around her
-- automations and approvals behind her
-- business operations attached to the same identity
+- AI companion/VTuber as the product surface
+- website and headless modes around her
+- Chronicle publishing flow
+- Live2D and VRM character support
+- workflow applications, automations, and business operations around the same companion/runtime
 
-Do not lead with every plugin, every integration, or every future mode. Let the wedge stay sharp.
-
-## Related Docs
-
-- [First Run](/docs/getting-started/first-run)
-- [Chronicle](/docs/features/chronicle)
-- [Live2D Setup](/docs/guides/LIVE2D_SETUP)
-- [Launch Playbook](/docs/guides/LAUNCH_PLAYBOOK)
+Do not lead with every plugin, every integration, or every future platform surface.
