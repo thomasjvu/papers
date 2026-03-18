@@ -50,6 +50,12 @@ export const homepageConfig = {
     subtitle: 'Static documentation template',
     description:
       'A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.',
+    artwork: {
+      src: '/images/docs/placeholders/template-hero-banner.svg',
+      alt: 'Placeholder hero banner for a documentation homepage',
+      caption:
+        'Placeholder hero banner. Replace with a product screenshot, illustrated system overview, or docs brand artwork.',
+    },
     cta: {
       primary: {
         text: 'Installation',
@@ -69,17 +75,20 @@ export const homepageConfig = {
     },
     {
       title: 'Write in Markdown',
-      description: 'Keep your real documentation in `src/docs/content/` and drive navigation from shared config.',
+      description:
+        'Keep your real documentation in `src/docs/content/` and drive navigation from shared config.',
       icon: 'mingcute:file-text-line',
     },
     {
       title: 'Ship static',
-      description: 'Build once and deploy to Cloudflare Pages, Vercel, Netlify, or any host with SPA rewrites.',
+      description:
+        'Build once and deploy to Cloudflare Pages, Vercel, Netlify, or any host with SPA rewrites.',
       icon: 'mingcute:rocket-line',
     },
     {
       title: 'Search-ready',
-      description: 'Use the command palette locally and Pagefind full-text search in production builds.',
+      description:
+        'Use the command palette locally and Pagefind full-text search in production builds.',
       icon: 'mingcute:search-line',
     },
   ],

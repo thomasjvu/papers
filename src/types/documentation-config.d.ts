@@ -14,6 +14,11 @@ declare module '*/shared/documentation-config.js' {
       title: string;
       subtitle: string;
       description: string;
+      artwork?: {
+        src: string;
+        alt: string;
+        caption?: string;
+      };
       cta: {
         primary: { text: string; href: string };
         secondary: { text: string; href: string };

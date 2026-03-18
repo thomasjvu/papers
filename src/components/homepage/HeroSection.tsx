@@ -9,6 +9,11 @@ interface HeroSectionProps {
     title: string;
     subtitle: string;
     description: string;
+    artwork?: {
+      src: string;
+      alt: string;
+      caption?: string;
+    };
     cta: {
       primary: { text: string; href: string };
       secondary: { text: string; href: string };
@@ -101,6 +106,39 @@ export function HeroSection({ hero }: HeroSectionProps) {
               {hero.cta.secondary.text}
             </Link>
           </motion.div>
+
+          {hero.artwork ? (
+            <motion.figure
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
+              className="mx-auto mt-12 max-w-5xl overflow-hidden rounded-[28px] border p-3"
+              style={{
+                borderColor: 'var(--border-unified)',
+                backgroundColor: 'var(--card-color)',
+              }}
+            >
+              <img
+                src={hero.artwork.src}
+                alt={hero.artwork.alt}
+                className="w-full rounded-[20px] border"
+                style={{ borderColor: 'var(--border-unified)' }}
+              />
+              {hero.artwork.caption ? (
+                <figcaption
+                  className="px-2 pt-3 text-left"
+                  style={{
+                    color: 'var(--muted-color)',
+                    fontFamily: 'var(--mono-font)',
+                    fontSize: 'var(--text-xs)',
+                    lineHeight: 'var(--leading-relaxed)',
+                  }}
+                >
+                  {hero.artwork.caption}
+                </figcaption>
+              ) : null}
+            </motion.figure>
+          ) : null}
         </motion.div>
       </div>
     </section>
