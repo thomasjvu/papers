@@ -905,14 +905,14 @@ code {
   font-family: var(--body-font);
   margin-bottom: var(--space-6);
   line-height: var(--leading-loose);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   color: var(--text-color);
   max-width: none;
 }
 
 /* Enhanced first paragraph for better reading flow */
 .doc-content > p:first-of-type {
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
   line-height: var(--leading-loose);
   margin-bottom: var(--space-8);
   color: var(--text-color);
@@ -1072,7 +1072,7 @@ header a:hover,
 .doc-content li {
   margin-bottom: var(--space-2);
   font-family: var(--body-font);
-  font-size: var(--text-sm);
+  font-size: var(--text-base);
   line-height: var(--leading-loose);
   color: var(--text-color);
 }
@@ -1159,7 +1159,7 @@ header a:hover,
   border-collapse: collapse;
   margin: var(--space-8) 0;
   font-family: var(--body-font);
-  font-size: 0.95rem;
+  font-size: var(--text-base);
   line-height: 1.6;
 }
 
@@ -2077,4 +2077,3 @@ select {
 .text-secondary {
   color: var(--text-secondary);
 }
-
