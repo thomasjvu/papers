@@ -1,16 +1,10 @@
-import { Icon as IconifyIcon, addCollection, IconifyJSON } from '@iconify/react';
-// Import icon collections at build time
-import mingcuteIcons from '@iconify-json/mingcute/icons.json' with { type: 'json' };
-import tokenBrandedIcons from '@iconify-json/token-branded/icons.json' with { type: 'json' };
+import { Icon as IconifyIcon } from '@iconify/react';
 import React from 'react';
 
 import { ICON_SIZES } from '../../constants/ui';
+import { ensureIconCollections } from '../../lib/iconify';
 
-// Add collections to ensure icons are bundled
-if (typeof window !== 'undefined') {
-  addCollection(mingcuteIcons as IconifyJSON);
-  addCollection(tokenBrandedIcons as IconifyJSON);
-}
+ensureIconCollections();
 
 export type IconSize = keyof typeof ICON_SIZES;
 

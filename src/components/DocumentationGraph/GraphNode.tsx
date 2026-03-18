@@ -26,6 +26,8 @@ interface GraphNodeProps {
   pendingSwitchNodeId?: string;
   themeColors: Record<string, string>;
   isSidebarView: boolean;
+  glowFilterId: string;
+  nodeGradientId: string;
   onNodeClick: (node: GraphNode) => void;
   onSwitchClick: (node: GraphNode) => void;
   getNodeColor: (node: GraphNode) => string;
@@ -42,6 +44,8 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
     pendingSwitchNodeId,
     themeColors,
     isSidebarView,
+    glowFilterId,
+    nodeGradientId,
     onNodeClick,
     onSwitchClick,
     getNodeColor,
@@ -90,7 +94,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           r={nodeRadius + 3}
           fill={nodeColor}
           opacity={0.2}
-          filter="url(#glow)"
+          filter={`url(#${glowFilterId})`}
         />
 
         <motion.circle
@@ -106,7 +110,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           cx={node.x}
           cy={node.y}
           r={nodeRadius}
-          fill="url(#node-gradient)"
+          fill={`url(#${nodeGradientId})`}
           pointerEvents="none"
         />
 
