@@ -1,4 +1,3 @@
-
 import { motion } from 'framer-motion';
 import React from 'react';
 
@@ -53,7 +52,7 @@ const GraphLinks: React.FC<GraphLinksProps> = React.memo(
 
           return (
             <motion.line
-              key={`link-${index}`}
+              key={`${link.source}-${link.target}-${link.linkType}`}
               x1={sourceNode.x}
               y1={sourceNode.y}
               x2={targetNode.x}

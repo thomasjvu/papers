@@ -3,7 +3,7 @@ import React from 'react';
 
 interface TableOfContentsProps {
   content: string;
-  onToggleRightSidebar: () => void;
+  onToggleInteractiveMap?: () => void;
 }
 
 interface HeadingItem {
@@ -13,10 +13,11 @@ interface HeadingItem {
 }
 
 function createHeadingId(text: string, counts: Map<string, number>): string {
-  const baseId = text
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '') || 'section';
+  const baseId =
+    text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '') || 'section';
 
   const currentCount = counts.get(baseId) ?? 0;
   counts.set(baseId, currentCount + 1);
@@ -45,7 +46,7 @@ function buildHeadingsFromMarkdown(content: string): HeadingItem[] {
   return extractedHeadings;
 }
 
-const TableOfContents = React.memo(({ content, onToggleRightSidebar }: TableOfContentsProps) => {
+const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOfContentsProps) => {
   const headings = React.useMemo(() => buildHeadingsFromMarkdown(content), [content]);
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(
     headings[0]?.id ?? null
@@ -109,7 +110,7 @@ const TableOfContents = React.memo(({ content, onToggleRightSidebar }: TableOfCo
 
   return (
     <div
-      className="flex max-h-[calc(100vh-4rem)] flex-col overflow-hidden rounded-lg border p-4"
+      className="flex h-full max-h-[calc(100vh-7rem)] flex-col overflow-hidden rounded-lg border p-4"
       style={{
         backgroundColor: 'var(--toc-bg-color)',
         borderColor: 'var(--toc-border-color)',
@@ -124,19 +125,22 @@ const TableOfContents = React.memo(({ content, onToggleRightSidebar }: TableOfCo
         >
           On This Page
         </h4>
-        <button
-          onClick={onToggleRightSidebar}
-          className="ui-control flex h-6 w-6 items-center justify-center rounded-md"
-          style={{
-            backgroundColor: 'var(--toc-button-bg)',
-            borderColor: 'var(--toc-border-color)',
-            color: 'var(--toc-text-color)',
-          }}
-          aria-label="Show documentation map"
-          type="button"
-        >
-          <Icon icon="mingcute:brain-line" className="h-3.5 w-3.5" />
-        </button>
+        {onToggleInteractiveMap ? (
+          <button
+            onClick={onToggleInteractiveMap}
+            className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 transition-opacity hover:opacity-80"
+            aria-label="Show interactive map"
+            style={{
+              backgroundColor: 'var(--card-color)',
+              borderColor: 'var(--border-unified)',
+              color: 'var(--text-color)',
+              fontFamily: 'var(--mono-font)',
+            }}
+            type="button"
+          >
+            <Icon icon="mingcute:brain-line" className="h-4 w-4" />
+          </button>
+        ) : null}
       </div>
       <nav className="toc-scroll overflow-x-hidden overflow-y-auto pr-1">
         {headings.map((heading) => {

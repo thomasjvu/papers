@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback, useId } from 'react';
 
 import { useDebouncedCallback } from '../../hooks/useDebounce';
 import { useTheme } from '../../providers/ThemeProvider';
@@ -31,6 +31,7 @@ export default function OptimizedDocumentationGraph({
   onNodeClick,
   className = '',
 }: OptimizedDocumentationGraphProps) {
+  const instanceId = useId();
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
   const [nodes, setNodes] = useState<GraphNodeType[]>([]);
@@ -55,6 +56,9 @@ export default function OptimizedDocumentationGraph({
   const PAN_LIMIT = 200;
 
   const { prefersReducedMotion } = useTheme();
+  const nodeGradientId = useMemo(() => `node-gradient-${instanceId}`, [instanceId]);
+  const glowFilterId = useMemo(() => `glow-${instanceId}`, [instanceId]);
+  const graphRenderKey = currentPath || 'root';
 
   // Use the extracted graph logic
   const { graphNodes, graphLinks, searchResults, getNodeColor, getNodeRadius } = useGraphLogic(
@@ -317,6 +321,16 @@ export default function OptimizedDocumentationGraph({
     }
   }, [currentPath]);
 
+  useEffect(() => {
+    setSearchTerm('');
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+    setIsDragging(false);
+    setClickedNodeId(undefined);
+    setIsNavigating(false);
+    setPendingSwitchNodeId(undefined);
+  }, [currentPath]);
+
   const isSidebarView = dimensions.height <= 300;
 
   return (
@@ -324,6 +338,7 @@ export default function OptimizedDocumentationGraph({
       {/* Search Input */}
       <div className="mb-2">
         <input
+          key={`search-${graphRenderKey}`}
           type="text"
           placeholder={isSidebarView ? 'Search docs...' : 'Search documents...'}
           onChange={handleSearchChange}
@@ -368,6 +383,7 @@ export default function OptimizedDocumentationGraph({
         />
 
         <svg
+          key={graphRenderKey}
           ref={svgRef}
           width="100%"
           height="100%"
@@ -384,12 +400,12 @@ export default function OptimizedDocumentationGraph({
         >
           {/* Gradient definitions */}
           <defs>
-            <radialGradient id="node-gradient" cx="50%" cy="50%" r="50%">
+            <radialGradient id={nodeGradientId} cx="50%" cy="50%" r="50%">
               <stop offset="0%" stopColor="white" stopOpacity="0.3" />
               <stop offset="100%" stopColor="transparent" />
             </radialGradient>
 
-            <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <filter id={glowFilterId} x="-50%" y="-50%" width="200%" height="200%">
               <feGaussianBlur stdDeviation="2" result="coloredBlur" />
               <feMerge>
                 <feMergeNode in="coloredBlur" />
@@ -424,6 +440,8 @@ export default function OptimizedDocumentationGraph({
                   pendingSwitchNodeId={pendingSwitchNodeId}
                   themeColors={themeColors}
                   isSidebarView={isSidebarView}
+                  glowFilterId={glowFilterId}
+                  nodeGradientId={nodeGradientId}
                   onNodeClick={handleNodeClick}
                   onSwitchClick={handleSwitchClick}
                   getNodeColor={(node) => getNodeColor(node, themeColors)}

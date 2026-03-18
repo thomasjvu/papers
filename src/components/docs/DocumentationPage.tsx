@@ -429,6 +429,18 @@ const DocumentationPage = React.memo(
                 className="border-t pt-4 space-y-2"
                 style={{ borderColor: 'var(--border-unified)' }}
               >
+                <Link
+                  to="/llms"
+                  className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
+                  style={utilityButtonStyle}
+                >
+                  <span className="flex items-center gap-2">
+                    <Icon icon="mingcute:file-info-line" className="h-4 w-4" />
+                    <span>LLMs.txt</span>
+                  </span>
+                  <Icon icon="mingcute:arrow-right-line" className="h-4 w-4" />
+                </Link>
+
                 <button
                   onClick={handleMapButtonClick}
                   className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
@@ -436,7 +448,10 @@ const DocumentationPage = React.memo(
                   type="button"
                 >
                   <span className="flex items-center gap-2">
-                    <Icon icon="mingcute:brain-line" className="h-4 w-4 transition duration-150 group-hover:invert" />
+                    <Icon
+                      icon="mingcute:brain-line"
+                      className="h-4 w-4 transition duration-150 group-hover:invert"
+                    />
                     <span>
                       {isMobile ? 'Open map' : rightSidebarVisible ? 'Hide map' : 'Show map'}
                     </span>
@@ -450,18 +465,6 @@ const DocumentationPage = React.memo(
                     className="h-4 w-4"
                   />
                 </button>
-
-                <Link
-                  to="/llms"
-                  className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
-                  style={utilityButtonStyle}
-                >
-                  <span className="flex items-center gap-2">
-                    <Icon icon="mingcute:file-info-line" className="h-4 w-4" />
-                    <span>LLMs.txt</span>
-                  </span>
-                  <Icon icon="mingcute:arrow-right-line" className="h-4 w-4" />
-                </Link>
 
                 <div
                   className="flex items-center justify-between rounded-lg border px-3 py-2"
@@ -538,7 +541,6 @@ const DocumentationPage = React.memo(
                 </div>
               )}
 
-
               <ContentRenderer content={content} path={path} sourcePath={sourcePath} />
             </div>
           </div>
@@ -552,7 +554,7 @@ const DocumentationPage = React.memo(
         >
           <div className="flex h-full w-72 flex-col overflow-hidden px-4 py-4 xl:w-80">
             <div className="relative min-h-0 flex-1">
-              <AnimatePresence initial={false}>
+              <AnimatePresence initial={false} mode="wait">
                 {rightSidebarVisible ? (
                   <motion.div
                     key="interactive-map"
@@ -576,16 +578,17 @@ const DocumentationPage = React.memo(
                       </h3>
                       <button
                         onClick={toggleRightSidebar}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80"
+                        className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 transition-opacity hover:opacity-80"
                         aria-label="Show table of contents"
                         style={{
                           backgroundColor: 'var(--card-color)',
                           borderColor: 'var(--border-unified)',
                           color: 'var(--text-color)',
+                          fontFamily: 'var(--mono-font)',
                         }}
                         type="button"
                       >
-                        <Icon icon="mingcute:brain-line" className="h-3.5 w-3.5 -translate-y-1" />
+                        TOC
                       </button>
                     </div>
                     <div className="min-h-0 flex-1">
@@ -611,15 +614,13 @@ const DocumentationPage = React.memo(
                     exit="exit"
                     variants={rightRailPanelVariants}
                     transition={rightRailPanelTransition}
-                    className="absolute inset-0 flex h-full flex-col py-4 will-change-[opacity]"
+                    className="absolute inset-0 flex h-full flex-col pt-5 will-change-[opacity]"
                   >
-                    <div className="flex min-h-0 flex-1 items-center justify-center">
-                      <div className="w-full max-w-[15rem]" style={{ transform: 'translateY(-15%)' }}>
-                        <TableOfContents
-                          content={content}
-                          onToggleRightSidebar={toggleRightSidebar}
-                        />
-                      </div>
+                    <div className="min-h-0 flex-1">
+                      <TableOfContents
+                        content={content}
+                        onToggleInteractiveMap={toggleRightSidebar}
+                      />
                     </div>
                   </motion.div>
                 )}
@@ -698,6 +699,3 @@ const DocumentationPage = React.memo(
 DocumentationPage.displayName = 'DocumentationPage';
 
 export default DocumentationPage;
-
-
-
