@@ -183,6 +183,11 @@ export const architectureTests: ArchitectureTestCase[] = [
       const markdown = [
         '# Demo',
         '',
+        '```mermaid',
+        'graph TD',
+        '  A[Start] --> B[Finish]',
+        '```',
+        '',
         '```ts:TypeScript|js:JavaScript',
         'const value = 1;',
         '---',
@@ -198,10 +203,12 @@ export const architectureTests: ArchitectureTestCase[] = [
         createId: createDeterministicIdGenerator(),
       });
 
-      assert.match(result.html, /data-codeblock-id="codeblock-1"/);
-      assert.match(result.html, /data-liveexample-id="liveexample-2"/);
+      assert.match(result.html, /data-mermaid-id="mermaid-1"/);
+      assert.match(result.html, /data-codeblock-id="codeblock-2"/);
+      assert.match(result.html, /data-liveexample-id="liveexample-3"/);
       assert.match(result.html, /data-language="html"/);
-      assert.deepEqual(result.codeBlocks.get('codeblock-1'), [
+      assert.equal(result.mermaidBlocks.get('mermaid-1'), 'graph TD\n  A[Start] --> B[Finish]');
+      assert.deepEqual(result.codeBlocks.get('codeblock-2'), [
         { language: 'ts', code: 'const value = 1;', label: 'TypeScript' },
         { language: 'js', code: 'const value = 1;', label: 'JavaScript' },
       ]);
@@ -301,7 +308,9 @@ export const architectureTests: ArchitectureTestCase[] = [
         siteDescription: 'Minimal docs starter.',
       });
 
-      const canonicalDocRoute = routes.find((route) => route.routePath === '/docs/getting-started/introduction');
+      const canonicalDocRoute = routes.find(
+        (route) => route.routePath === '/docs/getting-started/introduction'
+      );
       const docsAliasRoute = routes.find((route) => route.routePath === '/docs');
       const llmsRoute = routes.find((route) => route.routePath === '/llms');
 
@@ -309,9 +318,16 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(docsAliasRoute?.canonicalPath, '/docs/getting-started/introduction');
       assert.equal(llmsRoute?.description, 'AI exports.');
 
-      const sitemap = createSitemapXml(routes, 'https://docs.example.com', '2026-03-11T00:00:00.000Z');
+      const sitemap = createSitemapXml(
+        routes,
+        'https://docs.example.com',
+        '2026-03-11T00:00:00.000Z'
+      );
       assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/);
+      assert.match(
+        sitemap,
+        /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/
+      );
       assert.doesNotMatch(sitemap, /\/docs<\/loc>/);
 
       const robots = createRobotsTxt('https://docs.example.com');
@@ -336,9 +352,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         );
         await writeFile(
           join(tempDir, '.env.local'),
-          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join(
-            '\n'
-          )
+          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join('\n')
         );
         await writeFile(
           join(tempDir, '.env.production'),
@@ -395,20 +409,17 @@ export const architectureTests: ArchitectureTestCase[] = [
         buildCanonicalDocsPath('guides/intro', { versionConfig, i18nConfig }),
         '/docs/2.0/en/guides/intro'
       );
-      assert.deepEqual(
-        buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }),
-        [
-          '/docs/guides/intro',
-          '/docs/2.0/guides/intro',
-          '/docs/1.0/guides/intro',
-          '/docs/en/guides/intro',
-          '/docs/fr/guides/intro',
-          '/docs/2.0/en/guides/intro',
-          '/docs/2.0/fr/guides/intro',
-          '/docs/1.0/en/guides/intro',
-          '/docs/1.0/fr/guides/intro',
-        ]
-      );
+      assert.deepEqual(buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }), [
+        '/docs/guides/intro',
+        '/docs/2.0/guides/intro',
+        '/docs/1.0/guides/intro',
+        '/docs/en/guides/intro',
+        '/docs/fr/guides/intro',
+        '/docs/2.0/en/guides/intro',
+        '/docs/2.0/fr/guides/intro',
+        '/docs/1.0/en/guides/intro',
+        '/docs/1.0/fr/guides/intro',
+      ]);
       assert.deepEqual(parseDocsRoutePath('2.0/fr/guides/intro', { versionConfig, i18nConfig }), {
         originalSlug: '2.0/fr/guides/intro',
         docPath: 'guides/intro',

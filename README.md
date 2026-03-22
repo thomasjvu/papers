@@ -1,6 +1,6 @@
 # papers
 
-`papers` is a static documentation starter built with React, Vite, TypeScript, generated Markdown content, Pagefind search, `llms.txt` exports, and SEO-friendly static route metadata.
+`papers` is a static documentation starter built with React, Vite, TypeScript, generated Markdown content, Mermaid diagram support, Pagefind search, `llms.txt` exports, and SEO-friendly static route metadata.
 
 If you are evaluating the template, start in the app at `/docs/getting-started/introduction`.
 If you are adopting it for your own project, this is the shortest path:
@@ -51,6 +51,13 @@ npm run release:check
 - `src/globals.css`: theme tokens, typography, code styling
 - `src/constants/social.tsx`: footer links
 
+## Markdown Features
+
+- Standard Markdown with frontmatter
+- Multi-language code blocks using fences like `ts:TypeScript|js:JavaScript`
+- Live HTML and CSS examples with `html` and `css`
+- Mermaid diagrams with `mermaid`
+
 ## Build Output
 
 `npm run build` regenerates and packages:
@@ -81,4 +88,3 @@ Add `description:` frontmatter to any Markdown page that needs a custom search o
 ## License
 
 MIT. See [LICENSE](LICENSE).
-

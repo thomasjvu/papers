@@ -11,6 +11,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
+import MermaidDiagram from './MermaidDiagram';
 
 const componentLogger = createLogger('MarkdownRenderer');
 
@@ -22,10 +23,12 @@ type MarkdownRendererProps = {
 interface ProcessedMarkdownData {
   html: string;
   codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, string>;
 }
 
 interface RenderContext {
   codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, string>;
   navigate: (href: string) => void;
 }
 
@@ -184,6 +187,17 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       componentLogger.error('Error processing live example:', error);
       return null;
     }
+  }
+
+  if (tagName === 'div' && element.hasAttribute('data-mermaid-id')) {
+    const blockId = element.getAttribute('data-mermaid-id');
+    const chart = blockId ? context.mermaidBlocks.get(blockId) : undefined;
+
+    if (!chart) {
+      return null;
+    }
+
+    return <MermaidDiagram key={key} chart={chart} />;
   }
 
   if (tagName === 'a') {
@@ -422,6 +436,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
           setProcessedData({
             html: '<p>Error loading content. Please try again.</p>',
             codeBlocks: new Map(),
+            mermaidBlocks: new Map(),
           });
           setIsProcessing(false);
         }
@@ -442,6 +457,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
     return parseHtmlToReactNodes(processedData, {
       codeBlocks: processedData.codeBlocks,
+      mermaidBlocks: processedData.mermaidBlocks,
       navigate: (href) => {
         if (href === '/' || href === '/llms') {
           navigate(href);

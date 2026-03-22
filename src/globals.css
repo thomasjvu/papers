@@ -148,6 +148,7 @@
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
+  --doc-body-text: 1.125rem;
   --text-lg: 1.125rem;
   --text-xl: 1.1875rem;
   --text-2xl: 1.375rem;
@@ -905,7 +906,7 @@ code {
   font-family: var(--body-font);
   margin-bottom: var(--space-6);
   line-height: var(--leading-loose);
-  font-size: var(--text-base);
+  font-size: var(--doc-body-text);
   color: var(--text-color);
   max-width: none;
 }
@@ -1072,7 +1073,7 @@ header a:hover,
 .doc-content li {
   margin-bottom: var(--space-2);
   font-family: var(--body-font);
-  font-size: var(--text-base);
+  font-size: var(--doc-body-text);
   line-height: var(--leading-loose);
   color: var(--text-color);
 }
@@ -1096,7 +1097,7 @@ header a:hover,
   font-style: normal;
   color: var(--text-secondary);
   overflow: visible;
-  font-size: var(--text-base);
+  font-size: var(--doc-body-text);
   line-height: var(--leading-loose);
 }
 
@@ -1769,7 +1770,7 @@ code.wallet-address {
 
 /* Documentation-specific typography */
 .doc-content {
-  font-size: var(--text-base);
+  font-size: var(--doc-body-text);
   line-height: var(--leading-relaxed);
 }
 
@@ -1803,6 +1804,7 @@ code.wallet-address {
 
 .doc-content p {
   margin-bottom: var(--space-4);
+  font-size: var(--doc-body-text);
 }
 
 .doc-content ul,
@@ -1814,6 +1816,35 @@ code.wallet-address {
 .doc-content li {
   margin-bottom: var(--space-2);
   line-height: var(--leading-relaxed);
+  font-size: var(--doc-body-text);
+}
+
+.mermaid-block {
+  margin: var(--space-8) 0;
+  padding: var(--space-5);
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  overflow-x: auto;
+}
+
+.mermaid-block svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mermaid-block--loading,
+.mermaid-block--error {
+  font-family: var(--body-font);
+  font-size: var(--doc-body-text);
+  color: var(--text-secondary);
+}
+
+.mermaid-block--error strong {
+  display: block;
+  margin-bottom: var(--space-2);
+  color: var(--error-color);
 }
 
 .doc-content code {
