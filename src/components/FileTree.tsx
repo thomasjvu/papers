@@ -64,7 +64,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             cursor: 'pointer',
             fontFamily: 'var(--mono-font)',
             letterSpacing: '-0.5px',
-            fontSize: '0.8rem',
+            fontSize: 'calc(var(--text-sm) + 1px)',
             paddingLeft: `${indent}px`,
           }}
         >

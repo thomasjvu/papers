@@ -110,7 +110,7 @@ const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOf
 
   return (
     <div
-      className="flex h-full max-h-[calc(100vh-7rem)] flex-col overflow-hidden rounded-lg border p-4"
+      className="flex w-full max-h-[calc(100vh-7rem)] flex-col self-start overflow-hidden rounded-lg border p-4"
       style={{
         backgroundColor: 'var(--toc-bg-color)',
         borderColor: 'var(--toc-border-color)',
@@ -142,7 +142,10 @@ const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOf
           </button>
         ) : null}
       </div>
-      <nav className="toc-scroll overflow-x-hidden overflow-y-auto pr-1">
+      <nav
+        className="toc-scroll overflow-x-hidden overflow-y-auto pr-1"
+        style={{ maxHeight: 'calc(100vh - 11rem)' }}
+      >
         {headings.map((heading) => {
           const isActive = heading.id === activeHeadingId;
 
@@ -154,7 +157,10 @@ const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOf
               style={{
                 fontFamily: 'var(--mono-font)',
                 paddingLeft: `${(heading.level - 1) * 12}px`,
-                fontSize: heading.level === 1 ? 'var(--text-xs)' : 'var(--text-2xs)',
+                fontSize:
+                  heading.level === 1
+                    ? 'calc(var(--text-xs) + 1px)'
+                    : 'calc(var(--text-2xs) + 1px)',
                 color: isActive ? 'var(--toc-text-hover-color)' : 'var(--toc-text-color)',
                 opacity: isActive ? 1 : 0.58,
                 fontWeight: isActive ? 600 : 500,

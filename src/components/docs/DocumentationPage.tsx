@@ -554,7 +554,7 @@ const DocumentationPage = React.memo(
         >
           <div className="flex h-full w-72 flex-col overflow-hidden px-4 py-4 xl:w-80">
             <div className="relative min-h-0 flex-1">
-              <AnimatePresence initial={false} mode="wait">
+              <AnimatePresence initial={false}>
                 {rightSidebarVisible ? (
                   <motion.div
                     key="interactive-map"
