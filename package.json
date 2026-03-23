@@ -10,8 +10,8 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "npm run generate:docs && npm run generate:seo -- --mode development && vite",
-    "build": "npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind",
+    "dev": "npm run generate:icons && npm run generate:docs && npm run generate:seo -- --mode development && vite",
+    "build": "npm run generate:icons && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -23,6 +23,7 @@
     "deploy": "npx wrangler pages deploy dist",
     "deploy:create": "npx wrangler pages project create papers-docs --production-branch main",
     "prepare": "husky",
+    "generate:icons": "node scripts/generate-icons.mjs",
     "generate:llms": "node scripts/generate-llms.mjs",
     "generate:docs": "node scripts/generate-docs.mjs",
     "generate:pagefind": "node scripts/generate-pagefind.mjs",
@@ -36,7 +37,6 @@
   },
   "dependencies": {
     "@iconify-json/mingcute": "^1.2.3",
-    "@iconify-json/token-branded": "^1.2.20",
     "@iconify/react": "^6.0.0",
     "dompurify": "^3.3.3",
     "framer-motion": "^12.11.0",

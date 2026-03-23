@@ -25,15 +25,17 @@ The dev server runs at `http://localhost:3333`.
 
 1. Update `shared/documentation-config.js` if the docs tree or homepage copy needs to change.
 2. Edit Markdown in `src/docs/content/`.
-3. If `npm run dev` is already running, rerun `npm run generate:docs` after docs-tree or Markdown changes.
-4. Rerun `npm run generate:seo` after changing `VITE_SITE_URL`, homepage messaging, or page descriptions. The generator follows Vite env resolution, so `.env`, `.env.local`, `.env.production`, and host build env variables are all supported.
-5. Run `npm run generate:llms` if you want fresh AI exports without a full build.
-6. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before shipping.
+3. Rerun `npm run generate:icons` after changing icon usage in `src/` or `shared/`.
+4. If `npm run dev` is already running, rerun `npm run generate:docs` after docs-tree or Markdown changes.
+5. Rerun `npm run generate:seo` after changing `VITE_SITE_URL`, homepage messaging, or page descriptions. The generator follows Vite env resolution, so `.env`, `.env.local`, `.env.production`, and host build env variables are all supported.
+6. Run `npm run generate:llms` if you want fresh AI exports without a full build.
+7. Run `npm test`, `npm run lint`, `npm run build`, and `npm run release:check` before shipping.
 
 ## Core Commands
 
 ```bash
 npm run dev
+npm run generate:icons
 npm run generate:docs
 npm run generate:seo
 npm run generate:llms
@@ -48,6 +50,7 @@ npm run release:check
 - `shared/documentation-config.js`: docs tree, homepage copy, footer links
 - `src/docs/content/`: the pages your users read
 - `.env.local`: site name, canonical URL, GitHub repo metadata
+- `src/lib/generated/icon-collections.ts`: generated local Iconify subset for the icons used by the app
 - `src/globals.css`: theme tokens, typography, code styling
 - `src/constants/social.tsx`: footer links
 

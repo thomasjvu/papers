@@ -179,7 +179,7 @@ const ContentRenderer = memo(function ContentRenderer({
                     className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
                     style={{ fontFamily: 'var(--mono-font)', color: 'var(--muted-color)' }}
                   >
-                    <Icon icon="mingcute:bug-2-line" className="w-3.5 h-3.5" />
+                    <Icon icon="mingcute:bug-line" className="w-3.5 h-3.5" />
                     <span>issue</span>
                   </a>
 
@@ -190,7 +190,7 @@ const ContentRenderer = memo(function ContentRenderer({
                     className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
                     style={{ fontFamily: 'var(--mono-font)', color: 'var(--muted-color)' }}
                   >
-                    <Icon icon="mingcute:code-2-line" className="w-3.5 h-3.5" />
+                    <Icon icon="mingcute:code-line" className="w-3.5 h-3.5" />
                     <span>source</span>
                   </a>
                 </>

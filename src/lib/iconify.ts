@@ -1,6 +1,6 @@
-import { addCollection, type IconifyJSON } from '@iconify/react';
-import mingcuteIcons from '@iconify-json/mingcute/icons.json' with { type: 'json' };
-import tokenBrandedIcons from '@iconify-json/token-branded/icons.json' with { type: 'json' };
+import { addCollection } from '@iconify/react';
+
+import { iconCollections } from './generated/icon-collections';
 
 let collectionsRegistered = false;
 
@@ -9,8 +9,9 @@ export function ensureIconCollections(): void {
     return;
   }
 
-  addCollection(mingcuteIcons as IconifyJSON);
-  addCollection(tokenBrandedIcons as IconifyJSON);
+  for (const collection of iconCollections) {
+    addCollection(collection);
+  }
   collectionsRegistered = true;
 }
 

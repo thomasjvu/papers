@@ -77,7 +77,7 @@ export const homepageConfig = {
       title: 'Write in Markdown',
       description:
         'Keep your real documentation in `src/docs/content/` and drive navigation from shared config.',
-      icon: 'mingcute:file-text-line',
+      icon: 'mingcute:file-line',
     },
     {
       title: 'Ship static',
