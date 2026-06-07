@@ -25,6 +25,17 @@ type FileTreeItemProps = {
 
 const NESTED_INDENT_STEP = 14;
 
+function sortRootSidebarItems(entries: FileItem[]): FileItem[] {
+  const directories = entries.filter((item) => item.type === 'directory');
+  const files = entries
+    .filter((item) => item.type === 'file')
+    .sort((left, right) =>
+      left.name.replace(/\.(md|mdx)$/i, '').localeCompare(right.name.replace(/\.(md|mdx)$/i, ''))
+    );
+
+  return [...directories, ...files];
+}
+
 const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
   ({ item, onSelect, depth, onToggle, currentPath }) => {
     const { prefersReducedMotion } = useTheme();
@@ -64,7 +75,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             cursor: 'pointer',
             fontFamily: 'var(--mono-font)',
             letterSpacing: '-0.5px',
-            fontSize: 'calc(var(--text-sm) + 1px)',
+            fontSize: '0.8rem',
             paddingLeft: `${indent}px`,
           }}
         >
@@ -162,11 +173,13 @@ const FileTree: React.FC<FileTreeProps> = ({
   }, []);
 
   const itemsWithState = useMemo(() => {
-    const addStateToItems = (entries: FileItem[]): FileItem[] => {
-      return entries.map((item) => ({
+    const addStateToItems = (entries: FileItem[], depth = 0): FileItem[] => {
+      const orderedEntries = depth === 0 ? sortRootSidebarItems(entries) : entries;
+
+      return orderedEntries.map((item) => ({
         ...item,
         expanded: expandedItems[item.path] ?? false,
-        children: item.children ? addStateToItems(item.children) : undefined,
+        children: item.children ? addStateToItems(item.children, depth + 1) : undefined,
       }));
     };
 

@@ -7,6 +7,7 @@ import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
 import { buildCanonicalDocsPath } from '../../../shared/docsRouting.js';
+import { homepageConfig } from '../../../shared/documentation-config.js';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -125,7 +126,7 @@ export const useSearchLogic = (query: string) => {
 
     results.push({
       title: 'LLMs.txt - AI Documentation',
-      path: '/llms',
+      path: '/llms.txt',
       type: 'page',
       description: 'View and download AI-friendly documentation format',
       icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
@@ -155,14 +156,16 @@ export const useSearchLogic = (query: string) => {
 
     processTree(documentationTree);
 
-    results.push({
-      title: 'Go to Homepage',
-      path: '/',
-      type: 'action',
-      description: 'Navigate to the main page',
-      icon: createElement(Icon, { icon: 'mingcute:home-2-line', className: 'w-5 h-5' }),
-      shortcut: 'H',
-    });
+    if (homepageConfig.enabled) {
+      results.push({
+        title: 'Go to Homepage',
+        path: '/',
+        type: 'action',
+        description: 'Navigate to the main page',
+        icon: createElement(Icon, { icon: 'mingcute:home-2-line', className: 'w-5 h-5' }),
+        shortcut: 'H',
+      });
+    }
 
     return results;
   }, [isDarkMode, toggleDarkMode]);

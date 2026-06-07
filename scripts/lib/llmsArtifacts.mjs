@@ -23,10 +23,6 @@ function getDocFilePath(docPath, options = {}) {
 }
 
 function getDocUrl(docPath, options = {}) {
-  if (docPath === 'llms') {
-    return '/llms';
-  }
-
   const defaultVariantContext = getDefaultDocsVariantContext(options);
 
   return buildCanonicalDocsPath(docPath, {
@@ -63,14 +59,14 @@ export function createLlmsArtifacts(options = {}) {
   let resolvedFileCount = 0;
 
   function processTree(items) {
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item.type === 'directory' && item.children) {
         const section = {
           title: item.name,
           items: [],
         };
 
-        item.children.forEach(child => {
+        item.children.forEach((child) => {
           if (child.type === 'file') {
             const filePath = getDocFilePath(child.path, options);
             let description = '';
@@ -128,9 +124,9 @@ export function createLlmsArtifacts(options = {}) {
     llmsTxt += `${siteDescription}\n\n`;
   }
 
-  sections.forEach(section => {
+  sections.forEach((section) => {
     llmsTxt += `## ${section.title}\n\n`;
-    section.items.forEach(item => {
+    section.items.forEach((item) => {
       llmsTxt += `- [${item.title}](${item.path})`;
       if (item.description) {
         llmsTxt += `: ${item.description}`;
@@ -147,7 +143,7 @@ export function createLlmsArtifacts(options = {}) {
   function processTreeForFullContent(items) {
     let content = '';
 
-    items.forEach(item => {
+    items.forEach((item) => {
       if (item.type === 'directory' && item.children) {
         content += `\n## ${item.name}\n\n`;
         content += processTreeForFullContent(item.children);

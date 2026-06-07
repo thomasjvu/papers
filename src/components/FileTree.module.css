@@ -42,6 +42,7 @@
 .fileTreeItem.active {
   background: rgba(0, 0, 0, 0.05);
   color: var(--primary-color);
+  font-weight: 700;
 }
 
 .dark .fileTreeItem.active {

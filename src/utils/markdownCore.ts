@@ -12,7 +12,6 @@ export interface CodeBlockData {
 export interface MarkdownRenderState {
   html: string;
   codeBlocks: Map<string, CodeBlockData[]>;
-  mermaidBlocks: Map<string, string>;
 }
 
 interface BuildMarkdownRenderStateOptions {
@@ -59,7 +58,6 @@ export function createCodeBlockSnippets(language: string, code: string): CodeBlo
 
 function createRenderer(
   codeBlocksData: Map<string, CodeBlockData[]>,
-  mermaidBlocksData: Map<string, string>,
   createId: (prefix: string) => string
 ): Renderer {
   const renderer = new Renderer();
@@ -84,12 +82,6 @@ function createRenderer(
       return `<div data-liveexample-id="${liveExampleId}" data-language="${language}" data-code="${encodeURIComponent(code)}" class="live-example-placeholder"></div>`;
     }
 
-    if (language === 'mermaid') {
-      const blockId = createId('mermaid');
-      mermaidBlocksData.set(blockId, code.trim());
-      return `<div data-mermaid-id="${blockId}" class="mermaid-placeholder"></div>`;
-    }
-
     const blockId = createId('codeblock');
     codeBlocksData.set(blockId, createCodeBlockSnippets(language, code));
     return `<div data-codeblock-id="${blockId}" class="code-block-placeholder"></div>`;
@@ -103,7 +95,6 @@ export async function buildMarkdownRenderState(
   options: BuildMarkdownRenderStateOptions = {}
 ): Promise<MarkdownRenderState> {
   const codeBlocksData = new Map<string, CodeBlockData[]>();
-  const mermaidBlocksData = new Map<string, string>();
   const createId = options.createId ?? defaultCreateId;
   const markdownProcessor = new Marked(
     markedHighlight({
@@ -113,7 +104,7 @@ export async function buildMarkdownRenderState(
       gfm: true,
       breaks: false,
       pedantic: false,
-      renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
+      renderer: createRenderer(codeBlocksData, createId),
     }
   );
 
@@ -127,6 +118,5 @@ export async function buildMarkdownRenderState(
         snippets.map((snippet) => ({ ...snippet })),
       ])
     ),
-    mermaidBlocks: new Map(Array.from(mermaidBlocksData.entries())),
   };
 }

@@ -11,7 +11,6 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
-import MermaidDiagram from './MermaidDiagram';
 
 const componentLogger = createLogger('MarkdownRenderer');
 
@@ -23,17 +22,84 @@ type MarkdownRendererProps = {
 interface ProcessedMarkdownData {
   html: string;
   codeBlocks: Map<string, CodeBlockData[]>;
-  mermaidBlocks: Map<string, string>;
 }
 
 interface RenderContext {
   codeBlocks: Map<string, CodeBlockData[]>;
-  mermaidBlocks: Map<string, string>;
+  currentPath: string;
+  activeLocale: string | null;
+  activeVersion: string | null;
   navigate: (href: string) => void;
 }
 
 const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'readonly', 'selected']);
+const EXTERNAL_PROTOCOL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
+const HEADING_TAG_PATTERN = /^h[1-6]$/;
+
+function stripDocExtension(path: string): string {
+  return path.replace(/\.(md|mdx)$/i, '');
+}
+
+function splitPathSuffix(href: string): { pathname: string; suffix: string } {
+  const hashIndex = href.indexOf('#');
+  const queryIndex = href.indexOf('?');
+  const splitIndex =
+    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
+
+  if (splitIndex === -1) {
+    return { pathname: href, suffix: '' };
+  }
+
+  return {
+    pathname: href.slice(0, splitIndex),
+    suffix: href.slice(splitIndex),
+  };
+}
+
+function buildResolvedDocsHref(
+  docPath: string,
+  suffix: string,
+  context: Pick<RenderContext, 'activeLocale' | 'activeVersion'>
+): string {
+  return (
+    buildCanonicalDocsPath(resolveDocumentPath(stripDocExtension(docPath)), {
+      version: context.activeVersion,
+      locale: context.activeLocale,
+    }) + suffix
+  );
+}
+
+function resolveInternalHref(
+  href: string,
+  context: Pick<RenderContext, 'currentPath' | 'activeLocale' | 'activeVersion'>
+): string | null {
+  if (!href || href === '#' || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href)) {
+    return null;
+  }
+
+  if (href === '/') {
+    return href;
+  }
+
+  if (href === '/llms' || href === '/llms.txt') {
+    return '/llms.txt';
+  }
+
+  if (href.startsWith('/')) {
+    const parsed = new URL(href, 'https://docs.local');
+    const docPath = parsed.pathname.replace(/^\/+/, '');
+    return buildResolvedDocsHref(docPath, `${parsed.search}${parsed.hash}`, context);
+  }
+
+  const { pathname, suffix } = splitPathSuffix(href);
+  const baseDirectory = context.currentPath.includes('/')
+    ? context.currentPath.slice(0, context.currentPath.lastIndexOf('/') + 1)
+    : '';
+  const resolved = new URL(pathname, `https://docs.local/${baseDirectory}`);
+  const docPath = resolved.pathname.replace(/^\/+/, '');
+  return buildResolvedDocsHref(docPath, suffix, context);
+}
 
 function detectChainFromAddress(address: string): string {
   if (/^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address)) {
@@ -189,15 +255,25 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
     }
   }
 
-  if (tagName === 'div' && element.hasAttribute('data-mermaid-id')) {
-    const blockId = element.getAttribute('data-mermaid-id');
-    const chart = blockId ? context.mermaidBlocks.get(blockId) : undefined;
+  if (HEADING_TAG_PATTERN.test(tagName)) {
+    const props = getElementProps(element, key);
+    const children = renderNodes(element.childNodes, key, context);
+    const headingId = element.getAttribute('id');
 
-    if (!chart) {
-      return null;
+    if (!headingId) {
+      return React.createElement(tagName, props, ...children);
     }
 
-    return <MermaidDiagram key={key} chart={chart} />;
+    return React.createElement(
+      tagName,
+      props,
+      ...children,
+      <MarkdownHeadingCopyLink
+        key={`${key}-copy-link`}
+        headingId={headingId}
+        label={element.textContent || 'section'}
+      />
+    );
   }
 
   if (tagName === 'a') {
@@ -206,6 +282,7 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
     const dataUrl = element.getAttribute('data-url');
     const props = getElementProps(element, key);
     const children = renderNodes(element.childNodes, key, context);
+    const internalHref = resolveInternalHref(href, context);
 
     if (dataFile) {
       return (
@@ -228,11 +305,11 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       );
     }
 
-    if (href.startsWith('/docs/') || href === '/llms' || href === '/') {
+    if (internalHref) {
       return (
         <MarkdownRouteLink
           key={key}
-          href={href}
+          href={internalHref}
           className={element.getAttribute('class') || ''}
           title={element.getAttribute('title') || undefined}
           onNavigate={context.navigate}
@@ -262,6 +339,48 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
   const children = renderNodes(element.childNodes, key, context);
 
   return React.createElement(tagName, props, ...children);
+}
+
+function MarkdownHeadingCopyLink({ headingId, label }: { headingId: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  return (
+    <a
+      href={`#${headingId}`}
+      className="heading-anchor-link"
+      aria-label={`Copy link to ${label}`}
+      title="Copy section link"
+      onClick={async (event) => {
+        event.preventDefault();
+
+        try {
+          const hash = `#${headingId}`;
+          const url =
+            typeof window === 'undefined'
+              ? hash
+              : `${window.location.origin}${window.location.pathname}${window.location.search}${hash}`;
+
+          if (typeof window !== 'undefined') {
+            window.history.replaceState(null, '', hash);
+          }
+
+          await navigator.clipboard.writeText(url);
+          setCopied(true);
+          showCopyToast('Copied section link');
+          setTimeout(() => setCopied(false), 1500);
+        } catch (error) {
+          componentLogger.error('Failed to copy section link:', error);
+        }
+      }}
+    >
+      <Icon
+        icon={copied ? 'mingcute:check-line' : 'mingcute:link-line'}
+        width="0.8em"
+        height="0.8em"
+        aria-hidden="true"
+      />
+    </a>
+  );
 }
 
 function parseHtmlToReactNodes(processedData: ProcessedMarkdownData, context: RenderContext) {
@@ -394,13 +513,11 @@ function MarkdownWalletAddress({
   );
 }
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [processedData, setProcessedData] = useState<ProcessedMarkdownData | null>(null);
-  const currentDocsSlug = location.pathname.startsWith('/docs')
-    ? location.pathname.replace(/^\/docs\/?/, '')
-    : '';
+  const currentDocsSlug = location.pathname.replace(/^\/+|\/+$/g, '');
   const routeContext = useMemo(() => parseDocsRoutePath(currentDocsSlug), [currentDocsSlug]);
   const [isProcessing, setIsProcessing] = useState(true);
   const hasRenderedContentRef = useRef(false);
@@ -436,7 +553,6 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
           setProcessedData({
             html: '<p>Error loading content. Please try again.</p>',
             codeBlocks: new Map(),
-            mermaidBlocks: new Map(),
           });
           setIsProcessing(false);
         }
@@ -457,31 +573,24 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content }) => {
 
     return parseHtmlToReactNodes(processedData, {
       codeBlocks: processedData.codeBlocks,
-      mermaidBlocks: processedData.mermaidBlocks,
+      currentPath: path,
+      activeLocale: routeContext.activeLocale,
+      activeVersion: routeContext.activeVersion,
       navigate: (href) => {
-        if (href === '/' || href === '/llms') {
+        if (href === '/') {
           navigate(href);
           return;
         }
 
-        if (href.startsWith('/docs')) {
-          const targetSlug = href.replace(/^\/docs\/?/, '');
-          const parsedTarget = parseDocsRoutePath(targetSlug);
-          const resolvedTargetPath = resolveDocumentPath(parsedTarget.docPath);
-
-          navigate(
-            buildCanonicalDocsPath(resolvedTargetPath, {
-              version: routeContext.activeVersion,
-              locale: routeContext.activeLocale,
-            })
-          );
+        if (href === '/llms.txt') {
+          window.location.assign(href);
           return;
         }
 
         navigate(href);
       },
     });
-  }, [navigate, processedData, routeContext.activeLocale, routeContext.activeVersion]);
+  }, [navigate, path, processedData, routeContext.activeLocale, routeContext.activeVersion]);
 
   if (!processedData && isProcessing) {
     return (
