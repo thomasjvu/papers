@@ -792,6 +792,122 @@ code {
   color: var(--error-color);
 }
 
+.doc-content .legal-page-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  column-gap: var(--space-4);
+  row-gap: var(--space-2);
+  width: 100%;
+  margin-bottom: var(--space-6);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-unified);
+}
+
+.doc-content .legal-page-header h1 {
+  margin: 0 !important;
+  padding: 0 !important;
+  grid-column: 1;
+  grid-row: 1;
+}
+
+.doc-content .papers-callout {
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-unified);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  background: var(--card-color);
+}
+
+.doc-content .papers-callout--note {
+  border-left-color: var(--primary-color);
+}
+
+.doc-content .papers-callout--tip {
+  border-left-color: var(--muted-color);
+}
+
+.doc-content .papers-callout--warning,
+.doc-content .papers-callout--important {
+  border-left-color: var(--error-color);
+}
+
+.doc-content .papers-callout__title {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.doc-content .papers-tabs {
+  margin: var(--space-4) 0;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.doc-content .papers-tabs__panel {
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-md);
+  background: var(--card-color);
+  overflow: hidden;
+}
+
+.doc-content .papers-tabs__label {
+  cursor: pointer;
+  padding: var(--space-2) var(--space-3);
+  font-family: var(--mono-font);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-color);
+  background: var(--surface-color);
+  border-bottom: 1px solid var(--border-unified);
+  list-style: none;
+}
+
+.doc-content .papers-tabs__panel[open] > .papers-tabs__label {
+  color: var(--primary-color);
+}
+
+.doc-content .papers-tabs__panel > :not(summary) {
+  padding: var(--space-3) var(--space-4);
+}
+
+.doc-content .papers-card {
+  margin: var(--space-4) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-md);
+  background: var(--card-color);
+}
+
+.doc-content .papers-card__title {
+  margin: 0 0 var(--space-2);
+  font-weight: 700;
+  color: var(--text-color);
+}
+
+.openapi-reference-shell {
+  min-height: 70vh;
+}
+
+.openapi-reference-shell .scalar-api-reference {
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.doc-content .legal-page-header .legal-last-updated {
+  margin: 0;
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: end;
+  text-align: right;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  color: var(--muted-color);
+  font-family: var(--mono-font);
+}
+
 /* Mobile responsiveness for inline code */
 @media (max-width: 640px) {
   pre {

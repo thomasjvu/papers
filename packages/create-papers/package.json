@@ -1,0 +1,31 @@
+{
+  "name": "create-papers",
+  "version": "0.1.0",
+  "description": "Scaffold a new papers documentation site.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-papers": "./index.mjs"
+  },
+  "files": [
+    "index.mjs"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/thomasjvu/papers.git",
+    "directory": "packages/create-papers"
+  },
+  "keywords": [
+    "papers",
+    "documentation",
+    "scaffold",
+    "vite",
+    "react"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

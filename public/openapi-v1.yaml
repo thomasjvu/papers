@@ -1,0 +1,22 @@
+openapi: 3.1.0
+info:
+  title: papers Example API
+  version: 0.1.0
+  description: Sample OpenAPI document for the papers documentation template.
+servers:
+  - url: https://api.example.com
+paths:
+  /health:
+    get:
+      summary: Health check
+      tags: [System]
+      responses:
+        '200':
+          description: Service is healthy
+  /docs:
+    get:
+      summary: List published docs
+      tags: [Docs]
+      responses:
+        '200':
+          description: Documentation manifest

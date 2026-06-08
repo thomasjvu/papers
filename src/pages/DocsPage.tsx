@@ -22,6 +22,7 @@ export default function DocsPage() {
   const [docTitle, setDocTitle] = useState<string>('Documentation');
   const [docDescription, setDocDescription] = useState<string>('');
   const [docSourcePath, setDocSourcePath] = useState<string | undefined>(undefined);
+  const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>('markdown');
 
   const slug = params['*'] || '';
   const routeContext = useMemo(() => parseDocsRoutePath(slug), [slug]);
@@ -64,15 +65,18 @@ export default function DocsPage() {
           setDocTitle(doc.title);
           setDocDescription(doc.description || extractDescriptionFromMarkdown(doc.content));
           setDocSourcePath(doc.sourcePath);
+          setDocContentFormat(doc.contentFormat || 'markdown');
           return;
         }
 
-        const notFoundContent = '# Not Found\n\nThe requested documentation page could not be found.';
+        const notFoundContent =
+          '# Not Found\n\nThe requested documentation page could not be found.';
         setContent(notFoundContent);
         setCurrentDocPath(docPath);
         setDocTitle('Not Found');
         setDocDescription(extractDescriptionFromMarkdown(notFoundContent));
         setDocSourcePath(undefined);
+        setDocContentFormat('markdown');
       })
       .catch((error) => {
         if (!active) {
@@ -86,6 +90,7 @@ export default function DocsPage() {
         setDocTitle('Error');
         setDocDescription(extractDescriptionFromMarkdown(errorContent));
         setDocSourcePath(undefined);
+        setDocContentFormat('markdown');
       })
       .finally(() => {
         if (!active) {
@@ -135,6 +140,7 @@ export default function DocsPage() {
       initialContent={content}
       currentPath={currentDocPath || docPath}
       sourcePath={docSourcePath}
+      contentFormat={docContentFormat}
       isLoading={loading}
       pendingPath={docPath}
     />

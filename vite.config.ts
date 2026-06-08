@@ -65,6 +65,16 @@ export default defineConfig({
             if (id.includes('dompurify')) {
               return 'vendor-sanitize';
             }
+            if (id.includes('@scalar')) {
+              return 'vendor-openapi';
+            }
+            if (id.includes('mermaid')) {
+              return 'vendor-mermaid';
+            }
+          }
+
+          if (id.includes('/src/components/MermaidDiagram')) {
+            return 'feature-mermaid';
           }
         },
       },

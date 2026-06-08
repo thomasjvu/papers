@@ -4,8 +4,9 @@ import { CommandPaletteProvider } from './providers/CommandPaletteProvider';
 import HomePage from './pages/HomePage';
 import DocsPage from './pages/DocsPage';
 import LLMSPage from './pages/LLMSPage';
+import OpenApiPage from './pages/OpenApiPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { homepageConfig } from '../shared/documentation-config.js';
+import { homepageConfig, openapiConfig } from '../shared/documentation-config.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
 import { buildDocsLandingPath } from '../shared/docsRouting.js';
 
@@ -26,6 +27,9 @@ export default function App() {
             path="/docs"
             element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
           />
+          {openapiConfig.enabled ? (
+            <Route path={`/docs/${openapiConfig.pagePath}/:specId?`} element={<OpenApiPage />} />
+          ) : null}
           <Route path="/docs/*" element={<DocsPage />} />
           <Route path="/llms" element={<LLMSPage />} />
           <Route path="*" element={<NotFoundPage />} />
@@ -34,4 +38,3 @@ export default function App() {
     </ThemeProvider>
   );
 }
-

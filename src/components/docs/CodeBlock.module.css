@@ -1,0 +1,195 @@
+/* Enhanced Code Block Component Styles */
+.codeBlockContainer {
+  margin: 2rem 0;
+  border-radius: 12px;
+  overflow: hidden;
+  background-color: var(--code-bg);
+  border: 1px solid var(--code-border-color);
+  transition: border-color 0.3s ease;
+}
+
+.codeBlockContainer:hover {
+  border-color: rgba(var(--primary-color-rgb), 0.18);
+}
+
+.codeBlockTitle {
+  padding: 1rem 1.5rem 0;
+}
+
+.codeBlockTitle h4 {
+  margin: 0;
+}
+
+.codeBlockTabs {
+  display: flex;
+  padding: 0 1.5rem;
+  margin-top: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.codeBlockTab {
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid var(--code-border-color);
+  border-radius: 6px;
+  font-family: var(--mono-font);
+  font-size: var(--code-label-size);
+  font-weight: 500;
+  color: var(--code-muted-color);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: transparent;
+  outline: none;
+}
+
+.codeBlockTab:hover {
+  background-color: var(--code-header-bg);
+  color: var(--code-text-color);
+}
+
+.codeBlockTab:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.codeBlockWrapper {
+  position: relative;
+}
+
+.codeBlockHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.625rem 1.25rem;
+  background-color: var(--code-header-bg);
+  border-bottom: 1px solid var(--code-border-color);
+}
+
+.codeBlockLanguage {
+  font-family: var(--mono-font);
+  font-size: var(--code-label-size);
+  font-weight: 600;
+  color: var(--code-muted-color);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.codeBlockCopyBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.625rem;
+  border: 1px solid var(--code-border-color);
+  border-radius: 6px;
+  background-color: transparent;
+  color: var(--code-text-color);
+  font-family: var(--mono-font);
+  font-size: var(--code-label-size);
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.codeBlockCopyBtn:hover {
+  background-color: var(--code-bg);
+  border-color: rgba(var(--primary-color-rgb), 0.22);
+}
+
+.codeBlockCopyBtn:focus {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.codeBlockCopyLabel {
+  font-family: var(--mono-font);
+  font-size: var(--code-label-size);
+  letter-spacing: 0.02em;
+}
+
+.codeBlockContent {
+  margin: 0;
+  padding: 0;
+  background-color: var(--code-bg);
+  font-family: var(--mono-font) !important;
+  font-size: var(--code-font-size);
+  line-height: var(--code-line-height);
+  overflow-x: auto;
+  white-space: pre;
+  color: var(--code-text-color);
+  border: none;
+  box-shadow: none;
+}
+
+.codeBlockContent code {
+  font-family: inherit !important;
+  font-size: inherit !important;
+  color: inherit !important;
+  background: none !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* Active tab stays high-contrast but still monochrome. */
+.codeBlockTabActive {
+  background-color: var(--code-active-bg);
+  color: var(--code-active-text);
+  border-color: var(--code-active-bg);
+}
+
+.codeBlockContentHidden {
+  display: none;
+}
+
+.codeBlockContentActive {
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .codeBlockContainer {
+    margin: 1.5rem 0;
+    border-radius: 8px;
+  }
+
+  .codeBlockTitle {
+    padding: 0.75rem 1rem 0;
+  }
+
+  .codeBlockTabs {
+    padding: 0 1rem;
+    gap: 0.25rem;
+  }
+
+  .codeBlockTab {
+    padding: 0.375rem 0.75rem;
+    font-size: var(--code-label-size);
+  }
+
+  .codeBlockHeader {
+    padding: 0.5rem 1rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .codeBlockLanguage {
+    font-size: var(--code-label-size);
+  }
+
+  .codeBlockCopyBtn {
+    padding: 0.25rem 0.5rem;
+    font-size: var(--code-label-size);
+  }
+
+  .codeBlockContent {
+    padding: 1rem;
+    font-size: var(--code-font-size);
+  }
+}
+
+.reduceMotion .codeBlockContainer {
+  transition: none;
+}
+
+.reduceMotion .codeBlockContainer:hover {
+  border-color: var(--code-border-color);
+}

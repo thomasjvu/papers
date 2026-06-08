@@ -5,9 +5,16 @@ import { join } from 'node:path';
 
 import {
   createDocsArtifacts,
+  enrichDocumentArtifact,
   serializeArtifactJson,
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
+import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
+import {
+  addFileToTree,
+  replaceDocumentationTreeExport,
+  serializeDocumentationTree,
+} from '../scripts/lib/documentationTreeWriter.mjs';
 import { loadViteEnv } from '../scripts/lib/loadViteEnv.mjs';
 import { resolveDocFileInfo } from '../scripts/lib/docsVariants.mjs';
 import {
@@ -41,6 +48,21 @@ function createDeterministicIdGenerator() {
     return `${prefix}-${counter}`;
   };
 }
+
+const seoTestDocumentationTree = [
+  {
+    type: 'directory' as const,
+    name: 'Getting Started',
+    path: 'getting-started',
+    children: [
+      {
+        type: 'file' as const,
+        name: 'Introduction.md',
+        path: 'getting-started/introduction',
+      },
+    ],
+  },
+];
 
 export const architectureTests: ArchitectureTestCase[] = [
   {
@@ -77,6 +99,7 @@ export const architectureTests: ArchitectureTestCase[] = [
           description: 'Setup page',
         },
         content: 'Hello world',
+        contentFormat: 'markdown',
         sourcePath: 'src/docs/content/getting-started/introduction.mdx',
       });
       assert.deepEqual(documents['user-guide/no-title'], {
@@ -85,6 +108,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         description: 'Body only',
         frontmatter: {},
         content: 'Body only',
+        contentFormat: 'markdown',
       });
     },
   },
@@ -225,6 +249,96 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'compileMdxToHtml renders callouts and enrichDocumentArtifact marks html output',
+    run: async () => {
+      const html = await compileMdxToHtml('# MDX title\n\n> [!WARNING]\n> Sensitive example\n');
+      assert.match(html, /<h1>MDX title<\/h1>/);
+      assert.match(html, /papers-callout--warning/);
+      assert.match(html, /Sensitive example/);
+
+      const enriched = await enrichDocumentArtifact({
+        path: 'demo/page',
+        title: 'Demo',
+        content: '# MDX title',
+        contentFormat: 'markdown',
+        sourcePath: 'src/docs/content/demo/page.mdx',
+      });
+
+      assert.equal(enriched.contentFormat, 'html');
+      assert.match(enriched.content, /<h1>MDX title<\/h1>/);
+    },
+  },
+  {
+    name: 'compileMdxToHtml renders MDX shortcodes for Callout Tabs and Card',
+    run: async () => {
+      const source = [
+        '# Shortcodes',
+        '',
+        '<Callout type="warning" title="Careful">',
+        'Watch out',
+        '</Callout>',
+        '',
+        '<Tabs>',
+        '<Tab label="Alpha">First tab</Tab>',
+        '<Tab label="Beta">Second tab</Tab>',
+        '</Tabs>',
+        '',
+        '<Card title="Feature">',
+        'Card body',
+        '</Card>',
+      ].join('\n');
+
+      const html = await compileMdxToHtml(source);
+
+      assert.match(html, /papers-callout--warning/);
+      assert.match(html, /papers-callout__title/);
+      assert.match(html, /Watch out/);
+      assert.match(html, /papers-tabs/);
+      assert.match(html, /papers-tabs__label/);
+      assert.match(html, /First tab/);
+      assert.match(html, /papers-card/);
+      assert.match(html, /Card body/);
+    },
+  },
+  {
+    name: 'documentation tree writer appends unpublished files and preserves export shape',
+    run: () => {
+      const baseTree = [
+        {
+          type: 'directory' as const,
+          name: 'Guides',
+          path: 'guides',
+          children: [
+            {
+              type: 'file' as const,
+              name: 'Intro.md',
+              path: 'guides/intro',
+            },
+          ],
+        },
+      ];
+
+      const updated = addFileToTree(baseTree, 'guides/advanced/caching');
+      const advancedDirectory = updated[0].children?.find(
+        (item) => item.path === 'guides/advanced'
+      );
+      assert.ok(
+        advancedDirectory?.children?.some((item) => item.path === 'guides/advanced/caching')
+      );
+
+      const serialized = serializeDocumentationTree(updated);
+      assert.match(serialized, /export const documentationTree = \[/);
+      assert.match(serialized, /guides\/advanced\/caching/);
+
+      const replaced = replaceDocumentationTreeExport(
+        'export const documentationTree = [];\nexport const versionConfig = {};',
+        updated
+      );
+      assert.match(replaced, /guides\/advanced\/caching/);
+      assert.match(replaced, /export const versionConfig = \{\}/);
+    },
+  },
+  {
     name: 'file tree helpers expand only the directories needed for the active file',
     run: () => {
       const items = [
@@ -316,9 +430,12 @@ export const architectureTests: ArchitectureTestCase[] = [
         siteName: 'papers',
         siteSubtitle: 'Static documentation template',
         siteDescription: 'Minimal docs starter.',
+        documentationTree: seoTestDocumentationTree,
       });
 
-      const canonicalDocRoute = routes.find((route) => route.routePath === '/docs/getting-started/introduction');
+      const canonicalDocRoute = routes.find(
+        (route) => route.routePath === '/docs/getting-started/introduction'
+      );
       const docsAliasRoute = routes.find((route) => route.routePath === '/docs');
       const llmsRoute = routes.find((route) => route.routePath === '/llms');
 
@@ -326,9 +443,16 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(docsAliasRoute?.canonicalPath, '/docs/getting-started/introduction');
       assert.equal(llmsRoute?.description, 'AI exports.');
 
-      const sitemap = createSitemapXml(routes, 'https://docs.example.com', '2026-03-11T00:00:00.000Z');
+      const sitemap = createSitemapXml(
+        routes,
+        'https://docs.example.com',
+        '2026-03-11T00:00:00.000Z'
+      );
       assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/);
+      assert.match(
+        sitemap,
+        /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/
+      );
       assert.doesNotMatch(sitemap, /\/docs<\/loc>/);
 
       const robots = createRobotsTxt('https://docs.example.com');
@@ -353,9 +477,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         );
         await writeFile(
           join(tempDir, '.env.local'),
-          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join(
-            '\n'
-          )
+          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join('\n')
         );
         await writeFile(
           join(tempDir, '.env.production'),
@@ -412,20 +534,17 @@ export const architectureTests: ArchitectureTestCase[] = [
         buildCanonicalDocsPath('guides/intro', { versionConfig, i18nConfig }),
         '/docs/2.0/en/guides/intro'
       );
-      assert.deepEqual(
-        buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }),
-        [
-          '/docs/guides/intro',
-          '/docs/2.0/guides/intro',
-          '/docs/1.0/guides/intro',
-          '/docs/en/guides/intro',
-          '/docs/fr/guides/intro',
-          '/docs/2.0/en/guides/intro',
-          '/docs/2.0/fr/guides/intro',
-          '/docs/1.0/en/guides/intro',
-          '/docs/1.0/fr/guides/intro',
-        ]
-      );
+      assert.deepEqual(buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }), [
+        '/docs/guides/intro',
+        '/docs/2.0/guides/intro',
+        '/docs/1.0/guides/intro',
+        '/docs/en/guides/intro',
+        '/docs/fr/guides/intro',
+        '/docs/2.0/en/guides/intro',
+        '/docs/2.0/fr/guides/intro',
+        '/docs/1.0/en/guides/intro',
+        '/docs/1.0/fr/guides/intro',
+      ]);
       assert.deepEqual(parseDocsRoutePath('2.0/fr/guides/intro', { versionConfig, i18nConfig }), {
         originalSlug: '2.0/fr/guides/intro',
         docPath: 'guides/intro',
@@ -683,6 +802,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         siteDescription: 'Minimal docs starter.',
         versionConfig,
         i18nConfig,
+        documentationTree: seoTestDocumentationTree,
       });
 
       const canonicalRoute = routes.find(

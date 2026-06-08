@@ -42,6 +42,27 @@ export const i18nConfig = {
   locales: ['en'],
 };
 
+/** @type {import('./documentation-config.js').OpenApiConfig} */
+export const openapiConfig = {
+  enabled: true,
+  pagePath: 'api-reference/openapi',
+  defaultSpecId: 'public',
+  specs: [
+    {
+      id: 'public',
+      label: 'Public API',
+      url: '/openapi-v1.yaml',
+      description: 'Example OpenAPI spec for the papers template.',
+    },
+    {
+      id: 'internal',
+      label: 'Internal API',
+      url: '/openapi-internal.yaml',
+      description: 'Second spec slot for multi-API documentation.',
+    },
+  ],
+};
+
 /** @type {HomepageConfig} */
 export const homepageConfig = {
   enabled: true,
@@ -214,6 +235,12 @@ export const documentationTree = [
         name: 'Runtime APIs.md',
         path: 'api-reference/runtime-apis',
         tags: ['api', 'runtime', 'hooks'],
+      },
+      {
+        type: 'file',
+        name: 'OpenAPI Explorer.md',
+        path: 'api-reference/openapi',
+        tags: ['openapi', 'reference', 'interactive'],
       },
     ],
   },

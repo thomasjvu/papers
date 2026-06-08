@@ -44,6 +44,36 @@ declare module '*/shared/documentation-config.js' {
     };
   }
 
+  export interface VersionConfig {
+    current: string;
+    versions: string[];
+    labels: Record<string, string>;
+    enabled: boolean;
+  }
+
+  export interface I18nConfig {
+    enabled: boolean;
+    defaultLocale: string;
+    locales: string[];
+  }
+
+  export interface OpenApiSpecConfig {
+    id: string;
+    label: string;
+    url: string;
+    description?: string;
+  }
+
+  export interface OpenApiConfig {
+    enabled: boolean;
+    pagePath: string;
+    defaultSpecId: string;
+    specs: OpenApiSpecConfig[];
+  }
+
   export const homepageConfig: HomepageConfig;
   export const documentationTree: FileItem[];
+  export const versionConfig: VersionConfig;
+  export const i18nConfig: I18nConfig;
+  export const openapiConfig: OpenApiConfig;
 }

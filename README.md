@@ -57,9 +57,20 @@ npm run release:check
 ## Markdown Features
 
 - Standard Markdown with frontmatter
+- MDX pages (`.mdx`) compiled to sanitized HTML at build time
+- GitHub-style callouts: `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`
 - Multi-language code blocks using fences like `ts:TypeScript|js:JavaScript`
 - Live HTML and CSS examples with `html` and `css`
 - Mermaid diagrams with `mermaid`
+- Interactive OpenAPI explorer route (`/docs/developers/openapi` when configured)
+- Edit on GitHub footer on every page
+
+## Framework Docs
+
+- Roadmap and competitive positioning: [FRAMEWORK.md](FRAMEWORK.md)
+- Sync published nav with content: `npm run check:docs-tree`
+- Append new pages to the sidebar: `npm run sync:docs-tree -- --write`
+- Scaffold a new site: `npm create papers my-docs` (see `packages/create-papers`)
 
 ## Build Output
 

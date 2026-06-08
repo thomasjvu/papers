@@ -1,0 +1,15 @@
+openapi: 3.1.0
+info:
+  title: papers Internal API
+  version: 0.1.0
+  description: Second example spec for multi-API OpenAPI explorer configuration.
+servers:
+  - url: https://internal.example.com
+paths:
+  /build:
+    post:
+      summary: Trigger docs build
+      tags: [Build]
+      responses:
+        '202':
+          description: Build accepted
