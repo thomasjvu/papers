@@ -128,17 +128,16 @@ const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOf
         {onToggleInteractiveMap ? (
           <button
             onClick={onToggleInteractiveMap}
-            className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 transition-opacity hover:opacity-80"
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80"
             aria-label="Show interactive map"
             style={{
               backgroundColor: 'var(--card-color)',
               borderColor: 'var(--border-unified)',
               color: 'var(--text-color)',
-              fontFamily: 'var(--mono-font)',
             }}
             type="button"
           >
-            <Icon icon="mingcute:brain-line" className="h-4 w-4" />
+            <Icon icon="mingcute:brain-fill" className="h-4 w-4" />
           </button>
         ) : null}
       </div>

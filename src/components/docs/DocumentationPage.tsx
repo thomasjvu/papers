@@ -35,11 +35,11 @@ interface DocumentationPageProps {
 
 function getInitialRightSidebarState(): boolean {
   if (typeof window === 'undefined') {
-    return true;
+    return false;
   }
 
   const saved = safeLocalStorage.getItem('rightSidebarVisible');
-  return saved === null ? true : saved === 'true';
+  return saved === 'true';
 }
 
 function RightRailFooter() {
@@ -466,7 +466,7 @@ const DocumentationPage = React.memo(
                 >
                   <span className="flex items-center gap-2">
                     <Icon
-                      icon="mingcute:brain-line"
+                      icon="mingcute:brain-fill"
                       className="h-4 w-4 transition duration-150 group-hover:invert"
                     />
                     <span>
@@ -602,17 +602,16 @@ const DocumentationPage = React.memo(
                       </h3>
                       <button
                         onClick={toggleRightSidebar}
-                        className="inline-flex h-8 min-w-8 items-center justify-center rounded-lg border px-2 transition-opacity hover:opacity-80"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80"
                         aria-label="Show table of contents"
                         style={{
                           backgroundColor: 'var(--card-color)',
                           borderColor: 'var(--border-unified)',
                           color: 'var(--text-color)',
-                          fontFamily: 'var(--mono-font)',
                         }}
                         type="button"
                       >
-                        TOC
+                        <Icon icon="mingcute:sitemap-fill" className="h-4 w-4" />
                       </button>
                     </div>
                     <div className="min-h-0 flex-1">

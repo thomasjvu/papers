@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import React from 'react';
 
 import { useTheme } from '../../providers/ThemeProvider';
@@ -38,7 +38,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
     node,
     index,
     currentPath,
-    focusedNodeId: _focusedNodeId,
+    focusedNodeId,
     pendingSwitchNodeId,
     themeColors,
     isSidebarView,
@@ -53,6 +53,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
     const nodeColor = getNodeColor(node);
     const nodeRadius = getNodeRadius(node);
+    const activeNodeId = focusedNodeId || currentPath;
     const labelFontSize = isSidebarView ? '0.5rem' : 'var(--text-2xs)';
     const switchLabelFontSize = isSidebarView ? '0.5rem' : 'var(--text-xs)';
 
@@ -101,7 +102,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           r={nodeRadius}
           fill={nodeColor}
           stroke={themeColors.background}
-          strokeWidth={node.id === currentPath ? 2 : 1}
+          strokeWidth={node.id === activeNodeId ? 2 : 1}
         />
 
         <circle
@@ -133,32 +134,29 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               : node.title}
         </motion.text>
 
-        {node.id === currentPath && (
-          <motion.g
-            transform={`translate(${node.x}, ${node.y})`}
-            animate={prefersReducedMotion ? {} : { rotate: 360 }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'linear',
-            }}
-          >
-            <motion.circle
-              cx={0}
-              cy={0}
-              r={nodeRadius + 5}
-              fill="none"
-              stroke={themeColors.current}
-              strokeWidth={1.5}
-              strokeDasharray="3,3"
-              animate={prefersReducedMotion ? {} : { strokeDashoffset: [0, -6] }}
+        {node.id === activeNodeId && (
+          <g transform={`translate(${node.x} ${node.y})`}>
+            <motion.g
+              animate={prefersReducedMotion ? {} : { rotate: 360 }}
               transition={{
-                duration: 1,
+                duration: 8,
                 repeat: Infinity,
                 ease: 'linear',
               }}
-            />
-          </motion.g>
+              style={{ transformOrigin: '0px 0px' }}
+            >
+              <circle
+                cx={0}
+                cy={0}
+                r={nodeRadius + 8}
+                fill="none"
+                stroke={themeColors.current}
+                strokeWidth={1.5}
+                strokeDasharray="4 4"
+                pointerEvents="none"
+              />
+            </motion.g>
+          </g>
         )}
 
         {node.id === pendingSwitchNodeId && node.id !== currentPath && (

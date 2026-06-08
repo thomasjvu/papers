@@ -16,27 +16,27 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
   const relativeSource = sourcePath || `src/docs/content/${path}.md`;
   const githubSourcePath = `${githubDocsPrefix}${relativeSource}`.replace(/\/{2,}/g, '/');
   const editUrl = `${githubUrl}/edit/${githubBranch}/${githubSourcePath}`;
-  const viewUrl = `${githubUrl}/blob/${githubBranch}/${githubSourcePath}`;
   const issueUrl = `${githubUrl}/issues/new?title=${encodeURIComponent(`Docs: ${path}`)}&body=${encodeURIComponent(`Page: ${path}\nSource: ${githubSourcePath}\n\nWhat should change?\n`)}`;
 
   return (
     <footer
-      className="doc-page-footer mt-10 pt-5 border-t"
+      className="doc-page-footer mt-8 border-t pt-4"
       style={{ borderColor: 'var(--border-unified)' }}
     >
       <div
-        className="flex flex-col gap-3 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+        className="flex flex-col gap-2 rounded-lg border px-3 py-2.5"
         style={{
           backgroundColor: 'var(--card-color)',
           borderColor: 'var(--border-unified)',
         }}
       >
-        <div>
-          <p className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
+        <div className="min-w-0">
+          <p className="text-xs font-medium" style={{ color: 'var(--text-color)' }}>
             Edit this page
           </p>
           <p
-            className="text-xs"
+            className="truncate text-2xs"
+            title={githubSourcePath}
             style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
           >
             {githubSourcePath}
@@ -48,7 +48,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
             href={editUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-2xs transition-opacity hover:opacity-80"
             style={{
               borderColor: 'var(--border-unified)',
               color: 'var(--text-color)',
@@ -60,25 +60,10 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           </a>
 
           <a
-            href={viewUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-opacity hover:opacity-80"
-            style={{
-              borderColor: 'var(--border-unified)',
-              color: 'var(--muted-color)',
-              fontFamily: 'var(--mono-font)',
-            }}
-          >
-            <Icon icon="mingcute:code-line" className="h-3.5 w-3.5" />
-            View source
-          </a>
-
-          <a
             href={issueUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs transition-opacity hover:opacity-80"
+            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-2xs transition-opacity hover:opacity-80"
             style={{
               borderColor: 'var(--border-unified)',
               color: 'var(--muted-color)',
