@@ -75,7 +75,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             cursor: 'pointer',
             fontFamily: 'var(--mono-font)',
             letterSpacing: '-0.5px',
-            fontSize: '0.8rem',
+            fontSize: 'calc(0.8rem + 2px)',
             paddingLeft: `${indent}px`,
           }}
         >
@@ -83,10 +83,10 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
             {isDirectory ? (
               <Icon
                 icon={item.expanded ? 'mingcute:folder-open-line' : 'mingcute:folder-line'}
-                className="h-4 w-4"
+                className="h-[18px] w-[18px]"
               />
             ) : (
-              <Icon icon="mingcute:file-line" className="h-4 w-4" />
+              <Icon icon="mingcute:file-line" className="h-[18px] w-[18px]" />
             )}
           </span>
 
