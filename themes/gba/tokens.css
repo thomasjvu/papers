@@ -1,4 +1,12 @@
 :root,
+.dark,
+body {
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: auto;
+  text-rendering: geometricPrecision;
+}
+
+:root,
 .dark {
   color-scheme: dark;
   --gb0: #0f380f;
@@ -16,11 +24,11 @@
   --text-color: #9bbc0f;
   --text-secondary: #8bac0f;
   --muted-color: #8bac0f;
-  --mono-font: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  --brand-font: 'Press Start 2P', monospace;
-  --title-font: 'Press Start 2P', monospace;
-  --body-font: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  --serif-font: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  --mono-font: 'Geist Pixel Square', monospace;
+  --brand-font: 'Geist Pixel Square', monospace;
+  --title-font: 'Geist Pixel Square', monospace;
+  --body-font: 'Geist Pixel Square', monospace;
+  --serif-font: 'Geist Pixel Square', monospace;
   --icon-color: #9bbc0f;
   --primary-color-rgb: 155, 188, 15;
   --hover-color: rgba(155, 188, 15, 0.08);

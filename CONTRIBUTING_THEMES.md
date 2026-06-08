@@ -14,17 +14,18 @@ themes/
 
 ## `theme.json`
 
-| Field                      | Required | Description                                           |
-| -------------------------- | -------- | ----------------------------------------------------- |
-| `id`                       | yes      | Stable slug used by `VITE_PAPERS_THEME`               |
-| `name`                     | yes      | Display name                                          |
-| `description`              | yes      | Short summary                                         |
-| `author`                   | yes      | Person or project                                     |
-| `css`                      | yes      | Token file name (usually `tokens.css`)                |
-| `iconSet`                  | no       | Iconify collection prefix for `generate:icons`        |
-| `defaultColorMode`         | no       | `dark` or `light`                                     |
-| `features.lightDarkToggle` | no       | Hide theme toggle when `false`                        |
-| `fonts`                    | no       | Google or local font links injected into `index.html` |
+| Field                      | Required | Description                                                               |
+| -------------------------- | -------- | ------------------------------------------------------------------------- |
+| `id`                       | yes      | Stable slug used by `VITE_PAPERS_THEME`                                   |
+| `name`                     | yes      | Display name                                                              |
+| `description`              | yes      | Short summary                                                             |
+| `author`                   | yes      | Person or project                                                         |
+| `css`                      | yes      | Token file name (usually `tokens.css`)                                    |
+| `iconSet`                  | no       | Iconify collection prefix for `generate:icons`                            |
+| `defaultColorMode`         | no       | `dark` or `light`                                                         |
+| `features.lightDarkToggle` | no       | Hide theme toggle when `false`                                            |
+| `fontCss`                  | no       | Optional theme stylesheet with `@font-face` rules (e.g. `fonts.css`)      |
+| `fonts`                    | no       | Font preload links and/or external stylesheets injected into `index.html` |
 
 ## Install a theme locally
 
@@ -36,6 +37,29 @@ npm run dev
 ```
 
 Set `VITE_PAPERS_THEME=your-theme` in `.env.local` or your host build environment.
+
+## Custom fonts
+
+Themes can ship fonts in three complementary ways:
+
+1. **`fontCss`** — add `themes/<id>/fonts.css` with `@font-face` rules and set `"fontCss": "fonts.css"` in `theme.json`. `resolve:theme` imports it after `tokens.css`.
+2. **`assets/fonts/`** — drop `.woff2`, `.woff`, `.ttf`, or `.otf` files in `themes/<id>/assets/fonts/`. They are copied to `public/fonts/` on `npm run resolve:theme`.
+3. **`fonts` in `theme.json`** — inject HTML into `index.html`:
+   - Preload self-hosted files: `{ "preload": "/fonts/MyFont.woff2", "type": "font/woff2", "crossOrigin": true }`
+   - External stylesheets: `{ "href": "https://fonts.googleapis.com/css2?family=..." }`
+
+Point `--mono-font`, `--body-font`, `--title-font`, and `--brand-font` in `tokens.css` at your family name.
+
+Example (`themes/gba/theme.json`):
+
+```json
+{
+  "fontCss": "fonts.css",
+  "fonts": [
+    { "preload": "/fonts/GeistPixel-Square.woff2", "type": "font/woff2", "crossOrigin": true }
+  ]
+}
+```
 
 ## Token guidelines
 

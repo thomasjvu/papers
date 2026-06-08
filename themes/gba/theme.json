@@ -4,6 +4,7 @@
   "description": "1-bit Game Boy palette for Oblivion — square UI, pixel icons, fixed dark palette.",
   "author": "Oblivion",
   "css": "tokens.css",
+  "fontCss": "fonts.css",
   "iconSet": "pixelarticons",
   "defaultColorMode": "dark",
   "features": {
@@ -11,12 +12,9 @@
   },
   "fonts": [
     {
-      "family": "Press Start 2P",
-      "href": "https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
-    },
-    {
-      "family": "IBM Plex Mono",
-      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap"
+      "preload": "/fonts/GeistPixel-Square.woff2",
+      "type": "font/woff2",
+      "crossOrigin": true
     }
   ]
 }

@@ -840,6 +840,8 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(gba.manifest.iconSet, 'pixelarticons');
       assert.equal(gba.manifest.features?.lightDarkToggle, false);
       assert.equal(gba.manifest.defaultColorMode, 'dark');
+      assert.equal(gba.manifest.fontCss, 'fonts.css');
+      assert.match(gba.manifest.fonts?.[0]?.preload || '', /GeistPixel-Square\.woff2/);
     },
   },
 ];
