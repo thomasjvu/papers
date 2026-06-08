@@ -22,7 +22,6 @@ interface GraphNodeProps {
   index: number;
   currentPath?: string;
   focusedNodeId?: string;
-  clickedNodeId?: string;
   pendingSwitchNodeId?: string;
   themeColors: Record<string, string>;
   isSidebarView: boolean;
@@ -40,7 +39,6 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
     index,
     currentPath,
     focusedNodeId: _focusedNodeId,
-    clickedNodeId,
     pendingSwitchNodeId,
     themeColors,
     isSidebarView,
@@ -136,64 +134,31 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
         </motion.text>
 
         {node.id === currentPath && (
-          <motion.circle
-            cx={node.x}
-            cy={node.y}
-            r={nodeRadius + 5}
-            fill="none"
-            stroke={themeColors.current}
-            strokeWidth={1.5}
-            strokeDasharray="3,3"
-            animate={{
-              rotate: 360,
-              strokeDashoffset: [0, -6],
-            }}
+          <motion.g
+            transform={`translate(${node.x}, ${node.y})`}
+            animate={prefersReducedMotion ? {} : { rotate: 360 }}
             transition={{
-              rotate: { duration: 8, repeat: Infinity, ease: 'linear' },
-              strokeDashoffset: { duration: 1, repeat: Infinity, ease: 'linear' },
+              duration: 8,
+              repeat: Infinity,
+              ease: 'linear',
             }}
-          />
-        )}
-
-        {node.id === clickedNodeId && (
-          <>
+          >
             <motion.circle
-              cx={node.x}
-              cy={node.y}
-              r={nodeRadius}
+              cx={0}
+              cy={0}
+              r={nodeRadius + 5}
               fill="none"
-              stroke={themeColors.accent}
-              strokeWidth={2}
-              initial={{ r: nodeRadius, opacity: 0.8 }}
-              animate={{ r: nodeRadius + 15, opacity: 0 }}
+              stroke={themeColors.current}
+              strokeWidth={1.5}
+              strokeDasharray="3,3"
+              animate={prefersReducedMotion ? {} : { strokeDashoffset: [0, -6] }}
               transition={{
-                duration: prefersReducedMotion ? 0.01 : 0.6,
-                ease: 'easeOut',
+                duration: 1,
+                repeat: Infinity,
+                ease: 'linear',
               }}
             />
-
-            <motion.text
-              x={node.x}
-              y={node.y + 2}
-              textAnchor="middle"
-              className="pointer-events-none"
-              style={{
-                fontSize: isSidebarView ? '0.5rem' : 'var(--text-xs)',
-                fontFamily: 'var(--mono-font)',
-                fill: themeColors.accent,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-              }}
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{
-                duration: prefersReducedMotion ? 0.01 : 0.3,
-                delay: prefersReducedMotion ? 0 : 0.1,
-              }}
-            >
-              ok
-            </motion.text>
-          </>
+          </motion.g>
         )}
 
         {node.id === pendingSwitchNodeId && node.id !== currentPath && (

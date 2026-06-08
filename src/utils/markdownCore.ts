@@ -9,9 +9,14 @@ export interface CodeBlockData {
   label?: string;
 }
 
+export interface MermaidBlockData {
+  chart: string;
+}
+
 export interface MarkdownRenderState {
   html: string;
   codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, MermaidBlockData>;
 }
 
 interface BuildMarkdownRenderStateOptions {
@@ -58,6 +63,7 @@ export function createCodeBlockSnippets(language: string, code: string): CodeBlo
 
 function createRenderer(
   codeBlocksData: Map<string, CodeBlockData[]>,
+  mermaidBlocksData: Map<string, MermaidBlockData>,
   createId: (prefix: string) => string
 ): Renderer {
   const renderer = new Renderer();
@@ -65,6 +71,12 @@ function createRenderer(
   renderer.code = (token: Tokens.Code) => {
     const code = token.text || '';
     const language = token.lang || 'text';
+
+    if (language === 'mermaid') {
+      const blockId = createId('mermaid');
+      mermaidBlocksData.set(blockId, { chart: code.trim() });
+      return `<div data-mermaid-id="${blockId}" class="mermaid-placeholder"></div>`;
+    }
 
     if (language === 'ColorPalette') {
       const blockId = createId('colorpalette');
@@ -95,6 +107,7 @@ export async function buildMarkdownRenderState(
   options: BuildMarkdownRenderStateOptions = {}
 ): Promise<MarkdownRenderState> {
   const codeBlocksData = new Map<string, CodeBlockData[]>();
+  const mermaidBlocksData = new Map<string, MermaidBlockData>();
   const createId = options.createId ?? defaultCreateId;
   const markdownProcessor = new Marked(
     markedHighlight({
@@ -104,7 +117,7 @@ export async function buildMarkdownRenderState(
       gfm: true,
       breaks: false,
       pedantic: false,
-      renderer: createRenderer(codeBlocksData, createId),
+      renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
     }
   );
 
@@ -117,6 +130,9 @@ export async function buildMarkdownRenderState(
         blockId,
         snippets.map((snippet) => ({ ...snippet })),
       ])
+    ),
+    mermaidBlocks: new Map(
+      Array.from(mermaidBlocksData.entries(), ([blockId, block]) => [blockId, { ...block }])
     ),
   };
 }

@@ -3,7 +3,11 @@ import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 
-import { processMarkdown, type CodeBlockData } from '../utils/MarkdownProcessor';
+import {
+  processMarkdown,
+  type CodeBlockData,
+  type MermaidBlockData,
+} from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
 import { resolveDocumentPath } from '../lib/content';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
@@ -11,6 +15,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
+import MermaidDiagram from './MermaidDiagram';
 
 const componentLogger = createLogger('MarkdownRenderer');
 
@@ -22,10 +27,12 @@ type MarkdownRendererProps = {
 interface ProcessedMarkdownData {
   html: string;
   codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, MermaidBlockData>;
 }
 
 interface RenderContext {
   codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, MermaidBlockData>;
   currentPath: string;
   activeLocale: string | null;
   activeVersion: string | null;
@@ -237,6 +244,17 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
         </div>
       );
     }
+  }
+
+  if (tagName === 'div' && element.hasAttribute('data-mermaid-id')) {
+    const blockId = element.getAttribute('data-mermaid-id');
+    const block = blockId ? context.mermaidBlocks.get(blockId) : undefined;
+
+    if (!block) {
+      return null;
+    }
+
+    return <MermaidDiagram key={key} chart={block.chart} />;
   }
 
   if (tagName === 'div' && element.hasAttribute('data-liveexample-id')) {
@@ -553,6 +571,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
           setProcessedData({
             html: '<p>Error loading content. Please try again.</p>',
             codeBlocks: new Map(),
+            mermaidBlocks: new Map(),
           });
           setIsProcessing(false);
         }
@@ -573,6 +592,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
 
     return parseHtmlToReactNodes(processedData, {
       codeBlocks: processedData.codeBlocks,
+      mermaidBlocks: processedData.mermaidBlocks,
       currentPath: path,
       activeLocale: routeContext.activeLocale,
       activeVersion: routeContext.activeVersion,

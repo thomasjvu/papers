@@ -730,6 +730,68 @@ code {
   color: var(--text-color);
 }
 
+.markdown-content mark,
+.doc-content mark {
+  background-color: var(--highlight-bg, rgba(250, 204, 21, 0.35));
+  color: var(--highlight-text, inherit);
+  border: 1px solid var(--highlight-border, transparent);
+  padding: 0.05em 0.3em;
+  border-radius: var(--radius-sm);
+}
+
+.markdown-content kbd,
+.doc-content kbd {
+  background-color: var(--surface-muted);
+  border: 1px solid var(--border-unified);
+  color: var(--text-color);
+  padding: 0.1em 0.4em;
+  border-radius: var(--radius-sm);
+  font-family: var(--mono-font);
+  font-size: 0.85em;
+  box-shadow: inset 0 -1px 0 var(--border-soft);
+}
+
+.markdown-content strong,
+.doc-content strong {
+  color: var(--text-color);
+  font-weight: 700;
+}
+
+.markdown-content code.inline-code,
+.doc-content code.inline-code {
+  background-color: var(--inline-code-bg);
+  border: 1px solid var(--inline-code-border-color);
+  color: var(--inline-code-text-color);
+}
+
+.mermaid-block {
+  margin: var(--space-6) 0;
+  padding: var(--space-4);
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-muted);
+  overflow-x: auto;
+}
+
+.mermaid-block svg {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+}
+
+.mermaid-block--loading,
+.mermaid-block--error {
+  font-family: var(--mono-font);
+  font-size: var(--text-sm);
+  color: var(--muted-color);
+  text-align: center;
+}
+
+.mermaid-block--error {
+  color: var(--error-color);
+}
+
 /* Mobile responsiveness for inline code */
 @media (max-width: 640px) {
   pre {

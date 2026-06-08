@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback, useId } from 'react';
 
 import { useDebouncedCallback } from '../../hooks/useDebounce';
-import { useTheme } from '../../providers/ThemeProvider';
 
 import GraphControls from './GraphControls';
 import GraphLegend from './GraphLegend';
@@ -47,7 +46,6 @@ export default function OptimizedDocumentationGraph({
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
   // Interaction state
-  const [clickedNodeId, setClickedNodeId] = useState<string | undefined>(undefined);
   const [isNavigating, setIsNavigating] = useState(false);
   const [pendingSwitchNodeId, setPendingSwitchNodeId] = useState<string | undefined>(undefined);
 
@@ -55,7 +53,6 @@ export default function OptimizedDocumentationGraph({
   const MAX_SCALE = 2;
   const PAN_LIMIT = 200;
 
-  const { prefersReducedMotion } = useTheme();
   const nodeGradientId = useMemo(() => `node-gradient-${instanceId}`, [instanceId]);
   const glowFilterId = useMemo(() => `glow-${instanceId}`, [instanceId]);
   const graphRenderKey = currentPath || 'root';
@@ -246,18 +243,10 @@ export default function OptimizedDocumentationGraph({
     (node: GraphNodeType) => {
       if (isNavigating) return;
 
-      setClickedNodeId(node.id);
       setFocusedNodeId(node.id);
       setPendingSwitchNodeId(node.id);
-
-      setTimeout(
-        () => {
-          setClickedNodeId(undefined);
-        },
-        prefersReducedMotion ? 50 : 600
-      );
     },
-    [isNavigating, prefersReducedMotion]
+    [isNavigating]
   );
 
   const handleSwitchClick = useCallback(
@@ -326,7 +315,6 @@ export default function OptimizedDocumentationGraph({
     setScale(1);
     setTranslate({ x: 0, y: 0 });
     setIsDragging(false);
-    setClickedNodeId(undefined);
     setIsNavigating(false);
     setPendingSwitchNodeId(undefined);
   }, [currentPath]);
@@ -436,7 +424,6 @@ export default function OptimizedDocumentationGraph({
                   index={nodeIndex}
                   currentPath={currentPath}
                   focusedNodeId={focusedNodeId}
-                  clickedNodeId={clickedNodeId}
                   pendingSwitchNodeId={pendingSwitchNodeId}
                   themeColors={themeColors}
                   isSidebarView={isSidebarView}

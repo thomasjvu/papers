@@ -72,9 +72,12 @@
   --code-line-number-color: #8bac0f;
   --code-active-bg: #9bbc0f;
   --code-active-text: #0f380f;
-  --inline-code-bg: #306230;
+  --inline-code-bg: #9bbc0f;
   --inline-code-border-color: #8bac0f;
-  --inline-code-text-color: #9bbc0f;
+  --inline-code-text-color: #0f380f;
+  --highlight-bg: #9bbc0f;
+  --highlight-text: #0f380f;
+  --highlight-border: #8bac0f;
   --radius-sm: 0px;
   --radius-md: 0px;
   --radius-lg: 0px;

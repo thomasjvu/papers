@@ -2,7 +2,11 @@ import DOMPurify from 'dompurify';
 
 import logger from './logger';
 import { stripMarkdownBom } from './markdown';
-import { buildMarkdownRenderState, type CodeBlockData } from './markdownCore';
+import {
+  buildMarkdownRenderState,
+  type CodeBlockData,
+  type MermaidBlockData,
+} from './markdownCore';
 
 const processorLogger = logger;
 const MARKDOWN_CACHE_LIMIT = 50;
@@ -10,6 +14,7 @@ const MARKDOWN_CACHE_LIMIT = 50;
 interface CachedMarkdownResult {
   html: string;
   codeBlocks: Array<[string, CodeBlockData[]]>;
+  mermaidBlocks: Array<[string, MermaidBlockData]>;
 }
 
 const processedMarkdownCache = new Map<string, CachedMarkdownResult>();
@@ -37,13 +42,15 @@ function getCachedMarkdown(normalizedContent: string): CachedMarkdownResult | nu
   return {
     html: cached.html,
     codeBlocks: cached.codeBlocks.map(([blockId, snippets]) => [blockId, cloneSnippets(snippets)]),
+    mermaidBlocks: cached.mermaidBlocks.map(([blockId, block]) => [blockId, { ...block }]),
   };
 }
 
 function setCachedMarkdown(
   normalizedContent: string,
   html: string,
-  codeBlocks: Map<string, CodeBlockData[]>
+  codeBlocks: Map<string, CodeBlockData[]>,
+  mermaidBlocks: Map<string, MermaidBlockData>
 ): void {
   if (processedMarkdownCache.size >= MARKDOWN_CACHE_LIMIT) {
     const oldestCacheKey = processedMarkdownCache.keys().next().value;
@@ -59,6 +66,7 @@ function setCachedMarkdown(
       blockId,
       cloneSnippets(snippets),
     ]),
+    mermaidBlocks: Array.from(mermaidBlocks.entries(), ([blockId, block]) => [blockId, { ...block }]),
   });
 }
 
@@ -67,7 +75,11 @@ function setCachedMarkdown(
  */
 export const processMarkdown = async (
   content: string
-): Promise<{ html: string; codeBlocks: Map<string, CodeBlockData[]> }> => {
+): Promise<{
+  html: string;
+  codeBlocks: Map<string, CodeBlockData[]>;
+  mermaidBlocks: Map<string, MermaidBlockData>;
+}> => {
   try {
     processorLogger.debug('Processing markdown content');
 
@@ -78,6 +90,7 @@ export const processMarkdown = async (
       return {
         html: cached.html,
         codeBlocks: new Map(cached.codeBlocks),
+        mermaidBlocks: new Map(cached.mermaidBlocks),
       };
     }
 
@@ -135,6 +148,7 @@ export const processMarkdown = async (
         'data-code',
         'data-colorpalette-id',
         'data-palette',
+        'data-mermaid-id',
         'data-url',
         'tabindex',
         'aria-label',
@@ -147,12 +161,23 @@ export const processMarkdown = async (
         /^(?:(?:(?:f|ht)tps?|mailto|tel|callto|cid|xmpp):|[^a-z]|[a-z+.-]+(?:[^a-z+.-:]|$))/i,
     });
 
-    setCachedMarkdown(normalizedContent, sanitizedHtml, rawRenderState.codeBlocks);
+    setCachedMarkdown(
+      normalizedContent,
+      sanitizedHtml,
+      rawRenderState.codeBlocks,
+      rawRenderState.mermaidBlocks
+    );
     processorLogger.debug(`Processed markdown with ${rawRenderState.codeBlocks.size} code blocks`);
 
     return {
       html: sanitizedHtml,
       codeBlocks: cloneCodeBlocks(rawRenderState.codeBlocks),
+      mermaidBlocks: new Map(
+        Array.from(rawRenderState.mermaidBlocks.entries(), ([blockId, block]) => [
+          blockId,
+          { ...block },
+        ])
+      ),
     };
   } catch (error) {
     processorLogger.error('Error processing markdown:', error);
@@ -221,4 +246,4 @@ const applyBasicStyles = (html: string): string => {
   return styledHtml;
 };
 
-export type { CodeBlockData };
+export type { CodeBlockData, MermaidBlockData };

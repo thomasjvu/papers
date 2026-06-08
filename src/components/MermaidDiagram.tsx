@@ -21,21 +21,26 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
         setError(null);
 
         const mermaid = (await import('mermaid')).default;
-        const darkMode = document.documentElement.classList.contains('dark');
+        const styles = getComputedStyle(document.documentElement);
+
+        const readThemeColor = (name: string, fallback: string) => {
+          const value = styles.getPropertyValue(name).trim();
+          return value || fallback;
+        };
 
         mermaid.initialize({
           startOnLoad: false,
           securityLevel: 'strict',
           theme: 'base',
           themeVariables: {
-            background: darkMode ? '#111111' : '#ffffff',
-            primaryColor: darkMode ? '#18181b' : '#f4f4f5',
-            primaryTextColor: darkMode ? '#fafafa' : '#111111',
-            primaryBorderColor: darkMode ? '#3f3f46' : '#d4d4d8',
-            lineColor: darkMode ? '#a1a1aa' : '#52525b',
-            secondaryColor: darkMode ? '#18181b' : '#fafafa',
-            tertiaryColor: darkMode ? '#111111' : '#ffffff',
-            fontFamily: 'Mona Sans, sans-serif',
+            background: readThemeColor('--background-color', '#0f380f'),
+            primaryColor: readThemeColor('--card-color', '#1a4d1a'),
+            primaryTextColor: readThemeColor('--text-color', '#9bbc0f'),
+            primaryBorderColor: readThemeColor('--border-unified', '#8bac0f'),
+            lineColor: readThemeColor('--muted-color', '#8bac0f'),
+            secondaryColor: readThemeColor('--surface-muted', '#306230'),
+            tertiaryColor: readThemeColor('--surface-color', '#1a4d1a'),
+            fontFamily: readThemeColor('--mono-font', 'IBM Plex Mono, monospace'),
           },
         });
 
