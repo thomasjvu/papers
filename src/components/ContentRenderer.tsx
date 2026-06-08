@@ -7,6 +7,7 @@ import { documentationTree } from '../data/documentation';
 import { findAdjacentPages, findPageTags } from '../lib/navigation';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
+import DocPageFooter from './DocPageFooter';
 import MarkdownRenderer from './MarkdownRenderer';
 
 type ContentRendererProps = {
@@ -33,9 +34,6 @@ const ContentRenderer = memo(function ContentRenderer({
   );
   const pageTags = useMemo(() => findPageTags(path, documentationTree), [path]);
   const isSynopsisPage = useMemo(() => path.toLowerCase().includes('synopsis'), [path]);
-
-  const githubBranch = import.meta.env.VITE_GITHUB_BRANCH || 'main';
-  const githubSourcePath = sourcePath || `src/docs/content/${path}.md`;
 
   return (
     <div className="w-full h-full overflow-hidden" role="article">
@@ -93,15 +91,15 @@ const ContentRenderer = memo(function ContentRenderer({
             </motion.div>
           )}
 
-          {(prevPage || nextPage) && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2, duration: 0.3 }}
-              className="mt-12 pt-4 border-t"
-              style={{ borderColor: 'var(--border-unified)' }}
-            >
-              <div className="pagination-links">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="doc-page-bottom mt-12 border-t pt-4"
+            style={{ borderColor: 'var(--border-unified)' }}
+          >
+            <div className="doc-page-bottom-row">
+              <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
                 {prevPage ? (
                   <button
                     onClick={() =>
@@ -112,21 +110,23 @@ const ContentRenderer = memo(function ContentRenderer({
                         })
                       )
                     }
-                    className="nav-button text-left p-4 rounded-lg transition-opacity hover:opacity-70"
+                    className="nav-button text-left rounded-lg p-4 transition-opacity hover:opacity-70"
                     type="button"
                   >
-                    <div className="text-xs mb-1" style={{ color: 'var(--muted-color)' }}>
+                    <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
                       Previous
                     </div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
                       {prevPage.title}
                     </div>
                   </button>
-                ) : (
-                  <div></div>
-                )}
+                ) : null}
+              </div>
 
-                {nextPage && (
+              <DocPageFooter path={path} sourcePath={sourcePath} />
+
+              <div className="doc-page-bottom-nav doc-page-bottom-nav--next">
+                {nextPage ? (
                   <button
                     onClick={() =>
                       navigate(
@@ -136,65 +136,18 @@ const ContentRenderer = memo(function ContentRenderer({
                         })
                       )
                     }
-                    className="nav-button text-right p-4 rounded-lg transition-opacity hover:opacity-70"
+                    className="nav-button rounded-lg p-4 text-right transition-opacity hover:opacity-70"
                     type="button"
                   >
-                    <div className="text-xs mb-1" style={{ color: 'var(--muted-color)' }}>
+                    <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
                       Next
                     </div>
                     <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
                       {nextPage.title}
                     </div>
                   </button>
-                )}
+                ) : null}
               </div>
-            </motion.div>
-          )}
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-            className="mt-4 pt-4 border-t"
-            style={{ borderColor: 'var(--border-unified)' }}
-          >
-            <div className="flex flex-wrap gap-3 justify-center items-center">
-              {import.meta.env.VITE_GITHUB_URL && (
-                <>
-                  <a
-                    href={`${import.meta.env.VITE_GITHUB_URL}/edit/${githubBranch}/${githubSourcePath}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
-                    style={{ fontFamily: 'var(--mono-font)', color: 'var(--muted-color)' }}
-                  >
-                    <Icon icon="mingcute:edit-2-line" className="w-3.5 h-3.5" />
-                    <span>edit</span>
-                  </a>
-
-                  <a
-                    href={`${import.meta.env.VITE_GITHUB_URL}/issues/new?title=Issue with ${encodeURIComponent(path)}&body=${encodeURIComponent(`I found an issue with the documentation page: ${path}\n\nDescription:\n`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
-                    style={{ fontFamily: 'var(--mono-font)', color: 'var(--muted-color)' }}
-                  >
-                    <Icon icon="mingcute:bug-line" className="w-3.5 h-3.5" />
-                    <span>issue</span>
-                  </a>
-
-                  <a
-                    href={`${import.meta.env.VITE_GITHUB_URL}/blob/${githubBranch}/${githubSourcePath}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs transition-colors hover:opacity-70"
-                    style={{ fontFamily: 'var(--mono-font)', color: 'var(--muted-color)' }}
-                  >
-                    <Icon icon="mingcute:code-line" className="w-3.5 h-3.5" />
-                    <span>source</span>
-                  </a>
-                </>
-              )}
             </div>
           </motion.div>
         </div>

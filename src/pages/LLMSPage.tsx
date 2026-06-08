@@ -9,6 +9,18 @@ import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
 const logger = createLogger('LLMSPage');
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function wrapLlmsPreview(text: string): string {
+  return `<div class="llms-preview-scroll"><pre class="llms-preview-pre"><code>${escapeHtml(text)}</code></pre></div>`;
+}
+
 export default function LLMSPage() {
   const [content, setContent] = useState<string>('');
   const [description, setDescription] = useState<string>('');
@@ -28,9 +40,12 @@ export default function LLMSPage() {
 
         if (llmsResponse.ok) {
           const llmsContent = await llmsResponse.text();
-          mdContent = mdContent.replace('{llms-preview}', llmsContent);
+          mdContent = mdContent.replace('{llms-preview}', wrapLlmsPreview(llmsContent));
         } else {
-          mdContent = mdContent.replace('{llms-preview}', '# llms.txt content will appear here');
+          mdContent = mdContent.replace(
+            '{llms-preview}',
+            wrapLlmsPreview('# llms.txt content will appear here')
+          );
         }
 
         setDescription(nextDescription);

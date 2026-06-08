@@ -1,5 +1,5 @@
 const NODE_PADDING_X = 28;
-const NODE_PADDING_Y = 18;
+const NODE_PADDING_Y = 20;
 
 function readLength(value: string | null): number {
   if (!value) {
@@ -11,34 +11,17 @@ function readLength(value: string | null): number {
 }
 
 function measureLabel(label: HTMLElement): { width: number; height: number } {
+  label.style.overflow = 'visible';
+  label.style.whiteSpace = 'normal';
+  label.style.textAlign = 'center';
+  label.style.lineHeight = '1.35';
+  label.style.padding = '4px 8px';
+
   const rect = label.getBoundingClientRect();
   const width = Math.ceil(Math.max(label.scrollWidth, rect.width));
   const height = Math.ceil(Math.max(label.scrollHeight, rect.height));
 
   return { width, height };
-}
-
-function centerLabelContent(labelRoot: ParentNode): void {
-  labelRoot
-    .querySelectorAll<HTMLElement>('.nodeLabel, .cluster-label span, .cluster-label p')
-    .forEach((label) => {
-      label.style.display = 'inline-flex';
-      label.style.alignItems = 'center';
-      label.style.justifyContent = 'center';
-      label.style.textAlign = 'center';
-      label.style.width = '100%';
-      label.style.whiteSpace = 'nowrap';
-    });
-
-  labelRoot.querySelectorAll<HTMLElement>('foreignObject > div').forEach((wrapper) => {
-    wrapper.style.display = 'flex';
-    wrapper.style.alignItems = 'center';
-    wrapper.style.justifyContent = 'center';
-    wrapper.style.width = '100%';
-    wrapper.style.height = '100%';
-    wrapper.style.textAlign = 'center';
-    wrapper.style.overflow = 'visible';
-  });
 }
 
 function resizeCenteredShape(
@@ -67,9 +50,9 @@ function resizeCenteredShape(
 function fitNodeGroup(nodeGroup: SVGGElement): void {
   const label = nodeGroup.querySelector<HTMLElement>('.nodeLabel');
   const shape = nodeGroup.querySelector<SVGGraphicsElement>('.label-container');
-  const labelGroup = nodeGroup.querySelector<SVGGElement>('g.label');
+  const foreignObject = nodeGroup.querySelector<SVGForeignObjectElement>('foreignObject');
 
-  if (!label || !shape || !labelGroup) {
+  if (!label || !shape || !foreignObject) {
     return;
   }
 
@@ -80,35 +63,24 @@ function fitNodeGroup(nodeGroup: SVGGElement): void {
 
   resizeCenteredShape(shape, width + NODE_PADDING_X, height + NODE_PADDING_Y);
 
-  const foreignObject = labelGroup.querySelector<SVGForeignObjectElement>('foreignObject');
-  if (foreignObject) {
-    foreignObject.setAttribute('width', String(width));
-    foreignObject.setAttribute('height', String(height));
-    foreignObject.setAttribute('x', String(-width / 2));
-    foreignObject.setAttribute('y', String(-height / 2));
-  }
-
-  labelGroup.setAttribute('transform', `translate(${-width / 2}, ${-height / 2})`);
+  foreignObject.style.overflow = 'visible';
+  foreignObject.setAttribute('width', String(width));
+  foreignObject.setAttribute('height', String(height));
+  foreignObject.setAttribute('x', String(-width / 2));
+  foreignObject.setAttribute('y', String(-height / 2));
 }
 
-function fitClusterGroup(clusterGroup: SVGGElement): void {
-  const label = clusterGroup.querySelector<HTMLElement>('.cluster-label span, .cluster-label p');
-  const labelGroup = clusterGroup.querySelector<SVGGElement>('g.cluster-label');
+function releaseLabelOverflow(root: ParentNode): void {
+  root.querySelectorAll<HTMLElement>('.nodeLabel, .cluster-label span, .cluster-label p').forEach((label) => {
+    label.style.overflow = 'visible';
+    label.style.whiteSpace = 'normal';
+    label.style.textAlign = 'center';
+    label.style.lineHeight = '1.35';
+  });
 
-  if (!label || !labelGroup) {
-    return;
-  }
-
-  const { width, height } = measureLabel(label);
-  if (width <= 0 || height <= 0) {
-    return;
-  }
-
-  const foreignObject = labelGroup.querySelector<SVGForeignObjectElement>('foreignObject');
-  if (foreignObject) {
-    foreignObject.setAttribute('width', String(width + 16));
-    foreignObject.setAttribute('height', String(height + 8));
-  }
+  root.querySelectorAll<SVGForeignObjectElement>('foreignObject').forEach((foreignObject) => {
+    foreignObject.style.overflow = 'visible';
+  });
 }
 
 export async function waitForDiagramFonts(): Promise<void> {
@@ -118,10 +90,7 @@ export async function waitForDiagramFonts(): Promise<void> {
 
   const styles = getComputedStyle(document.documentElement);
   const fontFamily = styles.getPropertyValue('--mono-font').trim() || 'monospace';
-  const primaryFamily = fontFamily
-    .split(',')[0]
-    ?.trim()
-    .replace(/^['"]|['"]$/g, '');
+  const primaryFamily = fontFamily.split(',')[0]?.trim().replace(/^['"]|['"]$/g, '');
 
   if (primaryFamily) {
     try {
@@ -135,18 +104,14 @@ export async function waitForDiagramFonts(): Promise<void> {
   await document.fonts.ready;
 }
 
-export function normalizeMermaidDiagram(canvas: HTMLElement | null): void {
+export function fitMermaidNodeLabels(canvas: HTMLElement | null): void {
   if (!canvas) {
     return;
   }
 
-  centerLabelContent(canvas);
+  releaseLabelOverflow(canvas);
 
   canvas.querySelectorAll<SVGGElement>('g.node').forEach((nodeGroup) => {
     fitNodeGroup(nodeGroup);
-  });
-
-  canvas.querySelectorAll<SVGGElement>('g.cluster').forEach((clusterGroup) => {
-    fitClusterGroup(clusterGroup);
   });
 }

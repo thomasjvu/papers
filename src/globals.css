@@ -766,68 +766,157 @@ code {
 
 .mermaid-block {
   margin: var(--space-6) 0;
+  padding: var(--space-4);
   border: 1px solid var(--border-unified);
   border-radius: var(--radius-lg);
   background-color: var(--surface-muted);
-  overflow: hidden;
+  overflow: visible;
 }
 
-.mermaid-block__viewport {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  overflow: auto;
-  max-height: min(28rem, 70vh);
-  padding: var(--space-4);
-  scrollbar-gutter: stable both-edges;
+.mermaid-block__trigger {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: zoom-in;
+  text-align: center;
+  transition: opacity var(--transition-normal);
 }
 
-.mermaid-block__canvas {
-  display: inline-block;
-  flex: 0 0 auto;
-  min-width: min(100%, max-content);
-  margin: 0 auto;
+.mermaid-block__trigger:hover,
+.mermaid-block__trigger:focus-visible {
+  opacity: 0.88;
 }
 
-.mermaid-block__canvas svg {
+.mermaid-block__trigger:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-radius: var(--radius-md);
+}
+
+.mermaid-block__content {
+  overflow-x: auto;
+}
+
+.mermaid-block__content svg,
+.mermaid-lightbox__content svg {
   display: block;
   margin: 0 auto;
   height: auto;
 }
 
-.mermaid-block__canvas .nodeLabel,
-.mermaid-block__canvas .cluster-label span,
-.mermaid-block__canvas .cluster-label p,
-.mermaid-block__canvas .edgeLabel .label {
-  text-align: center !important;
+.mermaid-block__content svg {
+  width: 100%;
+  max-width: 100%;
 }
 
-.mermaid-block__canvas foreignObject {
+.mermaid-block__content foreignObject,
+.mermaid-lightbox__content foreignObject {
   overflow: visible !important;
 }
 
-.mermaid-block__canvas foreignObject > div {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.mermaid-block__content .nodeLabel,
+.mermaid-block__content .cluster-label span,
+.mermaid-block__content .cluster-label p,
+.mermaid-lightbox__content .nodeLabel,
+.mermaid-lightbox__content .cluster-label span,
+.mermaid-lightbox__content .cluster-label p {
   overflow: visible;
+  line-height: 1.35;
   text-align: center;
 }
 
-.mermaid-block__hint {
-  display: none;
-  margin: 0;
-  padding: var(--space-2) var(--space-4) var(--space-3);
-  border-top: 1px solid var(--border-unified);
+.mermaid-block__expand-hint {
+  margin: var(--space-2) 0 0;
   font-family: var(--mono-font);
   font-size: var(--text-2xs);
   color: var(--muted-color);
   text-align: center;
+  opacity: 0.32;
+  transition: opacity var(--transition-normal);
 }
 
-.mermaid-block__viewport[data-overflows='true'] + .mermaid-block__hint {
-  display: block;
+.mermaid-block:hover .mermaid-block__expand-hint,
+.mermaid-block:focus-within .mermaid-block__expand-hint {
+  opacity: 0.72;
+}
+
+.mermaid-lightbox {
+  width: min(92vw, 72rem);
+  max-width: none;
+  max-height: none;
+  margin: auto;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  overflow: visible;
+}
+
+.mermaid-lightbox::backdrop {
+  background-color: var(--overlay-color);
+  backdrop-filter: blur(6px);
+}
+
+.mermaid-lightbox__panel {
+  position: relative;
+  display: flex;
+  max-height: 88vh;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-lg);
+  background-color: var(--surface-muted);
+}
+
+.mermaid-lightbox__close {
+  position: absolute;
+  top: var(--space-3);
+  right: var(--space-3);
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-lg);
+  background-color: var(--card-color);
+  color: var(--text-color);
+  cursor: pointer;
+  transition: opacity var(--transition-normal);
+}
+
+.mermaid-lightbox__close:hover {
+  opacity: 0.8;
+}
+
+.mermaid-lightbox__body {
+  overflow: auto;
+  max-height: 88vh;
+  padding: var(--space-6);
+  scroll-behavior: smooth;
+  scrollbar-gutter: stable both-edges;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mermaid-lightbox__body {
+    scroll-behavior: auto;
+  }
+}
+
+.mermaid-lightbox__content svg {
+  max-width: none;
+}
+
+.mermaid-lightbox__loading {
+  margin: 0;
+  font-family: var(--mono-font);
+  font-size: var(--text-sm);
+  color: var(--muted-color);
+  text-align: center;
 }
 
 .mermaid-block--loading,
@@ -843,7 +932,63 @@ code {
   color: var(--error-color);
 }
 
+.llms-preview-scroll {
+  margin: var(--space-4) 0;
+  border: 1px solid rgba(var(--primary-color-rgb), 0.15);
+  border-radius: var(--radius-lg);
+  background-color: rgba(0, 0, 0, 0.02);
+  overflow: hidden;
+}
+
+.dark .llms-preview-scroll {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-color: rgba(var(--primary-color-rgb), 0.2);
+}
+
+.llms-preview-pre {
+  margin: 0;
+  max-height: min(28rem, 65vh);
+  overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
+  scrollbar-gutter: stable both-edges;
+}
+
+.llms-preview-pre code {
+  display: block;
+  padding: var(--space-4);
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-relaxed);
+  white-space: pre;
+}
+
+.doc-page-bottom-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-4);
+  min-height: 2.75rem;
+}
+
+.doc-page-bottom-nav {
+  min-width: 0;
+}
+
+.doc-page-bottom-nav--prev {
+  justify-self: start;
+}
+
+.doc-page-bottom-nav--next {
+  justify-self: end;
+}
+
 .doc-page-footer {
+  justify-self: center;
+  align-self: end;
+  padding-bottom: 0.125rem;
   opacity: 0.42;
   transition: opacity var(--transition-normal);
 }
@@ -853,58 +998,28 @@ code {
   opacity: 0.72;
 }
 
-.doc-page-footer-label {
-  margin: 0;
-  font-size: var(--text-xs);
-  font-weight: 500;
-  color: var(--muted-color);
-}
-
-.doc-page-footer-path {
-  margin: var(--space-2) 0 0;
-  max-width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
-  padding: 0;
-  border: 0;
-  background: none;
-  font-family: var(--mono-font);
-  font-size: var(--text-2xs);
-  line-height: var(--leading-normal);
-}
-
-.doc-page-footer-path code {
-  background: none;
-  border: 0;
-  padding: 0;
-  color: var(--muted-color);
-  font-size: inherit;
-  font-weight: 500;
-}
-
-.doc-page-footer-action {
+.doc-page-footer-links {
   display: inline-flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.375rem;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0;
   padding: 0;
-  border: 0;
-  background: none;
   font-family: var(--mono-font);
   font-size: var(--text-2xs);
-  color: var(--muted-color);
-  text-decoration: none;
-  transition:
-    color var(--transition-normal),
-    opacity var(--transition-normal);
+  line-height: 1;
+  text-align: center;
 }
 
-.doc-page-footer-action:hover {
+.doc-page-footer-link {
+  color: var(--toc-text-color);
+  text-decoration: none !important;
+  transition: color var(--transition-normal), opacity var(--transition-normal);
+}
+
+.doc-page-footer-link:hover {
   color: var(--text-color);
-  opacity: 1;
-}
-
-.doc-page-footer-action--muted {
-  opacity: 0.85;
 }
 
 .right-rail-header {
@@ -1088,18 +1203,7 @@ code {
   }
 }
 
-/* Pagination links styling */
-.pagination-links {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  gap: 1rem;
-  width: 100%;
-}
-
-.pagination-links a,
-.pagination-links button {
-  flex: 1;
+.doc-page-bottom-nav .nav-button {
   min-width: 0;
   font-family: var(--mono-font) !important;
 }
@@ -1233,57 +1337,58 @@ code {
   margin-top: 0;
 }
 
-.doc-content a {
-  color: var(--primary-color);
-  text-decoration: none;
-  transition: all var(--transition-normal);
-  font-weight: 500;
-  border-bottom: 1px solid transparent;
-}
-
-.doc-content a:hover {
-  text-decoration: none;
-  border-bottom: 1px solid var(--primary-color);
-  opacity: 0.8;
-}
-
-.doc-content a:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-  border-radius: calc(var(--space-1) / 2);
-}
-
 /* Base link reset - remove default underlines */
 a {
   text-decoration: none;
 }
 
-/* Content links - only apply custom styling to content links */
-.doc-content a,
-.prose a,
-.markdown-content a,
+/* Documentation body links */
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link),
+.prose a:not(.heading-anchor-link),
+.markdown-content a:not(.heading-anchor-link),
 .markdown-link,
 .link-styled {
   color: var(--primary-color) !important;
-  text-decoration: none;
-  transition: all var(--transition-normal);
+  text-decoration: underline;
+  text-decoration-color: rgba(var(--primary-color-rgb), 0.55);
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
   font-weight: 500;
-  border-bottom: 1px solid transparent;
+  border-bottom: none;
+  transition:
+    color var(--transition-normal),
+    opacity var(--transition-normal),
+    text-decoration-color var(--transition-normal);
 }
 
-.doc-content a:hover,
-.prose a:hover,
-.markdown-content a:hover,
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):hover,
+.prose a:not(.heading-anchor-link):hover,
+.markdown-content a:not(.heading-anchor-link):hover,
 .markdown-link:hover,
 .link-styled:hover {
-  text-decoration: none;
-  border-bottom: 1px solid var(--primary-color);
-  opacity: 0.8;
+  opacity: 0.72;
+  text-decoration-color: rgba(var(--primary-color-rgb), 0.35);
 }
 
-.doc-content a:focus,
-.prose a:focus,
-.markdown-content a:focus,
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):visited,
+.prose a:not(.heading-anchor-link):visited,
+.markdown-content a:not(.heading-anchor-link):visited,
+.markdown-link:visited,
+.link-styled:visited {
+  opacity: 0.82;
+}
+
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):visited:hover,
+.prose a:not(.heading-anchor-link):visited:hover,
+.markdown-content a:not(.heading-anchor-link):visited:hover,
+.markdown-link:visited:hover,
+.link-styled:visited:hover {
+  opacity: 0.62;
+}
+
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):focus,
+.prose a:not(.heading-anchor-link):focus,
+.markdown-content a:not(.heading-anchor-link):focus,
 .markdown-link:focus,
 .link-styled:focus {
   outline: 2px solid var(--primary-color);

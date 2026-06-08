@@ -27,7 +27,8 @@ papers is a static documentation framework for teams that want full visual contr
 | Tree sync script                           | `npm run check:docs-tree`                          |
 | Tree auto-append                           | `npm run sync:docs-tree -- --write`                |
 | MDX shortcodes (`Callout`, `Tabs`, `Card`) | Yes                                                |
-| Mermaid lazy chunks                        | Yes (`feature-mermaid`, `vendor-mermaid`)          |
+| Mermaid lazy load                          | Yes (`MermaidDiagram` async chunk + `vendor-mermaid`) |
+| Lazy feature boundary checks               | Yes (`npm test` guards provider imports in lazy modules) |
 | OpenAPI multi-spec                         | Yes (`openapiConfig` in `documentation-config.js`) |
 | Starter CLI                                | `npm create papers` via `packages/create-papers`   |
 
@@ -56,6 +57,15 @@ Add variant content under:
 - `src/docs/content/variants/locales/fr/...`
 
 The sidebar selector appears automatically when enabled.
+
+## Lazy feature invariants
+
+Framework sites lazy-load heavy viewers to keep first paint fast. Two rules prevent production crashes:
+
+1. **Lazy modules are leaves** — files imported via `React.lazy()` must not import `src/providers/*`. Use CSS, DOM APIs, or props from the parent shell instead of `useTheme()` and similar context hooks.
+2. **Vendor-only chunk splits** — `vite.config.ts` `manualChunks` may bucket `node_modules` (for example `vendor-mermaid`), but must not isolate `src/` app modules into named chunks. That pattern created circular `vendor-react` dependencies and `createContext` runtime failures.
+
+Enforced by `src/framework/lazyFeatureBoundaries.ts` and the architecture test `lazy feature modules avoid provider imports and unsafe app chunk splits`.
 
 ## Near-term improvements
 

@@ -29,7 +29,6 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
-      '@app-shared': resolve(__dirname, './shared'),
     },
   },
   css: {
@@ -66,17 +65,12 @@ export default defineConfig({
             if (id.includes('dompurify')) {
               return 'vendor-sanitize';
             }
-            if (id.includes('@scalar')) {
-              return 'vendor-openapi';
-            }
             if (id.includes('mermaid')) {
               return 'vendor-mermaid';
             }
           }
 
-          if (id.includes('/src/components/MermaidDiagram')) {
-            return 'feature-mermaid';
-          }
+
         },
       },
     },

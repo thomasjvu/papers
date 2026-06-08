@@ -35,6 +35,7 @@ import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/t
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
 import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/themeRegistry.mjs';
+import { collectLazyFeatureBoundaryIssues } from '../src/framework/lazyFeatureBoundaries.ts';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -824,6 +825,13 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(frenchRoute?.title, 'Introduction FR | papers');
       assert.equal(docsRootAlias?.canonicalPath, '/docs/2.0/en/getting-started/introduction');
       assert.equal(docsRootAlias?.title, 'Introduction | papers');
+    },
+  },
+  {
+    name: 'lazy feature modules avoid provider imports and unsafe app chunk splits',
+    run: () => {
+      const issues = collectLazyFeatureBoundaryIssues();
+      assert.deepEqual(issues, []);
     },
   },
   {

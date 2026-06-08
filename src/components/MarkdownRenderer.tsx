@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   processMarkdown,
@@ -15,7 +15,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '@rally/docs-routing'
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
-import MermaidDiagram from './MermaidDiagram';
+const MermaidDiagram = lazy(() => import('./MermaidDiagram'));
 
 const componentLogger = createLogger('MarkdownRenderer');
 
@@ -254,7 +254,14 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       return null;
     }
 
-    return <MermaidDiagram key={key} chart={block.chart} />;
+    return (
+      <Suspense
+        key={key}
+        fallback={<div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>}
+      >
+        <MermaidDiagram chart={block.chart} />
+      </Suspense>
+    );
   }
 
   if (tagName === 'div' && element.hasAttribute('data-liveexample-id')) {
@@ -368,7 +375,7 @@ function MarkdownHeadingCopyLink({ headingId, label }: { headingId: string; labe
       className="heading-anchor-link"
       aria-label={`Copy link to ${label}`}
       title="Copy section link"
-      onClick={async (event) => {
+      onClick={async event => {
         event.preventDefault();
 
         try {
@@ -432,7 +439,7 @@ function MarkdownRouteLink({
       href={href}
       className={className}
       title={title}
-      onClick={(event) => {
+      onClick={event => {
         event.preventDefault();
         onNavigate(href);
       }}
@@ -459,7 +466,7 @@ function MarkdownCopyLink({
     <a
       href={href}
       className={className}
-      onClick={async (event) => {
+      onClick={async event => {
         event.preventDefault();
 
         try {
@@ -507,7 +514,7 @@ function MarkdownWalletAddress({
         type="button"
         aria-label="Copy to clipboard"
         title="Copy to clipboard"
-        onClick={async (event) => {
+        onClick={async event => {
           event.stopPropagation();
 
           try {
@@ -596,7 +603,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
       currentPath: path,
       activeLocale: routeContext.activeLocale ?? null,
       activeVersion: routeContext.activeVersion ?? null,
-      navigate: (href) => {
+      navigate: href => {
         if (href === '/') {
           navigate(href);
           return;
