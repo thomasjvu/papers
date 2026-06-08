@@ -136,26 +136,35 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
         {node.id === activeNodeId && (
           <g transform={`translate(${node.x} ${node.y})`}>
-            <motion.g
-              animate={prefersReducedMotion ? {} : { rotate: 360 }}
-              transition={{
-                duration: 8,
-                repeat: Infinity,
-                ease: 'linear',
-              }}
-              style={{ transformOrigin: '0px 0px' }}
+            <circle
+              cx={0}
+              cy={0}
+              r={nodeRadius + 8}
+              fill="none"
+              stroke={themeColors.current}
+              strokeWidth={1.5}
+              strokeDasharray="4 4"
+              pointerEvents="none"
             >
-              <circle
-                cx={0}
-                cy={0}
-                r={nodeRadius + 8}
-                fill="none"
-                stroke={themeColors.current}
-                strokeWidth={1.5}
-                strokeDasharray="4 4"
-                pointerEvents="none"
-              />
-            </motion.g>
+              {!prefersReducedMotion ? (
+                <>
+                  <animateTransform
+                    attributeName="transform"
+                    type="rotate"
+                    from="0 0 0"
+                    to="360 0 0"
+                    dur="8s"
+                    repeatCount="indefinite"
+                  />
+                  <animate
+                    attributeName="stroke-dashoffset"
+                    values="0;-16"
+                    dur="1.2s"
+                    repeatCount="indefinite"
+                  />
+                </>
+              ) : null}
+            </circle>
           </g>
         )}
 

@@ -34,13 +34,9 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           <p className="text-xs font-medium" style={{ color: 'var(--text-color)' }}>
             Edit this page
           </p>
-          <p
-            className="truncate text-2xs"
-            title={githubSourcePath}
-            style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
-          >
-            {githubSourcePath}
-          </p>
+          <pre className="doc-page-footer-path" title={githubSourcePath}>
+            <code>{githubSourcePath}</code>
+          </pre>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

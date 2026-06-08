@@ -1,4 +1,4 @@
-import { useEffect, useId, useState } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
 import { createLogger } from '../utils/logger';
 
@@ -8,8 +8,24 @@ type MermaidDiagramProps = {
   chart: string;
 };
 
+function updateMermaidOverflow(viewport: HTMLDivElement | null) {
+  if (!viewport) {
+    return;
+  }
+
+  const canvas = viewport.querySelector('.mermaid-block__canvas');
+  if (!canvas) {
+    viewport.dataset.overflows = 'false';
+    return;
+  }
+
+  const overflows = canvas.scrollWidth > viewport.clientWidth + 1;
+  viewport.dataset.overflows = overflows ? 'true' : 'false';
+}
+
 export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const id = useId().replace(/:/g, '-');
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [svg, setSvg] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
@@ -32,6 +48,21 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
           startOnLoad: false,
           securityLevel: 'strict',
           theme: 'base',
+          flowchart: {
+            useMaxWidth: false,
+            htmlLabels: true,
+            curve: 'basis',
+            padding: 12,
+            nodeSpacing: 36,
+            rankSpacing: 44,
+          },
+          sequence: {
+            useMaxWidth: false,
+            diagramMarginX: 20,
+            diagramMarginY: 12,
+            actorMargin: 36,
+            messageMargin: 32,
+          },
           themeVariables: {
             background: readThemeColor('--background-color', '#0f380f'),
             primaryColor: readThemeColor('--card-color', '#1a4d1a'),
@@ -66,6 +97,24 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     };
   }, [chart, id]);
 
+  useLayoutEffect(() => {
+    updateMermaidOverflow(viewportRef.current);
+
+    const viewport = viewportRef.current;
+    if (!viewport || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
+
+    const observer = new ResizeObserver(() => {
+      updateMermaidOverflow(viewport);
+    });
+
+    observer.observe(viewport);
+    return () => {
+      observer.disconnect();
+    };
+  }, [svg]);
+
   if (error) {
     return (
       <div className="mermaid-block mermaid-block--error">
@@ -79,5 +128,20 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     return <div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>;
   }
 
-  return <div className="mermaid-block" dangerouslySetInnerHTML={{ __html: svg }} />;
+  return (
+    <div className="mermaid-block">
+      <div
+        ref={viewportRef}
+        className="mermaid-block__viewport"
+        data-overflows="false"
+        tabIndex={0}
+        aria-label="Architecture diagram. Scroll horizontally if needed."
+      >
+        <div className="mermaid-block__canvas" dangerouslySetInnerHTML={{ __html: svg }} />
+      </div>
+      <p className="mermaid-block__hint" aria-hidden="true">
+        Scroll to explore diagram
+      </p>
+    </div>
+  );
 }
