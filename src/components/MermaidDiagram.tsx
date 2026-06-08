@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
-import { fitMermaidNodeLabels, waitForDiagramFonts } from '../utils/mermaidLayout';
+import { normalizeMermaidDiagram, waitForDiagramFonts } from '../utils/mermaidLayout';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('MermaidDiagram');
@@ -31,10 +31,10 @@ async function renderMermaidChart(chart: string, renderId: string, mode: RenderM
       useMaxWidth: isInline,
       htmlLabels: true,
       curve: 'basis',
-      padding: isInline ? 20 : 28,
-      nodeSpacing: isInline ? 44 : 56,
-      rankSpacing: isInline ? 52 : 64,
-      wrappingWidth: isInline ? 280 : 360,
+      padding: isInline ? 28 : 36,
+      nodeSpacing: isInline ? 48 : 60,
+      rankSpacing: isInline ? 56 : 72,
+      wrappingWidth: isInline ? 300 : 380,
     },
     sequence: {
       useMaxWidth: isInline,
@@ -53,7 +53,7 @@ async function renderMermaidChart(chart: string, renderId: string, mode: RenderM
       secondaryColor: readThemeColor('--surface-muted', '#306230'),
       tertiaryColor: readThemeColor('--surface-color', '#1a4d1a'),
       fontFamily: readThemeColor('--mono-font', 'IBM Plex Mono, monospace'),
-      fontSize: isInline ? '11px' : '12px',
+      fontSize: isInline ? '12px' : '14px',
     },
   });
 
@@ -178,7 +178,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   }, [chart]);
 
   useLayoutEffect(() => {
-    fitMermaidNodeLabels(inlineCanvasRef.current);
+    normalizeMermaidDiagram(inlineCanvasRef.current);
   }, [inlineSvg]);
 
   useLayoutEffect(() => {
@@ -186,7 +186,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
       return;
     }
 
-    fitMermaidNodeLabels(lightboxCanvasRef.current);
+    normalizeMermaidDiagram(lightboxCanvasRef.current);
   }, [lightboxSvg]);
 
   if (error && !inlineSvg) {

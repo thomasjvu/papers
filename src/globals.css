@@ -570,6 +570,12 @@ a:focus-visible {
   background: rgba(107, 114, 128, 0.3);
 }
 
+.toc-scroll a:focus,
+.toc-scroll a:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 /* Navigation button - minimal styling */
 .nav-button {
   font-family: var(--title-font);
@@ -799,6 +805,8 @@ code {
 
 .mermaid-block__content {
   overflow-x: auto;
+  overflow-y: visible;
+  padding: var(--space-5) var(--space-2);
 }
 
 .mermaid-block__content svg,
@@ -818,13 +826,33 @@ code {
   overflow: visible !important;
 }
 
-.mermaid-block__content .nodeLabel,
-.mermaid-block__content .cluster-label span,
-.mermaid-block__content .cluster-label p,
-.mermaid-lightbox__content .nodeLabel,
-.mermaid-lightbox__content .cluster-label span,
-.mermaid-lightbox__content .cluster-label p {
+.mermaid-block__content foreignObject > div,
+.mermaid-lightbox__content foreignObject > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   overflow: visible;
+}
+
+.mermaid-block__content .nodeLabel,
+.mermaid-lightbox__content .nodeLabel,
+.mermaid-block__content .cluster-label span,
+.mermaid-lightbox__content .cluster-label span {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  line-height: 1.35;
+  text-align: center;
+}
+
+.mermaid-block__content .nodeLabel p,
+.mermaid-lightbox__content .nodeLabel p,
+.mermaid-block__content .cluster-label p,
+.mermaid-lightbox__content .cluster-label p {
+  margin: 0;
+  width: 100%;
   line-height: 1.35;
   text-align: center;
 }
@@ -905,6 +933,10 @@ code {
   .mermaid-lightbox__body {
     scroll-behavior: auto;
   }
+}
+
+.mermaid-lightbox__content {
+  padding: var(--space-4) 0;
 }
 
 .mermaid-lightbox__content svg {
