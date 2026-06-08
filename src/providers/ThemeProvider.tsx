@@ -152,12 +152,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = useCallback(() => {
     hasExplicitThemePreference.current = true;
-    setIsDarkMode((prev) => !prev);
+    setIsDarkMode(prev => !prev);
   }, []);
 
   const toggleReducedMotion = useCallback(() => {
     hasExplicitMotionPreference.current = true;
-    setPrefersReducedMotion((prev) => !prev);
+    setPrefersReducedMotion(prev => !prev);
   }, []);
 
   useEffect(() => {
@@ -205,7 +205,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (context === undefined) {
