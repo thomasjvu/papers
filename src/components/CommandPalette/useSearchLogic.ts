@@ -1,13 +1,13 @@
 import { Icon } from '@iconify/react';
 import { useMemo, createElement, useState, useEffect, useRef } from 'react';
 
-import { documentationTree } from '../../data/documentation';
+import { documentationTree } from '@app-shared/documentation-config.js';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
-import { buildCanonicalDocsPath } from '../../../shared/docsRouting.js';
-import { homepageConfig } from '../../../shared/documentation-config.js';
+import { buildCanonicalDocsPath } from '@rally/docs-routing';
+import { homepageConfig } from '@app-shared/documentation-config.js';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';

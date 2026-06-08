@@ -3,11 +3,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { resolveAppDir, resolvePackageDir } from './lib/papersPaths.mjs';
 import { loadThemeManifest } from './lib/themeRegistry.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, '..');
-const viteEnv = loadViteEnv(rootDir, resolveEnvMode());
+const importMetaUrl = import.meta.url;
+const packageDir = resolvePackageDir(importMetaUrl);
+const appDir = resolveAppDir(packageDir);
+const viteEnv = loadViteEnv(appDir, resolveEnvMode());
 
 const { id, manifest, themeDir } = loadThemeManifest(viteEnv.VITE_PAPERS_THEME);
 const themeImports = [`@import '../themes/${id}/tokens.css';`];
@@ -16,10 +18,10 @@ if (manifest.fontCss) {
   themeImports.push(`@import '../themes/${id}/${manifest.fontCss}';`);
 }
 
-const themeActivePath = path.join(rootDir, 'src', 'theme-active.css');
-const generatedDir = path.join(rootDir, 'src', 'lib', 'generated');
+const themeActivePath = path.join(packageDir, 'src', 'theme-active.css');
+const generatedDir = path.join(packageDir, 'src', 'lib', 'generated');
 const generatedManifestPath = path.join(generatedDir, 'papers-theme.json');
-const publicFontsDir = path.join(rootDir, 'public', 'fonts');
+const publicFontsDir = path.join(appDir, 'public', 'fonts');
 const themeFontAssetsDir = path.join(themeDir, 'assets', 'fonts');
 
 mkdirSync(generatedDir, { recursive: true });

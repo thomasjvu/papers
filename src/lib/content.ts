@@ -1,4 +1,4 @@
-import { buildDocsContentPath } from '../../shared/docsRouting.js';
+import { buildDocsContentPath } from '@rally/docs-routing';
 import {
   DEFAULT_DOCUMENT_PATH,
   documentationTree,

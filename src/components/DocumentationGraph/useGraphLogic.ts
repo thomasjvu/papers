@@ -1,6 +1,6 @@
 import { useMemo, useCallback } from 'react';
 
-import { documentationTree } from '../../data/documentation';
+import { documentationTree } from '@app-shared/documentation-config.js';
 import { useDebounce } from '../../hooks/useDebounce';
 import type { FileItem } from '../../types/documentation';
 

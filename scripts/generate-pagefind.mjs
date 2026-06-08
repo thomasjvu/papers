@@ -3,14 +3,16 @@ import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import * as pagefind from 'pagefind';
 import { buildCanonicalDocsPath, buildDocsContentPath, getDocsVariantContexts } from '../shared/docsRouting.js';
+import { resolveAppDir, resolvePackageDir } from './lib/papersPaths.mjs';
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const rootDir = join(__dirname, '..');
-const distDir = join(rootDir, 'dist');
+const importMetaUrl = import.meta.url;
+const packageDir = resolvePackageDir(importMetaUrl);
+const appDir = resolveAppDir(packageDir);
+const distDir = join(appDir, 'dist');
 const pagefindOutputDir = join(distDir, 'pagefind');
 const searchPagesDir = join(distDir, 'search-pages');
-const docsIndexPath = join(rootDir, 'public', 'docs-index.json');
-const docsContentDir = join(rootDir, 'public', 'docs-content');
+const docsIndexPath = join(appDir, 'public', 'docs-index.json');
+const docsContentDir = join(appDir, 'public', 'docs-content');
 
 console.log('Generating Pagefind search index...');
 

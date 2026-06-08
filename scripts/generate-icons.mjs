@@ -1,4 +1,4 @@
-import { promises as fs } from 'node:fs';
+import { existsSync, promises as fs } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -6,13 +6,15 @@ import mingcuteData from '@iconify-json/mingcute/icons.json' with { type: 'json'
 import pixelarticonsData from '@iconify-json/pixelarticons/icons.json' with { type: 'json' };
 
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { resolveAppDir, resolvePackageDir, resolveScanDirs } from './lib/papersPaths.mjs';
 import { loadThemeManifest } from './lib/themeRegistry.mjs';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, '..');
-const viteEnv = loadViteEnv(rootDir, resolveEnvMode());
-const scanDirs = [path.join(rootDir, 'src'), path.join(rootDir, 'shared')];
-const outputPath = path.join(rootDir, 'src', 'lib', 'generated', 'icon-collections.ts');
+const importMetaUrl = import.meta.url;
+const packageDir = resolvePackageDir(importMetaUrl);
+const appDir = resolveAppDir(packageDir);
+const viteEnv = loadViteEnv(appDir, resolveEnvMode());
+const scanDirs = resolveScanDirs(packageDir, appDir);
+const outputPath = path.join(packageDir, 'src', 'lib', 'generated', 'icon-collections.ts');
 
 const iconSets = {
   mingcute: mingcuteData,
@@ -27,6 +29,10 @@ if (activeTheme.manifest.iconSet && !(activeTheme.manifest.iconSet in iconSets))
 }
 
 async function listSourceFiles(dir) {
+  if (!existsSync(dir)) {
+    return [];
+  }
+
   const entries = await fs.readdir(dir, { withFileTypes: true });
   const files = await Promise.all(
     entries.map(async (entry) => {

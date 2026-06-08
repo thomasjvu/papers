@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 
-import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { buildCanonicalDocsPath } from '@rally/docs-routing';
 
 interface PagefindResult {
   url: string;
@@ -107,6 +107,7 @@ function loadPagefindScript(): Promise<void> {
 
     if (!existingScript) {
       script.src = '/pagefind/pagefind.js';
+      script.type = 'module';
       script.async = true;
       script.dataset.pagefindLoader = 'true';
       document.head.appendChild(script);

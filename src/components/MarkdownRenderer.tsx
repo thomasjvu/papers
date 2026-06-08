@@ -10,7 +10,7 @@ import {
 } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
 import { resolveDocumentPath } from '../lib/content';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '@rally/docs-routing';
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
@@ -594,8 +594,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
       codeBlocks: processedData.codeBlocks,
       mermaidBlocks: processedData.mermaidBlocks,
       currentPath: path,
-      activeLocale: routeContext.activeLocale,
-      activeVersion: routeContext.activeVersion,
+      activeLocale: routeContext.activeLocale ?? null,
+      activeVersion: routeContext.activeVersion ?? null,
       navigate: (href) => {
         if (href === '/') {
           navigate(href);
