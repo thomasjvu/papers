@@ -19,21 +19,10 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
   const issueUrl = `${githubUrl}/issues/new?title=${encodeURIComponent(`Docs: ${path}`)}&body=${encodeURIComponent(`Page: ${path}\nSource: ${githubSourcePath}\n\nWhat should change?\n`)}`;
 
   return (
-    <footer
-      className="doc-page-footer mt-8 border-t pt-4"
-      style={{ borderColor: 'var(--border-unified)' }}
-    >
-      <div
-        className="flex flex-col gap-2 rounded-lg border px-3 py-2.5"
-        style={{
-          backgroundColor: 'var(--card-color)',
-          borderColor: 'var(--border-unified)',
-        }}
-      >
+    <footer className="doc-page-footer mt-8 pt-4">
+      <div className="flex flex-col gap-2">
         <div className="min-w-0">
-          <p className="text-xs font-medium" style={{ color: 'var(--text-color)' }}>
-            Edit this page
-          </p>
+          <p className="doc-page-footer-label">Edit this page</p>
           <pre className="doc-page-footer-path" title={githubSourcePath}>
             <code>{githubSourcePath}</code>
           </pre>
@@ -44,12 +33,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
             href={editUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-2xs transition-opacity hover:opacity-80"
-            style={{
-              borderColor: 'var(--border-unified)',
-              color: 'var(--text-color)',
-              fontFamily: 'var(--mono-font)',
-            }}
+            className="doc-page-footer-action"
           >
             <Icon icon="mingcute:edit-2-line" className="h-3.5 w-3.5" />
             Edit on GitHub
@@ -59,12 +43,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
             href={issueUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-2xs transition-opacity hover:opacity-80"
-            style={{
-              borderColor: 'var(--border-unified)',
-              color: 'var(--muted-color)',
-              fontFamily: 'var(--mono-font)',
-            }}
+            className="doc-page-footer-action doc-page-footer-action--muted"
           >
             <Icon icon="mingcute:bug-line" className="h-3.5 w-3.5" />
             Report issue

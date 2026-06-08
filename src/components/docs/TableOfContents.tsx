@@ -1,9 +1,7 @@
-import { Icon } from '@iconify/react';
 import React from 'react';
 
 interface TableOfContentsProps {
   content: string;
-  onToggleInteractiveMap?: () => void;
 }
 
 interface HeadingItem {
@@ -46,7 +44,7 @@ function buildHeadingsFromMarkdown(content: string): HeadingItem[] {
   return extractedHeadings;
 }
 
-const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOfContentsProps) => {
+const TableOfContents = React.memo(({ content }: TableOfContentsProps) => {
   const headings = React.useMemo(() => buildHeadingsFromMarkdown(content), [content]);
   const [activeHeadingId, setActiveHeadingId] = React.useState<string | null>(
     headings[0]?.id ?? null
@@ -109,38 +107,7 @@ const TableOfContents = React.memo(({ content, onToggleInteractiveMap }: TableOf
   }
 
   return (
-    <div
-      className="flex h-full max-h-[calc(100vh-7rem)] flex-col overflow-hidden rounded-lg border p-4"
-      style={{
-        backgroundColor: 'var(--toc-bg-color)',
-        borderColor: 'var(--toc-border-color)',
-      }}
-    >
-      <div className="mb-3 flex flex-shrink-0 items-center justify-between">
-        <h4
-          className="ui-caption"
-          style={{
-            color: 'var(--toc-text-color)',
-          }}
-        >
-          On This Page
-        </h4>
-        {onToggleInteractiveMap ? (
-          <button
-            onClick={onToggleInteractiveMap}
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border transition-opacity hover:opacity-80"
-            aria-label="Show interactive map"
-            style={{
-              backgroundColor: 'var(--card-color)',
-              borderColor: 'var(--border-unified)',
-              color: 'var(--text-color)',
-            }}
-            type="button"
-          >
-            <Icon icon="mingcute:brain-fill" className="h-4 w-4" />
-          </button>
-        ) : null}
-      </div>
+    <div className="flex h-full flex-col overflow-hidden">
       <nav className="toc-scroll overflow-x-hidden overflow-y-auto pr-1">
         {headings.map((heading) => {
           const isActive = heading.id === activeHeadingId;
