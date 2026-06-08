@@ -774,6 +774,9 @@ code {
 
 .mermaid-block__viewport {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
   overflow: auto;
   max-height: min(28rem, 70vh);
   padding: var(--space-4);
@@ -782,6 +785,7 @@ code {
 
 .mermaid-block__canvas {
   display: inline-block;
+  flex: 0 0 auto;
   min-width: min(100%, max-content);
   margin: 0 auto;
 }
@@ -790,6 +794,25 @@ code {
   display: block;
   margin: 0 auto;
   height: auto;
+}
+
+.mermaid-block__canvas .nodeLabel,
+.mermaid-block__canvas .cluster-label span,
+.mermaid-block__canvas .cluster-label p,
+.mermaid-block__canvas .edgeLabel .label {
+  text-align: center !important;
+}
+
+.mermaid-block__canvas foreignObject {
+  overflow: visible !important;
+}
+
+.mermaid-block__canvas foreignObject > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  text-align: center;
 }
 
 .mermaid-block__hint {

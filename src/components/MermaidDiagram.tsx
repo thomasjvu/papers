@@ -1,5 +1,6 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
 
+import { normalizeMermaidDiagram, waitForDiagramFonts } from '../utils/mermaidLayout';
 import { createLogger } from '../utils/logger';
 
 const logger = createLogger('MermaidDiagram');
@@ -35,6 +36,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     async function renderChart() {
       try {
         setError(null);
+        await waitForDiagramFonts();
 
         const mermaid = (await import('mermaid')).default;
         const styles = getComputedStyle(document.documentElement);
@@ -52,16 +54,18 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
             useMaxWidth: false,
             htmlLabels: true,
             curve: 'basis',
-            padding: 12,
-            nodeSpacing: 36,
-            rankSpacing: 44,
+            padding: 20,
+            nodeSpacing: 48,
+            rankSpacing: 56,
+            wrappingWidth: 260,
           },
           sequence: {
             useMaxWidth: false,
-            diagramMarginX: 20,
-            diagramMarginY: 12,
-            actorMargin: 36,
-            messageMargin: 32,
+            diagramMarginX: 24,
+            diagramMarginY: 16,
+            actorMargin: 48,
+            messageMargin: 36,
+            wrap: true,
           },
           themeVariables: {
             background: readThemeColor('--background-color', '#0f380f'),
@@ -72,6 +76,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
             secondaryColor: readThemeColor('--surface-muted', '#306230'),
             tertiaryColor: readThemeColor('--surface-color', '#1a4d1a'),
             fontFamily: readThemeColor('--mono-font', 'IBM Plex Mono, monospace'),
+            fontSize: '13px',
           },
         });
 
@@ -98,17 +103,20 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   }, [chart, id]);
 
   useLayoutEffect(() => {
-    updateMermaidOverflow(viewportRef.current);
-
     const viewport = viewportRef.current;
+    const applyLayout = () => {
+      const canvas = viewport?.querySelector<HTMLElement>('.mermaid-block__canvas') ?? null;
+      normalizeMermaidDiagram(canvas);
+      updateMermaidOverflow(viewport);
+    };
+
+    applyLayout();
+
     if (!viewport || typeof ResizeObserver === 'undefined') {
       return undefined;
     }
 
-    const observer = new ResizeObserver(() => {
-      updateMermaidOverflow(viewport);
-    });
-
+    const observer = new ResizeObserver(applyLayout);
     observer.observe(viewport);
     return () => {
       observer.disconnect();
