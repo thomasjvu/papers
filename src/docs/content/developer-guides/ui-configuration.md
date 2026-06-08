@@ -27,10 +27,13 @@ These settings come from `ThemeProvider` and are surfaced through `SettingsMenu`
 
 The font control cycles through sans, mono, and serif instead of opening a dropdown.
 
+Installable themes live under `themes/` and are selected with `VITE_PAPERS_THEME`. See [Themes](./themes).
+
 ## Supporting Configuration
 
 - `src/constants/social.tsx`: footer links
 - `src/globals.css`: shell tokens, typography, spacing, code styles
+- `themes/<id>/tokens.css`: palette and font overrides per theme
 - `shared/documentation-config.js`: homepage content and docs structure
 
 ## Guidance

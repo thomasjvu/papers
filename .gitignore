@@ -47,3 +47,7 @@ pnpm-lock.yaml
 # local workspace helpers
 .claude
 CLAUDE.md
+
+# generated theme wiring
+/src/theme-active.css
+/src/lib/generated/papers-theme-fonts.html

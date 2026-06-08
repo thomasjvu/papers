@@ -1,0 +1,12 @@
+{
+  "id": "default",
+  "name": "Default",
+  "description": "Neutral light/dark documentation shell.",
+  "author": "papers",
+  "css": "tokens.css",
+  "iconSet": "mingcute",
+  "defaultColorMode": "dark",
+  "features": {
+    "lightDarkToggle": true
+  }
+}

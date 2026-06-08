@@ -32,6 +32,7 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 - [Design System](/docs/developer-guides/design-system): The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
 - [UI Configuration](/docs/developer-guides/ui-configuration): The docs shell is mostly configured through a few focused files.
 - [Icon Customization](/docs/developer-guides/icon-customization): The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
+- [Themes](/docs/developer-guides/themes): papers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.
 
 ## Platform Guides
 

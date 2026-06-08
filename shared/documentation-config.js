@@ -252,6 +252,12 @@ export const documentationTree = [
         path: 'developer-guides/icon-customization',
         tags: ['icons', 'customization', 'ui'],
       },
+      {
+        type: 'file',
+        name: 'Themes.md',
+        path: 'developer-guides/themes',
+        tags: ['themes', 'ui', 'customization'],
+      },
     ],
   },
   {

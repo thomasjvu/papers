@@ -8,6 +8,7 @@ import {
   useCallback,
   useRef,
 } from 'react';
+import { papersThemeDefaultDarkMode } from '../lib/papersTheme';
 import safeLocalStorage from '../utils/storage';
 
 type FontFamily = 'sans-serif' | 'mono' | 'serif';
@@ -23,7 +24,7 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-const DEFAULT_DARK_MODE = true;
+const DEFAULT_DARK_MODE = papersThemeDefaultDarkMode();
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {

@@ -1,0 +1,16 @@
+{
+  "themes": [
+    {
+      "id": "default",
+      "name": "Default",
+      "description": "Neutral light/dark documentation shell.",
+      "path": "default"
+    },
+    {
+      "id": "gba",
+      "name": "Game Boy",
+      "description": "1-bit green palette with square UI and pixel icons.",
+      "path": "gba"
+    }
+  ]
+}

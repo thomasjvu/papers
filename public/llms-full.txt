@@ -1212,10 +1212,13 @@ These settings come from `ThemeProvider` and are surfaced through `SettingsMenu`
 
 The font control cycles through sans, mono, and serif instead of opening a dropdown.
 
+Installable themes live under `themes/` and are selected with `VITE_PAPERS_THEME`. See [Themes](./themes).
+
 ## Supporting Configuration
 
 - `src/constants/social.tsx`: footer links
 - `src/globals.css`: shell tokens, typography, spacing, code styles
+- `themes/<id>/tokens.css`: palette and font overrides per theme
 - `shared/documentation-config.js`: homepage content and docs structure
 
 ## Guidance
@@ -1291,6 +1294,49 @@ Prefer SVGs that use `currentColor` so they stay theme-aware.
 - use custom SVG files for logos or brand-specific marks
 - use a custom component only if the icon has behavior or multiple states
 
+
+---
+
+
+### Themes
+
+URL: /docs/developer-guides/themes
+
+# Themes
+
+papers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.
+
+## Built-in themes
+
+| ID | Name | Notes |
+| --- | --- | --- |
+| `default` | Default | Light/dark toggle enabled |
+| `gba` | Game Boy | 1-bit green palette, square UI, pixelarticons |
+
+## Switch themes locally
+
+```sh
+npm run papers:theme list
+npm run papers:theme use gba
+npm run resolve:theme
+npm run dev
+```
+
+Set `VITE_PAPERS_THEME` in `.env.local` or your host build environment.
+
+## Create a theme
+
+1. Add `themes/<id>/theme.json` and `themes/<id>/tokens.css`.
+2. Register the theme in `themes/registry.json`.
+3. Run `npm run papers:theme use <id>` and verify `npm run build`.
+
+See [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md) for the full contract.
+
+## Related files
+
+- `scripts/resolve-theme.mjs` — writes `src/theme-active.css` and generated manifest
+- `src/lib/papersTheme.ts` — runtime theme features (toggle visibility, default mode)
+- `src/globals.css` — structural tokens; themes override palette vars in `tokens.css`
 
 ---
 
@@ -1563,7 +1609,7 @@ Set your `VITE_*` variables in the Netlify dashboard under site configuration.
 
 ### LLMs.txt
 
-URL: /llms
+URL: /docs/llms
 
 # LLMs.txt
 

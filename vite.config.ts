@@ -1,9 +1,31 @@
-﻿import { defineConfig } from 'vite';
+﻿import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 import react from '@vitejs/plugin-react';
-import { resolve } from 'path';
+import { defineConfig } from 'vite';
+
+function readThemeFontSnippet(): string {
+  const snippetPath = resolve(__dirname, 'src/lib/generated/papers-theme-fonts.html');
+  if (!existsSync(snippetPath)) {
+    return '';
+  }
+  return readFileSync(snippetPath, 'utf8').trim();
+}
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'papers-theme-fonts',
+      transformIndexHtml(html) {
+        const fonts = readThemeFontSnippet();
+        if (!fonts) {
+          return html;
+        }
+        return html.replace('</head>', `${fonts}\n  </head>`);
+      },
+    },
+  ],
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),

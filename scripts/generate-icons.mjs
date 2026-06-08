@@ -3,15 +3,28 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import mingcuteData from '@iconify-json/mingcute/icons.json' with { type: 'json' };
+import pixelarticonsData from '@iconify-json/pixelarticons/icons.json' with { type: 'json' };
+
+import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { loadThemeManifest } from './lib/themeRegistry.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
+const viteEnv = loadViteEnv(rootDir, resolveEnvMode());
 const scanDirs = [path.join(rootDir, 'src'), path.join(rootDir, 'shared')];
 const outputPath = path.join(rootDir, 'src', 'lib', 'generated', 'icon-collections.ts');
 
 const iconSets = {
   mingcute: mingcuteData,
+  pixelarticons: pixelarticonsData,
 };
+
+const activeTheme = loadThemeManifest(viteEnv.VITE_PAPERS_THEME);
+if (activeTheme.manifest.iconSet && !(activeTheme.manifest.iconSet in iconSets)) {
+  throw new Error(
+    `Theme "${activeTheme.id}" requests icon set "${activeTheme.manifest.iconSet}" but it is not installed.`,
+  );
+}
 
 async function listSourceFiles(dir) {
   const entries = await fs.readdir(dir, { withFileTypes: true });

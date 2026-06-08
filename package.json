@@ -10,8 +10,10 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "npm run generate:icons && npm run generate:docs && npm run generate:seo -- --mode development && vite",
-    "build": "npm run generate:icons && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind",
+    "dev": "npm run resolve:theme && npm run generate:icons && npm run generate:docs && npm run generate:seo -- --mode development && vite",
+    "build": "npm run resolve:theme && npm run generate:icons && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind",
+    "resolve:theme": "node scripts/resolve-theme.mjs",
+    "papers:theme": "node scripts/papers-theme.mjs",
     "preview": "vite preview",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
@@ -37,6 +39,7 @@
   },
   "dependencies": {
     "@iconify-json/mingcute": "^1.2.3",
+    "@iconify-json/pixelarticons": "^1.2.6",
     "@iconify/react": "^6.0.0",
     "dompurify": "^3.3.3",
     "framer-motion": "^12.11.0",

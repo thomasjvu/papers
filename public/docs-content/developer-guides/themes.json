@@ -1,0 +1,8 @@
+{
+  "path": "developer-guides/themes",
+  "title": "Themes",
+  "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
+  "frontmatter": {},
+  "content": "# Themes\n\npapers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.\n\n## Built-in themes\n\n| ID | Name | Notes |\n| --- | --- | --- |\n| `default` | Default | Light/dark toggle enabled |\n| `gba` | Game Boy | 1-bit green palette, square UI, pixelarticons |\n\n## Switch themes locally\n\n```sh\nnpm run papers:theme list\nnpm run papers:theme use gba\nnpm run resolve:theme\nnpm run dev\n```\n\nSet `VITE_PAPERS_THEME` in `.env.local` or your host build environment.\n\n## Create a theme\n\n1. Add `themes/<id>/theme.json` and `themes/<id>/tokens.css`.\n2. Register the theme in `themes/registry.json`.\n3. Run `npm run papers:theme use <id>` and verify `npm run build`.\n\nSee [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md) for the full contract.\n\n## Related files\n\n- `scripts/resolve-theme.mjs` — writes `src/theme-active.css` and generated manifest\n- `src/lib/papersTheme.ts` — runtime theme features (toggle visibility, default mode)\n- `src/globals.css` — structural tokens; themes override palette vars in `tokens.css`",
+  "sourcePath": "src/docs/content/developer-guides/themes.md"
+}

@@ -27,6 +27,7 @@ import {
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
+import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/themeRegistry.mjs';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -301,7 +302,9 @@ export const architectureTests: ArchitectureTestCase[] = [
         siteDescription: 'Minimal docs starter.',
       });
 
-      const canonicalDocRoute = routes.find((route) => route.routePath === '/docs/getting-started/introduction');
+      const canonicalDocRoute = routes.find(
+        (route) => route.routePath === '/docs/getting-started/introduction'
+      );
       const docsAliasRoute = routes.find((route) => route.routePath === '/docs');
       const llmsRoute = routes.find((route) => route.routePath === '/llms');
 
@@ -309,9 +312,16 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(docsAliasRoute?.canonicalPath, '/docs/getting-started/introduction');
       assert.equal(llmsRoute?.description, 'AI exports.');
 
-      const sitemap = createSitemapXml(routes, 'https://docs.example.com', '2026-03-11T00:00:00.000Z');
+      const sitemap = createSitemapXml(
+        routes,
+        'https://docs.example.com',
+        '2026-03-11T00:00:00.000Z'
+      );
       assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/);
+      assert.match(
+        sitemap,
+        /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/
+      );
       assert.doesNotMatch(sitemap, /\/docs<\/loc>/);
 
       const robots = createRobotsTxt('https://docs.example.com');
@@ -336,9 +346,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         );
         await writeFile(
           join(tempDir, '.env.local'),
-          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join(
-            '\n'
-          )
+          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join('\n')
         );
         await writeFile(
           join(tempDir, '.env.production'),
@@ -395,20 +403,17 @@ export const architectureTests: ArchitectureTestCase[] = [
         buildCanonicalDocsPath('guides/intro', { versionConfig, i18nConfig }),
         '/docs/2.0/en/guides/intro'
       );
-      assert.deepEqual(
-        buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }),
-        [
-          '/docs/guides/intro',
-          '/docs/2.0/guides/intro',
-          '/docs/1.0/guides/intro',
-          '/docs/en/guides/intro',
-          '/docs/fr/guides/intro',
-          '/docs/2.0/en/guides/intro',
-          '/docs/2.0/fr/guides/intro',
-          '/docs/1.0/en/guides/intro',
-          '/docs/1.0/fr/guides/intro',
-        ]
-      );
+      assert.deepEqual(buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }), [
+        '/docs/guides/intro',
+        '/docs/2.0/guides/intro',
+        '/docs/1.0/guides/intro',
+        '/docs/en/guides/intro',
+        '/docs/fr/guides/intro',
+        '/docs/2.0/en/guides/intro',
+        '/docs/2.0/fr/guides/intro',
+        '/docs/1.0/en/guides/intro',
+        '/docs/1.0/fr/guides/intro',
+      ]);
       assert.deepEqual(parseDocsRoutePath('2.0/fr/guides/intro', { versionConfig, i18nConfig }), {
         originalSlug: '2.0/fr/guides/intro',
         docPath: 'guides/intro',
@@ -687,6 +692,22 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(frenchRoute?.title, 'Introduction FR | papers');
       assert.equal(docsRootAlias?.canonicalPath, '/docs/2.0/en/getting-started/introduction');
       assert.equal(docsRootAlias?.title, 'Introduction | papers');
+    },
+  },
+  {
+    name: 'theme registry resolves built-in default and gba themes',
+    run: () => {
+      const registry = readRegistry();
+      const ids = registry.themes.map((theme: { id: string }) => theme.id);
+      assert.deepEqual(ids, ['default', 'gba']);
+
+      assert.equal(resolveThemeId('default'), 'default');
+      assert.equal(resolveThemeId('gba'), 'gba');
+
+      const gba = loadThemeManifest('gba');
+      assert.equal(gba.manifest.iconSet, 'pixelarticons');
+      assert.equal(gba.manifest.features?.lightDarkToggle, false);
+      assert.equal(gba.manifest.defaultColorMode, 'dark');
     },
   },
 ];
