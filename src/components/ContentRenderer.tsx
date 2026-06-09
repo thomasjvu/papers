@@ -1,11 +1,13 @@
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useMemo, memo } from 'react';
 
 import { documentationTree } from '../data/documentation';
-import { findAdjacentPages, findPageTags } from '../lib/navigation';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
+import { findPageTags } from '../lib/navigation';
+import { parseDocsRoutePath } from '../../shared/docsRouting.js';
+import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
+import { prefetchDocument } from '../lib/content';
 
 import DocPageFooter from './DocPageFooter';
 import MarkdownRenderer from './MarkdownRenderer';
@@ -21,19 +23,34 @@ const ContentRenderer = memo(function ContentRenderer({
   path = '',
   sourcePath,
 }: ContentRendererProps) {
-  const navigate = useNavigate();
   const location = useLocation();
   const docsRouteSlug = location.pathname.startsWith('/docs')
     ? location.pathname.replace(/^\/docs\/?/, '')
     : '';
   const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
 
-  const { prev: prevPage, next: nextPage } = useMemo(
-    () => findAdjacentPages(path, documentationTree),
-    [path]
-  );
+  const {
+    prev: prevPage,
+    next: nextPage,
+    goToPage,
+  } = useAdjacentPageNavigation({
+    path,
+    version: routeContext.activeVersion,
+    locale: routeContext.activeLocale,
+  });
   const pageTags = useMemo(() => findPageTags(path, documentationTree), [path]);
   const isSynopsisPage = useMemo(() => path.toLowerCase().includes('synopsis'), [path]);
+
+  const warmPage = (targetPath?: string) => {
+    if (!targetPath) {
+      return;
+    }
+
+    prefetchDocument(targetPath, {
+      version: routeContext.activeVersion,
+      locale: routeContext.activeLocale,
+    });
+  };
 
   return (
     <div className="w-full h-full overflow-hidden" role="article">
@@ -102,14 +119,9 @@ const ContentRenderer = memo(function ContentRenderer({
               <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
                 {prevPage ? (
                   <button
-                    onClick={() =>
-                      navigate(
-                        buildCanonicalDocsPath(prevPage.path, {
-                          version: routeContext.activeVersion,
-                          locale: routeContext.activeLocale,
-                        })
-                      )
-                    }
+                    onClick={() => goToPage(prevPage)}
+                    onMouseEnter={() => warmPage(prevPage.path)}
+                    onFocus={() => warmPage(prevPage.path)}
                     className="nav-button text-left rounded-lg p-4 transition-opacity hover:opacity-70"
                     type="button"
                   >
@@ -128,14 +140,9 @@ const ContentRenderer = memo(function ContentRenderer({
               <div className="doc-page-bottom-nav doc-page-bottom-nav--next">
                 {nextPage ? (
                   <button
-                    onClick={() =>
-                      navigate(
-                        buildCanonicalDocsPath(nextPage.path, {
-                          version: routeContext.activeVersion,
-                          locale: routeContext.activeLocale,
-                        })
-                      )
-                    }
+                    onClick={() => goToPage(nextPage)}
+                    onMouseEnter={() => warmPage(nextPage.path)}
+                    onFocus={() => warmPage(nextPage.path)}
                     className="nav-button rounded-lg p-4 text-right transition-opacity hover:opacity-70"
                     type="button"
                   >

@@ -1,13 +1,13 @@
 import { Icon } from '@iconify/react';
 import { useMemo, createElement, useState, useEffect, useRef } from 'react';
 
-import { documentationTree } from '@app-shared/documentation-config.js';
+import { documentationTree } from '../../data/documentation';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
-import { buildCanonicalDocsPath } from '@rally/docs-routing';
-import { homepageConfig } from '@app-shared/documentation-config.js';
+import { buildCanonicalDocsPath } from '../../../shared/docsRouting.js';
+import { homepageConfig } from '../../../shared/documentation-config.js';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -31,12 +31,12 @@ const FAQ_ITEMS = [
   {
     question: 'What keyboard shortcuts are available?',
     answer:
-      'Key shortcuts: Cmd/Ctrl + K (Command Palette), Cmd/Ctrl + I (Theme Toggle), Escape (Close dialogs), Arrow keys (Navigate), Enter (Select).',
+      'Key shortcuts: Cmd/Ctrl + K (Command Palette), Cmd/Ctrl + I (Theme Toggle), Shift + Left/Right Arrow (Previous/Next doc), Escape (Close dialogs), Arrow keys (Navigate palette), Enter (Select).',
   },
   {
     question: 'How do I navigate between pages?',
     answer:
-      'Use the file tree on the left sidebar, the interactive mindmap on the right, or the Previous/Next buttons at the bottom of each page. You can also use this command palette to quickly jump to any page.',
+      'Use Shift + Left/Right Arrow on doc pages, the file tree on the left sidebar, the interactive mindmap on the right, or the Previous/Next buttons at the bottom of each page. You can also use this command palette to quickly jump to any page.',
   },
 ];
 

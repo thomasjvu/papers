@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -321,7 +321,9 @@ export const architectureTests: ArchitectureTestCase[] = [
       ];
 
       const updated = addFileToTree(baseTree, 'guides/advanced/caching');
-      const advancedDirectory = updated[0].children?.find((item) => item.path === 'guides/advanced');
+      const advancedDirectory = updated[0].children?.find(
+        (item) => item.path === 'guides/advanced'
+      );
       assert.ok(
         advancedDirectory?.children?.some((item) => item.path === 'guides/advanced/caching')
       );
@@ -433,7 +435,9 @@ export const architectureTests: ArchitectureTestCase[] = [
         documentationTree: seoTestDocumentationTree,
       });
 
-      const canonicalDocRoute = routes.find((route) => route.routePath === '/docs/getting-started/introduction');
+      const canonicalDocRoute = routes.find(
+        (route) => route.routePath === '/docs/getting-started/introduction'
+      );
       const docsAliasRoute = routes.find((route) => route.routePath === '/docs');
       const llmsRoute = routes.find((route) => route.routePath === '/llms');
 
@@ -441,9 +445,16 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(docsAliasRoute?.canonicalPath, '/docs/getting-started/introduction');
       assert.equal(llmsRoute?.description, 'AI exports.');
 
-      const sitemap = createSitemapXml(routes, 'https://docs.example.com', '2026-03-11T00:00:00.000Z');
+      const sitemap = createSitemapXml(
+        routes,
+        'https://docs.example.com',
+        '2026-03-11T00:00:00.000Z'
+      );
       assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/<\/loc>/);
-      assert.match(sitemap, /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/);
+      assert.match(
+        sitemap,
+        /<loc>https:\/\/docs\.example\.com\/docs\/getting-started\/introduction<\/loc>/
+      );
       assert.doesNotMatch(sitemap, /\/docs<\/loc>/);
 
       const robots = createRobotsTxt('https://docs.example.com');
@@ -468,9 +479,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         );
         await writeFile(
           join(tempDir, '.env.local'),
-          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join(
-            '\n'
-          )
+          ['VITE_GITHUB_BRANCH=local-branch', 'VITE_SITE_URL=https://local.example.com'].join('\n')
         );
         await writeFile(
           join(tempDir, '.env.production'),
@@ -527,20 +536,17 @@ export const architectureTests: ArchitectureTestCase[] = [
         buildCanonicalDocsPath('guides/intro', { versionConfig, i18nConfig }),
         '/docs/2.0/en/guides/intro'
       );
-      assert.deepEqual(
-        buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }),
-        [
-          '/docs/guides/intro',
-          '/docs/2.0/guides/intro',
-          '/docs/1.0/guides/intro',
-          '/docs/en/guides/intro',
-          '/docs/fr/guides/intro',
-          '/docs/2.0/en/guides/intro',
-          '/docs/2.0/fr/guides/intro',
-          '/docs/1.0/en/guides/intro',
-          '/docs/1.0/fr/guides/intro',
-        ]
-      );
+      assert.deepEqual(buildDocsRouteVariants('guides/intro', { versionConfig, i18nConfig }), [
+        '/docs/guides/intro',
+        '/docs/2.0/guides/intro',
+        '/docs/1.0/guides/intro',
+        '/docs/en/guides/intro',
+        '/docs/fr/guides/intro',
+        '/docs/2.0/en/guides/intro',
+        '/docs/2.0/fr/guides/intro',
+        '/docs/1.0/en/guides/intro',
+        '/docs/1.0/fr/guides/intro',
+      ]);
       assert.deepEqual(parseDocsRoutePath('2.0/fr/guides/intro', { versionConfig, i18nConfig }), {
         originalSlug: '2.0/fr/guides/intro',
         docPath: 'guides/intro',
@@ -831,6 +837,25 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'adjacent page navigation supports shift plus arrow keys',
+    run: async () => {
+      const hookSource = await readFile(
+        join(process.cwd(), 'src/hooks/useAdjacentPageNavigation.ts'),
+        'utf8'
+      );
+      const contentRendererSource = await readFile(
+        join(process.cwd(), 'src/components/ContentRenderer.tsx'),
+        'utf8'
+      );
+
+      assert.match(hookSource, /event\.shiftKey/);
+      assert.match(hookSource, /KEYBOARD_KEYS\.ARROW_LEFT/);
+      assert.match(hookSource, /KEYBOARD_KEYS\.ARROW_RIGHT/);
+      assert.match(hookSource, /isEditableTarget/);
+      assert.match(contentRendererSource, /useAdjacentPageNavigation/);
+    },
+  },
+  {
     name: 'lazy feature modules avoid provider imports and unsafe app chunk splits',
     run: () => {
       const issues = collectLazyFeatureBoundaryIssues();
@@ -852,10 +877,7 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.equal(gba.manifest.features?.lightDarkToggle, false);
       assert.equal(gba.manifest.defaultColorMode, 'dark');
       assert.equal(gba.manifest.fontCss, 'fonts.css');
-      assert.match(
-        gba.manifest.fonts?.[0]?.preload || '',
-        /GeistPixel-Square\.woff2/
-      );
+      assert.match(gba.manifest.fonts?.[0]?.preload || '', /GeistPixel-Square\.woff2/);
     },
   },
 ];
