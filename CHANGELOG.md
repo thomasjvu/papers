@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
+
 ## 0.1.0 - 2026-03-12
 
 First public beta release.

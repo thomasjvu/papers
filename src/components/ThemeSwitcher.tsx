@@ -5,30 +5,18 @@ import React, { useMemo, useCallback } from 'react';
 import { papersThemeAllowsLightDarkToggle } from '../lib/papersTheme';
 import { useTheme } from '../providers/ThemeProvider';
 
-/**
- * Props for the ThemeSwitcher component
- * @typedef {Object} ThemeSwitcherProps
- * @property {string} [className] - Optional CSS class name for styling
- */
 type ThemeSwitcherProps = {
   className?: string;
 };
 
-/**
- * ThemeSwitcher component that toggles between light and dark mode
- *
- * Displays a sun icon in dark mode and a moon icon in light mode.
- * Uses framer-motion for hover and tap animations.
- *
- * @param {ThemeSwitcherProps} props - Component props
- * @returns {React.ReactElement} Rendered ThemeSwitcher component
- */
 const ThemeSwitcher = React.memo(
   ({ className = '' }: ThemeSwitcherProps): React.ReactElement | null => {
     const allowsToggle = papersThemeAllowsLightDarkToggle();
     const { isDarkMode, toggleTheme } = useTheme();
 
-    // Memoized animation settings for button
+    const currentLabel = isDarkMode ? 'Dark mode' : 'Light mode';
+    const nextLabel = isDarkMode ? 'Light mode' : 'Dark mode';
+
     const buttonAnimations = useMemo(
       () => ({
         whileHover: { scale: 1.1 },
@@ -37,16 +25,14 @@ const ThemeSwitcher = React.memo(
       []
     );
 
-    // Memoized ARIA labels based on current mode
     const ariaAttrs = useMemo(
       () => ({
-        'aria-label': isDarkMode ? 'Switch to light mode' : 'Switch to dark mode',
-        title: isDarkMode ? 'Switch to light mode' : 'Switch to dark mode',
+        'aria-label': `Current theme: ${currentLabel}. Click to switch to ${nextLabel}`,
+        title: `Switch theme to ${nextLabel}`,
       }),
-      [isDarkMode]
+      [currentLabel, nextLabel]
     );
 
-    // Memoized style object
     const buttonStyle = useMemo(
       () => ({
         color: 'var(--text-color)',
@@ -54,29 +40,19 @@ const ThemeSwitcher = React.memo(
       []
     );
 
-    // Optimized theme toggle handler
     const handleToggleTheme = useCallback(() => {
       toggleTheme();
     }, [toggleTheme]);
 
-    /**
-     * Renders the appropriate icon based on the current theme
-     * @returns {React.ReactElement} The sun or moon icon
-     */
     const renderThemeIcon = useCallback((): React.ReactElement => {
       if (isDarkMode) {
-        // Sun icon for light mode
-        return <Icon icon="mingcute:sun-line" className="w-5 h-5" aria-hidden="true" />;
-      } else {
-        // Moon icon for dark mode
         return <Icon icon="mingcute:moon-line" className="w-5 h-5" aria-hidden="true" />;
       }
+
+      return <Icon icon="mingcute:sun-line" className="w-5 h-5" aria-hidden="true" />;
     }, [isDarkMode]);
 
-    // Memoized text display
-    const displayText = useMemo(() => {
-      return isDarkMode ? 'light' : 'dark';
-    }, [isDarkMode]);
+    const displayText = useMemo(() => currentLabel.toLowerCase(), [currentLabel]);
 
     if (!allowsToggle) {
       return null;
