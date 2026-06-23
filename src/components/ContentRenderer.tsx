@@ -16,12 +16,14 @@ type ContentRendererProps = {
   content: string;
   path: string;
   sourcePath?: string;
+  contentFormat?: 'markdown' | 'html' | 'mdx';
 };
 
 const ContentRenderer = memo(function ContentRenderer({
   content = '',
   path = '',
   sourcePath,
+  contentFormat: _contentFormat = 'markdown',
 }: ContentRendererProps) {
   const location = useLocation();
   const docsRouteSlug = location.pathname.startsWith('/docs')

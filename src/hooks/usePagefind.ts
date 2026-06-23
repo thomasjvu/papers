@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 
-import { buildCanonicalDocsPath } from '@rally/docs-routing';
+import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
 
 interface PagefindResult {
   url: string;

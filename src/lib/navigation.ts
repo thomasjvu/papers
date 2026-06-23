@@ -1,4 +1,4 @@
-import { documentationTree } from '@app-shared/documentation-config.js';
+import { documentationTree } from '../../shared/documentation-config.js';
 import type { FileItem } from '../types/documentation';
 
 export { documentationTree };

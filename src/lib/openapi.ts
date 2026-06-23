@@ -1,4 +1,4 @@
-import { openapiConfig } from '@app-shared/documentation-config.js';
+import { openapiConfig } from '../../shared/documentation-config.js';
 
 export function getOpenApiPagePath() {
   return openapiConfig.pagePath || 'api-reference/openapi';

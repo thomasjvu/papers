@@ -10,7 +10,7 @@ import {
 } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
 import { resolveDocumentPath } from '../lib/content';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '@rally/docs-routing';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
