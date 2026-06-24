@@ -1,0 +1,44 @@
+---
+title: Character Notes
+description: MDX shortcode for Mercenary character notifications in documentation articles.
+---
+
+# Character Notes
+
+Use `<CharacterNote>` in `.mdx` pages to append a character-led notification anywhere in an article. Typical placement is just above the tags block at the bottom of a page.
+
+## Syntax
+
+```mdx
+<CharacterNote type="warning" title="Experimental">
+  This route may change before production readiness ships.
+</CharacterNote>
+```
+
+Supported `type` values: `info`, `warning`, `alert`, `success`, `tip` (default `info`).
+
+## Examples
+
+<CharacterNote type="info" title="Runtime note">
+  Provider workers are HTTP only in the current release.
+</CharacterNote>
+
+<CharacterNote type="warning" title="Experimental">
+  This endpoint shape may change before `GET /v1/ops/production-readiness` reports `ok: true`.
+</CharacterNote>
+
+<CharacterNote type="alert" title="Breaking change">
+  Winner and runner-up payout logic is removed. Successful providers split payout equally.
+</CharacterNote>
+
+<CharacterNote type="success" title="Ready">
+  OpenAPI export and docs viewer are wired in CI.
+</CharacterNote>
+
+<CharacterNote type="tip" title="Shortcut">
+  Press Cmd/Ctrl + K to open the command palette from any docs page.
+</CharacterNote>
+
+## Build pipeline
+
+Character notes compile at build time through `remarkMdxShortcodes` in `scripts/lib/mdxShortcodes.mjs`. Avatar art ships from `public/images/character-notes/`.

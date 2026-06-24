@@ -285,6 +285,12 @@ export const documentationTree = [
         path: 'developer-guides/themes',
         tags: ['themes', 'ui', 'customization'],
       },
+      {
+        type: 'file',
+        name: 'Character Notes.md',
+        path: 'developer-guides/character-notes',
+        tags: ['character-note', 'mdx', 'ui'],
+      },
     ],
   },
   {

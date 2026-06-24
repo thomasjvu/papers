@@ -303,6 +303,27 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'compileMdxToHtml renders CharacterNote shortcode with avatar and tone classes',
+    run: async () => {
+      const source = [
+        '# Character notes',
+        '',
+        '<CharacterNote type="warning" title="Experimental">',
+        'This route may change.',
+        '</CharacterNote>',
+      ].join('\n');
+
+      const html = await compileMdxToHtml(source);
+
+      assert.match(html, /papers-character-note papers-character-note--warning/);
+      assert.match(html, /papers-character-note__avatar/);
+      assert.match(html, /mercenary-warning\.png/);
+      assert.match(html, /papers-character-note__title/);
+      assert.match(html, /Experimental/);
+      assert.match(html, /This route may change/);
+    },
+  },
+  {
     name: 'documentation tree writer appends unpublished files and preserves export shape',
     run: () => {
       const baseTree = [

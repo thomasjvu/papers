@@ -1,4 +1,13 @@
 const CALLOUT_TONES = new Set(['note', 'tip', 'warning', 'important']);
+const CHARACTER_NOTE_TYPES = new Set(['info', 'warning', 'alert', 'success', 'tip']);
+
+const CHARACTER_NOTE_AVATARS = {
+  info: '/images/character-notes/mercenary-info.png',
+  warning: '/images/character-notes/mercenary-warning.png',
+  alert: '/images/character-notes/mercenary-alert.png',
+  success: '/images/character-notes/mercenary-success.png',
+  tip: '/images/character-notes/mercenary-tip.png',
+};
 
 function readJsxAttribute(attributes, name) {
   const attribute = attributes?.find((entry) => entry.name === name);
@@ -32,6 +41,17 @@ function createElement(tagName, properties, children = []) {
       hProperties: properties,
     },
     children: normalizeChildren(children),
+  };
+}
+
+function createVoidElement(tagName, properties) {
+  return {
+    type: 'paragraph',
+    data: {
+      hName: tagName,
+      hProperties: properties,
+    },
+    children: [],
   };
 }
 
@@ -122,6 +142,53 @@ function transformTabs(node) {
   );
 }
 
+function transformCharacterNote(node) {
+  const type = (readJsxAttribute(node.attributes, 'type') || 'info').toLowerCase();
+  const title = readJsxAttribute(node.attributes, 'title');
+  const safeType = CHARACTER_NOTE_TYPES.has(type) ? type : 'info';
+  const bodyChildren = [...normalizeChildren(node.children)];
+
+  if (title) {
+    bodyChildren.unshift({
+      type: 'paragraph',
+      data: {
+        hName: 'p',
+        hProperties: {
+          className: 'papers-character-note__title',
+        },
+      },
+      children: [{ type: 'text', value: title }],
+    });
+  }
+
+  const avatar = createVoidElement('img', {
+    className: 'papers-character-note__avatar',
+    src: CHARACTER_NOTE_AVATARS[safeType],
+    alt: '',
+    width: 96,
+    height: 96,
+    loading: 'lazy',
+    decoding: 'async',
+  });
+
+  const body = createElement(
+    'div',
+    {
+      className: 'papers-character-note__body',
+    },
+    bodyChildren
+  );
+
+  return createElement(
+    'div',
+    {
+      className: `papers-character-note papers-character-note--${safeType}`,
+      role: 'note',
+    },
+    [avatar, body]
+  );
+}
+
 function transformCard(node) {
   const title = readJsxAttribute(node.attributes, 'title');
   const children = [...normalizeChildren(node.children)];
@@ -166,6 +233,8 @@ function transformShortcode(node) {
       return transformTab(node);
     case 'Card':
       return transformCard(node);
+    case 'CharacterNote':
+      return transformCharacterNote(node);
     default:
       return null;
   }
