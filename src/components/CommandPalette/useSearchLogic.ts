@@ -133,11 +133,12 @@ export const useSearchLogic = (query: string) => {
       shortcut: 'L',
     });
 
+    const siteName = import.meta.env.VITE_SITE_NAME || 'Docs';
     results.push({
-      title: 'Agent Skill - Boss Raid',
+      title: `Agent Skill - ${siteName}`,
       path: '/skill.md',
       type: 'page',
-      description: 'Download the agent skill for Mercenary raids and discount inference',
+      description: 'Download the hosted agent skill file for API integration',
       icon: createElement(Icon, { icon: 'mingcute:magic-2-line', className: 'w-5 h-5' }),
       shortcut: 'S',
     });

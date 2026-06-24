@@ -1,102 +1,50 @@
 # papers framework roadmap
 
-papers is a static documentation framework for teams that want full visual control without a docs SaaS. This file tracks what ships today and what comes next.
+Static documentation framework for teams that want full visual control without a docs SaaS.
 
 ## Design goals
 
-- **Simple authoring:** Markdown first, optional MDX, one config file for navigation
-- **Easy maintenance:** Generated JSON artifacts, tree sync checks, content-voice tests
-- **Fast sites:** Static deploy, prefetch, lazy-loaded heavy viewers
-- **Competitive surface:** OpenAPI explorer, llms.txt, search, version/i18n scaffolding
+- **Simple authoring** — Markdown first, optional MDX, one config file for navigation
+- **Easy maintenance** — Generated JSON artifacts, tree sync checks
+- **Fast sites** — Static deploy, prefetch, lazy-loaded heavy viewers
+- **Competitive surface** — OpenAPI explorer, llms.txt, search, version/i18n scaffolding
 
 ## Homepage toggle
 
-Set `homepageConfig.enabled` in `shared/documentation-config.js`. When `false`, `/` redirects to the first docs collection page and the landing route is omitted from sitemap and route HTML generation.
-
-## Content collections (Boss Raid dogfood)
-
-Boss Raid splits **framework** (`apps/docs/`) from **content** (`content/docs/`, `content/dev-docs/`).
-
-- Registry: `shared/content-collections.js`
-- Product nav tree: `shared/documentation-config.js` → `documentationTree`
-- Dev/brand tree: `shared/documentation-config.js` → `devDocumentationTree`
-- Upstream sync: `node scripts/papers-sync-upstream.mjs` (repo root) — never overwrites `content/` or Boss Raid config files
-
-When porting this feature upstream to [thomasjvu/papers](https://github.com/thomasjvu/papers), generalize `contentCollections` and external `contentDir` resolution in `scripts/lib/docsVariants.mjs`.
+Set `homepageConfig.enabled` in `shared/documentation-config.js`. When `false`, `/` redirects to the first docs page.
 
 ## Shipped
 
-| Feature                                    | Status                                                   |
-| ------------------------------------------ | -------------------------------------------------------- |
-| Markdown + frontmatter                     | Yes                                                      |
-| MDX (`.mdx` → sanitized HTML at build)     | Yes                                                      |
-| GitHub callouts (`> [!NOTE]`)              | Yes                                                      |
-| Mermaid diagrams                           | Yes                                                      |
-| Pagefind search + command palette          | Yes                                                      |
-| Interactive doc graph                      | Yes                                                      |
-| `llms.txt` generation                      | Yes                                                      |
-| Hosted asset preview (`HostedFilePreview`) | Yes — `/docs/llms`, `/docs/skill` with CodeBlock preview |
-| OpenAPI explorer (Scalar)                  | Yes                                                      |
-| Edit on GitHub footer                      | Yes                                                      |
-| Version / i18n route scaffolding           | Yes (enable in `documentation-config.js`)                |
-| Doc JSON prefetch on hover                 | Yes                                                      |
-| Tree sync script                           | `npm run check:docs-tree`                                |
-| Tree auto-append                           | `npm run sync:docs-tree -- --write`                      |
-| MDX shortcodes (`Callout`, `Tabs`, `Card`) | Yes                                                      |
-| Mermaid lazy load                          | Yes (`MermaidDiagram` async chunk + `vendor-mermaid`)    |
-| Lazy feature boundary checks               | Yes (`npm test` guards provider imports in lazy modules) |
-| OpenAPI multi-spec                         | Yes (`openapiConfig` in `documentation-config.js`)       |
-| Starter CLI                                | `npm create papers` via `packages/create-papers`         |
-
-## Enable versioned or localized docs
-
-In [`shared/documentation-config.js`](shared/documentation-config.js):
-
-```js
-export const versionConfig = {
-  current: '1.0',
-  versions: ['1.0', '2.0'],
-  labels: { '1.0': 'v1', '2.0': 'v2' },
-  enabled: true,
-};
-
-export const i18nConfig = {
-  enabled: true,
-  defaultLocale: 'en',
-  locales: ['en', 'fr'],
-};
-```
-
-Add variant content under:
-
-- `src/docs/content/variants/versions/2.0/...`
-- `src/docs/content/variants/locales/fr/...`
-
-The sidebar selector appears automatically when enabled.
+| Feature | Status |
+| ------- | ------ |
+| Markdown + frontmatter | Yes |
+| MDX (sanitized HTML at build) | Yes |
+| GitHub callouts | Yes |
+| Mermaid diagrams | Yes |
+| Pagefind search + command palette | Yes |
+| Interactive doc graph | Yes |
+| `llms.txt` generation | Yes |
+| Hosted asset preview | Yes |
+| Themed code blocks | Yes |
+| OpenAPI explorer (Scalar) | Yes |
+| Edit on GitHub footer | Yes |
+| Version / i18n scaffolding | Yes |
+| Tree sync | `npm run check:docs-tree` |
+| Starter CLI | `npm create papers` |
 
 ## Lazy feature invariants
 
-Framework sites lazy-load heavy viewers to keep first paint fast. Two rules prevent production crashes:
-
-1. **Lazy modules are leaves** — files imported via `React.lazy()` must not import `src/providers/*`. Use CSS, DOM APIs, or props from the parent shell instead of `useTheme()` and similar context hooks.
-2. **Vendor-only chunk splits** — `vite.config.ts` `manualChunks` may bucket `node_modules` (for example `vendor-mermaid`), but must not isolate `src/` app modules into named chunks. That pattern created circular `vendor-react` dependencies and `createContext` runtime failures.
-
-Enforced by `src/framework/lazyFeatureBoundaries.ts` and the architecture test `lazy feature modules avoid provider imports and unsafe app chunk splits`.
+1. Lazy modules must not import `src/providers/*`.
+2. `manualChunks` may split `node_modules` only — not app source modules.
 
 ## Near-term improvements
 
-1. **SSR prerender** — optional Vite SSR pass for first paint (SPA → hybrid)
-2. **Plugin seam** — `papers.config.js` hooks for remark/rehype transforms
-3. **Publish `create-papers`** — npm package for `npm create papers@latest`
-4. **Interactive tabs** — optional client hydration for MDX `<Tabs>` (today uses `<details>`)
-5. **Content lint** — broken links, missing frontmatter, voice tests in CI
+1. SSR prerender
+2. Plugin seam (`papers.config.js`)
+3. Publish `create-papers` to npm
+4. Interactive MDX `<Tabs>`
+5. Content lint in CI
 
-## Comparison positioning
+## Positioning
 
-papers targets the gap between **Mintlify/GitBook** (fast SaaS, less control) and **Docusaurus/Starlight** (large ecosystems, heavier ops):
-
-- Own your UI and hosting
-- Ship distinctive product docs (not another Material theme)
-- Grow into MDX, i18n, and API reference without migrating later
-
-See the Oblivion docs comparison notes in the parent repo planning history for a full matrix.
+papers sits between hosted doc SaaS (less control) and large doc frameworks (heavier ops): own your UI, ship distinctive docs, grow into MDX and API reference without migrating later.
