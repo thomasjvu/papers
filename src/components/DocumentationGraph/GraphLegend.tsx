@@ -10,7 +10,7 @@ const legendTextStyle = { color: 'var(--mindmap-legend-text)', fontFamily: 'var(
 
 const GraphLegend: React.FC<GraphLegendProps> = React.memo(
   ({ searchTerm, searchResults, isSidebarView }) => {
-    const sizeClass = isSidebarView ? 'text-2xs' : 'text-xs';
+    const sizeClass = isSidebarView ? 'text-xs' : 'text-xs';
 
     return (
       <>

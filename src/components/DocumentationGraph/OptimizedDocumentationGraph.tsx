@@ -338,7 +338,7 @@ export default function OptimizedDocumentationGraph({
           placeholder={isSidebarView ? 'Search docs...' : 'Search documents...'}
           onChange={handleSearchChange}
           className={`w-full rounded-lg border outline-none transition-colors ${
-            isSidebarView ? 'px-2 py-1 text-2xs' : 'px-3 py-2 text-sm'
+            isSidebarView ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'
           }`}
           style={{
             fontFamily: 'var(--mono-font)',
@@ -358,7 +358,7 @@ export default function OptimizedDocumentationGraph({
         {/* Mind-map label */}
         <div
           className={`pointer-events-none absolute top-2 right-3 z-10 font-mono opacity-40 ${
-            isSidebarView ? 'text-2xs' : 'text-xs'
+            isSidebarView ? 'text-xs' : 'text-xs'
           }`}
           style={{ color: 'var(--toc-text-color)' }}
         >

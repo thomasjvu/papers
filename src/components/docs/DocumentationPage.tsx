@@ -359,7 +359,7 @@ const DocumentationPage = React.memo(
               }`}
               style={sidebarStyle}
             >
-              <div className="pb-4">
+              <div className="pb-2">
                 <div className="flex items-start justify-between gap-3">
                   <Link
                     to="/"
@@ -429,7 +429,7 @@ const DocumentationPage = React.memo(
                 </div>
               </div>
 
-              <div className="min-h-0 flex-1 overflow-y-auto py-4 scrollbar-hide">
+              <div className="min-h-0 flex-1 overflow-y-auto pt-1 scrollbar-hide">
                 <FileTree
                   items={documentationTree}
                   onSelect={handleSelectFile}

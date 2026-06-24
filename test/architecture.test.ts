@@ -317,7 +317,7 @@ export const architectureTests: ArchitectureTestCase[] = [
 
       assert.match(html, /papers-character-note papers-character-note--warning/);
       assert.match(html, /papers-character-note__avatar/);
-      assert.match(html, /mercenary-warning\.png/);
+      assert.match(html, /character-notes\/.*warning/);
       assert.match(html, /papers-character-note__title/);
       assert.match(html, /Experimental/);
       assert.match(html, /This route may change/);

@@ -1,13 +1,7 @@
+import { characterNoteAvatars } from '../../shared/character-note-config.js';
+
 const CALLOUT_TONES = new Set(['note', 'tip', 'warning', 'important']);
 const CHARACTER_NOTE_TYPES = new Set(['info', 'warning', 'alert', 'success', 'tip']);
-
-const CHARACTER_NOTE_AVATARS = {
-  info: '/images/character-notes/mercenary-info.png',
-  warning: '/images/character-notes/mercenary-warning.png',
-  alert: '/images/character-notes/mercenary-alert.png',
-  success: '/images/character-notes/mercenary-success.png',
-  tip: '/images/character-notes/mercenary-tip.png',
-};
 
 function readJsxAttribute(attributes, name) {
   const attribute = attributes?.find((entry) => entry.name === name);
@@ -163,7 +157,7 @@ function transformCharacterNote(node) {
 
   const avatar = createVoidElement('img', {
     className: 'papers-character-note__avatar',
-    src: CHARACTER_NOTE_AVATARS[safeType],
+    src: characterNoteAvatars[safeType],
     alt: '',
     width: 96,
     height: 96,
