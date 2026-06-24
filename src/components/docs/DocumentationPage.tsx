@@ -359,7 +359,7 @@ const DocumentationPage = React.memo(
               }`}
               style={sidebarStyle}
             >
-              <div className="border-b pb-4" style={{ borderColor: 'var(--border-unified)' }}>
+              <div className="pb-4">
                 <div className="flex items-start justify-between gap-3">
                   <Link
                     to="/"

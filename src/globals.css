@@ -37,6 +37,10 @@
   font-display: swap;
 }
 
+html {
+  font-size: 90%;
+}
+
 :root {
   color-scheme: light;
   --primary-color: #111111;
@@ -1022,29 +1026,43 @@ code {
   opacity: 0.8;
 }
 
+.doc-page-bottom {
+  width: 100%;
+}
+
 .doc-page-bottom-row {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  align-items: end;
-  gap: var(--space-4);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
   min-height: 2.75rem;
+  gap: var(--space-4);
 }
 
 .doc-page-bottom-nav {
   min-width: 0;
 }
 
+.doc-page-bottom-nav--prev,
+.doc-page-bottom-nav--next {
+  flex: 1 1 0;
+  display: flex;
+}
+
 .doc-page-bottom-nav--prev {
-  justify-self: start;
+  justify-content: flex-start;
 }
 
 .doc-page-bottom-nav--next {
-  justify-self: end;
+  justify-content: flex-end;
 }
 
 .doc-page-footer {
-  justify-self: center;
-  align-self: end;
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
   padding-bottom: 0.125rem;
   opacity: 0.42;
   transition: opacity var(--transition-normal);
@@ -1350,6 +1368,12 @@ code {
 .doc-page-bottom-nav .nav-button {
   min-width: 0;
   font-family: var(--mono-font) !important;
+}
+
+@media (max-width: 640px) {
+  .doc-page-footer {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {

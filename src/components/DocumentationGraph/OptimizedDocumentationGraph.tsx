@@ -135,7 +135,7 @@ export default function OptimizedDocumentationGraph({
 
     const centerX = dimensions.width / 2;
     const centerY = dimensions.height / 2;
-    const isSidebarView = dimensions.height <= 300;
+    const isSidebarView = layoutMode === 'sidebar';
 
     const currentNode = graphNodes.find((n) => n.id === (focusedNodeId || currentPath));
 
@@ -184,7 +184,7 @@ export default function OptimizedDocumentationGraph({
 
     setNodes(positionedNodes);
     setLinks(graphLinks);
-  }, [graphNodes, graphLinks, dimensions, focusedNodeId, currentPath]);
+  }, [graphNodes, graphLinks, dimensions, focusedNodeId, currentPath, layoutMode]);
 
   // Debounced search handler
   const handleSearchChange = useDebouncedCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -323,7 +323,7 @@ export default function OptimizedDocumentationGraph({
     setPendingSwitchNodeId(undefined);
   }, [currentPath]);
 
-  const isSidebarView = layoutMode === 'sidebar' && dimensions.height <= 300;
+  const isSidebarView = layoutMode === 'sidebar';
   const isExpandedLayout = layoutMode === 'expanded';
 
   return (
@@ -352,7 +352,7 @@ export default function OptimizedDocumentationGraph({
       {/* Graph Container */}
       <div
         className={`graph-container ui-panel relative overflow-hidden ${
-          isExpandedLayout ? 'min-h-0 h-full flex-1' : layoutMode === 'sidebar' ? 'h-48' : 'h-96'
+          isExpandedLayout ? 'min-h-0 h-full flex-1' : 'h-96'
         }`}
       >
         {/* Mind-map label */}

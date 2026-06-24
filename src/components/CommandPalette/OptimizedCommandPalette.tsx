@@ -286,7 +286,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                 <div
                   className="px-4 py-2 border-t flex items-center justify-between"
                   style={{
-                    fontSize: '10px',
+                    fontSize: 'var(--text-2xs)',
                     borderColor: 'var(--border-color)',
                     color: 'var(--muted-color)',
                   }}
