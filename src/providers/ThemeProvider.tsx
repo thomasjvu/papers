@@ -152,12 +152,12 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const toggleTheme = useCallback(() => {
     hasExplicitThemePreference.current = true;
-    setIsDarkMode(prev => !prev);
+    setIsDarkMode((prev) => !prev);
   }, []);
 
   const toggleReducedMotion = useCallback(() => {
     hasExplicitMotionPreference.current = true;
-    setPrefersReducedMotion(prev => !prev);
+    setPrefersReducedMotion((prev) => !prev);
   }, []);
 
   useEffect(() => {

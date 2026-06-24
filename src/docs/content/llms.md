@@ -36,7 +36,3 @@ Regenerate after:
 <a href="/llms-full.txt" class="download-link" data-file="llms-full.txt">Download llms-full.txt</a>
 
 <a href="#" class="copy-link" data-url="/llms.txt">Copy llms.txt URL</a>
-
-## Preview
-
-{llms-preview}

@@ -17,7 +17,11 @@ function readThemeColor(name: string, fallback: string): string {
   return value || fallback;
 }
 
-async function renderMermaidChart(chart: string, renderId: string, mode: RenderMode): Promise<string> {
+async function renderMermaidChart(
+  chart: string,
+  renderId: string,
+  mode: RenderMode
+): Promise<string> {
   await waitForDiagramFonts();
 
   const mermaid = (await import('mermaid')).default;

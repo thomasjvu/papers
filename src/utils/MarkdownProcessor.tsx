@@ -66,7 +66,10 @@ function setCachedMarkdown(
       blockId,
       cloneSnippets(snippets),
     ]),
-    mermaidBlocks: Array.from(mermaidBlocks.entries(), ([blockId, block]) => [blockId, { ...block }]),
+    mermaidBlocks: Array.from(mermaidBlocks.entries(), ([blockId, block]) => [
+      blockId,
+      { ...block },
+    ]),
   });
 }
 

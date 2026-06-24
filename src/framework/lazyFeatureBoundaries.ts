@@ -10,9 +10,7 @@ export const FORBIDDEN_LAZY_IMPORT_PREFIXES = [
   'src/providers/',
 ] as const;
 
-export const LAZY_IMPORTER_FILES = [
-  'src/components/MarkdownRenderer.tsx',
-] as const;
+export const LAZY_IMPORTER_FILES = ['src/components/MarkdownRenderer.tsx'] as const;
 
 export function resolveFrameworkPath(relativePath: string): string {
   return join(frameworkRoot, '..', relativePath);

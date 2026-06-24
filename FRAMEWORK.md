@@ -9,28 +9,44 @@ papers is a static documentation framework for teams that want full visual contr
 - **Fast sites:** Static deploy, prefetch, lazy-loaded heavy viewers
 - **Competitive surface:** OpenAPI explorer, llms.txt, search, version/i18n scaffolding
 
+## Homepage toggle
+
+Set `homepageConfig.enabled` in `shared/documentation-config.js`. When `false`, `/` redirects to the first docs collection page and the landing route is omitted from sitemap and route HTML generation.
+
+## Content collections (Boss Raid dogfood)
+
+Boss Raid splits **framework** (`apps/docs/`) from **content** (`content/docs/`, `content/dev-docs/`).
+
+- Registry: `shared/content-collections.js`
+- Product nav tree: `shared/documentation-config.js` → `documentationTree`
+- Dev/brand tree: `shared/documentation-config.js` → `devDocumentationTree`
+- Upstream sync: `node scripts/papers-sync-upstream.mjs` (repo root) — never overwrites `content/` or Boss Raid config files
+
+When porting this feature upstream to [thomasjvu/papers](https://github.com/thomasjvu/papers), generalize `contentCollections` and external `contentDir` resolution in `scripts/lib/docsVariants.mjs`.
+
 ## Shipped
 
-| Feature                                    | Status                                             |
-| ------------------------------------------ | -------------------------------------------------- |
-| Markdown + frontmatter                     | Yes                                                |
-| MDX (`.mdx` → sanitized HTML at build)     | Yes                                                |
-| GitHub callouts (`> [!NOTE]`)              | Yes                                                |
-| Mermaid diagrams                           | Yes                                                |
-| Pagefind search + command palette          | Yes                                                |
-| Interactive doc graph                      | Yes                                                |
-| `llms.txt` generation                      | Yes                                                |
-| OpenAPI explorer (Scalar)                  | Yes                                                |
-| Edit on GitHub footer                      | Yes                                                |
-| Version / i18n route scaffolding           | Yes (enable in `documentation-config.js`)          |
-| Doc JSON prefetch on hover                 | Yes                                                |
-| Tree sync script                           | `npm run check:docs-tree`                          |
-| Tree auto-append                           | `npm run sync:docs-tree -- --write`                |
-| MDX shortcodes (`Callout`, `Tabs`, `Card`) | Yes                                                |
-| Mermaid lazy load                          | Yes (`MermaidDiagram` async chunk + `vendor-mermaid`) |
+| Feature                                    | Status                                                   |
+| ------------------------------------------ | -------------------------------------------------------- |
+| Markdown + frontmatter                     | Yes                                                      |
+| MDX (`.mdx` → sanitized HTML at build)     | Yes                                                      |
+| GitHub callouts (`> [!NOTE]`)              | Yes                                                      |
+| Mermaid diagrams                           | Yes                                                      |
+| Pagefind search + command palette          | Yes                                                      |
+| Interactive doc graph                      | Yes                                                      |
+| `llms.txt` generation                      | Yes                                                      |
+| Hosted asset preview (`HostedFilePreview`) | Yes — `/docs/llms`, `/docs/skill` with CodeBlock preview |
+| OpenAPI explorer (Scalar)                  | Yes                                                      |
+| Edit on GitHub footer                      | Yes                                                      |
+| Version / i18n route scaffolding           | Yes (enable in `documentation-config.js`)                |
+| Doc JSON prefetch on hover                 | Yes                                                      |
+| Tree sync script                           | `npm run check:docs-tree`                                |
+| Tree auto-append                           | `npm run sync:docs-tree -- --write`                      |
+| MDX shortcodes (`Callout`, `Tabs`, `Card`) | Yes                                                      |
+| Mermaid lazy load                          | Yes (`MermaidDiagram` async chunk + `vendor-mermaid`)    |
 | Lazy feature boundary checks               | Yes (`npm test` guards provider imports in lazy modules) |
-| OpenAPI multi-spec                         | Yes (`openapiConfig` in `documentation-config.js`) |
-| Starter CLI                                | `npm create papers` via `packages/create-papers`   |
+| OpenAPI multi-spec                         | Yes (`openapiConfig` in `documentation-config.js`)       |
+| Starter CLI                                | `npm create papers` via `packages/create-papers`         |
 
 ## Enable versioned or localized docs
 

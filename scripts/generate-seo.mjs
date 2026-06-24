@@ -1,45 +1,25 @@
-import { existsSync, readFileSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 
+import { contentCollections } from '../shared/content-collections.js';
 import { getHomeMetadataDefaults } from '../shared/seo.js';
+import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
-import { getGeneratedDocumentKeys } from './lib/docsVariants.mjs';
 import {
+  createAllCollectionSeoRouteEntries,
   createDefaultSocialImageManifest,
   createRobotsTxt,
-  createSeoRouteEntries,
   createSitemapXml,
 } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
 const publicDir = join(rootDir, 'public');
 const imagesDir = join(publicDir, 'images');
-const docsIndexPath = join(publicDir, 'docs-index.json');
-const docsContentDir = join(publicDir, 'docs-content');
-
-function readJson(filePath) {
-  return JSON.parse(readFileSync(filePath, 'utf8'));
-}
-
-function readGeneratedDocuments(docsIndex) {
-  const documents = {};
-
-  for (const docKey of getGeneratedDocumentKeys(docsIndex.paths)) {
-    const filePath = join(docsContentDir, `${docKey}.json`);
-
-    if (!existsSync(filePath)) {
-      continue;
-    }
-
-    documents[docKey] = readJson(filePath);
-  }
-
-  return documents;
-}
 
 async function generateSeoArtifacts() {
-  if (!existsSync(docsIndexPath) || !existsSync(docsContentDir)) {
+  const artifactsByCollectionId = readAllCollectionArtifacts(publicDir, contentCollections);
+
+  if (!artifactsByCollectionId) {
     console.error('Generated docs artifacts are missing. Run generate:docs first.');
     process.exit(1);
   }
@@ -52,13 +32,15 @@ async function generateSeoArtifacts() {
   const siteSubtitle = defaults.siteSubtitle;
   const siteDescription = defaults.siteDescription;
 
-  const docsIndex = readJson(docsIndexPath);
-  const documents = readGeneratedDocuments(docsIndex);
-  const routeEntries = createSeoRouteEntries(docsIndex, documents, {
-    siteName,
-    siteSubtitle,
-    siteDescription,
-  });
+  const routeEntries = createAllCollectionSeoRouteEntries(
+    contentCollections,
+    artifactsByCollectionId,
+    {
+      siteName,
+      siteSubtitle,
+      siteDescription,
+    }
+  );
   const socialImages = createDefaultSocialImageManifest({
     siteName,
     siteSubtitle,

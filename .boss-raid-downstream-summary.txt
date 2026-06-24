@@ -1,0 +1,60 @@
+Boss Raid downstream sync
+Repo: https://github.com/thomasjvu/papers.git
+Changed files: 48
+
+modified	RELEASING.md
+modified	index.html
+added	public/boss-raid-pfp.png
+added	public/images/docs/role-heroes/buyer.jpg
+added	public/images/docs/role-heroes/raider.jpg
+added	public/images/docs/role-heroes/seller.jpg
+added	public/skill.md
+modified	scripts/check-docs.mjs
+modified	scripts/generate-route-html.mjs
+modified	scripts/generate-seo.mjs
+added	scripts/lib/collectionArtifacts.mjs
+modified	scripts/lib/docsGeneration.mjs
+modified	scripts/lib/seoArtifacts.mjs
+modified	scripts/preview-smoke.mjs
+modified	scripts/release-smoke.mjs
+modified	shared/seo.js
+modified	src/components/CommandPalette/useSearchLogic.ts
+modified	src/components/DocPageFooter.tsx
+added	src/components/DocsLogoMark.tsx
+modified	src/components/DocsVariantSelector.tsx
+modified	src/components/DocumentationGraph/useGraphLogic.ts
+modified	src/components/FileTree.tsx
+added	src/components/HostedFilePreview.tsx
+modified	src/components/MarkdownRenderer.tsx
+modified	src/components/MermaidDiagram.tsx
+modified	src/components/MotionToggle.tsx
+modified	src/components/Navigation.tsx
+modified	src/components/SettingsMenu.tsx
+modified	src/components/ThemeSwitcher.tsx
+modified	src/components/docs/TableOfContents.tsx
+modified	src/framework/lazyFeatureBoundaries.ts
+modified	src/globals.css
+modified	src/hooks/usePagefind.ts
+added	src/lib/hostedAssetPage.ts
+modified	src/lib/navigation.ts
+modified	src/lib/openapi.ts
+added	src/pages/HostedAssetRedirectPage.tsx
+modified	src/providers/ThemeProvider.tsx
+modified	src/utils/MarkdownProcessor.tsx
+modified	src/utils/mermaidLayout.ts
+modified	src/utils/seo.ts
+modified	test/architecture.test.ts
+modified	themes/default/tokens.css
+modified	themes/registry.json
+added	themes/rx-78/theme.json
+added	themes/rx-78/tokens.css
+added	types/shared-content-collections.d.ts
+modified	types/shared-docs-routing.d.ts
+
+Next:
+  cd .cache/papers-upstream
+  git status
+  git add -A
+  git commit -m "feat: framework improvements from boss-raid dogfood"
+  git push origin <branch>
+  gh pr create --repo thomasjvu/papers

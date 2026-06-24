@@ -1,4 +1,4 @@
-import { documentationTree } from '../../shared/documentation-config.js';
+import { documentationTree } from '@app-shared/documentation-config.js';
 import type { FileItem } from '../types/documentation';
 
 export { documentationTree };
@@ -42,7 +42,7 @@ export function findFirstDocumentPath(items: FileItem[]): string | null {
 }
 
 export const DEFAULT_DOCUMENT_PATH =
-  findFirstDocumentPath(documentationTree) || 'getting-started/introduction';
+  findFirstDocumentPath(documentationTree) || 'overview/introduction';
 
 export function findDirectoryDefaultPath(slug: string, items: FileItem[]): string | null {
   for (const item of items) {

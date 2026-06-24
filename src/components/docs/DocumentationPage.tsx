@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react';
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { documentationTree } from '../../data/documentation';
@@ -29,6 +29,7 @@ interface DocumentationPageProps {
   sourcePath?: string;
   contentFormat?: DocumentContentFormat;
   contentSlot?: React.ReactNode;
+  trailingContent?: ReactNode;
   isLoading?: boolean;
   pendingPath?: string;
 }
@@ -92,6 +93,7 @@ const DocumentationPage = React.memo(
     sourcePath,
     contentFormat = 'markdown',
     contentSlot,
+    trailingContent,
     isLoading = false,
     pendingPath,
   }: DocumentationPageProps) => {
@@ -446,17 +448,25 @@ const DocumentationPage = React.memo(
                 className="border-t pt-4 space-y-2"
                 style={{ borderColor: 'var(--border-unified)' }}
               >
-                <Link
-                  to="/llms"
+                <button
+                  onClick={() =>
+                    navigate(
+                      buildCanonicalDocsPath('llms', {
+                        version: routeContext.activeVersion,
+                        locale: routeContext.activeLocale,
+                      })
+                    )
+                  }
                   className="flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
                   style={utilityButtonStyle}
+                  type="button"
                 >
                   <span className="flex items-center gap-2">
                     <Icon icon="mingcute:file-info-line" className="h-4 w-4" />
                     <span>LLMs.txt</span>
                   </span>
                   <Icon icon="mingcute:arrow-right-line" className="h-4 w-4" />
-                </Link>
+                </button>
 
                 <button
                   onClick={handleMapButtonClick}
@@ -562,6 +572,7 @@ const DocumentationPage = React.memo(
                 <ContentRenderer
                   content={content}
                   path={path}
+                  trailingContent={trailingContent}
                   sourcePath={sourcePath}
                   contentFormat={contentFormat}
                 />

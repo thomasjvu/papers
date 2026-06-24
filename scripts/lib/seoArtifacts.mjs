@@ -1,4 +1,4 @@
-import { documentationTree } from '../../shared/documentation-config.js';
+import { documentationTree, homepageConfig } from '../../shared/documentation-config.js';
 import {
   buildAbsoluteUrl,
   DEFAULT_OG_IMAGE_PATH,
@@ -10,7 +10,9 @@ import {
   normalizeSiteUrl,
 } from '../../shared/seo.js';
 import {
+  buildCanonicalCollectionPath,
   buildCanonicalDocsPath,
+  buildCollectionRouteVariants,
   buildDocsContentPath,
   buildDocsRouteVariants,
   parseDocsRoutePath,
@@ -53,11 +55,14 @@ function getDocumentDescription(document) {
 }
 
 function getDocsRouteContext(routePath, options) {
-  if (!routePath.startsWith('/docs')) {
+  const routePrefix = options.routePrefix || 'docs';
+  const prefixPath = `/${routePrefix}`;
+
+  if (!routePath.startsWith(prefixPath)) {
     return null;
   }
 
-  const slugPath = routePath.replace(/^\/docs\/?/, '');
+  const slugPath = routePath.slice(prefixPath.length).replace(/^\//, '');
   return parseDocsRoutePath(slugPath, {
     versionConfig: options.versionConfig,
     i18nConfig: options.i18nConfig,
@@ -89,14 +94,24 @@ function getDocumentForRoute(docPath, routePath, documentsByPath, options) {
 }
 
 function registerDocsRouteVariants(registerRoute, slugPath, canonicalDocPath, documentsByPath, options) {
-  const routePaths = buildDocsRouteVariants(slugPath, {
-    versionConfig: options.versionConfig,
-    i18nConfig: options.i18nConfig,
-  });
-  const canonicalPath = buildCanonicalDocsPath(canonicalDocPath, {
-    versionConfig: options.versionConfig,
-    i18nConfig: options.i18nConfig,
-  });
+  const routePaths = options.collection
+    ? buildCollectionRouteVariants(options.collection, slugPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      })
+    : buildDocsRouteVariants(slugPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      });
+  const canonicalPath = options.collection
+    ? buildCanonicalCollectionPath(options.collection, canonicalDocPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      })
+    : buildCanonicalDocsPath(canonicalDocPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      });
 
   for (const routePath of routePaths) {
     const document = getDocumentForRoute(canonicalDocPath, routePath, documentsByPath, options);
@@ -121,12 +136,14 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   const siteName = options.siteName || defaults.siteName;
   const siteSubtitle = options.siteSubtitle || defaults.siteSubtitle;
   const siteDescription = options.siteDescription || defaults.siteDescription;
+  const routePrefix = options.routePrefix || 'docs';
   const routeOptions = {
     ...options,
     siteName,
+    routePrefix,
   };
   const entries = [];
-  const routeMap = new Map();
+  const routeMap = options.routeMap || new Map();
 
   const registerRoute = (entry) => {
     if (!routeMap.has(entry.routePath)) {
@@ -135,14 +152,18 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
     }
   };
 
-  registerRoute({
-    routePath: '/',
-    canonicalPath: '/',
-    title: `${siteName} | ${siteSubtitle}`,
-    description: siteDescription,
-    type: 'website',
-    includeInSitemap: true,
-  });
+  const includeHomepage = options.includeHomepage ?? homepageConfig.enabled;
+
+  if (!options.skipSiteRoutes && includeHomepage) {
+    registerRoute({
+      routePath: '/',
+      canonicalPath: '/',
+      title: `${siteName} | ${siteSubtitle}`,
+      description: siteDescription,
+      type: 'website',
+      includeInSitemap: true,
+    });
+  }
 
   const navigationTree = options.documentationTree || documentationTree;
   const defaultDocPath =
@@ -154,49 +175,63 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
     });
   }
 
-  for (const alias of getDirectoryAliasEntries(navigationTree)) {
-    registerDocsRouteVariants(registerRoute, alias.routePath.replace(/^\/docs\/?/, ''), alias.docPath, documentsByPath, {
-      ...routeOptions,
-      includeInSitemap: false,
-    });
+  const aliasPrefix = new RegExp(`^/${routePrefix}/?`);
+  for (const alias of getDirectoryAliasEntries(navigationTree, routePrefix)) {
+    registerDocsRouteVariants(
+      registerRoute,
+      alias.routePath.replace(aliasPrefix, ''),
+      alias.docPath,
+      documentsByPath,
+      {
+        ...routeOptions,
+        includeInSitemap: false,
+      }
+    );
   }
 
   for (const docPath of docsIndex.paths) {
-    if (docPath === 'llms') {
-      const document = getDocumentForRoute(docPath, '/llms', documentsByPath, routeOptions);
-
-      if (!document) {
-        continue;
-      }
-
-      registerRoute({
-        routePath: '/llms',
-        canonicalPath: '/llms',
-        title: `LLMs.txt | ${siteName}`,
-        description:
-          getDocumentDescription(document) ||
-          'AI-friendly text exports generated from the documentation corpus.',
-        type: 'article',
-        includeInSitemap: true,
-      });
-      continue;
-    }
-
     registerDocsRouteVariants(registerRoute, docPath, docPath, documentsByPath, {
       ...routeOptions,
       includeInSitemap: true,
     });
   }
 
-  registerRoute({
-    routePath: '/404.html',
-    canonicalPath: '/404.html',
-    title: `Not Found | ${siteName}`,
-    description: 'The requested page could not be found.',
-    type: 'website',
-    includeInSitemap: false,
-    noIndex: true,
-  });
+  if (!options.skipSiteRoutes) {
+    registerRoute({
+      routePath: '/404.html',
+      canonicalPath: '/404.html',
+      title: `Not Found | ${siteName}`,
+      description: 'The requested page could not be found.',
+      type: 'website',
+      includeInSitemap: false,
+      noIndex: true,
+    });
+  }
+
+  return entries;
+}
+
+export function createAllCollectionSeoRouteEntries(collections, artifactsByCollectionId, options = {}) {
+  const routeMap = new Map();
+  const entries = [];
+
+  for (const collection of collections) {
+    const artifacts = artifactsByCollectionId[collection.id];
+    if (!artifacts) {
+      continue;
+    }
+
+    const collectionEntries = createSeoRouteEntries(artifacts.index, artifacts.documents, {
+      ...options,
+      collection,
+      routePrefix: collection.routePrefix,
+      documentationTree: collection.tree,
+      skipSiteRoutes: collection.id !== collections[0]?.id,
+      routeMap,
+    });
+
+    entries.push(...collectionEntries);
+  }
 
   return entries;
 }

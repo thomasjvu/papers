@@ -11,6 +11,12 @@
       "name": "Game Boy",
       "description": "1-bit green palette with square UI and pixel icons.",
       "path": "gba"
+    },
+    {
+      "id": "rx-78",
+      "name": "RX-78",
+      "description": "Boss Raid brand palette — blue, red, yellow on a flat editorial shell.",
+      "path": "rx-78"
     }
   ]
 }

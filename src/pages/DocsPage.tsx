@@ -1,12 +1,17 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 
+import HostedFilePreview from '../components/HostedFilePreview';
 import DocumentationPage from '../components/docs/DocumentationPage';
 import { getDocument, resolveDocumentPath } from '../lib/content';
 import { createLogger } from '../utils/logger';
 import { applySeoMetadata } from '../utils/seo';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
+import {
+  getHostedAssetPageConfig,
+  stripHostedAssetPreview,
+} from '../lib/hostedAssetPage';
 
 const logger = createLogger('DocsPage');
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
@@ -35,6 +40,31 @@ export default function DocsPage() {
       }),
     [docPath, routeContext.activeLocale, routeContext.activeVersion]
   );
+  const hostedAssetConfig = useMemo(() => getHostedAssetPageConfig(docPath), [docPath]);
+  const renderedContent = useMemo(
+    () => (hostedAssetConfig ? stripHostedAssetPreview(content, docPath) : content),
+    [content, docPath, hostedAssetConfig]
+  );
+  const trailingContent = useMemo(() => {
+    if (!hostedAssetConfig) {
+      return undefined;
+    }
+
+    return (
+      <section className="doc-hosted-preview-section">
+        <h2
+          className="mb-4 text-xl font-bold"
+          style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+        >
+          Preview
+        </h2>
+        <HostedFilePreview
+          assetUrl={hostedAssetConfig.assetUrl}
+          assetLabel={hostedAssetConfig.assetLabel}
+        />
+      </section>
+    );
+  }, [hostedAssetConfig]);
 
   useEffect(() => {
     const normalizedCurrentPath = location.pathname.replace(/\/+$/, '') || '/';
@@ -137,12 +167,13 @@ export default function DocsPage() {
 
   return (
     <DocumentationPage
-      initialContent={content}
+      initialContent={renderedContent}
       currentPath={currentDocPath || docPath}
       sourcePath={docSourcePath}
       contentFormat={docContentFormat}
       isLoading={loading}
       pendingPath={docPath}
+      trailingContent={trailingContent}
     />
   );
 }

@@ -180,10 +180,20 @@ async function main() {
       );
     }
 
-    const llmsRoute = await fetchText(baseUrl, '/llms');
-    assert(llmsRoute.body.includes('<title>LLMs.txt |'), 'Served /llms route has unexpected metadata.');
+    const llmsRoute = await fetchText(baseUrl, '/docs/llms');
+    assert(
+      llmsRoute.body.includes('<title>LLMs.txt |'),
+      'Served /docs/llms route has unexpected metadata.'
+    );
+
+    const skillRoute = await fetchText(baseUrl, '/docs/skill');
+    assert(
+      skillRoute.body.includes('<title>Agent Skill |'),
+      'Served /docs/skill route has unexpected metadata.'
+    );
 
     await fetchText(baseUrl, '/llms.txt');
+    await fetchText(baseUrl, '/skill.md');
     await fetchText(baseUrl, '/robots.txt');
     await fetchText(baseUrl, '/sitemap.xml');
     await fetchText(baseUrl, '/docs-index.json');

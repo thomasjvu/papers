@@ -2,7 +2,9 @@ import { existsSync, readFileSync } from 'fs';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 
-import { documentationTree, homepageConfig } from '../shared/documentation-config.js';
+import { getContentCollection } from '../shared/content-collections.js';
+import { documentationTree, frameworkDocPaths, homepageConfig } from '../shared/documentation-config.js';
+import { resolveCollectionContentRoot, resolveMonorepoRoot } from './lib/collectionContentRoot.mjs';
 import { buildDocsContentPath } from '../shared/docsRouting.js';
 import { getDirectoryAliasEntries } from '../shared/seo.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
@@ -107,8 +109,12 @@ async function main() {
   assert(existsSync(docsContentDir), 'Missing public/docs-content/. Run `npm run build` or the generators first.');
 
   const existingIndex = JSON.parse(readFileText(docsIndexPath));
+  const docsCollection = getContentCollection('docs');
   const { documents, index } = await createGeneratedDocsArtifacts({
     documentationTree,
+    frameworkDocPaths,
+    contentRoot: resolveCollectionContentRoot(docsCollection, rootDir),
+    frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
     previousIndex: existingIndex,
     rootDir,
   });
@@ -141,6 +147,12 @@ async function main() {
       `${filePath} is out of date. Run \`npm run generate:docs\`.`
     );
   }
+
+  const monorepoRoot = resolveMonorepoRoot(rootDir);
+  assert(
+    readFileText(join(publicDir, 'skill.md')) === readFileText(join(monorepoRoot, 'content/skill.md')),
+    'public/skill.md is out of date. Run `pnpm bossraid generate:skill`.'
+  );
 
   const { llmsTxt, llmsFullTxt } = createLlmsArtifacts({
     documentationTree,

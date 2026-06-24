@@ -1,7 +1,7 @@
 import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
-import { useMemo, memo } from 'react';
+import { useMemo, memo, type ReactNode } from 'react';
 
 import { documentationTree } from '../data/documentation';
 import { findPageTags } from '../lib/navigation';
@@ -17,6 +17,7 @@ type ContentRendererProps = {
   path: string;
   sourcePath?: string;
   contentFormat?: 'markdown' | 'html' | 'mdx';
+  trailingContent?: ReactNode;
 };
 
 const ContentRenderer = memo(function ContentRenderer({
@@ -24,6 +25,7 @@ const ContentRenderer = memo(function ContentRenderer({
   path = '',
   sourcePath,
   contentFormat: _contentFormat = 'markdown',
+  trailingContent,
 }: ContentRendererProps) {
   const location = useLocation();
   const docsRouteSlug = location.pathname.startsWith('/docs')
@@ -76,6 +78,8 @@ const ContentRenderer = memo(function ContentRenderer({
           )}
 
           <MarkdownRenderer content={content} path={path} />
+
+          {trailingContent}
 
           {pageTags.length > 0 && (
             <motion.div

@@ -42,7 +42,9 @@ export function truncateText(text, maxLength = 160) {
 }
 
 export function extractDescriptionFromMarkdown(content, maxLength = 160) {
-  const body = stripFrontmatter(content).replace(/^```[\s\S]*?^```$/gm, ' ').trim();
+  const body = stripFrontmatter(content)
+    .replace(/^```[\s\S]*?^```$/gm, ' ')
+    .trim();
 
   for (const paragraph of body.split(/\n\s*\n/)) {
     const trimmed = paragraph.trim();
@@ -125,7 +127,7 @@ function collectDocumentPaths(items, paths) {
   return paths;
 }
 
-function collectDirectoryAliases(items, aliases) {
+function collectDirectoryAliases(items, aliases, routePrefix = 'docs') {
   for (const item of items) {
     if (item.type !== 'directory' || !Array.isArray(item.children)) {
       continue;
@@ -134,12 +136,12 @@ function collectDirectoryAliases(items, aliases) {
     const defaultPath = findFirstDocumentPath(item.children);
     if (defaultPath) {
       aliases.push({
-        routePath: `/docs/${item.path}`,
+        routePath: `/${routePrefix}/${item.path}`,
         docPath: defaultPath,
       });
     }
 
-    collectDirectoryAliases(item.children, aliases);
+    collectDirectoryAliases(item.children, aliases, routePrefix);
   }
 
   return aliases;
@@ -153,8 +155,8 @@ export function getDocumentPaths(items = documentationTree) {
   return collectDocumentPaths(items, []);
 }
 
-export function getDirectoryAliasEntries(items = documentationTree) {
-  return collectDirectoryAliases(items, []);
+export function getDirectoryAliasEntries(items = documentationTree, routePrefix = 'docs') {
+  return collectDirectoryAliases(items, [], routePrefix);
 }
 
 export function getHomeMetadataDefaults() {

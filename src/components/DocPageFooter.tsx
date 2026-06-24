@@ -20,13 +20,28 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
   return (
     <footer className="doc-page-footer">
       <nav className="doc-page-footer-links" aria-label="Edit this page">
-        <a href={editUrl} target="_blank" rel="noopener noreferrer" className="doc-page-footer-link">
+        <a
+          href={editUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="doc-page-footer-link"
+        >
           edit
         </a>
-        <a href={issueUrl} target="_blank" rel="noopener noreferrer" className="doc-page-footer-link">
+        <a
+          href={issueUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="doc-page-footer-link"
+        >
           issue
         </a>
-        <a href={sourceUrl} target="_blank" rel="noopener noreferrer" className="doc-page-footer-link">
+        <a
+          href={sourceUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="doc-page-footer-link"
+        >
           source
         </a>
       </nav>

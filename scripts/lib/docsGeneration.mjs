@@ -56,10 +56,15 @@ export async function buildVariantDocuments(docPaths, options = {}) {
     console.log(`Processing docs variant: ${label}`);
 
     for (const docPath of docPaths) {
+      const frameworkDocPaths = options.frameworkDocPaths || [];
+      const contentRoot = frameworkDocPaths.includes(docPath)
+        ? options.frameworkContentRoot
+        : options.contentRoot;
       const fileInfo = resolveDocFileInfo(docPath, {
         ...options,
         version: context.version,
         locale: context.locale,
+        contentRoot,
       });
       const rawContent = await loadMarkdownContent(docPath, options, fileInfo);
       const documentKey = buildDocsContentPath(docPath, {
@@ -92,9 +97,10 @@ export async function buildVariantDocuments(docPaths, options = {}) {
 
 export async function createGeneratedDocsArtifacts(options = {}) {
   const documentationTree = options.documentationTree || [];
+  const frameworkDocPaths = options.frameworkDocPaths || [];
   const generatedAt = options.generatedAt || new Date().toISOString();
   const previousIndex = options.previousIndex || null;
-  const docPaths = collectDocumentPaths(documentationTree);
+  const docPaths = [...collectDocumentPaths(documentationTree), ...frameworkDocPaths];
   const { documents, defaultDocsByPath, defaultSourcePathsByPath } = await buildVariantDocuments(
     docPaths,
     options

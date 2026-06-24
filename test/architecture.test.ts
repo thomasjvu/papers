@@ -439,7 +439,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         (route) => route.routePath === '/docs/getting-started/introduction'
       );
       const docsAliasRoute = routes.find((route) => route.routePath === '/docs');
-      const llmsRoute = routes.find((route) => route.routePath === '/llms');
+      const llmsRoute = routes.find((route) => route.routePath === '/docs/llms');
 
       assert.equal(canonicalDocRoute?.canonicalPath, '/docs/getting-started/introduction');
       assert.equal(docsAliasRoute?.canonicalPath, '/docs/getting-started/introduction');

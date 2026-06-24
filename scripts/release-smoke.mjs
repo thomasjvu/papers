@@ -49,6 +49,7 @@ function main() {
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
   assert(existsSync(join(distDir, 'sitemap.xml')), 'Missing dist/sitemap.xml.');
   assert(existsSync(join(distDir, 'llms', 'index.html')), 'Missing dist/llms/index.html.');
+  assert(existsSync(join(distDir, 'skill', 'index.html')), 'Missing dist/skill/index.html.');
   assert(existsSync(join(distDir, '404.html')), 'Missing dist/404.html.');
   assert(existsSync(distHeadersPath), 'Missing dist/_headers.');
 

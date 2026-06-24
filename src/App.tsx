@@ -3,7 +3,7 @@ import { ThemeProvider } from './providers/ThemeProvider';
 import { CommandPaletteProvider } from './providers/CommandPaletteProvider';
 import HomePage from './pages/HomePage';
 import DocsPage from './pages/DocsPage';
-import LLMSPage from './pages/LLMSPage';
+import HostedAssetRedirectPage from './pages/HostedAssetRedirectPage';
 import OpenApiPage from './pages/OpenApiPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { homepageConfig, openapiConfig } from '../shared/documentation-config.js';
@@ -31,7 +31,7 @@ export default function App() {
             <Route path={`/docs/${openapiConfig.pagePath}/:specId?`} element={<OpenApiPage />} />
           ) : null}
           <Route path="/docs/*" element={<DocsPage />} />
-          <Route path="/llms" element={<LLMSPage />} />
+          <Route path="/llms" element={<HostedAssetRedirectPage docPath="llms" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </CommandPaletteProvider>

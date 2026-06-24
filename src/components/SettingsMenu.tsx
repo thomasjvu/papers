@@ -22,9 +22,7 @@ const SettingsMenu = React.memo(
 
     const menuDirection = placement === 'top' ? 10 : -10;
     const dropdownPositionClass =
-      placement === 'top'
-        ? 'bottom-full left-1/2 -translate-x-1/2 mb-2'
-        : 'top-full right-0 mt-2';
+      placement === 'top' ? 'bottom-full left-1/2 -translate-x-1/2 mb-2' : 'top-full right-0 mt-2';
 
     const menuVariants = useMemo(() => {
       if (prefersReducedMotion) {
@@ -36,11 +34,7 @@ const SettingsMenu = React.memo(
       }
 
       const transformOrigin =
-        placement === 'top'
-          ? 'center bottom'
-          : isCompact
-            ? 'center top'
-            : 'top right';
+        placement === 'top' ? 'center bottom' : isCompact ? 'center top' : 'top right';
 
       return {
         hidden: {

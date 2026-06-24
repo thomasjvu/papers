@@ -15,7 +15,11 @@ type SeoMetadataInput = {
   noIndex?: boolean;
 };
 
-function upsertMetaTag(attributeName: 'name' | 'property', attributeValue: string, content: string) {
+function upsertMetaTag(
+  attributeName: 'name' | 'property',
+  attributeValue: string,
+  content: string
+) {
   const selector = `meta[${attributeName}="${attributeValue}"]`;
   let element = document.head.querySelector(selector) as HTMLMetaElement | null;
 

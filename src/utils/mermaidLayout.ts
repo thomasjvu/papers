@@ -137,7 +137,10 @@ export async function waitForDiagramFonts(): Promise<void> {
 
   const styles = getComputedStyle(document.documentElement);
   const fontFamily = styles.getPropertyValue('--mono-font').trim() || 'monospace';
-  const primaryFamily = fontFamily.split(',')[0]?.trim().replace(/^['"]|['"]$/g, '');
+  const primaryFamily = fontFamily
+    .split(',')[0]
+    ?.trim()
+    .replace(/^['"]|['"]$/g, '');
 
   if (primaryFamily) {
     try {

@@ -11,7 +11,6 @@ import { findPathToFile, mergeExpandedPaths } from './FileTree/treeState';
 type FileTreeProps = {
   items: FileItem[];
   onSelect: (item: FileItem) => void;
-  onPrefetch?: (path: string) => void;
   currentPath?: string;
   defaultOpenAll?: boolean;
 };
@@ -19,7 +18,6 @@ type FileTreeProps = {
 type FileTreeItemProps = {
   item: FileItem;
   onSelect: (item: FileItem) => void;
-  onPrefetch?: (path: string) => void;
   depth: number;
   onToggle: (path: string) => void;
   currentPath?: string;
@@ -39,7 +37,7 @@ function sortRootSidebarItems(entries: FileItem[]): FileItem[] {
 }
 
 const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
-  ({ item, onSelect, onPrefetch, depth, onToggle, currentPath }) => {
+  ({ item, onSelect, depth, onToggle, currentPath }) => {
     const { prefersReducedMotion } = useTheme();
     const isActive = currentPath === item.path;
     const isDirectory = item.type === 'directory';
@@ -69,11 +67,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
         <div
           className={`${styles.fileTreeItem} flex items-center py-0.5 ${isActive ? 'active' : ''}`}
           onClick={handleClick}
-          onMouseEnter={() => {
-            if (!isDirectory && onPrefetch) {
-              onPrefetch(item.path);
-            }
-          }}
           onKeyDown={handleKeyDown}
           tabIndex={0}
           role={isDirectory ? 'button' : 'link'}
@@ -129,7 +122,6 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
                   key={child.path}
                   item={child}
                   onSelect={onSelect}
-                  onPrefetch={onPrefetch}
                   depth={depth + 1}
                   onToggle={onToggle}
                   currentPath={currentPath}
@@ -148,7 +140,6 @@ FileTreeItem.displayName = 'FileTreeItem';
 const FileTree: React.FC<FileTreeProps> = ({
   items,
   onSelect,
-  onPrefetch,
   currentPath,
   defaultOpenAll = false,
 }) => {
@@ -202,7 +193,6 @@ const FileTree: React.FC<FileTreeProps> = ({
           key={item.path}
           item={item}
           onSelect={onSelect}
-          onPrefetch={onPrefetch}
           depth={0}
           onToggle={toggleItem}
           currentPath={currentPath}

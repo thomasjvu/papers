@@ -67,20 +67,26 @@ const TableOfContents = React.memo(({ content }: TableOfContentsProps) => {
     const resolveActiveHeading = () => {
       const rootRect = scrollContainer.getBoundingClientRect();
       const activationLine = rootRect.top + rootRect.height * 0.3;
+      const scrollBottom = scrollContainer.scrollTop + scrollContainer.clientHeight;
+      const isNearBottom = scrollBottom >= scrollContainer.scrollHeight - 48;
 
       let nextActiveId = headings[0]?.id ?? null;
 
-      for (const heading of headings) {
-        const element = document.getElementById(heading.id);
-        if (!element) {
-          continue;
-        }
+      if (isNearBottom) {
+        nextActiveId = headings[headings.length - 1]?.id ?? nextActiveId;
+      } else {
+        for (const heading of headings) {
+          const element = document.getElementById(heading.id);
+          if (!element) {
+            continue;
+          }
 
-        const rect = element.getBoundingClientRect();
-        if (rect.top <= activationLine) {
-          nextActiveId = heading.id;
-        } else {
-          break;
+          const rect = element.getBoundingClientRect();
+          if (rect.top <= activationLine) {
+            nextActiveId = heading.id;
+          } else {
+            break;
+          }
         }
       }
 

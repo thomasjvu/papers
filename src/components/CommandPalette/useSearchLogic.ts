@@ -133,6 +133,15 @@ export const useSearchLogic = (query: string) => {
       shortcut: 'L',
     });
 
+    results.push({
+      title: 'Agent Skill - Boss Raid',
+      path: '/skill.md',
+      type: 'page',
+      description: 'Download the agent skill for Mercenary raids and discount inference',
+      icon: createElement(Icon, { icon: 'mingcute:magic-2-line', className: 'w-5 h-5' }),
+      shortcut: 'S',
+    });
+
     FAQ_ITEMS.slice(0, 2).forEach((faq) => {
       results.push(createFaqResult(faq));
     });

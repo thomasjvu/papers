@@ -9,6 +9,7 @@ import { UI_CLASSES } from '../constants/ui';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { useTheme } from '../providers/ThemeProvider';
 
+import DocsLogoMark from './DocsLogoMark';
 import FontSelector from './FontSelector';
 import MotionToggle from './MotionToggle';
 import SettingsMenu from './SettingsMenu';
@@ -27,7 +28,8 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Design System', href: '/docs/developer-guides/design-system' },
   { label: 'Deployment', href: '/docs/deployment/overview' },
-  { label: 'LLMs.txt', href: '/llms' },
+  { label: 'LLMs.txt', href: '/docs/llms' },
+  { label: 'Agent Skill', href: '/docs/skill' },
 ];
 
 const bracketAnimationConfig = {
@@ -265,17 +267,7 @@ export default function Navigation({
           style={{ color: 'var(--text-color)' }}
           tabIndex={0}
         >
-          <span
-            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border text-xs font-black"
-            style={{
-              borderColor: 'var(--border-unified)',
-              backgroundColor: 'var(--card-color)',
-              color: 'var(--text-color)',
-              fontFamily: 'var(--mono-font)',
-            }}
-          >
-            P
-          </span>
+          <DocsLogoMark />
           <span
             className="text-lg tracking-wider uppercase font-black"
             style={{ fontFamily: 'var(--mono-font)' }}

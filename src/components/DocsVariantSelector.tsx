@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
-import { i18nConfig, versionConfig } from '../../shared/documentation-config.js';
+import { i18nConfig, versionConfig } from '@app-shared/documentation-config.js';
 
 type DocsVariantSelectorProps = {
   docPath: string;

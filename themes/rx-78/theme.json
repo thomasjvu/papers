@@ -1,0 +1,17 @@
+{
+  "id": "rx-78",
+  "name": "RX-78",
+  "description": "Boss Raid Gundam-inspired palette — blue structure, red emphasis, yellow highlights, Sora + IBM Plex Mono.",
+  "author": "Boss Raid",
+  "css": "tokens.css",
+  "iconSet": "mingcute",
+  "defaultColorMode": "light",
+  "features": {
+    "lightDarkToggle": true
+  },
+  "fonts": [
+    {
+      "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=Oxanium:wght@700&family=Sora:wght@400;600;700&display=swap"
+    }
+  ]
+}

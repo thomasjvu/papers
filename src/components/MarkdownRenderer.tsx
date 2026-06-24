@@ -93,6 +93,10 @@ function resolveInternalHref(
     return '/llms.txt';
   }
 
+  if (href === '/skill' || href === '/skill.md') {
+    return '/skill.md';
+  }
+
   if (href.startsWith('/')) {
     const parsed = new URL(href, 'https://docs.local');
     const docPath = parsed.pathname.replace(/^\/+/, '');
@@ -375,7 +379,7 @@ function MarkdownHeadingCopyLink({ headingId, label }: { headingId: string; labe
       className="heading-anchor-link"
       aria-label={`Copy link to ${label}`}
       title="Copy section link"
-      onClick={async event => {
+      onClick={async (event) => {
         event.preventDefault();
 
         try {
@@ -439,7 +443,7 @@ function MarkdownRouteLink({
       href={href}
       className={className}
       title={title}
-      onClick={event => {
+      onClick={(event) => {
         event.preventDefault();
         onNavigate(href);
       }}
@@ -466,7 +470,7 @@ function MarkdownCopyLink({
     <a
       href={href}
       className={className}
-      onClick={async event => {
+      onClick={async (event) => {
         event.preventDefault();
 
         try {
@@ -514,7 +518,7 @@ function MarkdownWalletAddress({
         type="button"
         aria-label="Copy to clipboard"
         title="Copy to clipboard"
-        onClick={async event => {
+        onClick={async (event) => {
           event.stopPropagation();
 
           try {
@@ -603,7 +607,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
       currentPath: path,
       activeLocale: routeContext.activeLocale ?? null,
       activeVersion: routeContext.activeVersion ?? null,
-      navigate: href => {
+      navigate: (href) => {
         if (href === '/') {
           navigate(href);
           return;

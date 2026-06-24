@@ -2,40 +2,21 @@ import { existsSync, readFileSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
 
+import { contentCollections } from '../shared/content-collections.js';
 import {
   buildAbsoluteUrl,
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_TWITTER_IMAGE_PATH,
   getHomeMetadataDefaults,
 } from '../shared/seo.js';
+import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
-import { getGeneratedDocumentKeys } from './lib/docsVariants.mjs';
-import { createSeoRouteEntries } from './lib/seoArtifacts.mjs';
+import { createAllCollectionSeoRouteEntries } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
 const indexHtmlPath = join(distDir, 'index.html');
-const docsIndexPath = join(rootDir, 'public', 'docs-index.json');
-const docsContentDir = join(rootDir, 'public', 'docs-content');
-
-function readJson(filePath) {
-  return JSON.parse(readFileSync(filePath, 'utf8'));
-}
-
-function readGeneratedDocuments(docsIndex) {
-  const documents = {};
-
-  for (const docKey of getGeneratedDocumentKeys(docsIndex.paths)) {
-    const filePath = join(docsContentDir, `${docKey}.json`);
-    if (!existsSync(filePath)) {
-      continue;
-    }
-
-    documents[docKey] = readJson(filePath);
-  }
-
-  return documents;
-}
+const publicDir = join(rootDir, 'public');
 
 function escapeAttribute(value) {
   return value
@@ -111,7 +92,9 @@ async function generateRouteHtml() {
     process.exit(1);
   }
 
-  if (!existsSync(docsIndexPath) || !existsSync(docsContentDir)) {
+  const artifactsByCollectionId = readAllCollectionArtifacts(publicDir, contentCollections);
+
+  if (!artifactsByCollectionId) {
     console.error('Generated docs artifacts are missing. Run generate:docs first.');
     process.exit(1);
   }
@@ -123,13 +106,15 @@ async function generateRouteHtml() {
   const siteUrl = viteEnv.VITE_SITE_URL || '';
   const siteSubtitle = defaults.siteSubtitle;
   const siteDescription = defaults.siteDescription;
-  const docsIndex = readJson(docsIndexPath);
-  const documents = readGeneratedDocuments(docsIndex);
-  const routeEntries = createSeoRouteEntries(docsIndex, documents, {
-    siteName,
-    siteSubtitle,
-    siteDescription,
-  });
+  const routeEntries = createAllCollectionSeoRouteEntries(
+    contentCollections,
+    artifactsByCollectionId,
+    {
+      siteName,
+      siteSubtitle,
+      siteDescription,
+    }
+  );
   const templateHtml = readFileSync(indexHtmlPath, 'utf8');
 
   for (const entry of routeEntries) {

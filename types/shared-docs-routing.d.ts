@@ -50,36 +50,51 @@ declare module '*/shared/docsRouting.js' {
     i18nConfig?: unknown;
   }): DocumentationFeatureState;
   export const docsFeatureState: DocumentationFeatureState;
-  export function parseDocsRoutePath(slug?: string, options?: {
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): DocsRouteContext;
-  export function buildDocsPath(path?: string, options?: {
-    version?: string | null;
-    locale?: string | null;
-    includeVersion?: boolean;
-    includeLocale?: boolean;
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): string;
-  export function buildCanonicalDocsPath(path?: string, options?: {
-    version?: string | null;
-    locale?: string | null;
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): string;
-  export function buildDocsRouteVariants(path?: string, options?: {
-    version?: string | null;
-    locale?: string | null;
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): string[];
-  export function buildDocsContentPath(path?: string, options?: {
-    version?: string | null;
-    locale?: string | null;
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): string;
+  export function parseDocsRoutePath(
+    slug?: string,
+    options?: {
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): DocsRouteContext;
+  export function buildDocsPath(
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      includeVersion?: boolean;
+      includeLocale?: boolean;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+  export function buildCanonicalDocsPath(
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+  export function buildDocsRouteVariants(
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string[];
+  export function buildDocsContentPath(
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
   export function getDocsVariantContexts(options?: {
     versionConfig?: unknown;
     i18nConfig?: unknown;
@@ -89,10 +104,64 @@ declare module '*/shared/docsRouting.js' {
     key: string;
     isDefault: boolean;
   }>;
-  export function buildDocsLandingPath(path?: string | null, options?: {
-    version?: string | null;
-    locale?: string | null;
-    versionConfig?: unknown;
-    i18nConfig?: unknown;
-  }): string;
+  export function buildDocsLandingPath(
+    path?: string | null,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+
+  export interface ContentCollectionTreeItem {
+    name: string;
+    path: string;
+    type: 'file' | 'directory';
+    children?: ContentCollectionTreeItem[];
+    expanded?: boolean;
+    tags?: string[];
+  }
+
+  export interface ContentCollection {
+    id: string;
+    label: string;
+    routePrefix: string;
+    contentDir: string;
+    tree: ContentCollectionTreeItem[];
+    description?: string;
+  }
+
+  export function buildCollectionRoutePath(
+    collection: ContentCollection,
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      includeVersion?: boolean;
+      includeLocale?: boolean;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+
+  export function buildCanonicalCollectionPath(
+    collection: ContentCollection,
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+
+  export function parseCollectionRoutePath(
+    collection: ContentCollection,
+    slug?: string,
+    options?: {
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): DocsRouteContext;
 }
