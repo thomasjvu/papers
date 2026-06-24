@@ -11,7 +11,7 @@
   --rx-surface: rgba(255, 255, 255, 0.58);
   --rx-surface-elevated: rgba(255, 255, 255, 0.9);
   --rx-surface-muted: rgba(255, 255, 255, 0.34);
-  --rx-code-bg: #e9effc;
+  --rx-code-bg: var(--rx-blue);
   --rx-accent-surface: rgba(251, 47, 56, 0.1);
 
   color-scheme: light;
@@ -74,8 +74,8 @@
   --skeleton-base: rgba(44, 82, 179, 0.08);
   --skeleton-strong: rgba(44, 82, 179, 0.12);
   --code-bg: var(--rx-code-bg);
-  --code-header-bg: #dce6f8;
-  --code-border-color: var(--rx-line-strong);
+  --code-header-bg: var(--rx-code-bg);
+  --code-border-color: transparent;
   --code-block-radius: 0;
   --code-block-clip-path: polygon(
     0 0,
@@ -85,14 +85,20 @@
     18px 100%,
     0 calc(100% - 8px)
   );
-  --code-block-border-width: 1px;
+  --code-block-border-width: 0;
+  --code-block-header-divider: none;
   --code-block-shadow: none;
-  --code-text-color: var(--rx-ink);
-  --code-muted-color: var(--rx-steel);
-  --code-subtle-color: var(--rx-steel);
-  --code-line-number-color: var(--rx-steel);
-  --code-active-bg: var(--rx-blue);
-  --code-active-text: var(--rx-white);
+  --code-text-color: var(--rx-white);
+  --code-muted-color: rgba(255, 255, 255, 0.72);
+  --code-subtle-color: rgba(255, 255, 255, 0.88);
+  --code-line-number-color: rgba(255, 255, 255, 0.42);
+  --code-copy-bg: transparent;
+  --code-copy-border: rgba(255, 255, 255, 0.35);
+  --code-copy-text: var(--rx-white);
+  --code-copy-hover-bg: transparent;
+  --code-copy-hover-border: var(--rx-white);
+  --code-active-bg: var(--rx-white);
+  --code-active-text: var(--rx-blue);
   --inline-code-bg: rgba(44, 82, 179, 0.06);
   --inline-code-border-color: var(--rx-line);
   --inline-code-text-color: var(--rx-blue);
@@ -110,7 +116,7 @@
   --rx-surface: rgba(18, 20, 27, 0.72);
   --rx-surface-elevated: rgba(24, 27, 36, 0.88);
   --rx-surface-muted: rgba(18, 20, 27, 0.42);
-  --rx-code-bg: #1a2030;
+  --rx-code-bg: #2c52b3;
   --rx-accent-surface: rgba(251, 47, 56, 0.18);
   --rx-line: rgba(241, 244, 251, 0.1);
   --rx-line-strong: rgba(241, 244, 251, 0.18);
@@ -169,8 +175,8 @@
   --skeleton-base: rgba(90, 130, 220, 0.1);
   --skeleton-strong: rgba(90, 130, 220, 0.16);
   --code-bg: var(--rx-code-bg);
-  --code-header-bg: #222a3d;
-  --code-border-color: var(--rx-line-strong);
+  --code-header-bg: var(--rx-code-bg);
+  --code-border-color: transparent;
   --code-block-radius: 0;
   --code-block-clip-path: polygon(
     0 0,
@@ -180,14 +186,20 @@
     18px 100%,
     0 calc(100% - 8px)
   );
-  --code-block-border-width: 1px;
+  --code-block-border-width: 0;
+  --code-block-header-divider: none;
   --code-block-shadow: none;
-  --code-text-color: #f1f4fb;
-  --code-muted-color: #9aa3b8;
-  --code-subtle-color: #b8c0d0;
-  --code-line-number-color: #9aa3b8;
-  --code-active-bg: #5a82dc;
-  --code-active-text: var(--rx-white);
+  --code-text-color: var(--rx-white);
+  --code-muted-color: rgba(255, 255, 255, 0.72);
+  --code-subtle-color: rgba(255, 255, 255, 0.88);
+  --code-line-number-color: rgba(255, 255, 255, 0.42);
+  --code-copy-bg: transparent;
+  --code-copy-border: rgba(255, 255, 255, 0.35);
+  --code-copy-text: var(--rx-white);
+  --code-copy-hover-bg: transparent;
+  --code-copy-hover-border: var(--rx-white);
+  --code-active-bg: var(--rx-white);
+  --code-active-text: var(--rx-blue);
   --inline-code-bg: rgba(90, 130, 220, 0.12);
   --inline-code-border-color: var(--rx-line);
   --inline-code-text-color: #8aa8e8;

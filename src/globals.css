@@ -120,7 +120,13 @@
   --code-block-radius: 12px;
   --code-block-clip-path: none;
   --code-block-border-width: 1px;
+  --code-block-header-divider: 1px solid var(--code-border-color);
   --code-block-shadow: none;
+  --code-copy-bg: var(--code-bg);
+  --code-copy-border: var(--code-border-color);
+  --code-copy-text: var(--code-text-color);
+  --code-copy-hover-bg: var(--code-header-bg);
+  --code-copy-hover-border: rgba(var(--primary-color-rgb), 0.22);
   --inline-code-bg: #f4f4f5;
   --inline-code-border-color: #e4e4e7;
   --inline-code-text-color: #111111;
