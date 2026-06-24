@@ -31,6 +31,7 @@ type SyntaxHighlighterProps = {
   style?: Record<string, CSSProperties>;
   showLineNumbers?: boolean;
   wrapLines?: boolean;
+  wrapLongLines?: boolean;
   customStyle?: CSSProperties;
   codeTagProps?: {
     style?: CSSProperties;
@@ -360,17 +361,25 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
               style={minimalSyntaxTheme}
               showLineNumbers={showLineNumbers}
               wrapLines={true}
+              wrapLongLines={true}
               customStyle={{
                 margin: 0,
                 padding: '1.25rem',
                 background: 'transparent',
                 fontSize: 'var(--code-font-size)',
                 lineHeight: 'var(--code-line-height)',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-word',
+                overflowWrap: 'anywhere',
+                overflowX: 'hidden',
               }}
               codeTagProps={{
                 style: {
                   fontFamily: 'var(--mono-font)',
                   fontSize: 'inherit',
+                  whiteSpace: 'pre-wrap',
+                  wordBreak: 'break-word',
+                  overflowWrap: 'anywhere',
                 },
               }}
             >

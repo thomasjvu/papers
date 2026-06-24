@@ -123,11 +123,20 @@
   font-family: var(--mono-font) !important;
   font-size: var(--code-font-size);
   line-height: var(--code-line-height);
-  overflow-x: auto;
-  white-space: pre;
+  overflow-x: hidden;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   color: var(--code-text-color);
   border: none;
   box-shadow: none;
+}
+
+.codeBlockContent pre,
+.codeBlockContent code {
+  white-space: pre-wrap !important;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 .codeBlockContent code {

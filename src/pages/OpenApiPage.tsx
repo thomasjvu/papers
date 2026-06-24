@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import { Navigate, useParams } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
 
 import DocPageFooter from '../components/DocPageFooter';
 import DocumentationPage from '../components/docs/DocumentationPage';
@@ -11,8 +11,11 @@ import { applySeoMetadata } from '../utils/seo';
 
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
-export default function OpenApiPage() {
-  const { specId } = useParams();
+type OpenApiPageProps = {
+  specId?: string;
+};
+
+export default function OpenApiPage({ specId }: OpenApiPageProps) {
   const pagePath = getOpenApiPagePath();
   const specs = openapiConfig.enabled ? openapiConfig.specs : [];
   const activeSpec = useMemo(() => {
@@ -48,7 +51,7 @@ export default function OpenApiPage() {
   }
 
   if (!activeSpec) {
-    return <Navigate to="/docs/api-reference/overview" replace />;
+    return <Navigate to="/docs/reference/routes" replace />;
   }
 
   return (
@@ -62,11 +65,8 @@ export default function OpenApiPage() {
               {activeSpec.label}
             </h1>
             <p className="text-sm" style={{ color: 'var(--muted-color)' }}>
-              {activeSpec.description || 'Interactive OpenAPI explorer.'} See the{' '}
-              <a href="/docs/api-reference/overview" style={{ color: 'var(--primary-color)' }}>
-                API reference overview
-              </a>{' '}
-              for how specs are wired in papers.
+              {activeSpec.description || 'Interactive OpenAPI explorer.'} Regenerate specs with{' '}
+              <code>pnpm bossraid sync:openapi</code>.
             </p>
           </header>
 

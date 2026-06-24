@@ -65,8 +65,15 @@ function createFaqResult(faq: (typeof FAQ_ITEMS)[number]): SearchResultType {
   };
 }
 
+const FONT_OPTIONS = [
+  { value: 'sans-serif' as const, label: 'Sans Serif', icon: 'mingcute:font-size-line' },
+  { value: 'mono' as const, label: 'Monospace', icon: 'mingcute:code-line' },
+  { value: 'serif' as const, label: 'Serif', icon: 'mingcute:text-line' },
+];
+
 export const useSearchLogic = (query: string) => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
+  const { isDarkMode, toggleDarkMode, prefersReducedMotion, toggleReducedMotion, setFontFamily } =
+    useTheme();
   const debouncedQuery = useDebounce(query, 150);
   const { search: pagefindSearch, isAvailable: pagefindAvailable } = usePagefind();
   const [pagefindResults, setPagefindResults] = useState<SearchResultType[]>([]);
@@ -109,26 +116,49 @@ export const useSearchLogic = (query: string) => {
     };
   }, [debouncedQuery, pagefindAvailable, pagefindSearch]);
 
-  const searchIndex = useMemo(() => {
-    const results: SearchResultType[] = [];
+  const preferenceCommands = useMemo<SearchResultType[]>(() => {
+    const commands: SearchResultType[] = [
+      {
+        title: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+        path: 'theme-toggle',
+        type: 'theme',
+        action: toggleDarkMode,
+        icon: isDarkMode
+          ? createElement(Icon, { icon: 'mingcute:sun-line', className: 'w-5 h-5' })
+          : createElement(Icon, { icon: 'mingcute:moon-line', className: 'w-5 h-5' }),
+        shortcut: 'I',
+      },
+      {
+        title: prefersReducedMotion ? 'Enable Motion' : 'Reduce Motion',
+        path: 'motion-toggle',
+        type: 'action',
+        action: toggleReducedMotion,
+        icon: prefersReducedMotion
+          ? createElement(Icon, { icon: 'mingcute:play-circle-line', className: 'w-5 h-5' })
+          : createElement(Icon, { icon: 'mingcute:pause-circle-line', className: 'w-5 h-5' }),
+      },
+    ];
 
-    results.push({
-      title: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
-      path: 'theme-toggle',
-      type: 'theme',
-      description: 'Toggle between light and dark themes',
-      action: toggleDarkMode,
-      icon: isDarkMode
-        ? createElement(Icon, { icon: 'mingcute:sun-line', className: 'w-5 h-5' })
-        : createElement(Icon, { icon: 'mingcute:moon-line', className: 'w-5 h-5' }),
-      shortcut: 'I',
+    FONT_OPTIONS.forEach((option) => {
+      commands.push({
+        title: `Font: ${option.label}`,
+        path: `font-${option.value}`,
+        type: 'action',
+        action: () => setFontFamily(option.value),
+        icon: createElement(Icon, { icon: option.icon, className: 'w-5 h-5' }),
+      });
     });
+
+    return commands;
+  }, [isDarkMode, prefersReducedMotion, setFontFamily, toggleDarkMode, toggleReducedMotion]);
+
+  const searchIndex = useMemo(() => {
+    const results: SearchResultType[] = [...preferenceCommands];
 
     results.push({
       title: 'LLMs.txt - AI Documentation',
       path: '/llms.txt',
       type: 'page',
-      description: 'View and download AI-friendly documentation format',
       icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
       shortcut: 'L',
     });
@@ -138,7 +168,6 @@ export const useSearchLogic = (query: string) => {
       title: `Agent Skill - ${siteName}`,
       path: '/skill.md',
       type: 'page',
-      description: 'Download the hosted agent skill file for API integration',
       icon: createElement(Icon, { icon: 'mingcute:magic-2-line', className: 'w-5 h-5' }),
       shortcut: 'S',
     });
@@ -171,14 +200,13 @@ export const useSearchLogic = (query: string) => {
         title: 'Go to Homepage',
         path: '/',
         type: 'action',
-        description: 'Navigate to the main page',
         icon: createElement(Icon, { icon: 'mingcute:home-2-line', className: 'w-5 h-5' }),
         shortcut: 'H',
       });
     }
 
     return results;
-  }, [isDarkMode, toggleDarkMode]);
+  }, [preferenceCommands]);
 
   const completeSearchIndex = useMemo(() => {
     const allResults = [...searchIndex];
@@ -191,7 +219,9 @@ export const useSearchLogic = (query: string) => {
   }, [searchIndex]);
 
   const filteredResults = useMemo(() => {
-    if (!debouncedQuery) return searchIndex.slice(0, 8);
+    if (!debouncedQuery) {
+      return searchIndex.slice(0, 10);
+    }
 
     const lowerQuery = debouncedQuery.toLowerCase();
     const results: SearchResultType[] = [];

@@ -2,6 +2,8 @@ import '@scalar/api-reference-react/style.css';
 
 import { lazy, Suspense, useEffect } from 'react';
 
+import { useTheme } from '../providers/ThemeProvider';
+
 const ScalarApiReference = lazy(() =>
   import('@scalar/api-reference-react').then((module) => ({
     default: module.ApiReferenceReact,
@@ -13,6 +15,8 @@ type OpenApiReferenceProps = {
 };
 
 export default function OpenApiReference({ specUrl = '/openapi-v1.yaml' }: OpenApiReferenceProps) {
+  const { isDarkMode } = useTheme();
+
   useEffect(() => {
     document.documentElement.classList.add('papers-openapi-page');
     return () => {
@@ -43,8 +47,8 @@ export default function OpenApiReference({ specUrl = '/openapi-v1.yaml' }: OpenA
             },
             hideDownloadButton: false,
             hideModels: false,
-            darkMode: true,
-            forceDarkModeState: 'dark',
+            darkMode: isDarkMode,
+            forceDarkModeState: isDarkMode ? 'dark' : 'light',
             customCss: `
               .scalar-api-reference {
                 --scalar-background-1: var(--background-color, #0f380f);

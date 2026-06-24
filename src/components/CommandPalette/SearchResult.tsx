@@ -49,17 +49,6 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           <div className="text-sm font-medium leading-snug" style={{ color: 'var(--text-color)' }}>
             {result.title}
           </div>
-          {result.description && (
-            <div
-              className="mt-0.5 text-2xs leading-relaxed opacity-70"
-              style={{
-                color: 'var(--muted-color)',
-                fontFamily: 'var(--mono-font)',
-              }}
-            >
-              {result.description}
-            </div>
-          )}
         </div>
         <div className="flex items-center gap-2">
           {result.shortcut && (

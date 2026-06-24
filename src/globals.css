@@ -717,9 +717,10 @@ a:focus-visible {
 /* Inline code styles for markdown */
 pre {
   max-width: 100%;
-  overflow-x: auto;
+  overflow-x: hidden;
   white-space: pre-wrap;
-  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(var(--primary-color-rgb), 0.15);
@@ -1199,6 +1200,7 @@ code {
 .doc-content .role-lane-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: start;
   gap: var(--space-4);
   margin: var(--space-6) 0 var(--space-10);
 }
@@ -1206,6 +1208,7 @@ code {
 .doc-content .role-lane-card {
   display: flex;
   flex-direction: column;
+  overflow: visible;
   border: 1px solid var(--border-unified);
   border-radius: var(--radius-md);
   background: var(--card-color);
@@ -1484,7 +1487,7 @@ a {
 }
 
 /* Documentation body links */
-.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link),
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):not(.role-lane-card),
 .prose a:not(.heading-anchor-link),
 .markdown-content a:not(.heading-anchor-link),
 .markdown-link,
@@ -1502,7 +1505,7 @@ a {
     text-decoration-color var(--transition-normal);
 }
 
-.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):hover,
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):not(.role-lane-card):hover,
 .prose a:not(.heading-anchor-link):hover,
 .markdown-content a:not(.heading-anchor-link):hover,
 .markdown-link:hover,
@@ -1511,7 +1514,7 @@ a {
   text-decoration-color: rgba(var(--primary-color-rgb), 0.35);
 }
 
-.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):visited,
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):not(.role-lane-card):visited,
 .prose a:not(.heading-anchor-link):visited,
 .markdown-content a:not(.heading-anchor-link):visited,
 .markdown-link:visited,
@@ -1519,7 +1522,8 @@ a {
   opacity: 0.82;
 }
 
-.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):visited:hover,
+.doc-content
+  a:not(.doc-page-footer-link):not(.heading-anchor-link):not(.role-lane-card):visited:hover,
 .prose a:not(.heading-anchor-link):visited:hover,
 .markdown-content a:not(.heading-anchor-link):visited:hover,
 .markdown-link:visited:hover,
@@ -1527,7 +1531,7 @@ a {
   opacity: 0.62;
 }
 
-.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):focus,
+.doc-content a:not(.doc-page-footer-link):not(.heading-anchor-link):not(.role-lane-card):focus,
 .prose a:not(.heading-anchor-link):focus,
 .markdown-content a:not(.heading-anchor-link):focus,
 .markdown-link:focus,
@@ -1729,15 +1733,31 @@ header a:hover,
   opacity: 0.6;
 }
 
+.doc-content .table-scroll {
+  width: 100%;
+  max-width: 100%;
+  margin: var(--space-8) 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: var(--table-wrap-border, none);
+  border-radius: var(--radius-md);
+}
+
 .doc-content table {
   width: 100%;
+  min-width: 100%;
   border-collapse: collapse;
   margin: var(--space-8) 0;
-  font-family: var(--body-font);
-  font-size: var(--text-base);
-  line-height: 1.6;
+  font-family: var(--mono-font);
+  font-size: var(--text-sm);
+  line-height: 1.45;
   border: var(--table-wrap-border, none);
   background-color: var(--table-cell-bg, transparent);
+}
+
+.doc-content .table-scroll table {
+  margin: 0;
+  min-width: 36rem;
 }
 
 .doc-content th,
@@ -1775,6 +1795,20 @@ header a:hover,
   background-color: var(--table-header-inline-code-bg, var(--inline-code-bg)) !important;
   border-color: var(--table-header-inline-code-border, var(--inline-code-border-color)) !important;
   color: var(--table-header-inline-code-text, var(--inline-code-text-color)) !important;
+}
+
+@media (max-width: 767px) {
+  .doc-content table {
+    font-size: var(--text-2xs);
+  }
+
+  .doc-content th,
+  .doc-content td {
+    padding: var(--space-2) var(--space-3);
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    vertical-align: top;
+  }
 }
 
 /* Fix for social media icons in dark mode */

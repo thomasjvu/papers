@@ -234,7 +234,7 @@ const applyBasicStyles = (html: string): string => {
     [/<ol([^>]*)>/g, '<ol$1 class="list-decimal pl-6 mb-4">'],
     [/<li([^>]*)>/g, '<li$1 class="mb-1">'],
     [/<blockquote([^>]*)>/g, '<blockquote$1 class="markdown-blockquote">'],
-    [/<table([^>]*)>/g, '<table$1 class="w-full border-collapse my-4">'],
+    [/<table([^>]*)>/g, '<div class="table-scroll"><table$1 class="w-full border-collapse">'],
     [/<th([^>]*)>/g, '<th$1 class="border px-4 py-2 text-left">'],
     [/<td([^>]*)>/g, '<td$1 class="border px-4 py-2">'],
     [/<hr([^>]*)>/g, '<hr$1 class="my-8 border-t">'],
@@ -245,6 +245,8 @@ const applyBasicStyles = (html: string): string => {
   for (const [regex, replacement] of styleReplacements) {
     styledHtml = styledHtml.replace(regex, replacement);
   }
+
+  styledHtml = styledHtml.replace(/<\/table>/g, '</table></div>');
 
   return styledHtml;
 };

@@ -10,10 +10,7 @@ import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { useTheme } from '../providers/ThemeProvider';
 
 import DocsLogoMark from './DocsLogoMark';
-import FontSelector from './FontSelector';
-import MotionToggle from './MotionToggle';
 import SettingsMenu from './SettingsMenu';
-import ThemeSwitcher from './ThemeSwitcher';
 
 type NavigationProps = {
   docsPath?: string;
@@ -357,47 +354,30 @@ export default function Navigation({
                 <div key={item.label}>{renderNavLink(item, true)}</div>
               ))}
 
-              <div
-                className="pt-3 pb-2 px-4 border-t mt-2"
-                style={{ borderColor: 'var(--border-color)' }}
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  openCommandPalette();
+                }}
+                className="mt-2 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm"
+                style={{
+                  borderColor: 'var(--border-color)',
+                  color: 'var(--text-color)',
+                  fontFamily: 'var(--mono-font)',
+                }}
               >
-                <div className="flex items-center justify-between mb-3">
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: 'var(--muted-color)',
-                      fontFamily: 'var(--mono-font)',
-                    }}
-                  >
-                    theme
-                  </span>
-                  <ThemeSwitcher />
-                </div>
-                <div className="flex items-center justify-between mb-3">
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: 'var(--muted-color)',
-                      fontFamily: 'var(--mono-font)',
-                    }}
-                  >
-                    motion
-                  </span>
-                  <MotionToggle />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-sm"
-                    style={{
-                      color: 'var(--muted-color)',
-                      fontFamily: 'var(--mono-font)',
-                    }}
-                  >
-                    font
-                  </span>
-                  <FontSelector />
-                </div>
-              </div>
+                <span className="flex items-center gap-2">
+                  <Icon icon="mingcute:settings-3-fill" className="h-4 w-4" />
+                  Preferences
+                </span>
+                <kbd
+                  className="rounded border px-1.5 py-0.5 text-2xs"
+                  style={{ borderColor: 'var(--border-color)' }}
+                >
+                  {shortcutLabel}
+                </kbd>
+              </button>
 
               {isDocsPage && onToggleSidebar && (
                 <div

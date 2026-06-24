@@ -34,8 +34,8 @@
   --icon-color: var(--rx-blue);
   --primary-color-rgb: 44, 82, 179;
   --hover-color: rgba(44, 82, 179, 0.06);
-  --tag-bg-color: var(--rx-blue);
-  --tag-text-color: var(--rx-white);
+  --tag-bg-color: var(--rx-yellow);
+  --tag-text-color: var(--rx-ink);
   --link-hover-color: color-mix(in srgb, var(--rx-blue) 88%, var(--rx-ink));
   --button-hover-bg: rgba(44, 82, 179, 0.08);
   --toc-bg-color: var(--rx-white);
@@ -100,7 +100,7 @@
   --code-copy-hover-border: var(--rx-white);
   --code-active-bg: var(--rx-white);
   --code-active-text: var(--rx-blue);
-  --inline-code-bg: var(--rx-code-bg);
+  --inline-code-bg: var(--rx-red);
   --inline-code-border-color: transparent;
   --inline-code-text-color: var(--rx-white);
   --table-header-bg: var(--rx-blue);
@@ -149,8 +149,8 @@
   --icon-color: #5a82dc;
   --primary-color-rgb: 90, 130, 220;
   --hover-color: rgba(90, 130, 220, 0.1);
-  --tag-bg-color: var(--rx-red);
-  --tag-text-color: var(--rx-white);
+  --tag-bg-color: var(--rx-yellow);
+  --tag-text-color: var(--rx-ink);
   --link-hover-color: #8aa8e8;
   --button-hover-bg: rgba(90, 130, 220, 0.12);
   --toc-bg-color: #12141b;
@@ -215,7 +215,7 @@
   --code-copy-hover-border: var(--rx-white);
   --code-active-bg: var(--rx-white);
   --code-active-text: var(--rx-blue);
-  --inline-code-bg: var(--rx-code-bg);
+  --inline-code-bg: var(--rx-red);
   --inline-code-border-color: transparent;
   --inline-code-text-color: var(--rx-white);
   --table-header-bg: var(--rx-code-bg);
