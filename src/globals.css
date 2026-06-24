@@ -1736,29 +1736,45 @@ header a:hover,
   font-family: var(--body-font);
   font-size: var(--text-base);
   line-height: 1.6;
+  border: var(--table-wrap-border, none);
+  background-color: var(--table-cell-bg, transparent);
 }
 
 .doc-content th,
 .doc-content td {
-  border: 1px solid var(--border-unified);
+  border: 1px solid var(--table-border-color, var(--border-unified));
   padding: var(--space-3) var(--space-4);
   text-align: left;
   vertical-align: top;
 }
 
 .doc-content th {
-  background-color: rgba(0, 0, 0, 0.03);
+  background-color: var(--table-header-bg, rgba(0, 0, 0, 0.03));
+  font-family: var(--table-header-font, var(--body-font));
   font-weight: 600;
-  color: var(--text-color);
-  letter-spacing: -0.025em;
+  color: var(--table-header-text, var(--text-color));
+  letter-spacing: var(--table-header-letter-spacing, -0.025em);
+  text-transform: var(--table-header-transform, none);
 }
 
 .dark .doc-content th {
-  background-color: rgba(255, 255, 255, 0.03);
+  background-color: var(--table-header-bg, rgba(255, 255, 255, 0.03));
+  color: var(--table-header-text, var(--text-color));
 }
 
 .doc-content td {
-  color: var(--text-color);
+  background-color: var(--table-cell-bg, transparent);
+  color: var(--table-cell-text, var(--text-color));
+}
+
+.doc-content tbody tr:nth-child(even) td {
+  background-color: var(--table-row-alt-bg, var(--table-cell-bg, transparent));
+}
+
+.doc-content th code.inline-code {
+  background-color: var(--table-header-inline-code-bg, var(--inline-code-bg)) !important;
+  border-color: var(--table-header-inline-code-border, var(--inline-code-border-color)) !important;
+  color: var(--table-header-inline-code-text, var(--inline-code-text-color)) !important;
 }
 
 /* Fix for social media icons in dark mode */
