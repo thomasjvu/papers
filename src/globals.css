@@ -1200,13 +1200,12 @@ code {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--space-4);
-  margin: var(--space-6) 0 var(--space-8);
+  margin: var(--space-6) 0 var(--space-10);
 }
 
 .doc-content .role-lane-card {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
   border: 1px solid var(--border-unified);
   border-radius: var(--radius-md);
   background: var(--card-color);
@@ -1243,7 +1242,7 @@ code {
 }
 
 .doc-content .role-lane-card__body {
-  padding: var(--space-3) var(--space-4) var(--space-4);
+  padding: var(--space-3) var(--space-4) var(--space-5);
 }
 
 .doc-content .role-lane-card__eyebrow {
@@ -1267,6 +1266,7 @@ code {
 .doc-content .role-lane-card__meta {
   display: block;
   margin-top: var(--space-2);
+  padding-bottom: 0.125rem;
   color: var(--muted-color);
   font-family: var(--mono-font);
   font-size: var(--text-2xs);

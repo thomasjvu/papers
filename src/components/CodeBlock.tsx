@@ -343,18 +343,13 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
               className={styles.codeBlockCopyBtn}
               onClick={copyToClipboard}
               title={copied ? 'Copied!' : 'Copy to clipboard'}
+              aria-label={copied ? 'Copied' : 'Copy to clipboard'}
               type="button"
             >
               {copied ? (
-                <>
-                  <Icon icon="mingcute:check-line" className="h-4 w-4" />
-                  <span className={styles.codeBlockCopyLabel}>Copied!</span>
-                </>
+                <Icon icon="mingcute:check-line" className="h-4 w-4" />
               ) : (
-                <>
-                  <Icon icon="mingcute:copy-line" className="h-4 w-4" />
-                  <span className={styles.codeBlockCopyLabel}>Copy</span>
-                </>
+                <Icon icon="mingcute:copy-line" className="h-4 w-4" />
               )}
             </button>
           </div>

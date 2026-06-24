@@ -87,6 +87,7 @@
   );
   --code-block-border-width: 0;
   --code-block-header-divider: none;
+  --code-block-min-lines: 13;
   --code-block-shadow: none;
   --code-text-color: var(--rx-white);
   --code-muted-color: rgba(255, 255, 255, 0.72);
@@ -188,6 +189,7 @@
   );
   --code-block-border-width: 0;
   --code-block-header-divider: none;
+  --code-block-min-lines: 13;
   --code-block-shadow: none;
   --code-text-color: var(--rx-white);
   --code-muted-color: rgba(255, 255, 255, 0.72);

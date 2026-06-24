@@ -79,8 +79,11 @@
 .codeBlockCopyBtn {
   display: flex;
   align-items: center;
-  gap: 0.375rem;
-  padding: 0.3125rem 0.625rem;
+  justify-content: center;
+  gap: 0;
+  padding: 0.375rem;
+  min-width: 1.75rem;
+  min-height: 1.75rem;
   border: 1px solid var(--code-copy-border, var(--code-border-color));
   border-radius: var(--code-block-radius, 6px);
   background-color: var(--code-copy-bg, var(--code-bg));
@@ -113,6 +116,9 @@
 .codeBlockContent {
   margin: 0;
   padding: 0 0 0.25rem;
+  min-height: calc(
+    var(--code-block-min-lines, 0) * var(--code-line-height) * var(--code-font-size) + 2.5rem
+  );
   background-color: var(--code-bg);
   font-family: var(--mono-font) !important;
   font-size: var(--code-font-size);

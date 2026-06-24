@@ -1,14 +1,10 @@
 Boss Raid downstream sync
 Repo: https://github.com/thomasjvu/papers.git
-Changed files: 8
+Changed files: 4
 
 modified	src/components/CodeBlock.module.css
-modified	src/components/HostedFilePreview.tsx
+modified	src/components/CodeBlock.tsx
 modified	src/globals.css
-modified	src/lib/hostedAssetPage.ts
-modified	src/pages/DocsPage.tsx
-modified	src/pages/HostedAssetRedirectPage.tsx
-modified	themes/default/tokens.css
 modified	themes/rx-78/tokens.css
 
 Next:
