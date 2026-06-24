@@ -11,7 +11,7 @@
   --rx-surface: rgba(255, 255, 255, 0.58);
   --rx-surface-elevated: rgba(255, 255, 255, 0.9);
   --rx-surface-muted: rgba(255, 255, 255, 0.34);
-  --rx-code-bg: rgba(17, 17, 17, 0.04);
+  --rx-code-bg: #e9effc;
   --rx-accent-surface: rgba(251, 47, 56, 0.1);
 
   color-scheme: light;
@@ -74,8 +74,19 @@
   --skeleton-base: rgba(44, 82, 179, 0.08);
   --skeleton-strong: rgba(44, 82, 179, 0.12);
   --code-bg: var(--rx-code-bg);
-  --code-header-bg: rgba(44, 82, 179, 0.06);
-  --code-border-color: var(--rx-line);
+  --code-header-bg: #dce6f8;
+  --code-border-color: var(--rx-line-strong);
+  --code-block-radius: 0;
+  --code-block-clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    18px 100%,
+    0 calc(100% - 8px)
+  );
+  --code-block-border-width: 1px;
+  --code-block-shadow: none;
   --code-text-color: var(--rx-ink);
   --code-muted-color: var(--rx-steel);
   --code-subtle-color: var(--rx-steel);
@@ -99,7 +110,7 @@
   --rx-surface: rgba(18, 20, 27, 0.72);
   --rx-surface-elevated: rgba(24, 27, 36, 0.88);
   --rx-surface-muted: rgba(18, 20, 27, 0.42);
-  --rx-code-bg: rgba(241, 244, 251, 0.06);
+  --rx-code-bg: #1a2030;
   --rx-accent-surface: rgba(251, 47, 56, 0.18);
   --rx-line: rgba(241, 244, 251, 0.1);
   --rx-line-strong: rgba(241, 244, 251, 0.18);
@@ -158,8 +169,19 @@
   --skeleton-base: rgba(90, 130, 220, 0.1);
   --skeleton-strong: rgba(90, 130, 220, 0.16);
   --code-bg: var(--rx-code-bg);
-  --code-header-bg: rgba(90, 130, 220, 0.1);
-  --code-border-color: var(--rx-line);
+  --code-header-bg: #222a3d;
+  --code-border-color: var(--rx-line-strong);
+  --code-block-radius: 0;
+  --code-block-clip-path: polygon(
+    0 0,
+    100% 0,
+    100% calc(100% - 18px),
+    calc(100% - 18px) 100%,
+    18px 100%,
+    0 calc(100% - 8px)
+  );
+  --code-block-border-width: 1px;
+  --code-block-shadow: none;
   --code-text-color: #f1f4fb;
   --code-muted-color: #9aa3b8;
   --code-subtle-color: #b8c0d0;

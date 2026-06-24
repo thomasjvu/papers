@@ -1,10 +1,12 @@
-/* Enhanced Code Block Component Styles */
+/* Theme-driven code block chrome — shape tokens live on each theme's tokens.css */
 .codeBlockContainer {
   margin: 2rem 0;
-  border-radius: 12px;
+  border-radius: var(--code-block-radius, 12px);
+  clip-path: var(--code-block-clip-path, none);
   overflow: hidden;
   background-color: var(--code-bg);
-  border: 1px solid var(--code-border-color);
+  border: var(--code-block-border-width, 1px) solid var(--code-border-color);
+  box-shadow: var(--code-block-shadow, none);
   transition: border-color 0.3s ease;
 }
 
@@ -31,7 +33,7 @@
 .codeBlockTab {
   padding: 0.4375rem 0.875rem;
   border: 1px solid var(--code-border-color);
-  border-radius: 6px;
+  border-radius: var(--code-block-radius, 6px);
   font-family: var(--mono-font);
   font-size: var(--code-label-size);
   font-weight: 500;
@@ -80,8 +82,8 @@
   gap: 0.375rem;
   padding: 0.3125rem 0.625rem;
   border: 1px solid var(--code-border-color);
-  border-radius: 6px;
-  background-color: transparent;
+  border-radius: var(--code-block-radius, 6px);
+  background-color: var(--code-bg);
   color: var(--code-text-color);
   font-family: var(--mono-font);
   font-size: var(--code-label-size);
@@ -92,7 +94,7 @@
 }
 
 .codeBlockCopyBtn:hover {
-  background-color: var(--code-bg);
+  background-color: var(--code-header-bg);
   border-color: rgba(var(--primary-color-rgb), 0.22);
 }
 
@@ -130,7 +132,6 @@
   border-radius: 0 !important;
 }
 
-/* Active tab stays high-contrast but still monochrome. */
 .codeBlockTabActive {
   background-color: var(--code-active-bg);
   color: var(--code-active-text);
@@ -148,7 +149,6 @@
 @media (max-width: 640px) {
   .codeBlockContainer {
     margin: 1.5rem 0;
-    border-radius: 8px;
   }
 
   .codeBlockTitle {
