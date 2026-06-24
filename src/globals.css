@@ -1026,36 +1026,27 @@ code {
   opacity: 0.8;
 }
 
-.doc-page-bottom {
-  width: 100%;
-}
-
 .doc-page-bottom-row {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: end;
   position: relative;
   width: 100%;
   min-height: 2.75rem;
-  gap: var(--space-4);
 }
 
 .doc-page-bottom-nav {
   min-width: 0;
 }
 
-.doc-page-bottom-nav--prev,
-.doc-page-bottom-nav--next {
-  flex: 1 1 0;
-  display: flex;
-}
-
 .doc-page-bottom-nav--prev {
-  justify-content: flex-start;
+  grid-column: 1;
+  justify-self: start;
 }
 
 .doc-page-bottom-nav--next {
-  justify-content: flex-end;
+  grid-column: 2;
+  justify-self: end;
 }
 
 .doc-page-footer {

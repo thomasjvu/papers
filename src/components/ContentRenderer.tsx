@@ -113,57 +113,57 @@ const ContentRenderer = memo(function ContentRenderer({
               ))}
             </motion.div>
           )}
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="doc-page-bottom mt-12 border-t pt-4"
+            style={{ borderColor: 'var(--border-unified)' }}
+          >
+            <div className="doc-page-bottom-row">
+              <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
+                {prevPage ? (
+                  <button
+                    onClick={() => goToPage(prevPage)}
+                    onMouseEnter={() => warmPage(prevPage.path)}
+                    onFocus={() => warmPage(prevPage.path)}
+                    className="nav-button rounded-lg p-4 text-left transition-opacity hover:opacity-70"
+                    type="button"
+                  >
+                    <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
+                      Previous
+                    </div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
+                      {prevPage.title}
+                    </div>
+                  </button>
+                ) : null}
+              </div>
+
+              <DocPageFooter path={path} sourcePath={sourcePath} />
+
+              <div className="doc-page-bottom-nav doc-page-bottom-nav--next">
+                {nextPage ? (
+                  <button
+                    onClick={() => goToPage(nextPage)}
+                    onMouseEnter={() => warmPage(nextPage.path)}
+                    onFocus={() => warmPage(nextPage.path)}
+                    className="nav-button rounded-lg p-4 text-right transition-opacity hover:opacity-70"
+                    type="button"
+                  >
+                    <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
+                      Next
+                    </div>
+                    <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
+                      {nextPage.title}
+                    </div>
+                  </button>
+                ) : null}
+              </div>
+            </div>
+          </motion.div>
         </div>
-
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.3 }}
-          className="doc-page-bottom mt-12 w-full border-t px-6 pt-4 md:px-8 lg:px-12"
-          style={{ borderColor: 'var(--border-unified)' }}
-        >
-          <div className="doc-page-bottom-row w-full">
-            <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
-              {prevPage ? (
-                <button
-                  onClick={() => goToPage(prevPage)}
-                  onMouseEnter={() => warmPage(prevPage.path)}
-                  onFocus={() => warmPage(prevPage.path)}
-                  className="nav-button rounded-lg p-4 text-left transition-opacity hover:opacity-70"
-                  type="button"
-                >
-                  <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
-                    Previous
-                  </div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
-                    {prevPage.title}
-                  </div>
-                </button>
-              ) : null}
-            </div>
-
-            <DocPageFooter path={path} sourcePath={sourcePath} />
-
-            <div className="doc-page-bottom-nav doc-page-bottom-nav--next">
-              {nextPage ? (
-                <button
-                  onClick={() => goToPage(nextPage)}
-                  onMouseEnter={() => warmPage(nextPage.path)}
-                  onFocus={() => warmPage(nextPage.path)}
-                  className="nav-button rounded-lg p-4 text-right transition-opacity hover:opacity-70"
-                  type="button"
-                >
-                  <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
-                    Next
-                  </div>
-                  <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
-                    {nextPage.title}
-                  </div>
-                </button>
-              ) : null}
-            </div>
-          </div>
-        </motion.div>
       </div>
     </div>
   );
