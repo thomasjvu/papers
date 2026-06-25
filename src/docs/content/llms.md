@@ -15,11 +15,7 @@ These files give AI tools and internal agents a clean text entry point without r
 
 `npm run build` runs `scripts/generate-llms.mjs` automatically.
 
-If you only want to refresh AI exports while writing, run:
-
-```bash
-npm run generate:llms
-```
+`npm run generate:llms` runs the same script without a full build when you only need fresh AI exports.
 
 ## When To Regenerate
 
