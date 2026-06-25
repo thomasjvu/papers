@@ -1,5 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 
+import { buildOpenApiRoutePath } from '../lib/openapi';
+
 type OpenApiSpecConfig = {
   id: string;
   label: string;
@@ -11,24 +13,12 @@ type OpenApiSpecSelectorProps = {
   specs: OpenApiSpecConfig[];
   activeSpecId: string;
   defaultSpecId: string;
-  pagePath: string;
 };
-
-function buildSpecHref(specId: string, defaultSpecId: string, pagePath: string) {
-  const basePath = `/docs/${pagePath}`;
-
-  if (specId === defaultSpecId) {
-    return basePath;
-  }
-
-  return `${basePath}/${specId}`;
-}
 
 export default function OpenApiSpecSelector({
   specs,
   activeSpecId,
   defaultSpecId,
-  pagePath,
 }: OpenApiSpecSelectorProps) {
   const location = useLocation();
 
@@ -37,9 +27,9 @@ export default function OpenApiSpecSelector({
   }
 
   return (
-    <div className="mb-4 flex flex-wrap gap-2" role="tablist" aria-label="OpenAPI specifications">
+    <div className="flex flex-wrap gap-2" role="tablist" aria-label="OpenAPI specifications">
       {specs.map((spec) => {
-        const href = buildSpecHref(spec.id, defaultSpecId, pagePath);
+        const href = buildOpenApiRoutePath(spec.id === defaultSpecId ? null : spec.id);
         const isActive = spec.id === activeSpecId;
 
         return (

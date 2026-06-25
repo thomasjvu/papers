@@ -377,19 +377,11 @@ const DocumentationPage = React.memo(
                     >
                       P
                     </span>
-                    <span className="min-w-0">
-                      <span
-                        className="block truncate text-sm uppercase tracking-[0.28em]"
-                        style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
-                      >
-                        Docs
-                      </span>
-                      <span
-                        className="block truncate text-lg font-black uppercase tracking-[0.18em]"
-                        style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
-                      >
-                        {siteName}
-                      </span>
+                    <span
+                      className="min-w-0 truncate text-lg font-black uppercase tracking-[0.18em]"
+                      style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+                    >
+                      {siteName}
                     </span>
                   </Link>
 

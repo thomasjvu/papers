@@ -99,8 +99,20 @@ function resolveInternalHref(
 
   if (href.startsWith('/')) {
     const parsed = new URL(href, 'https://docs.local');
-    const docPath = parsed.pathname.replace(/^\/+/, '');
-    return buildResolvedDocsHref(docPath, `${parsed.search}${parsed.hash}`, context);
+    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+    const suffix = `${parsed.search}${parsed.hash}`;
+
+    if (
+      pathname === '/docs' ||
+      pathname.startsWith('/docs/') ||
+      pathname === '/dev-docs' ||
+      pathname.startsWith('/dev-docs/')
+    ) {
+      return pathname + suffix;
+    }
+
+    const docPath = pathname.replace(/^\/+/, '');
+    return buildResolvedDocsHref(docPath, suffix, context);
   }
 
   const { pathname, suffix } = splitPathSuffix(href);
