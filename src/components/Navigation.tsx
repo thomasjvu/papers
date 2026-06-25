@@ -265,7 +265,7 @@ export default function Navigation({
         >
           <DocsLogoMark />
           <span
-            className="text-lg tracking-wider uppercase font-black"
+            className="text-xl tracking-wider uppercase font-black md:text-2xl"
             style={{ fontFamily: 'var(--mono-font)' }}
           >
             {siteName}

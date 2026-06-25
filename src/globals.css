@@ -721,10 +721,10 @@ a:focus-visible {
 /* Inline code styles for markdown */
 pre {
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: auto;
   white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
   padding: var(--space-4);
   border-radius: var(--radius-lg);
   border: 1px solid rgba(var(--primary-color-rgb), 0.15);
@@ -991,6 +991,13 @@ code {
 
 .doc-hosted-preview {
   margin: var(--space-4) 0;
+}
+
+.doc-hosted-preview__code pre,
+.doc-hosted-preview__code code {
+  white-space: pre-wrap !important;
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
 }
 
 .doc-hosted-preview--loading,
@@ -1938,8 +1945,8 @@ header a:hover,
   .doc-content th,
   .doc-content td {
     padding: var(--space-2) var(--space-3);
-    word-break: break-word;
-    overflow-wrap: anywhere;
+    word-break: normal;
+    overflow-wrap: break-word;
     vertical-align: top;
   }
 }

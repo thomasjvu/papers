@@ -369,17 +369,17 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
                 fontSize: 'var(--code-font-size)',
                 lineHeight: 'var(--code-line-height)',
                 whiteSpace: 'pre-wrap',
-                wordBreak: 'break-word',
-                overflowWrap: 'anywhere',
-                overflowX: 'hidden',
+                wordBreak: 'normal',
+                overflowWrap: 'break-word',
+                overflowX: 'auto',
               }}
               codeTagProps={{
                 style: {
                   fontFamily: 'var(--mono-font)',
                   fontSize: 'inherit',
                   whiteSpace: 'pre-wrap',
-                  wordBreak: 'break-word',
-                  overflowWrap: 'anywhere',
+                  wordBreak: 'normal',
+                  overflowWrap: 'break-word',
                 },
               }}
             >
