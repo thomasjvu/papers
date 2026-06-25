@@ -1,4 +1,4 @@
-import { documentationTree, homepageConfig } from '../../shared/documentation-config.js';
+import { documentationTree, homepageConfig, openapiConfig } from '../../shared/documentation-config.js';
 import {
   buildAbsoluteUrl,
   DEFAULT_OG_IMAGE_PATH,
@@ -231,6 +231,33 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
     });
 
     entries.push(...collectionEntries);
+  }
+
+  if (openapiConfig.enabled && openapiConfig.specs.length > 0) {
+    const routePrefix = openapiConfig.routePrefix || '/api';
+
+    for (const spec of openapiConfig.specs) {
+      const routePath =
+        spec.id === openapiConfig.defaultSpecId
+          ? routePrefix
+          : `${routePrefix}/${spec.id}`;
+
+      if (routeMap.has(routePath)) {
+        continue;
+      }
+
+      routeMap.set(routePath, true);
+      entries.push({
+        routePath,
+        canonicalPath: routePath,
+        title: `${spec.label} | ${options.siteName || getHomeMetadataDefaults().siteName}`,
+        description:
+          spec.description || `Interactive OpenAPI reference for ${spec.label}.`,
+        type: 'article',
+        includeInSitemap: true,
+        noIndex: false,
+      });
+    }
   }
 
   return entries;

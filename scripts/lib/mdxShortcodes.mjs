@@ -159,11 +159,19 @@ function transformCharacterNote(node) {
     className: 'papers-character-note__avatar',
     src: characterNoteAvatars[safeType],
     alt: '',
-    width: 96,
-    height: 96,
+    width: 48,
+    height: 48,
     loading: 'lazy',
     decoding: 'async',
   });
+
+  const avatarSlot = createElement(
+    'div',
+    {
+      className: 'papers-character-note__avatar-slot',
+    },
+    [avatar]
+  );
 
   const body = createElement(
     'div',
@@ -179,7 +187,7 @@ function transformCharacterNote(node) {
       className: `papers-character-note papers-character-note--${safeType}`,
       role: 'note',
     },
-    [avatar, body]
+    [avatarSlot, body]
   );
 }
 

@@ -75,7 +75,7 @@ declare module '@app-shared/documentation-config.js' {
 
   export interface OpenApiConfig {
     enabled: boolean;
-    pagePath: string;
+    routePrefix: string;
     defaultSpecId: string;
     specs: OpenApiSpecConfig[];
   }
@@ -165,7 +165,7 @@ declare module '*/shared/documentation-config.js' {
 
   export interface OpenApiConfig {
     enabled: boolean;
-    pagePath: string;
+    routePrefix: string;
     defaultSpecId: string;
     specs: OpenApiSpecConfig[];
   }

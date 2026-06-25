@@ -3,7 +3,12 @@ import { readdir } from 'fs/promises';
 import { join } from 'path';
 
 import { getContentCollection } from '../shared/content-collections.js';
-import { documentationTree, frameworkDocPaths, homepageConfig } from '../shared/documentation-config.js';
+import {
+  documentationTree,
+  frameworkDocPaths,
+  homepageConfig,
+  openapiConfig,
+} from '../shared/documentation-config.js';
 import { resolveCollectionContentRoot, resolveMonorepoRoot } from './lib/collectionContentRoot.mjs';
 import { buildDocsContentPath } from '../shared/docsRouting.js';
 import { getDirectoryAliasEntries } from '../shared/seo.js';
@@ -157,6 +162,7 @@ async function main() {
   const { llmsTxt, llmsFullTxt } = createLlmsArtifacts({
     documentationTree,
     homepageConfig,
+    openapiConfig,
     rootDir,
   });
 

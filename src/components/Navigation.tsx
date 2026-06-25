@@ -26,7 +26,6 @@ const navItems: NavItem[] = [
   { label: 'Design System', href: '/docs/developer-guides/design-system' },
   { label: 'Deployment', href: '/docs/deployment/overview' },
   { label: 'LLMs.txt', href: '/docs/llms' },
-  { label: 'Agent Skill', href: '/docs/skill' },
 ];
 
 const bracketAnimationConfig = {
@@ -427,7 +426,7 @@ export default function Navigation({
                       href={link.href}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className={`social-link flex items-center gap-1 ${UI_CLASSES.button}`}
+                      className="social-link flex items-center gap-1"
                       style={{
                         color: 'var(--muted-color)',
                       }}

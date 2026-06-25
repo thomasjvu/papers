@@ -308,7 +308,7 @@ export const architectureTests: ArchitectureTestCase[] = [
       const source = [
         '# Character notes',
         '',
-        '<CharacterNote type="warning" title="Experimental">',
+        '<CharacterNote type="warning">',
         'This route may change.',
         '</CharacterNote>',
       ].join('\n');
@@ -318,9 +318,8 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(html, /papers-character-note papers-character-note--warning/);
       assert.match(html, /papers-character-note__avatar/);
       assert.match(html, /character-notes\/.*warning/);
-      assert.match(html, /papers-character-note__title/);
-      assert.match(html, /Experimental/);
       assert.match(html, /This route may change/);
+      assert.doesNotMatch(html, /papers-character-note__title/);
     },
   },
   {

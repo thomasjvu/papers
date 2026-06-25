@@ -343,4 +343,10 @@ export const documentationTree = [
     path: 'llms',
     tags: ['llms', 'ai', 'reference'],
   },
+  {
+    type: 'file',
+    name: 'Agent Skill.md',
+    path: 'skill',
+    tags: ['skill', 'agent', 'reference'],
+  },
 ];

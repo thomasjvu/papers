@@ -109,7 +109,7 @@ html {
   --skeleton-base: rgba(17, 17, 17, 0.08);
   --skeleton-strong: rgba(17, 17, 17, 0.12);
   --code-bg: #fafafa;
-  --code-header-bg: #f4f4f5;
+  --code-header-bg: var(--code-bg);
   --code-border-color: #e4e4e7;
   --code-text-color: #111111;
   --code-muted-color: #71717a;
@@ -124,7 +124,7 @@ html {
   --code-block-radius: 12px;
   --code-block-clip-path: none;
   --code-block-border-width: 1px;
-  --code-block-header-divider: 1px solid var(--code-border-color);
+  --code-block-header-divider: none;
   --code-block-shadow: none;
   --code-copy-bg: var(--code-bg);
   --code-copy-border: var(--code-border-color);
@@ -248,7 +248,7 @@ html {
   --skeleton-base: rgba(255, 255, 255, 0.08);
   --skeleton-strong: rgba(255, 255, 255, 0.12);
   --code-bg: #0f0f10;
-  --code-header-bg: #151515;
+  --code-header-bg: var(--code-bg);
   --code-border-color: #27272a;
   --code-text-color: #f5f5f5;
   --code-muted-color: #a1a1aa;
@@ -1160,28 +1160,60 @@ code {
 }
 
 .doc-content .papers-character-note {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--space-4);
-  margin: var(--space-6) 0;
-  padding: var(--space-4);
+  display: grid;
+  grid-template-columns: minmax(0, 15%) minmax(0, 85%);
+  align-items: center;
+  gap: var(--space-3);
+  margin: var(--space-4) 0;
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-unified);
-  border-left-width: 4px;
   border-radius: var(--radius-md);
   background: var(--card-color);
 }
 
+.doc-content .papers-character-note__avatar-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+}
+
 .doc-content .papers-character-note__avatar {
-  width: 6rem;
-  height: 6rem;
-  flex-shrink: 0;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 1;
   object-fit: contain;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  outline: none;
+  display: block;
 }
 
 .doc-content .papers-character-note__body {
-  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-self: center;
   min-width: 0;
-  color: var(--text-color);
+  color: var(--muted-color);
+  font-size: var(--text-sm);
+  line-height: 1.45;
+}
+
+.doc-content .papers-character-note__body p {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .doc-content .papers-character-note__body > :first-child {
@@ -1199,30 +1231,10 @@ code {
   font-family: var(--mono-font);
 }
 
-.doc-content .papers-character-note--info {
-  border-left-color: var(--info-color);
-}
-
-.doc-content .papers-character-note--warning {
-  border-left-color: var(--warning-color);
-}
-
-.doc-content .papers-character-note--alert {
-  border-left-color: var(--error-color);
-}
-
-.doc-content .papers-character-note--success {
-  border-left-color: var(--success-color);
-}
-
-.doc-content .papers-character-note--tip {
-  border-left-color: var(--primary-color);
-}
-
 @media (max-width: 640px) {
-  .doc-content .papers-character-note__avatar {
-    width: 4.5rem;
-    height: 4.5rem;
+  .doc-content .papers-character-note {
+    grid-template-columns: minmax(2.5rem, 15%) minmax(0, 1fr);
+    gap: var(--space-2);
   }
 }
 
@@ -1277,26 +1289,25 @@ code {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   align-items: start;
-  gap: var(--space-4);
-  margin: var(--space-6) 0 var(--space-10);
+  gap: var(--space-5);
+  margin: var(--space-6) 0 var(--space-12);
+  padding-bottom: var(--space-2);
 }
 
 .doc-content .role-lane-card {
   display: flex;
   flex-direction: column;
   overflow: visible;
-  border: 1px solid var(--border-unified);
-  border-radius: var(--radius-md);
-  background: var(--card-color);
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
   text-decoration: none !important;
-  transition:
-    transform var(--transition-slow),
-    border-color var(--transition-slow);
+  transition: opacity var(--transition-slow);
 }
 
 .doc-content .role-lane-card:hover {
-  border-color: var(--primary-color);
-  transform: translateY(-2px);
+  opacity: 0.92;
 }
 
 .doc-content .role-lane-card__media {
@@ -1317,11 +1328,11 @@ code {
 }
 
 .doc-content .role-lane-card:hover .role-lane-card__media img {
-  filter: saturate(1) contrast(1.08) brightness(1.03);
+  filter: saturate(0.88) contrast(1.06);
 }
 
 .doc-content .role-lane-card__body {
-  padding: var(--space-3) var(--space-4) var(--space-5);
+  padding: var(--space-3) 0 var(--space-2);
 }
 
 .doc-content .role-lane-card__eyebrow {
@@ -1358,14 +1369,41 @@ code {
   }
 }
 
+.openapi-page {
+  height: 100vh;
+  height: 100dvh;
+}
+
+.openapi-page-main {
+  min-height: 0;
+}
+
 .openapi-reference-shell {
-  min-height: 70vh;
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+}
+
+.openapi-page .openapi-reference-shell {
+  min-height: 0;
 }
 
 .openapi-reference-shell .scalar-api-reference {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.doc-content .openapi-reference-shell {
+  min-height: 70vh;
+}
+
+.doc-content .openapi-reference-shell .scalar-api-reference {
   border: 1px solid var(--border-unified);
   border-radius: var(--radius-md);
-  overflow: hidden;
 }
 
 .doc-content .legal-page-header .legal-last-updated {
@@ -1640,12 +1678,25 @@ header a:hover,
   text-decoration: none !important;
 }
 
-/* Social link hover effects */
-.social-link:hover {
+/* Social link hover — tint only, no control chrome */
+.social-link {
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.social-link:hover,
+.social-link:focus-visible {
+  background: transparent !important;
+  border-color: transparent;
+  box-shadow: none;
   color: var(--primary-color) !important;
 }
 
-.social-link:hover * {
+.social-link:hover *,
+.social-link:focus-visible * {
   color: var(--primary-color) !important;
 }
 
@@ -2270,8 +2321,8 @@ code.wallet-address {
   }
 }
 
-/* Add rounded border to all markdown images except icons */
-.markdown-content img:not([src*='pixel-']) {
+/* Add rounded border to all markdown images except icons and character-note avatars */
+.markdown-content img:not([src*='pixel-']):not(.papers-character-note__avatar) {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   width: 100%;
