@@ -1,17 +1,18 @@
 import type { ReactElement } from 'react';
 
-import mercenaryPfp from '@assets/boss-raid-pfp.png';
-
 type DocsLogoMarkProps = {
   size?: 'sm' | 'lg';
 };
 
 export default function DocsLogoMark({ size = 'sm' }: DocsLogoMarkProps): ReactElement {
   return (
-    <img
-      alt="Mercenary"
-      className={`logo-image shrink-0 ${size === 'lg' ? 'logo-image--lg' : ''}`}
-      src={mercenaryPfp}
-    />
+    <span
+      aria-hidden="true"
+      className={`inline-flex shrink-0 items-center font-semibold tracking-tight text-foreground ${
+        size === 'lg' ? 'text-lg' : 'text-sm'
+      }`}
+    >
+      Papers
+    </span>
   );
 }

@@ -63,6 +63,12 @@ export function validateViteManualChunks(source: string): string[] {
     }
   }
 
+  if (/@scalar/.test(source) && /manualChunks/.test(source)) {
+    issues.push(
+      'vite.config.ts: do not isolate @scalar into manualChunks; it creates circular vendor-react/vendor-openapi chunks at runtime'
+    );
+  }
+
   return issues;
 }
 
