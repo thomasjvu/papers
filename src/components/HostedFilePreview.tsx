@@ -80,7 +80,8 @@ export default function HostedFilePreview({ assetUrl, assetLabel }: HostedFilePr
     <div className="doc-hosted-preview">
       <CodeBlock
         snippets={[{ language: 'markdown', code: content, label: assetLabel }]}
-        showLineNumbers={true}
+        showLineNumbers={false}
+        className="doc-hosted-preview__code"
       />
     </div>
   );
