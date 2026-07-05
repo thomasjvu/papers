@@ -1,4 +1,10 @@
 /**
+ * Framework-owned doc paths (generated or vendored), merged into the docs index.
+ * @type {string[]}
+ */
+export const frameworkDocPaths = [];
+
+/**
  * Shared documentation tree configuration.
  *
  * This file is the single source of truth for the docs structure. It is used by:
@@ -61,6 +67,15 @@ export const openapiConfig = {
       description: 'Second spec slot for multi-API documentation.',
     },
   ],
+};
+
+/** @type {{ enabled: boolean, title?: string, subtitle?: string, route?: string, sourcePath?: string }} */
+export const designBookConfig = {
+  enabled: false,
+  title: 'Design Book',
+  subtitle: 'Visual identity & tokens',
+  route: '/design',
+  sourcePath: 'DESIGN.md',
 };
 
 /** @type {HomepageConfig} */

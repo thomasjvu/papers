@@ -1,0 +1,123 @@
+:root,
+.dark,
+body {
+  color-scheme: dark;
+
+  /* Lorelei studio palette */
+  --lore-bg: #070b12;
+  --lore-bg-raised: #0d121c;
+  --lore-bg-hover: #121a28;
+  --lore-bg-active: #182233;
+  --lore-border: rgba(148, 163, 184, 0.14);
+  --lore-border-strong: rgba(148, 163, 184, 0.28);
+  --lore-text: #f1f5f9;
+  --lore-text-muted: #94a3b8;
+  --lore-text-dim: #64748b;
+  --lore-accent: #67e8f9;
+  --lore-accent-dim: #38bdf8;
+  --lore-accent-soft: rgba(103, 232, 249, 0.14);
+  --lore-accent-glow: rgba(56, 189, 248, 0.35);
+  --lore-error: #fb7185;
+  --lore-notice: #6ee7b7;
+
+  --primary-color: var(--lore-accent-dim);
+  --secondary-color: var(--lore-accent);
+  --accent-color: var(--lore-accent);
+  --background-color: var(--lore-bg);
+  --card-color: var(--lore-bg-raised);
+  --border-color: var(--lore-border-strong);
+  --border-soft: var(--lore-border);
+  --border-unified: var(--lore-border);
+  --text-color: var(--lore-text);
+  --text-secondary: var(--lore-text-muted);
+  --muted-color: var(--lore-text-dim);
+  --mono-font: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+  --brand-font: 'Cormorant Garamond', Georgia, serif;
+  --title-font: 'DM Sans', system-ui, sans-serif;
+  --body-font: 'DM Sans', system-ui, sans-serif;
+  --serif-font: 'Cormorant Garamond', Georgia, serif;
+  --icon-color: var(--lore-accent);
+  --primary-color-rgb: 56, 189, 248;
+  --hover-color: var(--lore-accent-soft);
+  --tag-bg-color: var(--lore-accent-soft);
+  --tag-text-color: var(--lore-accent);
+  --link-hover-color: var(--lore-accent);
+  --button-hover-bg: var(--lore-accent-soft);
+  --toc-bg-color: var(--lore-bg-raised);
+  --toc-border-color: var(--lore-border);
+  --toc-text-color: var(--lore-text-dim);
+  --toc-text-hover-color: var(--lore-accent);
+  --toc-button-bg: var(--lore-bg-hover);
+  --toc-button-hover-bg: var(--lore-bg-active);
+  --mindmap-bg-color: var(--lore-bg-raised);
+  --mindmap-border-color: var(--lore-border);
+  --mindmap-text-color: var(--lore-text);
+  --mindmap-node-connected: var(--lore-text-dim);
+  --mindmap-node-current: var(--lore-accent-dim);
+  --mindmap-node-search: var(--lore-accent);
+  --mindmap-legend-text: var(--lore-text-muted);
+  --animation-text-color: var(--lore-text);
+  --selection-bg-color: var(--lore-accent-dim);
+  --selection-text-color: var(--lore-bg);
+  --success-color: var(--lore-notice);
+  --warning-color: #fbbf24;
+  --error-color: var(--lore-error);
+  --info-color: var(--lore-accent-dim);
+  --surface-color: var(--lore-bg-raised);
+  --surface-muted: var(--lore-bg-hover);
+  --surface-elevated: var(--lore-bg-active);
+  --overlay-color: rgba(2, 6, 23, 0.72);
+  --focus-ring-color: var(--lore-accent-glow);
+  --control-bg: var(--lore-bg-hover);
+  --control-border-color: var(--lore-border-strong);
+  --control-hover-bg: var(--lore-bg-active);
+  --control-active-bg: var(--lore-bg-active);
+  --control-text-color: var(--lore-text);
+  --danger-soft-bg: rgba(251, 113, 133, 0.12);
+  --danger-soft-border: rgba(251, 113, 133, 0.28);
+  --danger-soft-text: var(--lore-error);
+  --skeleton-base: rgba(56, 189, 248, 0.06);
+  --skeleton-strong: rgba(56, 189, 248, 0.12);
+  --code-bg: var(--lore-bg-active);
+  --code-header-bg: var(--lore-bg-hover);
+  --code-border-color: var(--lore-border);
+  --code-block-radius: 12px;
+  --code-block-clip-path: none;
+  --inline-code-bg: var(--lore-bg-hover);
+  --inline-code-text: var(--lore-text-muted);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --table-header-bg: var(--lore-bg-hover);
+  --table-row-alt-bg: rgba(148, 163, 184, 0.04);
+}
+
+.design-book-page {
+  --design-book-max-width: 72rem;
+}
+
+.design-book-hero {
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%, var(--lore-accent-glow), transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 10%, rgba(103, 232, 249, 0.08), transparent 50%),
+    var(--lore-bg);
+}
+
+.design-book-section-title {
+  font-family: var(--serif-font);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.design-book-token-card {
+  background: var(--lore-bg-raised);
+  border: 1px solid var(--lore-border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 24px 80px rgba(2, 6, 23, 0.25);
+}
+
+.design-book-swatch {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--lore-border-strong);
+}

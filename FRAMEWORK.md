@@ -38,6 +38,8 @@ Generated output lands in `public/docs-content/` (and per-collection indexes). T
 | Version / i18n scaffolding                 | Yes                                                                |
 | Tree sync                                  | `npm run check:docs-tree`                                          |
 | Starter CLI                                | `npm create papers`                                                |
+| DESIGN.md design book (`/design`)          | Yes — `designBookConfig` + `npm run generate:design-book`          |
+| Lorelei theme                              | Yes — `themes/lorelei`                                             |
 
 ## Enable versioned or localized docs
 

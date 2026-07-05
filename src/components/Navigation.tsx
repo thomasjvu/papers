@@ -5,7 +5,6 @@ import React from 'react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { socialLinks } from '../constants/social';
-import { UI_CLASSES } from '../constants/ui';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { useTheme } from '../providers/ThemeProvider';
 

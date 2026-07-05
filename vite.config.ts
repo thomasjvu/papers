@@ -29,6 +29,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@app-shared/documentation-config.js': resolve(__dirname, './shared/documentation-config.js'),
     },
   },
   css: {
@@ -69,8 +70,6 @@ export default defineConfig({
               return 'vendor-mermaid';
             }
           }
-
-
         },
       },
     },

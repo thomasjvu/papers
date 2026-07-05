@@ -75,9 +75,18 @@ declare module '@app-shared/documentation-config.js' {
 
   export interface OpenApiConfig {
     enabled: boolean;
-    routePrefix: string;
+    routePrefix?: string;
+    pagePath?: string;
     defaultSpecId: string;
     specs: OpenApiSpecConfig[];
+  }
+
+  export interface DesignBookConfig {
+    enabled: boolean;
+    title?: string;
+    subtitle?: string;
+    route?: string;
+    sourcePath?: string;
   }
 
   export const homepageConfig: HomepageConfig;
@@ -85,6 +94,8 @@ declare module '@app-shared/documentation-config.js' {
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
   export const openapiConfig: OpenApiConfig;
+  export const designBookConfig: DesignBookConfig;
+  export const frameworkDocPaths: string[];
   export const navConfig: NavConfig;
 }
 
@@ -165,9 +176,18 @@ declare module '*/shared/documentation-config.js' {
 
   export interface OpenApiConfig {
     enabled: boolean;
-    routePrefix: string;
+    routePrefix?: string;
+    pagePath?: string;
     defaultSpecId: string;
     specs: OpenApiSpecConfig[];
+  }
+
+  export interface DesignBookConfig {
+    enabled: boolean;
+    title?: string;
+    subtitle?: string;
+    route?: string;
+    sourcePath?: string;
   }
 
   export const homepageConfig: HomepageConfig;
@@ -175,5 +195,7 @@ declare module '*/shared/documentation-config.js' {
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
   export const openapiConfig: OpenApiConfig;
+  export const designBookConfig: DesignBookConfig;
+  export const frameworkDocPaths: string[];
   export const navConfig: NavConfig;
 }

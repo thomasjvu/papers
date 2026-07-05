@@ -11,6 +11,7 @@ import { findPathToFile, mergeExpandedPaths } from './FileTree/treeState';
 type FileTreeProps = {
   items: FileItem[];
   onSelect: (item: FileItem) => void;
+  onPrefetch?: (path: string) => void;
   currentPath?: string;
   defaultOpenAll?: boolean;
 };

@@ -7,11 +7,7 @@ function normalizeUniqueSegments(values) {
   }
 
   return Array.from(
-    new Set(
-      values
-        .map((value) => (typeof value === 'string' ? value.trim() : ''))
-        .filter(Boolean)
-    )
+    new Set(values.map((value) => (typeof value === 'string' ? value.trim() : '')).filter(Boolean))
   );
 }
 
@@ -80,7 +76,9 @@ export function getDocumentationFeatureValidationIssues(options = {}) {
 
   if (versioning.enabled) {
     if (versioning.versions.length === 0) {
-      issues.push('`versionConfig.enabled` requires at least one entry in `versionConfig.versions`.');
+      issues.push(
+        '`versionConfig.enabled` requires at least one entry in `versionConfig.versions`.'
+      );
     }
 
     if (!versioning.current) {
@@ -212,7 +210,11 @@ export function parseDocsRoutePath(slug = '', options = {}) {
 
 export function buildDocsPath(path = '', options = {}) {
   const normalizedPath = normalizeDocPath(path);
-  const segments = ['docs', ...resolvePrefixSegments(options), ...splitRouteSegments(normalizedPath)];
+  const segments = [
+    'docs',
+    ...resolvePrefixSegments(options),
+    ...splitRouteSegments(normalizedPath),
+  ];
   return `/${segments.join('/')}`;
 }
 
@@ -310,4 +312,106 @@ export function getDocsVariantContexts(options = {}) {
 
 export function buildDocsLandingPath(path = getDefaultDocumentPath(), options = {}) {
   return buildCanonicalDocsPath(path || '', options);
+}
+
+function normalizeCollectionRoutePrefix(routePrefix = '/docs') {
+  const trimmed = String(routePrefix || '/docs').replace(/\/+$/, '');
+  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+}
+
+export function buildCollectionRoutePath(collection, path = '', options = {}) {
+  const prefix = normalizeCollectionRoutePrefix(collection?.routePrefix);
+  const normalizedPath = normalizeDocPath(path);
+  const segments = [
+    ...prefix.split('/').filter(Boolean),
+    ...resolvePrefixSegments(options),
+    ...splitRouteSegments(normalizedPath),
+  ];
+  return `/${segments.join('/')}`;
+}
+
+export function buildCanonicalCollectionPath(collection, path = '', options = {}) {
+  const { versioning, i18n } = getFeatureState(options);
+  return buildCollectionRoutePath(collection, path, {
+    ...options,
+    includeVersion: versioning.enabled,
+    includeLocale: i18n.enabled,
+  });
+}
+
+export function buildCollectionRouteVariants(collection, path = '', options = {}) {
+  const normalizedPath = normalizeDocPath(path);
+  const { versioning, i18n } = getFeatureState(options);
+  const routePaths = new Set();
+
+  routePaths.add(
+    buildCollectionRoutePath(collection, normalizedPath, {
+      ...options,
+      includeVersion: false,
+      includeLocale: false,
+    })
+  );
+
+  if (versioning.enabled) {
+    for (const version of versioning.versions) {
+      routePaths.add(
+        buildCollectionRoutePath(collection, normalizedPath, {
+          ...options,
+          version,
+          includeVersion: true,
+          includeLocale: false,
+        })
+      );
+    }
+  }
+
+  if (i18n.enabled) {
+    for (const locale of i18n.locales) {
+      routePaths.add(
+        buildCollectionRoutePath(collection, normalizedPath, {
+          ...options,
+          locale,
+          includeVersion: false,
+          includeLocale: true,
+        })
+      );
+    }
+  }
+
+  if (versioning.enabled || i18n.enabled) {
+    for (const context of getDocsVariantContexts(options)) {
+      routePaths.add(
+        buildCanonicalCollectionPath(collection, normalizedPath, {
+          ...options,
+          version: context.version,
+          locale: context.locale,
+        })
+      );
+    }
+  }
+
+  return Array.from(routePaths);
+}
+
+export function parseCollectionRoutePath(collection, slug = '', options = {}) {
+  const prefixSegments = normalizeCollectionRoutePrefix(collection?.routePrefix)
+    .split('/')
+    .filter(Boolean);
+  const segments = splitRouteSegments(slug);
+  let index = 0;
+
+  for (let i = 0; i < prefixSegments.length; i += 1) {
+    if (segments[index] === prefixSegments[i]) {
+      index += 1;
+      continue;
+    }
+    break;
+  }
+
+  const docsContext = parseDocsRoutePath(segments.slice(index).join('/'), options);
+  return {
+    ...docsContext,
+    originalSlug: normalizeDocPath(slug),
+    collectionId: collection?.id || 'docs',
+  };
 }

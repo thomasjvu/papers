@@ -6,7 +6,8 @@ import DocsPage from './pages/DocsPage';
 import HostedAssetRedirectPage from './pages/HostedAssetRedirectPage';
 import OpenApiPage from './pages/OpenApiPage';
 import NotFoundPage from './pages/NotFoundPage';
-import { homepageConfig, openapiConfig } from '../shared/documentation-config.js';
+import DesignBookPage from './pages/DesignBookPage';
+import { designBookConfig, homepageConfig, openapiConfig } from '../shared/documentation-config.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
 import { buildDocsLandingPath } from '../shared/docsRouting.js';
 
@@ -29,6 +30,9 @@ export default function App() {
           />
           {openapiConfig.enabled ? (
             <Route path={`/docs/${openapiConfig.pagePath}/:specId?`} element={<OpenApiPage />} />
+          ) : null}
+          {designBookConfig.enabled ? (
+            <Route path={designBookConfig.route || '/design'} element={<DesignBookPage />} />
           ) : null}
           <Route path="/docs/*" element={<DocsPage />} />
           <Route path="/llms" element={<HostedAssetRedirectPage docPath="llms" />} />

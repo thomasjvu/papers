@@ -1,17 +1,17 @@
 import type { ReactElement } from 'react';
 
-import mercenaryPfp from '@assets/boss-raid-pfp.png';
-
 type DocsLogoMarkProps = {
   size?: 'sm' | 'lg';
 };
 
+const LOGO_SRC = import.meta.env.VITE_DOCS_LOGO_URL || '/boss-raid-pfp.png';
+
 export default function DocsLogoMark({ size = 'sm' }: DocsLogoMarkProps): ReactElement {
   return (
     <img
-      alt="Mercenary"
+      alt={import.meta.env.VITE_SITE_NAME || 'Docs'}
       className={`logo-image shrink-0 ${size === 'lg' ? 'logo-image--lg' : ''}`}
-      src={mercenaryPfp}
+      src={LOGO_SRC}
     />
   );
 }
