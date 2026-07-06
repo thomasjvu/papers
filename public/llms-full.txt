@@ -851,6 +851,23 @@ These APIs are intentionally small. The template stays mostly configuration-driv
 ---
 
 
+### OpenAPI Explorer
+
+URL: /docs/api-reference/openapi
+
+---
+title: OpenAPI Explorer
+description: Interactive OpenAPI reference powered by Scalar.
+---
+
+# OpenAPI Explorer
+
+Configure specs in `shared/documentation-config.js` under `openapiConfig`, then open the interactive viewer from the sidebar or at `/docs/api-reference/openapi`.
+
+
+---
+
+
 ## Developer Guides
 
 
@@ -1020,6 +1037,16 @@ Code samples, environment variables, and deployment commands should be runnable 
 ## Regenerate Early
 
 Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.
+
+## Lazy Feature Boundaries
+
+Heavy viewers (Mermaid, OpenAPI Scalar) are loaded with `React.lazy()`. Lazy feature modules must stay **leaf components**:
+
+- Do **not** import from `src/providers/` inside a lazy-loaded module. Pulling `ThemeProvider`, `CommandPaletteProvider`, or other app shells into an async chunk can break React chunk sharing and crash with `createContext` errors at runtime.
+- Do **not** add `manualChunks` rules in `vite.config.ts` that isolate `src/` app files by name. Keep `manualChunks` limited to `node_modules` vendors such as `vendor-mermaid` and `vendor-react`.
+- Prefer CSS (`prefers-reduced-motion`), DOM APIs, or props passed from the parent shell instead of context hooks inside lazy modules.
+
+`npm test` runs `collectLazyFeatureBoundaryIssues()` to enforce these rules automatically.
 
 ## Verify Before Shipping
 
@@ -1308,10 +1335,10 @@ papers ships with installable themes under `themes/`. Themes override color, typ
 
 ## Built-in themes
 
-| ID | Name | Notes |
-| --- | --- | --- |
-| `default` | Default | Light/dark toggle enabled |
-| `gba` | Game Boy | 1-bit green palette, square UI, pixelarticons |
+| ID        | Name     | Notes                                         |
+| --------- | -------- | --------------------------------------------- |
+| `default` | Default  | Light/dark toggle enabled                     |
+| `gba`     | Game Boy | 1-bit green palette, square UI, pixelarticons |
 
 ## Switch themes locally
 
@@ -1337,6 +1364,60 @@ See [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTR
 - `scripts/resolve-theme.mjs` — writes `src/theme-active.css` and generated manifest
 - `src/lib/papersTheme.ts` — runtime theme features (toggle visibility, default mode)
 - `src/globals.css` — structural tokens; themes override palette vars in `tokens.css`
+
+
+---
+
+
+### Character Notes
+
+URL: /docs/developer-guides/character-notes
+
+---
+title: Character Notes
+description: MDX shortcode for Mercenary character notifications in documentation articles.
+---
+
+# Character Notes
+
+Use `<CharacterNote>` in `.mdx` pages to append a character-led notification anywhere in an article. Typical placement is just above the tags block at the bottom of a page.
+
+## Syntax
+
+```mdx
+<CharacterNote type="warning" title="Experimental">
+  This route may change before production readiness ships.
+</CharacterNote>
+```
+
+Supported `type` values: `info`, `warning`, `alert`, `success`, `tip` (default `info`).
+
+## Examples
+
+<CharacterNote type="info" title="Runtime note">
+  Provider workers are HTTP only in the current release.
+</CharacterNote>
+
+<CharacterNote type="warning" title="Experimental">
+  This endpoint shape may change before `GET /v1/ops/production-readiness` reports `ok: true`.
+</CharacterNote>
+
+<CharacterNote type="alert" title="Breaking change">
+  Winner and runner-up payout logic is removed. Successful providers split payout equally.
+</CharacterNote>
+
+<CharacterNote type="success" title="Ready">
+  OpenAPI export and docs viewer are wired in CI.
+</CharacterNote>
+
+<CharacterNote type="tip" title="Shortcut">
+  Press Cmd/Ctrl + K to open the command palette from any docs page.
+</CharacterNote>
+
+## Build pipeline
+
+Character notes compile at build time through `remarkMdxShortcodes` in `scripts/lib/mdxShortcodes.mjs`. Avatar URLs come from `shared/character-note-config.js` (generic SVG placeholders in the papers template; fork installs can point at branded art).
+
 
 ---
 
@@ -1628,11 +1709,7 @@ These files give AI tools and internal agents a clean text entry point without r
 
 `npm run build` runs `scripts/generate-llms.mjs` automatically.
 
-If you only want to refresh AI exports while writing, run:
-
-```bash
-npm run generate:llms
-```
+`npm run generate:llms` runs the same script without a full build when you only need fresh AI exports.
 
 ## When To Regenerate
 
@@ -1650,10 +1727,42 @@ Regenerate after:
 
 <a href="#" class="copy-link" data-url="/llms.txt">Copy llms.txt URL</a>
 
-## Preview
 
-{llms-preview}
+---
 
+
+### Agent Skill
+
+URL: /docs/skill
+
+# Agent Skill
+
+Host an agent skill file at `/skill.md` so coding agents can load integration instructions without crawling the full docs UI.
+
+## Generated vs hosted
+
+- **Docs page** — this Markdown page explains the feature.
+- **Hosted file** — `/skill.md` at the site root (copy from your product repo or generate in CI).
+
+## Setup
+
+1. Write a skill file with YAML frontmatter (`name`, `description`) and integration steps.
+2. Place it in `public/skill.md` or generate it during build.
+3. Link from your docs nav or command palette.
+4. Optional install page at `/docs/skill` with `HostedFilePreview` for copy/download.
+
+## Install paths (examples)
+
+| Agent | Typical path |
+| ----- | ------------ |
+| Cursor / Claude | `.cursor/skills/<name>/SKILL.md` |
+| Codex | `~/.codex/skills/<name>/SKILL.md` |
+
+## When to regenerate
+
+Regenerate `public/skill.md` when API routes, auth flows, or agent tool names change.
+
+For AI corpus exports, see [LLMs.txt](/docs/llms).
 
 ---
 

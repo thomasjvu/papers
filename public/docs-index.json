@@ -1,5 +1,5 @@
 {
-  "generated": "2026-06-08T01:27:12.162Z",
+  "generated": "2026-07-05T21:54:23.877Z",
   "paths": [
     "getting-started/introduction",
     "getting-started/quick-start",
@@ -13,20 +13,23 @@
     "api-reference/overview",
     "api-reference/content-pipeline",
     "api-reference/runtime-apis",
+    "api-reference/openapi",
     "developer-guides/code-examples",
     "developer-guides/best-practices",
     "developer-guides/design-system",
     "developer-guides/ui-configuration",
     "developer-guides/icon-customization",
     "developer-guides/themes",
+    "developer-guides/character-notes",
     "deployment/overview",
     "deployment/production-setup",
     "deployment/platforms/cloudflare",
     "deployment/platforms/vercel",
     "deployment/platforms/netlify",
-    "llms"
+    "llms",
+    "skill"
   ],
-  "count": 24,
+  "count": 27,
   "titles": {
     "getting-started/introduction": "Introduction",
     "getting-started/quick-start": "Quick Start",
@@ -40,17 +43,20 @@
     "api-reference/overview": "API Reference Overview",
     "api-reference/content-pipeline": "Content Pipeline",
     "api-reference/runtime-apis": "Runtime APIs",
+    "api-reference/openapi": "OpenAPI Explorer",
     "developer-guides/code-examples": "Code Examples",
     "developer-guides/best-practices": "Best Practices",
     "developer-guides/design-system": "Design System",
     "developer-guides/ui-configuration": "UI Configuration",
     "developer-guides/icon-customization": "Icon Customization",
     "developer-guides/themes": "Themes",
+    "developer-guides/character-notes": "Character Notes",
     "deployment/overview": "Deployment Overview",
     "deployment/production-setup": "Production Setup",
     "deployment/platforms/cloudflare": "Cloudflare Pages",
     "deployment/platforms/vercel": "Vercel",
     "deployment/platforms/netlify": "Netlify",
-    "llms": "LLMs.txt"
+    "llms": "LLMs.txt",
+    "skill": "Agent Skill"
   }
 }

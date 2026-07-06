@@ -24,6 +24,7 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 - [Overview](/docs/api-reference/overview): This section covers the internal runtime and build APIs that power the template.
 - [Content Pipeline](/docs/api-reference/content-pipeline): The content pipeline turns Markdown source files into static artifacts the app can load directly.
 - [Runtime APIs](/docs/api-reference/runtime-apis): Fetches and caches `/docs-index.json` for the current session.
+- [OpenAPI Explorer](/docs/api-reference/openapi): Configure specs in `shared/documentation-config.js` under `openapiConfig`, then open the interactive viewer from the sidebar or at `/docs/api-reference/openapi`.
 
 ## Developer Guides
 
@@ -33,6 +34,7 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 - [UI Configuration](/docs/developer-guides/ui-configuration): The docs shell is mostly configured through a few focused files.
 - [Icon Customization](/docs/developer-guides/icon-customization): The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.
 - [Themes](/docs/developer-guides/themes): papers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.
+- [Character Notes](/docs/developer-guides/character-notes): Use `<CharacterNote>` in `.mdx` pages to append a character-led notification anywhere in an article. Typical placement is just above the tags block at the bottom of a page.
 
 ## Platform Guides
 

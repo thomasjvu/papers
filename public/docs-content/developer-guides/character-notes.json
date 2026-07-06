@@ -1,0 +1,12 @@
+{
+  "path": "developer-guides/character-notes",
+  "title": "Character Notes",
+  "description": "MDX shortcode for Mercenary character notifications in documentation articles.",
+  "frontmatter": {
+    "title": "Character Notes",
+    "description": "MDX shortcode for Mercenary character notifications in documentation articles."
+  },
+  "content": "# Character Notes\n\nUse `<CharacterNote>` in `.mdx` pages to append a character-led notification anywhere in an article. Typical placement is just above the tags block at the bottom of a page.\n\n## Syntax\n\n```mdx\n<CharacterNote type=\"warning\" title=\"Experimental\">\n  This route may change before production readiness ships.\n</CharacterNote>\n```\n\nSupported `type` values: `info`, `warning`, `alert`, `success`, `tip` (default `info`).\n\n## Examples\n\n<CharacterNote type=\"info\" title=\"Runtime note\">\n  Provider workers are HTTP only in the current release.\n</CharacterNote>\n\n<CharacterNote type=\"warning\" title=\"Experimental\">\n  This endpoint shape may change before `GET /v1/ops/production-readiness` reports `ok: true`.\n</CharacterNote>\n\n<CharacterNote type=\"alert\" title=\"Breaking change\">\n  Winner and runner-up payout logic is removed. Successful providers split payout equally.\n</CharacterNote>\n\n<CharacterNote type=\"success\" title=\"Ready\">\n  OpenAPI export and docs viewer are wired in CI.\n</CharacterNote>\n\n<CharacterNote type=\"tip\" title=\"Shortcut\">\n  Press Cmd/Ctrl + K to open the command palette from any docs page.\n</CharacterNote>\n\n## Build pipeline\n\nCharacter notes compile at build time through `remarkMdxShortcodes` in `scripts/lib/mdxShortcodes.mjs`. Avatar URLs come from `shared/character-note-config.js` (generic SVG placeholders in the papers template; fork installs can point at branded art).\n",
+  "contentFormat": "markdown",
+  "sourcePath": "src/docs/content/developer-guides/character-notes.mdx"
+}

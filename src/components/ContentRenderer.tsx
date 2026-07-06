@@ -59,66 +59,68 @@ const ContentRenderer = memo(function ContentRenderer({
   return (
     <div className="w-full h-full overflow-hidden" role="article">
       <div className="flex-1 overflow-y-auto doc-content-scroll h-full">
-        <div className="doc-content pt-8 pb-6 px-6 md:pt-12 md:pb-8 md:px-8 lg:pt-16 lg:pb-12 lg:px-12 max-w-4xl mx-auto">
-          {isSynopsisPage && (
-            <div className="w-full mb-6 overflow-hidden rounded-lg relative">
-              <div
-                className="w-full h-32 rounded-lg flex items-center justify-center"
-                style={{
-                  background:
-                    'linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08), rgba(var(--primary-color-rgb), 0.18))',
-                  border: '1px solid var(--border-unified)',
-                }}
-              >
-                <span className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>
-                  Documentation
-                </span>
-              </div>
-            </div>
-          )}
-
-          <MarkdownRenderer content={content} path={path} />
-
-          {trailingContent}
-
-          {pageTags.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
-              className="mt-8 mb-4 flex flex-wrap gap-2 items-center"
-            >
-              <span
-                className="text-xs font-medium mr-2"
-                style={{
-                  color: 'var(--muted-color)',
-                  fontFamily: 'var(--mono-font)',
-                }}
-              >
-                tags:
-              </span>
-              {pageTags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all hover:brightness-110"
+        <div className="doc-content-shell flex min-h-full flex-col">
+          <div className="doc-content doc-content-body flex-1 w-full max-w-4xl mx-auto pt-8 px-6 md:pt-12 md:px-8 lg:pt-16 lg:px-12">
+            {isSynopsisPage && (
+              <div className="w-full mb-6 overflow-hidden rounded-lg relative">
+                <div
+                  className="w-full h-32 rounded-lg flex items-center justify-center"
                   style={{
-                    backgroundColor: 'var(--tag-bg-color)',
-                    color: 'var(--tag-text-color)',
+                    background:
+                      'linear-gradient(135deg, rgba(var(--primary-color-rgb), 0.08), rgba(var(--primary-color-rgb), 0.18))',
+                    border: '1px solid var(--border-unified)',
+                  }}
+                >
+                  <span className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>
+                    Documentation
+                  </span>
+                </div>
+              </div>
+            )}
+
+            <MarkdownRenderer content={content} path={path} />
+
+            {trailingContent}
+
+            {pageTags.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+                className="mt-8 mb-4 flex flex-wrap gap-2 items-center"
+              >
+                <span
+                  className="text-xs font-medium mr-2"
+                  style={{
+                    color: 'var(--muted-color)',
                     fontFamily: 'var(--mono-font)',
                   }}
                 >
-                  <Icon icon="mingcute:tag-line" className="w-3 h-3 mr-1" />
-                  {tag}
+                  tags:
                 </span>
-              ))}
-            </motion.div>
-          )}
+                {pageTags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium transition-all hover:brightness-110"
+                    style={{
+                      backgroundColor: 'var(--tag-bg-color)',
+                      color: 'var(--tag-text-color)',
+                      fontFamily: 'var(--mono-font)',
+                    }}
+                  >
+                    <Icon icon="mingcute:tag-line" className="w-3 h-3 mr-1" />
+                    {tag}
+                  </span>
+                ))}
+              </motion.div>
+            )}
+          </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.3 }}
-            className="doc-page-bottom mt-12 border-t pt-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
+            className="doc-page-bottom doc-page-bottom--anchored mt-auto w-full max-w-4xl mx-auto border-t pt-4 pb-6 px-6 md:pb-8 md:px-8 lg:pb-12 lg:px-12"
             style={{ borderColor: 'var(--border-unified)' }}
           >
             <div className="doc-page-bottom-row">

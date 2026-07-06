@@ -1033,6 +1033,14 @@ code {
   opacity: 0.8;
 }
 
+.doc-content-shell {
+  min-height: 100%;
+}
+
+.doc-page-bottom--anchored {
+  flex-shrink: 0;
+}
+
 .doc-page-bottom-row {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
