@@ -75,12 +75,16 @@ function applyMetadataToHtml(templateHtml, metadata) {
 }
 
 async function writeRouteHtml(routePath, html) {
+  // Prefer `path.html` over `path/index.html`. Routes whose last segment is
+  // literally `index` (e.g. /docs/en/index) break under Cloudflare assets
+  // html_handling: the platform treats "index" as a directory index and
+  // 307s /docs/en/index → /docs/en/.
   const outputPath =
     routePath === '/'
       ? indexHtmlPath
       : routePath.endsWith('.html')
         ? join(distDir, routePath.replace(/^\//, ''))
-        : join(distDir, routePath.replace(/^\//, ''), 'index.html');
+        : join(distDir, `${routePath.replace(/^\//, '')}.html`);
 
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${html.trimEnd()}\n`);
