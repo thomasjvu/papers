@@ -14,12 +14,13 @@ import { prefetchDocument } from '../../lib/content';
 import ContentRenderer from '../ContentRenderer';
 import DocsVariantSelector from '../DocsVariantSelector';
 import DocumentationGraph from '../DocumentationGraph/OptimizedDocumentationGraph';
-import FileTree from '../FileTree';
+import LanguageSwitcher from '../chrome/LanguageSwitcher';
+import SiteAttribution from '../chrome/SiteAttribution';
 import fileTreeStyles from '../FileTree.module.css';
+import SidebarNav from '../sidebar/SidebarNav';
 import SettingsMenu from '../SettingsMenu';
-import { socialLinks } from '../../constants/social';
-import { UI_CLASSES } from '../../constants/ui';
 import { getMobileTogglePositionClasses, uiConfig } from '../../config/ui';
+import { brandingConfig } from '../../lib/chrome';
 import TableOfContents from './TableOfContents';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
 
@@ -41,49 +42,6 @@ function getInitialRightSidebarState(): boolean {
 
   const saved = safeLocalStorage.getItem('rightSidebarVisible');
   return saved === 'true';
-}
-
-function RightRailFooter() {
-  return (
-    <div className="flex-shrink-0 pb-3">
-      <div className="mb-2 flex items-center justify-center gap-2.5">
-        {socialLinks.map((link) => (
-          <a
-            key={link.name}
-            href={link.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label={link.name}
-            className={`social-link ${UI_CLASSES.button}`}
-            style={{ color: 'var(--toc-text-color)' }}
-          >
-            <div className="h-5 w-5">{link.icon}</div>
-          </a>
-        ))}
-      </div>
-
-      <div className="text-center">
-        <p
-          className="text-2xs font-mono leading-none"
-          style={{
-            color: 'var(--toc-text-color)',
-            fontFamily: 'var(--mono-font)',
-          }}
-        >
-          Design by{' '}
-          <a
-            href="https://x.com/ultima_gg"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="transition-opacity hover:opacity-80"
-            style={{ color: 'var(--text-color)' }}
-          >
-            Ultima
-          </a>
-        </p>
-      </div>
-    </div>
-  );
 }
 
 const DocumentationPage = React.memo(
@@ -375,13 +333,27 @@ const DocumentationPage = React.memo(
                         fontFamily: 'var(--mono-font)',
                       }}
                     >
-                      P
+                      {brandingConfig.logo?.src ? (
+                        <img
+                          src={brandingConfig.logo.src}
+                          alt=""
+                          aria-hidden="true"
+                          className="h-6 w-6 object-contain"
+                        />
+                      ) : (
+                        (brandingConfig.productName || siteName).charAt(0).toUpperCase()
+                      )}
                     </span>
                     <span
-                      className="min-w-0 truncate text-lg font-black uppercase tracking-[0.18em]"
-                      style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+                      className="min-w-0 truncate font-black uppercase tracking-[0.12em]"
+                      style={{
+                        color: 'var(--text-color)',
+                        fontFamily: 'var(--mono-font)',
+                        fontSize: 'clamp(1.15rem, 1.8vw, 1.45rem)',
+                        lineHeight: 1,
+                      }}
                     >
-                      {siteName}
+                      {brandingConfig.productName || siteName}
                     </span>
                   </Link>
 
@@ -416,13 +388,14 @@ const DocumentationPage = React.memo(
                   </kbd>
                 </button>
 
-                <div className="mt-3">
+                <div className="mt-3 space-y-2">
                   <DocsVariantSelector docPath={path} />
+                  <LanguageSwitcher docPath={path} />
                 </div>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto pt-1 scrollbar-hide">
-                <FileTree
+                <SidebarNav
                   items={documentationTree}
                   onSelect={handleSelectFile}
                   onPrefetch={(targetPath) =>
@@ -651,7 +624,7 @@ const DocumentationPage = React.memo(
             </div>
 
             <div className="flex-shrink-0 pt-3">
-              <RightRailFooter />
+              <SiteAttribution className="pb-3" density="compact" />
             </div>
           </div>
         </div>

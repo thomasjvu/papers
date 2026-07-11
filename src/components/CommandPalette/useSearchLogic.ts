@@ -1,13 +1,22 @@
 import { Icon } from '@iconify/react';
 import { useMemo, createElement, useState, useEffect, useRef } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { documentationTree } from '../../data/documentation';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
-import { buildCanonicalDocsPath } from '../../../shared/docsRouting.js';
+import {
+  buildCanonicalDocsPath,
+  parseDocsRoutePath,
+} from '../../../shared/docsRouting.js';
 import { homepageConfig } from '../../../shared/documentation-config.js';
+import {
+  getLocaleLabel,
+  i18nConfig,
+  languageSwitcherShows,
+} from '../../lib/chrome';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -24,6 +33,11 @@ const FAQ_ITEMS = [
       'Use Cmd + K (Mac) or Ctrl + K (Windows/Linux) to open this command palette, then type your search query.',
   },
   {
+    question: 'How do I change the language?',
+    answer:
+      'When multiple locales are enabled in i18nConfig, use the language control in the sidebar or open this command palette and type "language" or a locale label to switch while staying on the same page.',
+  },
+  {
     question: 'How can I contribute to the documentation?',
     answer:
       'At the bottom of each documentation page, you will find "edit", "issue", and "source" links. Click "edit" to propose changes directly on GitHub, or "issue" to report problems.',
@@ -36,7 +50,7 @@ const FAQ_ITEMS = [
   {
     question: 'How do I navigate between pages?',
     answer:
-      'Use Shift + Left/Right Arrow on doc pages, the file tree on the left sidebar, the interactive mindmap on the right, or the Previous/Next buttons at the bottom of each page. You can also use this command palette to quickly jump to any page.',
+      'Use Shift + Left/Right Arrow on doc pages, the sidebar navigation, the interactive mindmap on the right, or the Previous/Next buttons at the bottom of each page. You can also use this command palette to quickly jump to any page.',
   },
 ];
 
@@ -116,6 +130,15 @@ export const useSearchLogic = (query: string) => {
     };
   }, [debouncedQuery, pagefindAvailable, pagefindSearch]);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routeContext = useMemo(() => {
+    const slug = location.pathname.startsWith('/docs')
+      ? location.pathname.replace(/^\/docs\/?/, '')
+      : location.pathname.replace(/^\/+|\/+$/g, '');
+    return parseDocsRoutePath(slug);
+  }, [location.pathname]);
+
   const preferenceCommands = useMemo<SearchResultType[]>(() => {
     const commands: SearchResultType[] = [
       {
@@ -149,8 +172,45 @@ export const useSearchLogic = (query: string) => {
       });
     });
 
+    if (languageSwitcherShows('command-palette')) {
+      const activeLocale = routeContext.activeLocale || i18nConfig.defaultLocale;
+      const docPath = routeContext.docPath || 'index';
+      for (const locale of i18nConfig.locales || []) {
+        if (locale === activeLocale) continue;
+        const label = getLocaleLabel(locale);
+        commands.push({
+          title: `Switch to ${label}`,
+          path: `locale:${locale}`,
+          type: 'action',
+          description: `Change documentation language to ${label}`,
+          action: () => {
+            navigate(
+              buildCanonicalDocsPath(docPath, {
+                version: routeContext.activeVersion,
+                locale,
+              }),
+            );
+          },
+          icon: createElement(Icon, {
+            icon: 'mingcute:translate-2-line',
+            className: 'w-5 h-5',
+          }),
+        });
+      }
+    }
+
     return commands;
-  }, [isDarkMode, prefersReducedMotion, setFontFamily, toggleDarkMode, toggleReducedMotion]);
+  }, [
+    isDarkMode,
+    prefersReducedMotion,
+    setFontFamily,
+    toggleDarkMode,
+    toggleReducedMotion,
+    navigate,
+    routeContext.activeLocale,
+    routeContext.activeVersion,
+    routeContext.docPath,
+  ]);
 
   const searchIndex = useMemo(() => {
     const results: SearchResultType[] = [...preferenceCommands];
@@ -181,7 +241,10 @@ export const useSearchLogic = (query: string) => {
         if (item.type === 'file') {
           results.push({
             title: item.name.replace(/\.md$/, ''),
-            path: buildCanonicalDocsPath(item.path),
+            path: buildCanonicalDocsPath(item.path, {
+              version: routeContext.activeVersion,
+              locale: routeContext.activeLocale,
+            }),
             type: 'page',
             description: parentPath,
             icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),

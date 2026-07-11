@@ -1,11 +1,11 @@
 import { Icon } from '@iconify/react';
+import { createElement } from 'react';
 
-const githubHref = import.meta.env.VITE_GITHUB_URL || 'https://github.com/phantasy-bot/agent';
+import { brandingConfig } from '@app-shared/documentation-config.js';
 
-export const socialLinks = [
-  {
-    name: 'GitHub',
-    href: githubHref,
-    icon: <Icon icon="mingcute:github-fill" width="24" height="24" />,
-  },
-];
+/** Derived from brandingConfig for Navigation and legacy consumers. */
+export const socialLinks = (brandingConfig.social ?? []).map((link) => ({
+  name: link.name,
+  href: link.href,
+  icon: createElement(Icon, { icon: link.icon, width: 24, height: 24 }),
+}));

@@ -36,6 +36,9 @@ Generated output lands in `public/docs-content/` (and per-collection indexes). T
 | OpenAPI explorer (Scalar)                  | Yes                                                                |
 | Edit on GitHub footer                      | Yes                                                                |
 | Version / i18n scaffolding                 | Yes                                                                |
+| Language switcher UI + palette actions     | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)     |
+| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit) |
+| Sidebar variants                           | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`            |
 | Tree sync                                  | `npm run check:docs-tree`                                          |
 | Starter CLI                                | `npm create papers`                                                |
 | DESIGN.md design book (`/design`)          | Yes — `designBookConfig` + `npm run generate:design-book`          |
@@ -47,10 +50,30 @@ In `shared/documentation-config.js`:
 
 ```js
 export const versionConfig = { current: '1.0', versions: ['1.0'], enabled: true };
-export const i18nConfig = { enabled: true, defaultLocale: 'en', locales: ['en', 'fr'] };
+export const i18nConfig = {
+  enabled: true,
+  defaultLocale: 'en',
+  locales: ['en', 'fr'],
+  labels: { en: 'EN', fr: 'FR' },
+};
+export const chromeConfig = {
+  languageSwitcher: { enabled: 'auto', placement: ['sidebar', 'command-palette'] },
+  sidebarVariant: 'groups', // or 'tree'
+};
+export const brandingConfig = {
+  productName: 'papers',
+  logo: null, // or { src: '/images/logo.png', alt: '…' }
+  copyright: { holder: 'Your Org' },
+  attribution: null, // or { text: 'Built with papers', href: '…' }
+  social: [{ name: 'GitHub', href: 'https://github.com/…', icon: 'mingcute:github-fill' }],
+};
 ```
 
-Add variant content under `src/docs/content/variants/`.
+Add locale overlays under `src/docs/content/variants/locales/{locale}/…` (same paths as default). The nav tree **excludes** `variants/` — locales are selected via chrome / palette, not as a separate folder in the sidebar.
+
+## OpenAPI
+
+Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). Interactive Scalar explorer at `/docs/{pagePath}`.
 
 ## Lazy feature invariants
 
@@ -58,6 +81,11 @@ Add variant content under `src/docs/content/variants/`.
 2. `manualChunks` may split `node_modules` only — not app source modules.
 
 Enforced by `src/framework/lazyFeatureBoundaries.ts` and architecture tests.
+
+## Instance vs framework
+
+- **Framework (this repo):** routing, chrome, OpenAPI viewer, generators, sample template docs.
+- **Product instances** (e.g. companion docs apps): own Markdown content + `brandingConfig` / i18n locales only. Do not land product copy in papers.
 
 ## Near-term improvements
 

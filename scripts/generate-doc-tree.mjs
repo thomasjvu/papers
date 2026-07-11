@@ -149,7 +149,12 @@ function isExcludedFile(relativePath) {
 }
 
 function isDirectoryExcluded(relativeDir) {
-  return EXCLUDED_PUBLIC_DOC_PATHS.has(toPosix(relativeDir));
+  const posix = toPosix(relativeDir);
+  if (EXCLUDED_PUBLIC_DOC_PATHS.has(posix)) return true;
+  // Locale/version overlays are not separate nav trees — selected via chrome/i18n only
+  if (posix === 'variants' || posix.startsWith('variants/')) return true;
+  if (posix === 'generated' || posix.startsWith('generated/')) return true;
+  return false;
 }
 
 function titleizeSegment(segment) {

@@ -64,6 +64,31 @@ declare module '@app-shared/documentation-config.js' {
     enabled: boolean;
     defaultLocale: string;
     locales: string[];
+    labels?: Record<string, string>;
+  }
+
+  export interface ChromeConfig {
+    languageSwitcher: {
+      enabled: 'auto' | boolean;
+      placement: Array<'sidebar' | 'command-palette'>;
+    };
+    sidebarVariant: 'tree' | 'groups';
+  }
+
+  export interface BrandingConfig {
+    productName: string;
+    logo?: { src: string; alt: string } | null;
+    copyright: {
+      holder: string;
+      year?: number;
+      notice?: string;
+    };
+    attribution: { text: string; href?: string } | null;
+    social: Array<{
+      name: string;
+      href: string;
+      icon: string;
+    }>;
   }
 
   export interface OpenApiSpecConfig {
@@ -93,6 +118,8 @@ declare module '@app-shared/documentation-config.js' {
   export const documentationTree: FileItem[];
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
+  export const chromeConfig: ChromeConfig;
+  export const brandingConfig: BrandingConfig;
   export const openapiConfig: OpenApiConfig;
   export const designBookConfig: DesignBookConfig;
   export const frameworkDocPaths: string[];
@@ -165,6 +192,31 @@ declare module '*/shared/documentation-config.js' {
     enabled: boolean;
     defaultLocale: string;
     locales: string[];
+    labels?: Record<string, string>;
+  }
+
+  export interface ChromeConfig {
+    languageSwitcher: {
+      enabled: 'auto' | boolean;
+      placement: Array<'sidebar' | 'command-palette'>;
+    };
+    sidebarVariant: 'tree' | 'groups';
+  }
+
+  export interface BrandingConfig {
+    productName: string;
+    logo?: { src: string; alt: string } | null;
+    copyright: {
+      holder: string;
+      year?: number;
+      notice?: string;
+    };
+    attribution: { text: string; href?: string } | null;
+    social: Array<{
+      name: string;
+      href: string;
+      icon: string;
+    }>;
   }
 
   export interface OpenApiSpecConfig {
@@ -194,6 +246,8 @@ declare module '*/shared/documentation-config.js' {
   export const documentationTree: FileItem[];
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
+  export const chromeConfig: ChromeConfig;
+  export const brandingConfig: BrandingConfig;
   export const openapiConfig: OpenApiConfig;
   export const designBookConfig: DesignBookConfig;
   export const frameworkDocPaths: string[];

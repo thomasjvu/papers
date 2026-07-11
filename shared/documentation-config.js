@@ -41,11 +41,58 @@ export const versionConfig = {
   enabled: false,
 };
 
-/** @type {{ enabled: boolean, defaultLocale: string, locales: string[] }} */
+/** @type {{ enabled: boolean, defaultLocale: string, locales: string[], labels?: Record<string, string> }} */
 export const i18nConfig = {
   enabled: false,
   defaultLocale: 'en',
   locales: ['en'],
+  labels: {
+    en: 'EN',
+  },
+};
+
+/**
+ * Site chrome — language switcher placement + sidebar skin.
+ * @type {{
+ *   languageSwitcher: { enabled: 'auto' | boolean, placement: Array<'sidebar' | 'command-palette'> },
+ *   sidebarVariant: 'tree' | 'groups',
+ * }}
+ */
+export const chromeConfig = {
+  languageSwitcher: {
+    enabled: 'auto',
+    placement: ['sidebar', 'command-palette'],
+  },
+  /** groups = section headers + page list; tree = classic file tree */
+  sidebarVariant: 'tree',
+};
+
+/**
+ * Instance branding — product mark, copyright, optional attribution, social links.
+ * Set attribution to null to hide the credit line.
+ * @type {{
+ *   productName: string,
+ *   logo?: { src: string, alt: string } | null,
+ *   copyright: { holder: string, year?: number, notice?: string },
+ *   attribution: { text: string, href?: string } | null,
+ *   social: Array<{ name: string, href: string, icon: string }>,
+ * }}
+ */
+export const brandingConfig = {
+  productName: 'papers',
+  logo: null,
+  copyright: {
+    holder: 'papers',
+    notice: 'MIT License.',
+  },
+  attribution: null,
+  social: [
+    {
+      name: 'GitHub',
+      href: 'https://github.com/thomasjvu/papers',
+      icon: 'mingcute:github-fill',
+    },
+  ],
 };
 
 /** @type {import('./documentation-config.js').OpenApiConfig} */
