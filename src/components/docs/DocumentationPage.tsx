@@ -88,7 +88,6 @@ const DocumentationPage = React.memo(
       return window.innerWidth >= 768;
     });
     const [rightSidebarVisible, setRightSidebarVisible] = useState(getInitialRightSidebarState);
-    const [mobileMapVisible, setMobileMapVisible] = useState(false);
 
     const sidebarAnimationVariants = useMemo(() => {
       if (prefersReducedMotion) {
@@ -218,16 +217,6 @@ const DocumentationPage = React.memo(
     const toggleRightSidebar = useCallback(() => {
       setRightSidebarVisibility(!rightSidebarVisible);
     }, [rightSidebarVisible, setRightSidebarVisibility]);
-
-    const handleMapButtonClick = useCallback(() => {
-      if (isMobile) {
-        setMobileMapVisible(true);
-        setSidebarVisible(false);
-        return;
-      }
-
-      setRightSidebarVisibility(!rightSidebarVisible);
-    }, [isMobile, rightSidebarVisible, setRightSidebarVisibility]);
 
     const sidebarStyle = useMemo(
       () => ({
@@ -433,31 +422,6 @@ const DocumentationPage = React.memo(
                   <Icon icon="mingcute:arrow-right-line" className="h-4 w-4" />
                 </button>
 
-                <button
-                  onClick={handleMapButtonClick}
-                  className="group flex w-full items-center justify-between rounded-lg border px-3 py-2 text-sm transition-opacity hover:opacity-80"
-                  style={utilityButtonStyle}
-                  type="button"
-                >
-                  <span className="flex items-center gap-2">
-                    <Icon
-                      icon="mingcute:brain-fill"
-                      className="h-4 w-4 transition duration-150 group-hover:invert"
-                    />
-                    <span>
-                      {isMobile ? 'Open map' : rightSidebarVisible ? 'Hide map' : 'Show map'}
-                    </span>
-                  </span>
-                  <Icon
-                    icon={
-                      isMobile || !rightSidebarVisible
-                        ? 'mingcute:arrow-right-line'
-                        : 'mingcute:arrow-left-line'
-                    }
-                    className="h-4 w-4"
-                  />
-                </button>
-
                 <div
                   className="flex items-center justify-between rounded-lg border px-3 py-2"
                   style={{
@@ -628,65 +592,6 @@ const DocumentationPage = React.memo(
             </div>
           </div>
         </div>
-        <AnimatePresence>
-          {isMobile && mobileMapVisible && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-50"
-              style={{ backgroundColor: 'var(--overlay-color)' }}
-              onClick={() => setMobileMapVisible(false)}
-            >
-              <motion.div
-                initial={{ y: 100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                exit={{ y: 100, opacity: 0 }}
-                transition={{ duration: prefersReducedMotion ? 0.05 : 0.3 }}
-                className="absolute inset-x-4 bottom-4 top-12 rounded-lg p-4 shadow-xl"
-                style={{ backgroundColor: 'var(--background-color)' }}
-                onClick={(event) => event.stopPropagation()}
-              >
-                <button
-                  onClick={() => setMobileMapVisible(false)}
-                  className="absolute right-4 top-4 rounded-full p-2 transition-opacity hover:opacity-70"
-                  style={{ color: 'var(--text-color)' }}
-                  aria-label="Close mind map"
-                  type="button"
-                >
-                  <Icon icon="mingcute:close-line" className="h-5 w-5" />
-                </button>
-
-                <h3
-                  className="mb-4 text-lg font-semibold font-mono"
-                  style={{
-                    color: 'var(--mindmap-text-color)',
-                    fontFamily: 'var(--mono-font)',
-                  }}
-                >
-                  Interactive Map
-                </h3>
-
-                <div className="h-full pb-16">
-                  <DocumentationGraph
-                    currentPath={path}
-                    onNodeClick={(nodePath) => {
-                      navigate(
-                        buildCanonicalDocsPath(nodePath, {
-                          version: routeContext.activeVersion,
-                          locale: routeContext.activeLocale,
-                        })
-                      );
-                      setMobileMapVisible(false);
-                    }}
-                    className="h-full w-full"
-                  />
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
       </main>
     );
   }
