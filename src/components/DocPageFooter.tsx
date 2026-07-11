@@ -3,8 +3,12 @@ type DocPageFooterProps = {
   sourcePath?: string;
 };
 
+/**
+ * Bottom-of-page GitHub affordances for every doc.
+ * Renders nothing when VITE_GITHUB_URL is unset (links would be broken).
+ */
 export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) {
-  const githubUrl = import.meta.env.VITE_GITHUB_URL;
+  const githubUrl = import.meta.env.VITE_GITHUB_URL?.trim();
   if (!githubUrl) {
     return null;
   }
@@ -19,12 +23,13 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
 
   return (
     <footer className="doc-page-footer">
-      <nav className="doc-page-footer-links" aria-label="Edit this page">
+      <nav className="doc-page-footer-links" aria-label="Page source actions">
         <a
           href={editUrl}
           target="_blank"
           rel="noopener noreferrer"
           className="doc-page-footer-link"
+          aria-label={`Edit ${path} on GitHub`}
         >
           edit
         </a>
@@ -33,6 +38,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           target="_blank"
           rel="noopener noreferrer"
           className="doc-page-footer-link"
+          aria-label={`Open a GitHub issue about ${path}`}
         >
           issue
         </a>
@@ -41,6 +47,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           target="_blank"
           rel="noopener noreferrer"
           className="doc-page-footer-link"
+          aria-label={`View source for ${path} on GitHub`}
         >
           source
         </a>

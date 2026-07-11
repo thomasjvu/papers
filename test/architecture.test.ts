@@ -876,6 +876,42 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'doc page bottom chrome includes prev/next and GitHub edit/source footer',
+    run: async () => {
+      const contentRendererSource = await readFile(
+        join(process.cwd(), 'src/components/ContentRenderer.tsx'),
+        'utf8'
+      );
+      const footerSource = await readFile(
+        join(process.cwd(), 'src/components/DocPageFooter.tsx'),
+        'utf8'
+      );
+      const globalsCss = await readFile(join(process.cwd(), 'src/globals.css'), 'utf8');
+
+      assert.match(contentRendererSource, /import DocPageFooter from ['"]\.\/DocPageFooter['"]/);
+      assert.match(contentRendererSource, /<DocPageFooter\b/);
+      assert.match(contentRendererSource, /doc-page-bottom-row/);
+      assert.match(contentRendererSource, />\s*Previous\s*</);
+      assert.match(contentRendererSource, />\s*Next\s*</);
+      assert.match(contentRendererSource, /prevPage/);
+      assert.match(contentRendererSource, /nextPage/);
+
+      assert.match(footerSource, /VITE_GITHUB_URL/);
+      assert.match(footerSource, /\/edit\//);
+      assert.match(footerSource, /\/blob\//);
+      assert.match(footerSource, />\s*edit\s*</);
+      assert.match(footerSource, />\s*source\s*</);
+      assert.match(footerSource, />\s*issue\s*</);
+
+      // Footer must stay in document flow (not absolute-faded / mobile-hidden)
+      assert.doesNotMatch(globalsCss, /\.doc-page-footer\s*\{[^}]*position:\s*absolute/s);
+      assert.doesNotMatch(
+        globalsCss,
+        /@media\s*\(max-width:\s*640px\)\s*\{\s*\.doc-page-footer\s*\{\s*display:\s*none/s
+      );
+    },
+  },
+  {
     name: 'lazy feature modules avoid provider imports and unsafe app chunk splits',
     run: () => {
       const issues = collectLazyFeatureBoundaryIssues();

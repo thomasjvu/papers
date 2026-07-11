@@ -123,7 +123,8 @@ const ContentRenderer = memo(function ContentRenderer({
             className="doc-page-bottom doc-page-bottom--anchored mt-auto w-full max-w-4xl mx-auto border-t pt-4 pb-6 px-6 md:pb-8 md:px-8 lg:pb-12 lg:px-12"
             style={{ borderColor: 'var(--border-unified)' }}
           >
-            <div className="doc-page-bottom-row">
+            {/* Row 1: adjacent docs — always in document flow under the article */}
+            <nav className="doc-page-bottom-row" aria-label="Adjacent documentation pages">
               <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
                 {prevPage ? (
                   <button
@@ -143,8 +144,6 @@ const ContentRenderer = memo(function ContentRenderer({
                 ) : null}
               </div>
 
-              <DocPageFooter path={path} sourcePath={sourcePath} />
-
               <div className="doc-page-bottom-nav doc-page-bottom-nav--next">
                 {nextPage ? (
                   <button
@@ -163,7 +162,10 @@ const ContentRenderer = memo(function ContentRenderer({
                   </button>
                 ) : null}
               </div>
-            </div>
+            </nav>
+
+            {/* Row 2: edit / issue / source (GitHub) — in flow, not absolute-positioned */}
+            <DocPageFooter path={path} sourcePath={sourcePath} />
           </motion.div>
         </div>
       </div>

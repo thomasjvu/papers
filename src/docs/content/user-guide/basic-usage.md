@@ -53,9 +53,12 @@ The command palette always knows about docs-tree entries.
 
 Full-text Pagefind results appear after a production build, so local dev is best for navigation checks and production builds are best for search validation.
 
-## GitHub Footer Links
+## Page bottom chrome
 
-`edit`, `issue`, and `source` links appear when `VITE_GITHUB_URL` is configured.
+Every documentation page ends with:
+
+1. **Previous / Next** — adjacent pages in the docs tree (also **Shift + ← / →**).
+2. **`edit` · `issue` · `source`** — GitHub links under those buttons when `VITE_GITHUB_URL` is configured (optional `VITE_GITHUB_BRANCH`, `VITE_GITHUB_DOCS_PREFIX`).
 
 ## Next Steps
 
