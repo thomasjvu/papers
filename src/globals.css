@@ -1042,6 +1042,12 @@ code {
   display: flex;
   flex-direction: column;
   gap: var(--space-4, 1rem);
+  border-top: none;
+}
+
+.doc-page-bottom--anchored .doc-page-bottom-row {
+  border-top: 1px solid var(--border-unified);
+  padding-top: var(--space-4, 1rem);
 }
 
 /* Prev / Next under the article — document flow, not overlay */
@@ -1808,7 +1814,7 @@ header a:hover,
   content: none !important;
 }
 
-/* Epigraph / pull-quote: no left highlight bar; large theme-aware open mark */
+/* Epigraph / pull-quote: large open mark with text wrapping beside it */
 .markdown-blockquote {
   position: relative;
   border-left: none;
@@ -1818,6 +1824,7 @@ header a:hover,
   margin: var(--space-6) 0;
   background-color: transparent;
   max-width: 52ch;
+  overflow: auto;
 }
 
 .dark .markdown-blockquote {
@@ -1827,15 +1834,16 @@ header a:hover,
 
 .markdown-blockquote::before {
   content: '\201C';
+  float: left;
   display: block;
   font-family: var(--display-font, var(--heading-font, Georgia, serif));
-  font-size: clamp(4.5rem, 9vw, 7rem);
+  font-size: clamp(3.25rem, 6.5vw, 5rem);
   font-style: normal;
   font-weight: 500;
-  line-height: 0.7;
+  line-height: 0.78;
   letter-spacing: -0.06em;
   color: color-mix(in srgb, var(--text-color, currentColor) 40%, transparent);
-  margin: 0 0 0.15rem -0.04em;
+  margin: 0.05em 0.2em 0 -0.06em;
   pointer-events: none;
   user-select: none;
 }
@@ -1867,7 +1875,7 @@ header a:hover,
   margin-bottom: 0;
 }
 
-/* Enhanced blockquotes: large open mark, no left border bar (theme-aware) */
+/* Enhanced blockquotes: large open mark beside text (theme-aware) */
 .doc-content blockquote {
   position: relative;
   border-left: none;
@@ -1877,7 +1885,7 @@ header a:hover,
   border-radius: 0;
   font-style: italic;
   color: var(--text-secondary);
-  overflow: visible;
+  overflow: auto;
   font-size: var(--text-base);
   line-height: var(--leading-loose);
   max-width: 52ch;
@@ -1890,21 +1898,22 @@ header a:hover,
 
 .doc-content blockquote::before {
   content: '\201C';
+  float: left;
   display: block;
   position: static;
   width: auto;
   height: auto;
   background-image: none;
   font-family: var(--display-font, var(--heading-font, Georgia, 'Times New Roman', serif));
-  font-size: clamp(4.5rem, 9vw, 7.5rem);
+  font-size: clamp(3.25rem, 6.5vw, 5rem);
   font-style: normal;
   font-weight: 500;
-  line-height: 0.7;
+  line-height: 0.78;
   letter-spacing: -0.06em;
   color: color-mix(in srgb, var(--text-color, currentColor) 40%, transparent);
   opacity: 1;
   filter: none;
-  margin: 0 0 0.2rem -0.04em;
+  margin: 0.05em 0.2em 0 -0.06em;
   pointer-events: none;
   user-select: none;
 }
@@ -1915,13 +1924,15 @@ header a:hover,
   filter: none;
 }
 
-/* Right quote removed */
-
 .doc-content blockquote p {
   margin-bottom: 1rem;
   font-size: inherit;
   line-height: inherit;
   color: inherit;
+}
+
+.doc-content blockquote p:first-of-type {
+  padding-top: 0.35em;
 }
 
 .doc-content blockquote p:last-child {

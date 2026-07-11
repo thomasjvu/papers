@@ -120,8 +120,7 @@ const ContentRenderer = memo(function ContentRenderer({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
-            className="doc-page-bottom doc-page-bottom--anchored mt-auto w-full max-w-4xl mx-auto border-t pt-4 pb-6 px-6 md:pb-8 md:px-8 lg:pb-12 lg:px-12"
-            style={{ borderColor: 'var(--border-unified)' }}
+            className="doc-page-bottom doc-page-bottom--anchored mt-auto w-full max-w-4xl mx-auto pt-0 pb-6 px-6 md:pb-8 md:px-8 lg:pb-12 lg:px-12"
           >
             {/* Row 1: adjacent docs — always in document flow under the article */}
             <nav className="doc-page-bottom-row" aria-label="Adjacent documentation pages">
