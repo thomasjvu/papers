@@ -29,16 +29,19 @@ async function renderMermaidChart(
 
   mermaid.initialize({
     startOnLoad: false,
-    securityLevel: 'strict',
+    // antiscript allows <strong> in node labels (strict strips them)
+    securityLevel: 'antiscript',
     theme: 'base',
     flowchart: {
       useMaxWidth: isInline,
       htmlLabels: true,
       curve: 'basis',
-      padding: isInline ? 28 : 36,
-      nodeSpacing: isInline ? 48 : 60,
-      rankSpacing: isInline ? 56 : 72,
-      wrappingWidth: isInline ? 300 : 380,
+      // padding = space inside node around label
+      padding: isInline ? 22 : 28,
+      nodeSpacing: isInline ? 40 : 52,
+      // rankSpacing = vertical gap between stacked steps
+      rankSpacing: isInline ? 88 : 104,
+      wrappingWidth: isInline ? 260 : 320,
     },
     sequence: {
       useMaxWidth: isInline,

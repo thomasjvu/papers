@@ -313,26 +313,24 @@ const DocumentationPage = React.memo(
                     className="group inline-flex min-w-0 items-center gap-3"
                     style={{ color: 'var(--text-color)' }}
                   >
-                    <span
-                      className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-black"
-                      style={{
-                        borderColor: 'var(--border-unified)',
-                        backgroundColor: 'var(--card-color)',
-                        color: 'var(--text-color)',
-                        fontFamily: 'var(--mono-font)',
-                      }}
-                    >
-                      {brandingConfig.logo?.src ? (
-                        <img
-                          src={brandingConfig.logo.src}
-                          alt=""
-                          aria-hidden="true"
-                          className="h-6 w-6 object-contain"
-                        />
-                      ) : (
-                        (brandingConfig.productName || siteName).charAt(0).toUpperCase()
-                      )}
-                    </span>
+                    {brandingConfig.logo?.src ? (
+                      <img
+                        src={brandingConfig.logo.src}
+                        alt=""
+                        aria-hidden="true"
+                        className="h-9 w-9 shrink-0 object-contain"
+                      />
+                    ) : (
+                      <span
+                        className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-sm font-black"
+                        style={{
+                          color: 'var(--text-color)',
+                          fontFamily: 'var(--mono-font)',
+                        }}
+                      >
+                        {(brandingConfig.productName || siteName).charAt(0).toUpperCase()}
+                      </span>
+                    )}
                     <span
                       className="min-w-0 truncate font-black uppercase tracking-[0.12em]"
                       style={{
