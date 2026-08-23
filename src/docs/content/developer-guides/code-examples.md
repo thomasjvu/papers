@@ -49,6 +49,9 @@ description: Short summary used for metadata, previews, and generated artifacts.
 ---
 
 # Architecture
+
+```
+
 ```
 ````
 

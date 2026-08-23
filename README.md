@@ -15,13 +15,13 @@ Open `http://localhost:3333/docs/getting-started/introduction`.
 
 ## Customize
 
-| Path | Purpose |
-| ---- | ------- |
-| `shared/documentation-config.js` | Sidebar, homepage, OpenAPI |
-| `src/docs/content/` | Markdown pages |
-| `.env.local` | Site name, URL, GitHub metadata |
-| `src/globals.css` | Theme tokens |
-| `themes/` | Theme packages |
+| Path                             | Purpose                         |
+| -------------------------------- | ------------------------------- |
+| `shared/documentation-config.js` | Sidebar, homepage, OpenAPI      |
+| `src/docs/content/`              | Markdown pages                  |
+| `.env.local`                     | Site name, URL, GitHub metadata |
+| `src/globals.css`                | Theme tokens                    |
+| `themes/`                        | Theme packages                  |
 
 ## Commands
 

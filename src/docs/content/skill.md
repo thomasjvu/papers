@@ -16,10 +16,10 @@ Host an agent skill file at `/skill.md` so coding agents can load integration in
 
 ## Install paths (examples)
 
-| Agent | Typical path |
-| ----- | ------------ |
-| Cursor / Claude | `.cursor/skills/<name>/SKILL.md` |
-| Codex | `~/.codex/skills/<name>/SKILL.md` |
+| Agent           | Typical path                      |
+| --------------- | --------------------------------- |
+| Cursor / Claude | `.cursor/skills/<name>/SKILL.md`  |
+| Codex           | `~/.codex/skills/<name>/SKILL.md` |
 
 ## When to regenerate
 

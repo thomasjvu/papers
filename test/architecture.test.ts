@@ -919,11 +919,45 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'verification entry points use the test aliases and canonical docs-tree script',
+    run: async () => {
+      const packageJson = JSON.parse(
+        await readFile(new URL('../package.json', import.meta.url), 'utf8')
+      );
+      const loaderSource = await readFile(
+        new URL('./register-ts-node.mjs', import.meta.url),
+        'utf8'
+      );
+      const resolverSource = await readFile(
+        new URL('./resolve-aliases.mjs', import.meta.url),
+        'utf8'
+      );
+      const treeScriptSource = await readFile(
+        new URL('../scripts/sync-documentation-tree.mjs', import.meta.url),
+        'utf8'
+      );
+
+      assert.equal(
+        packageJson.scripts['check:docs-tree'],
+        'node scripts/sync-documentation-tree.mjs --check'
+      );
+      assert.equal(
+        packageJson.scripts['sync:docs-tree'],
+        'node scripts/sync-documentation-tree.mjs'
+      );
+      assert.match(loaderSource, /resolve-aliases\.mjs/);
+      assert.match(resolverSource, /@app-shared\/documentation-config\.js/);
+      assert.match(resolverSource, /specifier\.startsWith\('@\/'\)/);
+      assert.match(treeScriptSource, /\.\.\/shared\/documentation-config\.js/);
+      assert.match(treeScriptSource, /\.\/lib\/documentationTreeWriter\.mjs/);
+    },
+  },
+  {
     name: 'theme registry resolves built-in default and gba themes',
     run: () => {
       const registry = readRegistry();
       const ids = registry.themes.map((theme: { id: string }) => theme.id);
-      assert.deepEqual(ids, ['default', 'gba']);
+      assert.deepEqual(ids, ['default', 'gba', 'rx-78', 'lorelei']);
 
       assert.equal(resolveThemeId('default'), 'default');
       assert.equal(resolveThemeId('gba'), 'gba');
