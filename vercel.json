@@ -2,12 +2,20 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/docs",
+      "destination": "/docs.html"
+    },
+    {
       "source": "/docs/:path*",
-      "destination": "/"
+      "destination": "/docs/:path*.html"
     },
     {
       "source": "/llms",
-      "destination": "/"
+      "destination": "/llms.html"
+    },
+    {
+      "source": "/skill",
+      "destination": "/skill.html"
     }
   ]
 }

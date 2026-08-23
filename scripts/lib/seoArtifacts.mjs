@@ -17,6 +17,7 @@ import {
   buildDocsRouteVariants,
   parseDocsRoutePath,
 } from '../../shared/docsRouting.js';
+import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
 
 function escapeXml(value) {
   return value
@@ -233,14 +234,46 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
     entries.push(...collectionEntries);
   }
 
-  if (openapiConfig.enabled && openapiConfig.specs.length > 0) {
-    const routePrefix = openapiConfig.routePrefix || '/api';
+  const primaryCollection = collections[0];
+  const primaryArtifacts = primaryCollection
+    ? artifactsByCollectionId[primaryCollection.id]
+    : null;
+  const hostedDocumentAliases = ['llms', 'skill'];
 
+  for (const docPath of hostedDocumentAliases) {
+    const document = primaryArtifacts?.documents?.[docPath];
+
+    if (!document) {
+      continue;
+    }
+
+    const routePath = `/${docPath}`;
+
+    if (routeMap.has(routePath)) {
+      continue;
+    }
+
+    routeMap.set(routePath, true);
+    entries.push({
+      routePath,
+      canonicalPath: buildCanonicalCollectionPath(primaryCollection, docPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      }),
+      title: `${document.title} | ${options.siteName || getHomeMetadataDefaults().siteName}`,
+      description: getDocumentDescription(document),
+      type: 'article',
+      includeInSitemap: false,
+      noIndex: true,
+    });
+  }
+
+  if (openapiConfig.enabled && openapiConfig.specs.length > 0) {
     for (const spec of openapiConfig.specs) {
-      const routePath =
-        spec.id === openapiConfig.defaultSpecId
-          ? routePrefix
-          : `${routePrefix}/${spec.id}`;
+      const routePath = buildOpenApiRoutePath(
+        openapiConfig,
+        spec.id === openapiConfig.defaultSpecId ? null : spec.id
+      );
 
       if (routeMap.has(routePath)) {
         continue;

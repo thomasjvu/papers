@@ -18,6 +18,7 @@ import {
 } from '../scripts/lib/documentationTreeWriter.mjs';
 import { loadViteEnv } from '../scripts/lib/loadViteEnv.mjs';
 import { resolveDocFileInfo } from '../scripts/lib/docsVariants.mjs';
+import { routeHtmlPath } from '../scripts/lib/routeHtmlPaths.mjs';
 import {
   createRobotsTxt,
   createSeoRouteEntries,
@@ -32,6 +33,7 @@ import {
   getDocumentationFeatureValidationIssues,
   parseDocsRoutePath,
 } from '../shared/docsRouting.js';
+import { buildOpenApiRoutePath, getOpenApiRoutePrefix } from '../shared/openapiRouting.js';
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
@@ -479,6 +481,39 @@ export const architectureTests: ArchitectureTestCase[] = [
 
       const robots = createRobotsTxt('https://docs.example.com');
       assert.match(robots, /Sitemap: https:\/\/docs\.example\.com\/sitemap\.xml/);
+    },
+  },
+  {
+    name: 'OpenAPI routes and route HTML paths share canonical contracts',
+    run: async () => {
+      const openApiConfig = {
+        pagePath: 'api-reference/openapi',
+        defaultSpecId: 'public',
+      };
+
+      assert.equal(getOpenApiRoutePrefix(openApiConfig), '/docs/api-reference/openapi');
+      assert.equal(buildOpenApiRoutePath(openApiConfig), '/docs/api-reference/openapi');
+      assert.equal(
+        buildOpenApiRoutePath(openApiConfig, 'internal/v2'),
+        '/docs/api-reference/openapi/internal%2Fv2'
+      );
+      assert.equal(getOpenApiRoutePrefix({ ...openApiConfig, routePrefix: ' /api/ ' }), '/api');
+
+      const distRoot = join(tmpdir(), 'papers-route-dist');
+      assert.equal(routeHtmlPath('/', distRoot), join(distRoot, 'index.html'));
+      assert.equal(routeHtmlPath('/some/path', distRoot), join(distRoot, 'some/path.html'));
+      assert.equal(routeHtmlPath('/some/path.html', distRoot), join(distRoot, 'some/path.html'));
+      assert.throws(
+        () => routeHtmlPath('/../escape', distRoot),
+        /cannot escape the dist directory/
+      );
+
+      const openApiPageSource = await readFile(
+        new URL('../src/pages/OpenApiPage.tsx', import.meta.url),
+        'utf8'
+      );
+      assert.doesNotMatch(openApiPageSource, /\/docs\/reference\/routes/);
+      assert.match(openApiPageSource, /DOCS_LANDING_PATH/);
     },
   },
   {
