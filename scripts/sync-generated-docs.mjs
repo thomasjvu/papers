@@ -7,6 +7,18 @@ import {
 } from './lib/generatedDocsSync.mjs';
 
 async function main() {
+  if (process.argv.includes('--help') || process.argv.includes('-h')) {
+    console.log(
+      [
+        'Usage: npm run sync:generated -- --source <directory>',
+        '',
+        `The source may also be set with ${GENERATED_DOCS_SOURCE_ENV}.`,
+        'The command syncs Markdown and MDX files into src/docs/content/generated/.',
+      ].join('\n')
+    );
+    return;
+  }
+
   const rootDir = process.cwd();
   const sourceDir = getGeneratedDocsSourceDir({ rootDir });
 

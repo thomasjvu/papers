@@ -7,6 +7,7 @@ import {
   enrichDocumentArtifact,
   stabilizeIndexGeneration,
 } from './docsArtifacts.mjs';
+import { assertValidDocumentationContent } from './contentValidation.mjs';
 import { resolveDocFileInfo } from './docsVariants.mjs';
 
 export function collectDocumentPaths(items, paths = []) {
@@ -24,25 +25,36 @@ export function collectDocumentPaths(items, paths = []) {
   return paths;
 }
 
-async function loadMarkdownContent(docPath, options = {}, fileInfo = resolveDocFileInfo(docPath, options)) {
-  try {
-    if (!fileInfo) {
-      console.warn(`File not found for "${docPath}"`);
-      return `# File Not Found\n\nThe requested documentation file "${docPath}" could not be found.`;
-    }
-
-    const content = await readFile(fileInfo.filePath, 'utf-8');
-
-    if (!content.trim()) {
-      console.warn(`Empty file: ${fileInfo.filePath}`);
-      return `# Empty File\n\nThe documentation file "${docPath}" appears to be empty.`;
-    }
-
-    return content;
-  } catch (error) {
-    console.error(`Error loading ${docPath}:`, error);
-    return `# Error Loading Content\n\nFailed to load "${docPath}": ${error.message}`;
+async function loadMarkdownContent(
+  docPath,
+  documentKey,
+  options = {},
+  fileInfo = resolveDocFileInfo(docPath, options)
+) {
+  if (!fileInfo) {
+    throw new Error(
+      `Document "${documentKey}" source not found for "${docPath}" ` +
+        `(expected src/docs/content/${docPath}.md or .mdx).`
+    );
   }
+
+  let content;
+
+  try {
+    content = await readFile(fileInfo.filePath, 'utf-8');
+  } catch (error) {
+    throw new Error(
+      `Unable to read source "${fileInfo.sourcePath}" for document "${documentKey}": ${error.message}`
+    );
+  }
+
+  if (!content.trim()) {
+    throw new Error(
+      `Source "${fileInfo.sourcePath}" for document "${documentKey}" is empty.`
+    );
+  }
+
+  return content;
 }
 
 export async function buildVariantDocuments(docPaths, options = {}) {
@@ -50,14 +62,14 @@ export async function buildVariantDocuments(docPaths, options = {}) {
   const documents = {};
   const defaultDocsByPath = {};
   const defaultSourcePathsByPath = {};
+  const frameworkDocPaths = new Set(options.frameworkDocPaths || []);
 
   for (const context of contexts) {
     const label = context.key || 'default';
     console.log(`Processing docs variant: ${label}`);
 
     for (const docPath of docPaths) {
-      const frameworkDocPaths = options.frameworkDocPaths || [];
-      const contentRoot = frameworkDocPaths.includes(docPath)
+      const contentRoot = frameworkDocPaths.has(docPath)
         ? options.frameworkContentRoot
         : options.contentRoot;
       const fileInfo = resolveDocFileInfo(docPath, {
@@ -66,16 +78,32 @@ export async function buildVariantDocuments(docPaths, options = {}) {
         locale: context.locale,
         contentRoot,
       });
-      const rawContent = await loadMarkdownContent(docPath, options, fileInfo);
       const documentKey = buildDocsContentPath(docPath, {
         ...options,
         version: context.version,
         locale: context.locale,
       });
+      const rawContent = await loadMarkdownContent(docPath, documentKey, options, fileInfo);
 
-      documents[documentKey] = await enrichDocumentArtifact(
-        createDocumentArtifact(docPath, rawContent, fileInfo?.sourcePath)
-      );
+      if (Object.hasOwn(documents, documentKey)) {
+        throw new Error(`Duplicate generated document key "${documentKey}".`);
+      }
+
+      try {
+        documents[documentKey] = await enrichDocumentArtifact(
+          createDocumentArtifact(docPath, rawContent, fileInfo.sourcePath, {
+            version: context.version,
+            locale: context.locale,
+            versionConfig: options.versionConfig,
+            i18nConfig: options.i18nConfig,
+          })
+        );
+      } catch (error) {
+        const lineSuffix = error.lineNumber ? `:${error.lineNumber}` : '';
+        throw new Error(
+          `Failed to parse or compile source "${fileInfo.sourcePath}${lineSuffix}" for document "${documentKey}": ${error.message}`
+        );
+      }
 
       if (context.isDefault) {
         defaultDocsByPath[docPath] = rawContent;
@@ -101,6 +129,11 @@ export async function createGeneratedDocsArtifacts(options = {}) {
   const generatedAt = options.generatedAt || new Date().toISOString();
   const previousIndex = options.previousIndex || null;
   const docPaths = [...collectDocumentPaths(documentationTree), ...frameworkDocPaths];
+  await assertValidDocumentationContent({
+    ...options,
+    documentationTree,
+    frameworkDocPaths,
+  });
   const { documents, defaultDocsByPath, defaultSourcePathsByPath } = await buildVariantDocuments(
     docPaths,
     options

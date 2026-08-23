@@ -7,9 +7,11 @@ import { buildPaddedViewBox } from '../src/utils/mermaidLayout.ts';
 import {
   createDocsArtifacts,
   enrichDocumentArtifact,
+  extractDocumentLinks,
   serializeArtifactJson,
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
+import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import {
   addFileToTree,
@@ -104,6 +106,15 @@ export const architectureTests: ArchitectureTestCase[] = [
         },
         content: 'Hello world',
         contentFormat: 'markdown',
+        toc: [],
+        metadata: {
+          title: 'Custom Intro',
+          description: 'Setup page',
+          canonicalPath: '/docs/getting-started/introduction',
+          contentFormat: 'markdown',
+          sourcePath: 'src/docs/content/getting-started/introduction.mdx',
+        },
+        references: [],
         sourcePath: 'src/docs/content/getting-started/introduction.mdx',
       });
       assert.deepEqual(documents['user-guide/no-title'], {
@@ -113,6 +124,14 @@ export const architectureTests: ArchitectureTestCase[] = [
         frontmatter: {},
         content: 'Body only',
         contentFormat: 'markdown',
+        toc: [],
+        metadata: {
+          title: 'no-title',
+          description: 'Body only',
+          canonicalPath: '/docs/user-guide/no-title',
+          contentFormat: 'markdown',
+        },
+        references: [],
       });
     },
   },
@@ -168,6 +187,78 @@ export const architectureTests: ArchitectureTestCase[] = [
         }),
         '{\n  "hello": "world"\n}\n'
       );
+    },
+  },
+  {
+    name: 'content link validation distinguishes action anchors from heading anchors',
+    run: async () => {
+      const links = extractDocumentLinks(
+        ['# Guide', '', '<a href="#">Copy</a>', '<a href="#guide">Heading</a>'].join('\n')
+      );
+
+      assert.deepEqual(links, [
+        { target: '#', line: 3, type: 'action' },
+        { target: '#guide', line: 4, type: 'internal' },
+      ]);
+
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-content-links-'));
+      const sourcePath = join(tempDir, 'content', 'guide', 'page.md');
+      const documentationTree = [
+        {
+          type: 'file' as const,
+          name: 'Page.md',
+          path: 'guide/page',
+        },
+      ];
+      const validationOptions = {
+        rootDir: tempDir,
+        contentRoot: 'content',
+        publicDir: 'public',
+        documentationTree,
+        versionConfig: {
+          enabled: false,
+          current: '1.0',
+          versions: ['1.0'],
+          labels: {},
+        },
+        i18nConfig: {
+          enabled: false,
+          defaultLocale: 'en',
+          locales: ['en'],
+        },
+        openapiConfig: {
+          enabled: false,
+          pagePath: 'api-reference/openapi',
+          defaultSpecId: 'public',
+          specs: [],
+        },
+      };
+
+      try {
+        await mkdir(join(tempDir, 'content', 'guide'), { recursive: true });
+        await mkdir(join(tempDir, 'public'), { recursive: true });
+        await writeFile(
+          sourcePath,
+          ['# Guide', '', '<a href="#">Copy</a>', '<a href="#guide">Heading</a>'].join('\n')
+        );
+
+        const validResult = await validateDocumentationContent(validationOptions);
+        assert.deepEqual(validResult.issues, []);
+
+        await writeFile(
+          sourcePath,
+          ['# Guide', '', '<a href="#">Copy</a>', '<a href="#missing">Heading</a>'].join('\n')
+        );
+
+        const invalidResult = await validateDocumentationContent(validationOptions);
+        assert.equal(invalidResult.issues.length, 1);
+        assert.match(
+          invalidResult.issues[0],
+          /content\/guide\/page\.md:4: unresolved heading anchor "#missing"/
+        );
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
     },
   },
   {
@@ -322,6 +413,24 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(html, /character-notes\/.*warning/);
       assert.match(html, /This route may change/);
       assert.doesNotMatch(html, /papers-character-note__title/);
+    },
+  },
+  {
+    name: 'content renderer honors the declared html artifact format',
+    run: async () => {
+      const contentRendererSource = await readFile(
+        new URL('../src/components/ContentRenderer.tsx', import.meta.url),
+        'utf8'
+      );
+      const markdownRendererSource = await readFile(
+        new URL('../src/components/MarkdownRenderer.tsx', import.meta.url),
+        'utf8'
+      );
+
+      assert.match(contentRendererSource, /contentFormat === 'html'/);
+      assert.match(contentRendererSource, /<HtmlRenderer html=\{content\}/);
+      assert.match(markdownRendererSource, /DOMPurify\.sanitize/);
+      assert.match(markdownRendererSource, /dangerouslySetInnerHTML/);
     },
   },
   {

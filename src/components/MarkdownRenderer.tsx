@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+import DOMPurify from 'dompurify';
 import { motion } from 'framer-motion';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -23,6 +24,23 @@ type MarkdownRendererProps = {
   content: string;
   path: string;
 };
+
+type HtmlRendererProps = {
+  html: string;
+};
+
+const HTML_RENDERER_SANITIZE_CONFIG = {
+  USE_PROFILES: { html: true },
+};
+
+export function HtmlRenderer({ html }: HtmlRendererProps) {
+  const sanitizedHtml = useMemo(
+    () => DOMPurify.sanitize(html, HTML_RENDERER_SANITIZE_CONFIG),
+    [html]
+  );
+
+  return <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
+}
 
 interface ProcessedMarkdownData {
   html: string;

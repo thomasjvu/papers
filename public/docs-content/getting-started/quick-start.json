@@ -3,7 +3,75 @@
   "title": "Quick Start",
   "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
   "frontmatter": {},
-  "content": "# Quick Start\n\nUse this path if you want your own docs site running quickly with the least amount of ceremony.\n\n## 1. Clone And Start The App\n\n```bash\ngit clone https://github.com/thomasjvu/papers.git\ncd papers\nnpm install\nnpm run dev\n```\n\nOpen `http://localhost:3333`.\n\n## 2. Set Basic Metadata\n\nCreate `.env.local` if you want your own site name, canonical URL, social metadata, or GitHub links.\n\n```env\nVITE_SITE_NAME=\"Your Docs\"\nVITE_SITE_URL=\"https://docs.example.com\"\nVITE_GITHUB_URL=\"https://github.com/your-org/your-repo\"\nVITE_GITHUB_BRANCH=\"main\"\n```\n\n`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and social preview metadata.\n\n## 3. Replace The Docs Tree\n\nEdit `shared/documentation-config.js` so the sections, page names, tags, homepage hero, and footer links match your project.\n\n## 4. Replace The Markdown\n\nWrite your real content in `src/docs/content/`.\n\nEach `path` in the shared docs tree should map to one Markdown file with the same relative path.\n\n## 5. Regenerate Docs While You Work\n\nThe app reads generated JSON from `public/docs-content/`, not raw Markdown directly.\n\nIf the dev server is already running, rerun this after changing Markdown or the docs tree:\n\n```bash\nnpm run generate:docs\n```\n\nIf you changed metadata that affects sitemap, canonical tags, or share previews, also run:\n\n```bash\nnpm run generate:seo\n```\n\nIf you want fresh AI exports too, run:\n\n```bash\nnpm run generate:llms\n```\n\n## 6. Validate Before Shipping\n\n```bash\nnpm test\nnpm run lint\nnpm run build\nnpm run release:check\n```\n\n## Recommended First Edits\n\n- set your site metadata in `.env.local`\n- trim unused sections from the shared docs tree\n- replace the sample docs content\n- update social links and homepage copy\n- run a full build before the first deploy\n\n## Next Steps\n\n- [Installation](/docs/getting-started/installation)\n- [Configuration](/docs/user-guide/configuration)\n- [Deployment Overview](/docs/deployment/overview)",
+  "content": "# Quick Start\n\nUse this path if you want your own docs site running quickly with the least amount of ceremony.\n\n## 1. Clone And Start The App\n\n```bash\ngit clone https://github.com/thomasjvu/papers.git\ncd papers\nnpm install\nnpm run dev\n```\n\nOpen `http://localhost:3333`.\n\n## 2. Set Basic Metadata\n\nCreate `.env.local` if you want your own site name, canonical URL, social metadata, or GitHub links.\n\n```env\nVITE_SITE_NAME=\"Your Docs\"\nVITE_SITE_URL=\"https://docs.example.com\"\nVITE_GITHUB_URL=\"https://github.com/your-org/your-repo\"\nVITE_GITHUB_BRANCH=\"main\"\n```\n\n`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and social preview metadata.\n\n## 3. Replace The Docs Tree\n\nEdit `shared/documentation-config.js` so the sections, page names, tags, homepage hero, and footer links match your project.\n\n## 4. Replace The Markdown\n\nWrite your real content in `src/docs/content/`.\n\nEach `path` in the shared docs tree should map to one Markdown file with the same relative path.\n\n## 5. Regenerate Docs While You Work\n\nThe app reads generated JSON from `public/docs-content/`, not raw Markdown directly.\n\nIf the dev server is already running, rerun this after changing Markdown or the docs tree:\n\n```bash\nnpm run generate:docs\n```\n\nIf you changed metadata that affects sitemap, canonical tags, or share previews, also run:\n\n```bash\nnpm run generate:seo\n```\n\nIf you want fresh AI exports too, run:\n\n```bash\nnpm run generate:llms\n```\n\n## 6. Validate Before Shipping\n\n```bash\nnpm test\nnpm run lint\nnpm run build\nnpm run release:check\n```\n\n## Recommended First Edits\n\n- set your site metadata in `.env.local`\n- trim unused sections from the shared docs tree\n- replace the sample docs content\n- update social links and homepage copy\n- run a full build before the first deploy\n\n## Next Steps\n\n- [Installation](/docs/getting-started/installation)\n- [Configuration](/docs/user-guide/configuration)\n- [Deployment Overview](/docs/deployment/overview)\n",
   "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "quick-start",
+      "text": "Quick Start"
+    },
+    {
+      "depth": 2,
+      "id": "1-clone-and-start-the-app",
+      "text": "1. Clone And Start The App"
+    },
+    {
+      "depth": 2,
+      "id": "2-set-basic-metadata",
+      "text": "2. Set Basic Metadata"
+    },
+    {
+      "depth": 2,
+      "id": "3-replace-the-docs-tree",
+      "text": "3. Replace The Docs Tree"
+    },
+    {
+      "depth": 2,
+      "id": "4-replace-the-markdown",
+      "text": "4. Replace The Markdown"
+    },
+    {
+      "depth": 2,
+      "id": "5-regenerate-docs-while-you-work",
+      "text": "5. Regenerate Docs While You Work"
+    },
+    {
+      "depth": 2,
+      "id": "6-validate-before-shipping",
+      "text": "6. Validate Before Shipping"
+    },
+    {
+      "depth": 2,
+      "id": "recommended-first-edits",
+      "text": "Recommended First Edits"
+    },
+    {
+      "depth": 2,
+      "id": "next-steps",
+      "text": "Next Steps"
+    }
+  ],
+  "metadata": {
+    "title": "Quick Start",
+    "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
+    "canonicalPath": "/docs/getting-started/quick-start",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/getting-started/quick-start.md"
+  },
+  "references": [
+    {
+      "target": "/docs/getting-started/installation",
+      "line": 80
+    },
+    {
+      "target": "/docs/user-guide/configuration",
+      "line": 81
+    },
+    {
+      "target": "/docs/deployment/overview",
+      "line": 82
+    }
+  ],
   "sourcePath": "src/docs/content/getting-started/quick-start.md"
 }

@@ -9,11 +9,11 @@ import {
   homepageConfig,
   openapiConfig,
 } from '../shared/documentation-config.js';
-import { resolveCollectionContentRoot, resolveMonorepoRoot } from './lib/collectionContentRoot.mjs';
+import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
 import { buildDocsContentPath } from '../shared/docsRouting.js';
-import { getDirectoryAliasEntries } from '../shared/seo.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
+import { assertValidDocumentationContent } from './lib/contentValidation.mjs';
 import {
   GENERATED_DOCS_SOURCE_ENV,
   diffMarkdownFileMaps,
@@ -70,51 +70,19 @@ async function listJsonFiles(dir, prefix = '') {
   return files.sort();
 }
 
-function collectTreeSourcePaths(items, paths = []) {
-  for (const item of items) {
-    if (item.type === 'file') {
-      paths.push(join(rootDir, 'src', 'docs', 'content', `${item.path}.md`));
-      paths.push(join(rootDir, 'src', 'docs', 'content', `${item.path}.mdx`));
-      continue;
-    }
-
-    if (item.type === 'directory' && item.children) {
-      collectTreeSourcePaths(item.children, paths);
-    }
-  }
-
-  return paths;
-}
-
-function checkAbsoluteDocsLinks(documentationTree) {
-  const pattern = new RegExp(`\\]\\(/docs(?:/|\\)|#)`, 'g');
-  const problems = [];
-
-  for (const candidate of collectTreeSourcePaths(documentationTree)) {
-    if (!existsSync(candidate)) {
-      continue;
-    }
-
-    const content = readFileText(candidate);
-    const lines = content.split(/\r?\n/);
-
-    lines.forEach((line, index) => {
-      if (pattern.test(line)) {
-        problems.push(`${candidate}:${index + 1} uses a legacy /docs link`);
-      }
-      pattern.lastIndex = 0;
-    });
-  }
-
-  return problems;
-}
-
 async function main() {
   assert(existsSync(docsIndexPath), 'Missing public/docs-index.json. Run `npm run build` or the generators first.');
   assert(existsSync(docsContentDir), 'Missing public/docs-content/. Run `npm run build` or the generators first.');
 
   const existingIndex = JSON.parse(readFileText(docsIndexPath));
   const docsCollection = getContentCollection('docs');
+  await assertValidDocumentationContent({
+    documentationTree,
+    frameworkDocPaths,
+    contentRoot: resolveCollectionContentRoot(docsCollection, rootDir),
+    frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
+    rootDir,
+  });
   const { documents, index } = await createGeneratedDocsArtifacts({
     documentationTree,
     frameworkDocPaths,
@@ -153,10 +121,10 @@ async function main() {
     );
   }
 
-  const monorepoRoot = resolveMonorepoRoot(rootDir);
+  const hostedSkillPath = join(publicDir, 'skill.md');
   assert(
-    readFileText(join(publicDir, 'skill.md')) === readFileText(join(monorepoRoot, 'content/skill.md')),
-    'public/skill.md is out of date. Run `pnpm bossraid generate:skill`.'
+    existsSync(hostedSkillPath) && readFileText(hostedSkillPath).trim(),
+    'public/skill.md is a repository-owned hosted asset and must exist and be non-empty.'
   );
 
   const { llmsTxt, llmsFullTxt } = createLlmsArtifacts({
@@ -213,6 +181,10 @@ async function main() {
 
   const sourceDir = getGeneratedDocsSourceDir({ rootDir });
   if (sourceDir) {
+    assert(
+      existsSync(sourceDir),
+      `Configured ${GENERATED_DOCS_SOURCE_ENV} source does not exist: ${sourceDir}`
+    );
     const sourceFiles = await readMarkdownFileMap(sourceDir);
     const destinationFiles = await readMarkdownFileMap(generatedDocsDir);
     const diff = diffMarkdownFileMaps(sourceFiles, destinationFiles);
@@ -221,7 +193,7 @@ async function main() {
     assert(
       !hasDiff,
       [
-        `Generated docs drifted from ${sourceDir}. Run \`npm run sync:generated\` with ${GENERATED_DOCS_SOURCE_ENV} set.`,
+        `Generated docs drifted from ${sourceDir}. Run \`npm run sync:generated -- --source <dir>\` or set ${GENERATED_DOCS_SOURCE_ENV}.`,
         diff.missing.length > 0 ? `Missing: ${diff.missing.join(', ')}` : null,
         diff.extra.length > 0 ? `Extra: ${diff.extra.join(', ')}` : null,
         diff.changed.length > 0 ? `Changed: ${diff.changed.join(', ')}` : null,
@@ -230,16 +202,6 @@ async function main() {
         .join('\n')
     );
   }
-
-  const absoluteLinkProblems = checkAbsoluteDocsLinks(documentationTree);
-  assert(
-    absoluteLinkProblems.length === 0,
-    `Suspicious absolute docs links found:\n${absoluteLinkProblems.join('\n')}`
-  );
-
-  const aliasPaths = getDirectoryAliasEntries(documentationTree).map((entry) => entry.routePath);
-  const duplicateAliases = aliasPaths.filter((value, index) => aliasPaths.indexOf(value) !== index);
-  assert(duplicateAliases.length === 0, `Duplicate directory aliases found: ${duplicateAliases.join(', ')}`);
 
   const sourcePathCheck = Object.keys(documents).find((documentKey) => {
     const defaultKey = buildDocsContentPath(documents[documentKey].path);

@@ -5,5 +5,54 @@
   "frontmatter": {},
   "content": "# Interactive Map\n\nThe interactive map renders the documentation tree as a graph in the right rail.\n\n## What It Is Good For\n\nUse it when readers need:\n\n- a fast overview of the docs structure\n- a visual way to jump between related sections\n- a second navigation surface besides the file tree and search\n\n## Desktop Behavior\n\nOn desktop, the right rail switches between:\n\n- `On This Page`\n- `Interactive Map`\n\nThe rail footer stays fixed, so the view change does not shift the rest of the shell.\n\n## Mobile Behavior\n\nOn mobile, the map opens from the left-rail tools instead of staying visible all the time.\n\n## Authoring Tip\n\nA clean docs tree creates a clean map. Keep sections purposeful, avoid deep nesting unless it is warranted, and use page titles that make sense out of context.\n\n## Next Steps\n\n- [Basic Usage](/docs/user-guide/basic-usage)\n- [Configuration](/docs/user-guide/configuration)\n",
   "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "interactive-map",
+      "text": "Interactive Map"
+    },
+    {
+      "depth": 2,
+      "id": "what-it-is-good-for",
+      "text": "What It Is Good For"
+    },
+    {
+      "depth": 2,
+      "id": "desktop-behavior",
+      "text": "Desktop Behavior"
+    },
+    {
+      "depth": 2,
+      "id": "mobile-behavior",
+      "text": "Mobile Behavior"
+    },
+    {
+      "depth": 2,
+      "id": "authoring-tip",
+      "text": "Authoring Tip"
+    },
+    {
+      "depth": 2,
+      "id": "next-steps",
+      "text": "Next Steps"
+    }
+  ],
+  "metadata": {
+    "title": "Interactive Map",
+    "description": "The interactive map renders the documentation tree as a graph in the right rail.",
+    "canonicalPath": "/docs/user-guide/interactive-map",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/user-guide/interactive-map.md"
+  },
+  "references": [
+    {
+      "target": "/docs/user-guide/basic-usage",
+      "line": 32
+    },
+    {
+      "target": "/docs/user-guide/configuration",
+      "line": 33
+    }
+  ],
   "sourcePath": "src/docs/content/user-guide/interactive-map.md"
 }

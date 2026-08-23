@@ -152,6 +152,7 @@ npm run release:check
 - [Configuration](/docs/user-guide/configuration)
 - [Deployment Overview](/docs/deployment/overview)
 
+
 ---
 
 
@@ -226,6 +227,7 @@ A clean build means:
 - [Basic Usage](/docs/user-guide/basic-usage)
 - [Troubleshooting](/docs/user-guide/troubleshooting)
 
+
 ---
 
 
@@ -291,15 +293,19 @@ The command palette always knows about docs-tree entries.
 
 Full-text Pagefind results appear after a production build, so local dev is best for navigation checks and production builds are best for search validation.
 
-## GitHub Footer Links
+## Page bottom chrome
 
-`edit`, `issue`, and `source` links appear when `VITE_GITHUB_URL` is configured.
+Every documentation page ends with:
+
+1. **Previous / Next** — adjacent pages in the docs tree (also **Shift + ← / →**).
+2. **`edit` · `issue` · `source`** — GitHub links under those buttons when `VITE_GITHUB_URL` is configured (optional `VITE_GITHUB_BRANCH`, `VITE_GITHUB_DOCS_PREFIX`).
 
 ## Next Steps
 
 - [Command Palette](/docs/user-guide/command-palette)
 - [Interactive Map](/docs/user-guide/interactive-map)
 - [Troubleshooting](/docs/user-guide/troubleshooting)
+
 
 ---
 
@@ -774,7 +780,6 @@ The built-in wallet block uses this pattern:
 - [Code Examples](/docs/developer-guides/code-examples)
 
 
-
 ---
 
 
@@ -926,6 +931,9 @@ description: Short summary used for metadata, previews, and generated artifacts.
 ---
 
 # Architecture
+
+```
+
 ```
 ````
 
@@ -1477,6 +1485,7 @@ npm run release:check
 - [Vercel](/docs/deployment/platforms/vercel)
 - [Netlify](/docs/deployment/platforms/netlify)
 
+
 ---
 
 
@@ -1753,16 +1762,17 @@ Host an agent skill file at `/skill.md` so coding agents can load integration in
 
 ## Install paths (examples)
 
-| Agent | Typical path |
-| ----- | ------------ |
-| Cursor / Claude | `.cursor/skills/<name>/SKILL.md` |
-| Codex | `~/.codex/skills/<name>/SKILL.md` |
+| Agent           | Typical path                      |
+| --------------- | --------------------------------- |
+| Cursor / Claude | `.cursor/skills/<name>/SKILL.md`  |
+| Codex           | `~/.codex/skills/<name>/SKILL.md` |
 
 ## When to regenerate
 
 Regenerate `public/skill.md` when API routes, auth flows, or agent tool names change.
 
 For AI corpus exports, see [LLMs.txt](/docs/llms).
+
 
 ---
 
