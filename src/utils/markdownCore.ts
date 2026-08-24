@@ -78,6 +78,17 @@ function createRenderer(
       return `<div data-mermaid-id="${blockId}" class="mermaid-placeholder"></div>`;
     }
 
+    // Display math — plain readable formulas (no KaTeX). Use ```math fences.
+    if (language === 'math' || language === 'formula') {
+      const escaped = code
+        .trim()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/\n/g, '<br />');
+      return `<div class="formula" role="math"><div class="formula__body">${escaped}</div></div>`;
+    }
+
     if (language === 'ColorPalette') {
       const blockId = createId('colorpalette');
 

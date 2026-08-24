@@ -791,6 +791,30 @@ code {
   color: var(--inline-code-text-color);
 }
 
+/* Math / formula fences (```math / ```formula) — plain readable, no KaTeX */
+.markdown-content .formula,
+.doc-content .formula {
+  margin: 1.25rem 0 1.5rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface-muted);
+  border: 1px solid var(--border-unified);
+  border-radius: var(--radius-lg);
+  overflow-x: auto;
+}
+
+.markdown-content .formula__body,
+.doc-content .formula__body {
+  font-family: var(--mono-font);
+  font-size: clamp(1.05rem, 2.2vw, 1.25rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1.55;
+  color: var(--text-color);
+  text-align: center;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .mermaid-block {
   margin: var(--space-6) 0;
   padding: var(--space-4);
