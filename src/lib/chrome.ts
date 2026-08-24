@@ -1,8 +1,4 @@
-import {
-  brandingConfig,
-  chromeConfig,
-  i18nConfig,
-} from '@app-shared/documentation-config.js';
+import { brandingConfig, chromeConfig, i18nConfig } from '@app-shared/documentation-config.js';
 
 export function isLanguageSwitcherEnabled(): boolean {
   const flag = chromeConfig.languageSwitcher?.enabled ?? 'auto';

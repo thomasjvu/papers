@@ -9,6 +9,7 @@ import NotFoundPage from './pages/NotFoundPage';
 import DesignBookPage from './pages/DesignBookPage';
 import { designBookConfig, homepageConfig, openapiConfig } from '../shared/documentation-config.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
+import { getOpenApiRoutePrefix } from './lib/openapi';
 import { buildDocsLandingPath } from '../shared/docsRouting.js';
 
 export default function App() {
@@ -29,7 +30,10 @@ export default function App() {
             element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
           />
           {openapiConfig.enabled ? (
-            <Route path={`/docs/${openapiConfig.pagePath}/:specId?`} element={<OpenApiPage />} />
+            <Route
+              path={`${getOpenApiRoutePrefix(openapiConfig)}/:specId?`}
+              element={<OpenApiPage />}
+            />
           ) : null}
           {designBookConfig.enabled ? (
             <Route path={designBookConfig.route || '/design'} element={<DesignBookPage />} />

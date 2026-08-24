@@ -7,10 +7,13 @@ import OpenApiReference from '../components/OpenApiReference';
 import OpenApiSpecSelector from '../components/OpenApiSpecSelector';
 import ThemeSwitcher from '../components/ThemeSwitcher';
 import { openapiConfig } from '../../shared/documentation-config.js';
+import { buildDocsLandingPath } from '../../shared/docsRouting.js';
+import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
 import { buildOpenApiRoutePath } from '../lib/openapi';
 import { applySeoMetadata } from '../utils/seo';
 
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
+const DOCS_LANDING_PATH = buildDocsLandingPath(DEFAULT_DOCUMENT_PATH);
 
 export default function OpenApiPage() {
   const { specId } = useParams();
@@ -44,7 +47,7 @@ export default function OpenApiPage() {
   }, [activeSpec]);
 
   if (!openapiConfig.enabled) {
-    return <Navigate to="/docs/reference/routes" replace />;
+    return <Navigate to={DOCS_LANDING_PATH} replace />;
   }
 
   if (specId && !activeSpec) {
@@ -52,7 +55,7 @@ export default function OpenApiPage() {
   }
 
   if (!activeSpec) {
-    return <Navigate to="/docs/reference/routes" replace />;
+    return <Navigate to={DOCS_LANDING_PATH} replace />;
   }
 
   return (
@@ -66,7 +69,7 @@ export default function OpenApiPage() {
       >
         <div className="flex min-w-0 items-center gap-3">
           <Link
-            to="/docs/reference/routes"
+            to={DOCS_LANDING_PATH}
             className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs transition-opacity hover:opacity-80"
             style={{
               borderColor: 'var(--border-unified)',

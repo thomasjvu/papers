@@ -29,7 +29,9 @@
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  transition: color 0.12s ease, background-color 0.12s ease;
+  transition:
+    color 0.12s ease,
+    background-color 0.12s ease;
 }
 
 .groupHeader:hover {
@@ -66,7 +68,9 @@
   font-weight: 500;
   line-height: 1.35;
   text-decoration: none;
-  transition: background-color 0.12s ease, color 0.12s ease;
+  transition:
+    background-color 0.12s ease,
+    color 0.12s ease;
 }
 
 .link:hover {

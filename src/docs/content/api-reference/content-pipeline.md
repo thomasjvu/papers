@@ -113,4 +113,3 @@ The built-in wallet block uses this pattern:
 
 - [Runtime APIs](/docs/api-reference/runtime-apis)
 - [Code Examples](/docs/developer-guides/code-examples)
-

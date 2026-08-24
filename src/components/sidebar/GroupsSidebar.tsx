@@ -81,7 +81,7 @@ export default function GroupsSidebar({
         version: routeContext.activeVersion,
         locale: routeContext.activeLocale,
       }),
-    [routeContext.activeLocale, routeContext.activeVersion],
+    [routeContext.activeLocale, routeContext.activeVersion]
   );
 
   const renderFileLink = (item: FileItem) => {

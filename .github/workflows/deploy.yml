@@ -8,8 +8,11 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
-  build-and-deploy:
+  validate:
     runs-on: ubuntu-latest
 
     steps:
@@ -45,8 +48,32 @@ jobs:
       - name: Run release smoke checks
         run: npm run release:check
 
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docs-dist
+          path: dist
+          if-no-files-found: error
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docs-dist
+          path: dist
+
       - name: Deploy to Cloudflare Pages
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
@@ -55,14 +82,3 @@ jobs:
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
-
-      - name: Comment PR with preview URL
-        if: github.event_name == 'pull_request'
-        uses: cloudflare/pages-action@v1
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
-          directory: dist
-          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.head_ref }}

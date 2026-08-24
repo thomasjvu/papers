@@ -10,7 +10,7 @@ import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
 import { prefetchDocument } from '../lib/content';
 
 import DocPageFooter from './DocPageFooter';
-import MarkdownRenderer from './MarkdownRenderer';
+import MarkdownRenderer, { HtmlRenderer } from './MarkdownRenderer';
 
 type ContentRendererProps = {
   content: string;
@@ -24,7 +24,7 @@ const ContentRenderer = memo(function ContentRenderer({
   content = '',
   path = '',
   sourcePath,
-  contentFormat: _contentFormat = 'markdown',
+  contentFormat = 'markdown',
   trailingContent,
 }: ContentRendererProps) {
   const location = useLocation();
@@ -78,7 +78,11 @@ const ContentRenderer = memo(function ContentRenderer({
               </div>
             )}
 
-            <MarkdownRenderer content={content} path={path} />
+            {contentFormat === 'html' ? (
+              <HtmlRenderer html={content} />
+            ) : (
+              <MarkdownRenderer content={content} path={path} />
+            )}
 
             {trailingContent}
 

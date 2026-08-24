@@ -2,13 +2,15 @@ import { createServer } from 'http';
 import { existsSync, readFileSync, statSync } from 'fs';
 import { join, extname, normalize } from 'path';
 
-import { documentationTree } from '../shared/documentation-config.js';
+import { documentationTree, openapiConfig } from '../shared/documentation-config.js';
 import {
   buildCanonicalDocsPath,
   buildDocsContentPath,
   buildDocsRouteVariants,
 } from '../shared/docsRouting.js';
 import { getDefaultDocumentPath } from '../shared/seo.js';
+import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
+import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -61,16 +63,16 @@ function resolveDistFile(pathname) {
     return directFilePath;
   }
 
+  if (!extname(relativePath)) {
+    const canonicalRouteFilePath = routeHtmlPath(normalizedPathname, distDir);
+    if (existsSync(canonicalRouteFilePath) && statSync(canonicalRouteFilePath).isFile()) {
+      return canonicalRouteFilePath;
+    }
+  }
+
   const indexFilePath = join(distDir, relativePath, 'index.html');
   if (existsSync(indexFilePath) && statSync(indexFilePath).isFile()) {
     return indexFilePath;
-  }
-
-  if (!extname(relativePath)) {
-    const htmlFilePath = join(distDir, `${relativePath}.html`);
-    if (existsSync(htmlFilePath) && statSync(htmlFilePath).isFile()) {
-      return htmlFilePath;
-    }
   }
 
   return null;
@@ -191,6 +193,22 @@ async function main() {
       skillRoute.body.includes('<title>Agent Skill |'),
       'Served /docs/skill route has unexpected metadata.'
     );
+
+    for (const spec of openapiConfig.specs) {
+      const routePath = buildOpenApiRoutePath(
+        openapiConfig,
+        spec.id === openapiConfig.defaultSpecId ? null : spec.id
+      );
+      const openApiRoute = await fetchText(baseUrl, routePath);
+      assert(
+        openApiRoute.body.includes(`<link rel="canonical" href="${routePath}" />`),
+        `Served ${routePath} is missing its canonical tag.`
+      );
+
+      if (spec.url.startsWith('/')) {
+        await fetchText(baseUrl, spec.url);
+      }
+    }
 
     await fetchText(baseUrl, '/llms.txt');
     await fetchText(baseUrl, '/skill.md');

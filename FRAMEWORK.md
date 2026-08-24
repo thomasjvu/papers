@@ -37,7 +37,7 @@ Generated output lands in `public/docs-content/` (and per-collection indexes). T
 | Edit on GitHub footer                      | Yes                                                                |
 | Version / i18n scaffolding                 | Yes                                                                |
 | Language switcher UI + palette actions     | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)     |
-| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit) |
+| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit)   |
 | Sidebar variants                           | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`            |
 | Tree sync                                  | `npm run check:docs-tree`                                          |
 | Starter CLI                                | `npm create papers`                                                |

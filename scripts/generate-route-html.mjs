@@ -11,6 +11,7 @@ import {
 } from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 import { createAllCollectionSeoRouteEntries } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
@@ -79,12 +80,7 @@ async function writeRouteHtml(routePath, html) {
   // literally `index` (e.g. /docs/en/index) break under Cloudflare assets
   // html_handling: the platform treats "index" as a directory index and
   // 307s /docs/en/index → /docs/en/.
-  const outputPath =
-    routePath === '/'
-      ? indexHtmlPath
-      : routePath.endsWith('.html')
-        ? join(distDir, routePath.replace(/^\//, ''))
-        : join(distDir, `${routePath.replace(/^\//, '')}.html`);
+  const outputPath = routeHtmlPath(routePath, distDir);
 
   await mkdir(dirname(outputPath), { recursive: true });
   await writeFile(outputPath, `${html.trimEnd()}\n`);

@@ -3,11 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
 import { DEFAULT_DOCUMENT_PATH } from '../../lib/navigation';
-import {
-  getLocaleLabel,
-  i18nConfig,
-  languageSwitcherShows,
-} from '../../lib/chrome';
+import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
 
 type LanguageSwitcherProps = {
   variant?: 'pills' | 'menu';

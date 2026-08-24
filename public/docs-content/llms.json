@@ -5,5 +5,54 @@
   "frontmatter": {},
   "content": "# LLMs.txt\n\nThis template generates AI-facing text exports from the docs corpus.\n\n## Generated Files\n\n- `/llms.txt`\n- `/llms-full.txt`\n\n## Why They Exist\n\nThese files give AI tools and internal agents a clean text entry point without requiring them to crawl the full UI.\n\n## How They Are Generated\n\n`npm run build` runs `scripts/generate-llms.mjs` automatically.\n\n`npm run generate:llms` runs the same script without a full build when you only need fresh AI exports.\n\n## When To Regenerate\n\nRegenerate after:\n\n- changing Markdown content\n- renaming or restructuring docs sections\n- updating docs metadata that should appear in exported summaries\n\n## Helpful Links\n\n<a href=\"/llms.txt\" class=\"download-link\" data-file=\"llms.txt\">Download llms.txt</a>\n\n<a href=\"/llms-full.txt\" class=\"download-link\" data-file=\"llms-full.txt\">Download llms-full.txt</a>\n\n<a href=\"#\" class=\"copy-link\" data-url=\"/llms.txt\">Copy llms.txt URL</a>\n",
   "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "llms-txt",
+      "text": "LLMs.txt"
+    },
+    {
+      "depth": 2,
+      "id": "generated-files",
+      "text": "Generated Files"
+    },
+    {
+      "depth": 2,
+      "id": "why-they-exist",
+      "text": "Why They Exist"
+    },
+    {
+      "depth": 2,
+      "id": "how-they-are-generated",
+      "text": "How They Are Generated"
+    },
+    {
+      "depth": 2,
+      "id": "when-to-regenerate",
+      "text": "When To Regenerate"
+    },
+    {
+      "depth": 2,
+      "id": "helpful-links",
+      "text": "Helpful Links"
+    }
+  ],
+  "metadata": {
+    "title": "LLMs.txt",
+    "description": "This template generates AI-facing text exports from the docs corpus.",
+    "canonicalPath": "/docs/llms",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/llms.md"
+  },
+  "references": [
+    {
+      "target": "/llms.txt",
+      "line": 30
+    },
+    {
+      "target": "/llms-full.txt",
+      "line": 32
+    }
+  ],
   "sourcePath": "src/docs/content/llms.md"
 }

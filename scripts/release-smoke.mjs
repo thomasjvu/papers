@@ -1,13 +1,15 @@
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 
-import { documentationTree } from '../shared/documentation-config.js';
+import { documentationTree, openapiConfig } from '../shared/documentation-config.js';
 import {
   buildCanonicalDocsPath,
   buildDocsContentPath,
   buildDocsRouteVariants,
 } from '../shared/docsRouting.js';
 import { getDefaultDocumentPath } from '../shared/seo.js';
+import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
+import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -26,15 +28,7 @@ function readText(filePath) {
 }
 
 function toDistHtmlPath(routePath) {
-  if (routePath === '/') {
-    return join(distDir, 'index.html');
-  }
-
-  if (routePath.endsWith('.html')) {
-    return join(distDir, routePath.replace(/^\//, ''));
-  }
-
-  return join(distDir, routePath.replace(/^\//, ''), 'index.html');
+  return routeHtmlPath(routePath, distDir);
 }
 
 function ensureRouteHtml(routePath) {
@@ -48,10 +42,11 @@ function main() {
   assert(existsSync(distDocsIndexPath), 'Missing dist/docs-index.json.');
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
   assert(existsSync(join(distDir, 'sitemap.xml')), 'Missing dist/sitemap.xml.');
-  assert(existsSync(join(distDir, 'llms', 'index.html')), 'Missing dist/llms/index.html.');
-  assert(existsSync(join(distDir, 'skill', 'index.html')), 'Missing dist/skill/index.html.');
+  assert(existsSync(join(distDir, 'llms.html')), 'Missing dist/llms.html.');
+  assert(existsSync(join(distDir, 'skill.html')), 'Missing dist/skill.html.');
   assert(existsSync(join(distDir, '404.html')), 'Missing dist/404.html.');
   assert(existsSync(distHeadersPath), 'Missing dist/_headers.');
+  assert(existsSync(join(distDir, 'pagefind')), 'Missing dist/pagefind/.');
 
   const indexHtml = ensureRouteHtml('/');
   assert(indexHtml.includes('/js/theme-init.js'), 'index.html is missing the local theme init script.');
@@ -75,6 +70,37 @@ function main() {
       html.includes(`<link rel="canonical" href="${buildCanonicalDocsPath(defaultDocPath)}" />`),
       `Canonical tag mismatch for ${routePath}.`
     );
+  }
+
+  const defaultDocsHtml = ensureRouteHtml('/docs');
+  assert(
+    defaultDocsHtml.includes(
+      `<link rel="canonical" href="${buildCanonicalDocsPath(defaultDocPath)}" />`
+    ),
+    'Canonical tag mismatch for /docs.'
+  );
+
+  for (const routePath of ['/docs/llms', '/docs/skill']) {
+    ensureRouteHtml(routePath);
+  }
+
+  for (const spec of openapiConfig.specs) {
+    const routePath = buildOpenApiRoutePath(
+      openapiConfig,
+      spec.id === openapiConfig.defaultSpecId ? null : spec.id
+    );
+    const html = ensureRouteHtml(routePath);
+    assert(
+      html.includes(`<link rel="canonical" href="${routePath}" />`),
+      `Canonical tag mismatch for OpenAPI route ${routePath}.`
+    );
+
+    if (spec.url.startsWith('/')) {
+      assert(
+        existsSync(join(distDir, spec.url.replace(/^\/+/, ''))),
+        `Missing OpenAPI asset: ${spec.url}`
+      );
+    }
   }
 
   const sampleDocPath = docsIndex.paths.find((path) => path !== 'llms') || defaultDocPath;

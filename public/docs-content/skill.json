@@ -3,7 +3,47 @@
   "title": "Agent Skill",
   "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
   "frontmatter": {},
-  "content": "# Agent Skill\n\nHost an agent skill file at `/skill.md` so coding agents can load integration instructions without crawling the full docs UI.\n\n## Generated vs hosted\n\n- **Docs page** — this Markdown page explains the feature.\n- **Hosted file** — `/skill.md` at the site root (copy from your product repo or generate in CI).\n\n## Setup\n\n1. Write a skill file with YAML frontmatter (`name`, `description`) and integration steps.\n2. Place it in `public/skill.md` or generate it during build.\n3. Link from your docs nav or command palette.\n4. Optional install page at `/docs/skill` with `HostedFilePreview` for copy/download.\n\n## Install paths (examples)\n\n| Agent | Typical path |\n| ----- | ------------ |\n| Cursor / Claude | `.cursor/skills/<name>/SKILL.md` |\n| Codex | `~/.codex/skills/<name>/SKILL.md` |\n\n## When to regenerate\n\nRegenerate `public/skill.md` when API routes, auth flows, or agent tool names change.\n\nFor AI corpus exports, see [LLMs.txt](/docs/llms).",
+  "content": "# Agent Skill\n\nHost an agent skill file at `/skill.md` so coding agents can load integration instructions without crawling the full docs UI.\n\n## Generated vs hosted\n\n- **Docs page** — this Markdown page explains the feature.\n- **Hosted file** — `/skill.md` at the site root (copy from your product repo or generate in CI).\n\n## Setup\n\n1. Write a skill file with YAML frontmatter (`name`, `description`) and integration steps.\n2. Place it in `public/skill.md` or generate it during build.\n3. Link from your docs nav or command palette.\n4. Optional install page at `/docs/skill` with `HostedFilePreview` for copy/download.\n\n## Install paths (examples)\n\n| Agent           | Typical path                      |\n| --------------- | --------------------------------- |\n| Cursor / Claude | `.cursor/skills/<name>/SKILL.md`  |\n| Codex           | `~/.codex/skills/<name>/SKILL.md` |\n\n## When to regenerate\n\nRegenerate `public/skill.md` when API routes, auth flows, or agent tool names change.\n\nFor AI corpus exports, see [LLMs.txt](/docs/llms).\n",
   "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "agent-skill",
+      "text": "Agent Skill"
+    },
+    {
+      "depth": 2,
+      "id": "generated-vs-hosted",
+      "text": "Generated vs hosted"
+    },
+    {
+      "depth": 2,
+      "id": "setup",
+      "text": "Setup"
+    },
+    {
+      "depth": 2,
+      "id": "install-paths-examples",
+      "text": "Install paths (examples)"
+    },
+    {
+      "depth": 2,
+      "id": "when-to-regenerate",
+      "text": "When to regenerate"
+    }
+  ],
+  "metadata": {
+    "title": "Agent Skill",
+    "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
+    "canonicalPath": "/docs/skill",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/skill.md"
+  },
+  "references": [
+    {
+      "target": "/docs/llms",
+      "line": 28
+    }
+  ],
   "sourcePath": "src/docs/content/skill.md"
 }

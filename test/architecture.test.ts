@@ -7,9 +7,11 @@ import { buildPaddedViewBox } from '../src/utils/mermaidLayout.ts';
 import {
   createDocsArtifacts,
   enrichDocumentArtifact,
+  extractDocumentLinks,
   serializeArtifactJson,
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
+import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import {
   addFileToTree,
@@ -18,6 +20,7 @@ import {
 } from '../scripts/lib/documentationTreeWriter.mjs';
 import { loadViteEnv } from '../scripts/lib/loadViteEnv.mjs';
 import { resolveDocFileInfo } from '../scripts/lib/docsVariants.mjs';
+import { routeHtmlPath } from '../scripts/lib/routeHtmlPaths.mjs';
 import {
   createRobotsTxt,
   createSeoRouteEntries,
@@ -32,6 +35,7 @@ import {
   getDocumentationFeatureValidationIssues,
   parseDocsRoutePath,
 } from '../shared/docsRouting.js';
+import { buildOpenApiRoutePath, getOpenApiRoutePrefix } from '../shared/openapiRouting.js';
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
@@ -102,6 +106,15 @@ export const architectureTests: ArchitectureTestCase[] = [
         },
         content: 'Hello world',
         contentFormat: 'markdown',
+        toc: [],
+        metadata: {
+          title: 'Custom Intro',
+          description: 'Setup page',
+          canonicalPath: '/docs/getting-started/introduction',
+          contentFormat: 'markdown',
+          sourcePath: 'src/docs/content/getting-started/introduction.mdx',
+        },
+        references: [],
         sourcePath: 'src/docs/content/getting-started/introduction.mdx',
       });
       assert.deepEqual(documents['user-guide/no-title'], {
@@ -111,6 +124,14 @@ export const architectureTests: ArchitectureTestCase[] = [
         frontmatter: {},
         content: 'Body only',
         contentFormat: 'markdown',
+        toc: [],
+        metadata: {
+          title: 'no-title',
+          description: 'Body only',
+          canonicalPath: '/docs/user-guide/no-title',
+          contentFormat: 'markdown',
+        },
+        references: [],
       });
     },
   },
@@ -166,6 +187,78 @@ export const architectureTests: ArchitectureTestCase[] = [
         }),
         '{\n  "hello": "world"\n}\n'
       );
+    },
+  },
+  {
+    name: 'content link validation distinguishes action anchors from heading anchors',
+    run: async () => {
+      const links = extractDocumentLinks(
+        ['# Guide', '', '<a href="#">Copy</a>', '<a href="#guide">Heading</a>'].join('\n')
+      );
+
+      assert.deepEqual(links, [
+        { target: '#', line: 3, type: 'action' },
+        { target: '#guide', line: 4, type: 'internal' },
+      ]);
+
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-content-links-'));
+      const sourcePath = join(tempDir, 'content', 'guide', 'page.md');
+      const documentationTree = [
+        {
+          type: 'file' as const,
+          name: 'Page.md',
+          path: 'guide/page',
+        },
+      ];
+      const validationOptions = {
+        rootDir: tempDir,
+        contentRoot: 'content',
+        publicDir: 'public',
+        documentationTree,
+        versionConfig: {
+          enabled: false,
+          current: '1.0',
+          versions: ['1.0'],
+          labels: {},
+        },
+        i18nConfig: {
+          enabled: false,
+          defaultLocale: 'en',
+          locales: ['en'],
+        },
+        openapiConfig: {
+          enabled: false,
+          pagePath: 'api-reference/openapi',
+          defaultSpecId: 'public',
+          specs: [],
+        },
+      };
+
+      try {
+        await mkdir(join(tempDir, 'content', 'guide'), { recursive: true });
+        await mkdir(join(tempDir, 'public'), { recursive: true });
+        await writeFile(
+          sourcePath,
+          ['# Guide', '', '<a href="#">Copy</a>', '<a href="#guide">Heading</a>'].join('\n')
+        );
+
+        const validResult = await validateDocumentationContent(validationOptions);
+        assert.deepEqual(validResult.issues, []);
+
+        await writeFile(
+          sourcePath,
+          ['# Guide', '', '<a href="#">Copy</a>', '<a href="#missing">Heading</a>'].join('\n')
+        );
+
+        const invalidResult = await validateDocumentationContent(validationOptions);
+        assert.equal(invalidResult.issues.length, 1);
+        assert.match(
+          invalidResult.issues[0],
+          /content\/guide\/page\.md:4: unresolved heading anchor "#missing"/
+        );
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
     },
   },
   {
@@ -320,6 +413,24 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(html, /character-notes\/.*warning/);
       assert.match(html, /This route may change/);
       assert.doesNotMatch(html, /papers-character-note__title/);
+    },
+  },
+  {
+    name: 'content renderer honors the declared html artifact format',
+    run: async () => {
+      const contentRendererSource = await readFile(
+        new URL('../src/components/ContentRenderer.tsx', import.meta.url),
+        'utf8'
+      );
+      const markdownRendererSource = await readFile(
+        new URL('../src/components/MarkdownRenderer.tsx', import.meta.url),
+        'utf8'
+      );
+
+      assert.match(contentRendererSource, /contentFormat === 'html'/);
+      assert.match(contentRendererSource, /<HtmlRenderer html=\{content\}/);
+      assert.match(markdownRendererSource, /DOMPurify\.sanitize/);
+      assert.match(markdownRendererSource, /dangerouslySetInnerHTML/);
     },
   },
   {
@@ -479,6 +590,39 @@ export const architectureTests: ArchitectureTestCase[] = [
 
       const robots = createRobotsTxt('https://docs.example.com');
       assert.match(robots, /Sitemap: https:\/\/docs\.example\.com\/sitemap\.xml/);
+    },
+  },
+  {
+    name: 'OpenAPI routes and route HTML paths share canonical contracts',
+    run: async () => {
+      const openApiConfig = {
+        pagePath: 'api-reference/openapi',
+        defaultSpecId: 'public',
+      };
+
+      assert.equal(getOpenApiRoutePrefix(openApiConfig), '/docs/api-reference/openapi');
+      assert.equal(buildOpenApiRoutePath(openApiConfig), '/docs/api-reference/openapi');
+      assert.equal(
+        buildOpenApiRoutePath(openApiConfig, 'internal/v2'),
+        '/docs/api-reference/openapi/internal%2Fv2'
+      );
+      assert.equal(getOpenApiRoutePrefix({ ...openApiConfig, routePrefix: ' /api/ ' }), '/api');
+
+      const distRoot = join(tmpdir(), 'papers-route-dist');
+      assert.equal(routeHtmlPath('/', distRoot), join(distRoot, 'index.html'));
+      assert.equal(routeHtmlPath('/some/path', distRoot), join(distRoot, 'some/path.html'));
+      assert.equal(routeHtmlPath('/some/path.html', distRoot), join(distRoot, 'some/path.html'));
+      assert.throws(
+        () => routeHtmlPath('/../escape', distRoot),
+        /cannot escape the dist directory/
+      );
+
+      const openApiPageSource = await readFile(
+        new URL('../src/pages/OpenApiPage.tsx', import.meta.url),
+        'utf8'
+      );
+      assert.doesNotMatch(openApiPageSource, /\/docs\/reference\/routes/);
+      assert.match(openApiPageSource, /DOCS_LANDING_PATH/);
     },
   },
   {
@@ -919,11 +1063,45 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'verification entry points use the test aliases and canonical docs-tree script',
+    run: async () => {
+      const packageJson = JSON.parse(
+        await readFile(new URL('../package.json', import.meta.url), 'utf8')
+      );
+      const loaderSource = await readFile(
+        new URL('./register-ts-node.mjs', import.meta.url),
+        'utf8'
+      );
+      const resolverSource = await readFile(
+        new URL('./resolve-aliases.mjs', import.meta.url),
+        'utf8'
+      );
+      const treeScriptSource = await readFile(
+        new URL('../scripts/sync-documentation-tree.mjs', import.meta.url),
+        'utf8'
+      );
+
+      assert.equal(
+        packageJson.scripts['check:docs-tree'],
+        'node scripts/sync-documentation-tree.mjs --check'
+      );
+      assert.equal(
+        packageJson.scripts['sync:docs-tree'],
+        'node scripts/sync-documentation-tree.mjs'
+      );
+      assert.match(loaderSource, /resolve-aliases\.mjs/);
+      assert.match(resolverSource, /@app-shared\/documentation-config\.js/);
+      assert.match(resolverSource, /specifier\.startsWith\('@\/'\)/);
+      assert.match(treeScriptSource, /\.\.\/shared\/documentation-config\.js/);
+      assert.match(treeScriptSource, /\.\/lib\/documentationTreeWriter\.mjs/);
+    },
+  },
+  {
     name: 'theme registry resolves built-in default and gba themes',
     run: () => {
       const registry = readRegistry();
       const ids = registry.themes.map((theme: { id: string }) => theme.id);
-      assert.deepEqual(ids, ['default', 'gba']);
+      assert.deepEqual(ids, ['default', 'gba', 'rx-78', 'lorelei']);
 
       assert.equal(resolveThemeId('default'), 'default');
       assert.equal(resolveThemeId('gba'), 'gba');

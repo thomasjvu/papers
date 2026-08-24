@@ -94,13 +94,13 @@ export function diffMarkdownFileMaps(sourceFiles, destinationFiles) {
 }
 
 export async function syncGeneratedDocsDirectory(sourceDir, destinationDir) {
-  const sourceFiles = await readMarkdownFileMap(sourceDir);
-  const destinationFiles = await readMarkdownFileMap(destinationDir);
-  const diff = diffMarkdownFileMaps(sourceFiles, destinationFiles);
-
   if (!existsSync(sourceDir)) {
     throw new Error(`Generated docs source does not exist: ${sourceDir}`);
   }
+
+  const sourceFiles = await readMarkdownFileMap(sourceDir);
+  const destinationFiles = await readMarkdownFileMap(destinationDir);
+  const diff = diffMarkdownFileMaps(sourceFiles, destinationFiles);
 
   await mkdir(destinationDir, { recursive: true });
 

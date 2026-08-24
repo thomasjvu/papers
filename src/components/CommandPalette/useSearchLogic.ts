@@ -7,16 +7,9 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/ThemeProvider';
 import type { FileItem } from '../../types/documentation';
-import {
-  buildCanonicalDocsPath,
-  parseDocsRoutePath,
-} from '../../../shared/docsRouting.js';
+import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
 import { homepageConfig } from '../../../shared/documentation-config.js';
-import {
-  getLocaleLabel,
-  i18nConfig,
-  languageSwitcherShows,
-} from '../../lib/chrome';
+import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -188,7 +181,7 @@ export const useSearchLogic = (query: string) => {
               buildCanonicalDocsPath(docPath, {
                 version: routeContext.activeVersion,
                 locale,
-              }),
+              })
             );
           },
           icon: createElement(Icon, {

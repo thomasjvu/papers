@@ -5,5 +5,45 @@
   "frontmatter": {},
   "content": "# Netlify\n\n## Site Settings\n\nUse these values in Netlify:\n\n- Build command: `npm run build`\n- Publish directory: `dist`\n\n## Included Files\n\nThe repo already includes the common Netlify helper:\n\n- `public/_headers`\n\n## CLI Deploy\n\n```bash\nnpm run build\nnetlify deploy --prod --dir=dist\n```\n\n## Routing\n\nKnown docs routes and `/llms` are already emitted as static HTML, so you usually do not need a catch-all `_redirects` file.\n\nIf you add one intentionally, Netlify shadowing still lets existing generated files win.\n\n## Environment Variables\n\nSet your `VITE_*` variables in the Netlify dashboard under site configuration.\n",
   "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "netlify",
+      "text": "Netlify"
+    },
+    {
+      "depth": 2,
+      "id": "site-settings",
+      "text": "Site Settings"
+    },
+    {
+      "depth": 2,
+      "id": "included-files",
+      "text": "Included Files"
+    },
+    {
+      "depth": 2,
+      "id": "cli-deploy",
+      "text": "CLI Deploy"
+    },
+    {
+      "depth": 2,
+      "id": "routing",
+      "text": "Routing"
+    },
+    {
+      "depth": 2,
+      "id": "environment-variables",
+      "text": "Environment Variables"
+    }
+  ],
+  "metadata": {
+    "title": "Netlify",
+    "description": "Use these values in Netlify:",
+    "canonicalPath": "/docs/deployment/platforms/netlify",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
+  },
+  "references": [],
   "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
 }
