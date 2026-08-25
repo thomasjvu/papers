@@ -77,7 +77,10 @@
     "description": "This page shows the main authoring patterns supported by the current runtime.",
     "canonicalPath": "/docs/developer-guides/code-examples",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/code-examples.md"
+    "sourcePath": "src/docs/content/developer-guides/code-examples.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

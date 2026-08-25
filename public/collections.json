@@ -1,0 +1,21 @@
+{
+  "contractVersion": 1,
+  "schemaVersion": 1,
+  "generated": "2026-08-25T23:17:10.652Z",
+  "collections": [
+    {
+      "id": "docs",
+      "label": "Documentation",
+      "routePrefix": "/docs",
+      "artifactNamespace": "docs",
+      "artifacts": {
+        "index": "/docs-index.json",
+        "content": "/docs-content",
+        "manifest": "/docs-collection.json",
+        "references": "/docs-references.json"
+      },
+      "schemaVersion": 1,
+      "count": 27
+    }
+  ]
+}

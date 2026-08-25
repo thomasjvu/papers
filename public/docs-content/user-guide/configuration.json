@@ -47,7 +47,10 @@
     "description": "Most customization happens in a small set of files.",
     "canonicalPath": "/docs/user-guide/configuration",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/configuration.md"
+    "sourcePath": "src/docs/content/user-guide/configuration.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

@@ -47,7 +47,10 @@
     "description": "The command palette is the fastest way to move through the site.",
     "canonicalPath": "/docs/user-guide/command-palette",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/command-palette.md"
+    "sourcePath": "src/docs/content/user-guide/command-palette.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

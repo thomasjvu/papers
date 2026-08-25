@@ -37,7 +37,10 @@
     "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
     "canonicalPath": "/docs/developer-guides/themes",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/themes.md"
+    "sourcePath": "src/docs/content/developer-guides/themes.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [

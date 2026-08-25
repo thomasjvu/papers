@@ -42,7 +42,10 @@
     "description": "Use these values in Netlify:",
     "canonicalPath": "/docs/deployment/platforms/netlify",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
+    "sourcePath": "src/docs/content/deployment/platforms/netlify.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

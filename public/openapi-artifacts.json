@@ -1,5 +1,7 @@
 {
   "schemaVersion": 1,
+  "contractVersion": 2,
+  "generatedBy": "papers-openapi-artifacts",
   "specs": [
     {
       "id": "public",
@@ -17,15 +19,19 @@
           "url": "https://api.example.com"
         }
       ],
+      "security": [],
+      "securitySchemes": [],
       "tags": [],
       "operations": [
         {
+          "id": "get_/docs",
           "method": "GET",
           "path": "/docs",
           "operationId": null,
           "summary": "List published docs",
           "description": "",
           "tags": ["Docs"],
+          "routeTag": "Docs",
           "parameters": [
             {
               "name": "limit",
@@ -33,6 +39,10 @@
               "required": false,
               "description": "Maximum number of paths to return.",
               "schema": "integer",
+              "schemaNode": {
+                "kind": "primitive",
+                "type": "integer"
+              },
               "example": 20
             }
           ],
@@ -45,6 +55,12 @@
                 {
                   "mediaType": "application/json",
                   "schema": "DocsManifest",
+                  "schemaNode": {
+                    "kind": "reference",
+                    "ref": "#/components/schemas/DocsManifest",
+                    "name": "DocsManifest",
+                    "nullable": false
+                  },
                   "examples": [
                     {
                       "name": "default",
@@ -58,15 +74,37 @@
                 }
               ]
             }
-          ]
+          ],
+          "servers": [
+            {
+              "url": "https://api.example.com"
+            }
+          ],
+          "security": [],
+          "source": {
+            "path": "/docs",
+            "method": "GET",
+            "pointer": "/paths/~1docs/get"
+          },
+          "componentRefs": ["#/components/schemas/DocsManifest"],
+          "codeSamples": {
+            "curl": "curl --request GET \\\n  --url 'https://api.example.com/docs?limit=20'",
+            "javascript": "const response = await fetch(\"https://api.example.com/docs?limit=20\", {\n  method: \"GET\"\n});",
+            "python": "import requests\n\nresponse = requests.request(\n    \"https://api.example.com/docs?limit=20\",\n    method=\"GET\"\n)",
+            "notes": []
+          },
+          "routePath": "/docs/api-reference/openapi/operations/docs/get-docs/get-docs",
+          "canonicalPath": "/docs/api-reference/openapi/operations/docs/get-docs/get-docs"
         },
         {
+          "id": "get_/health",
           "method": "GET",
           "path": "/health",
           "operationId": null,
           "summary": "Health check",
           "description": "",
           "tags": ["System"],
+          "routeTag": "System",
           "parameters": [],
           "requestBody": null,
           "responses": [
@@ -75,7 +113,27 @@
               "description": "Service is healthy",
               "content": []
             }
-          ]
+          ],
+          "servers": [
+            {
+              "url": "https://api.example.com"
+            }
+          ],
+          "security": [],
+          "source": {
+            "path": "/health",
+            "method": "GET",
+            "pointer": "/paths/~1health/get"
+          },
+          "componentRefs": [],
+          "codeSamples": {
+            "curl": "curl --request GET \\\n  --url 'https://api.example.com/health'",
+            "javascript": "const response = await fetch(\"https://api.example.com/health\", {\n  method: \"GET\"\n});",
+            "python": "import requests\n\nresponse = requests.request(\n    \"https://api.example.com/health\",\n    method=\"GET\"\n)",
+            "notes": []
+          },
+          "routePath": "/docs/api-reference/openapi/operations/system/get-health/get-health",
+          "canonicalPath": "/docs/api-reference/openapi/operations/system/get-health/get-health"
         }
       ],
       "schemas": [
@@ -88,22 +146,72 @@
               "name": "count",
               "type": "integer",
               "required": true,
-              "description": "Number of published documentation pages."
+              "description": "Number of published documentation pages.",
+              "schemaNode": {
+                "kind": "primitive",
+                "type": "integer",
+                "description": "Number of published documentation pages."
+              }
             },
             {
               "name": "paths",
               "type": "Array<string>",
               "required": true,
-              "description": "Canonical document paths."
+              "description": "Canonical document paths.",
+              "schemaNode": {
+                "kind": "array",
+                "items": {
+                  "kind": "primitive",
+                  "type": "string"
+                },
+                "description": "Canonical document paths."
+              }
             }
-          ]
+          ],
+          "schemaNode": {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "count",
+                "required": true,
+                "description": "Number of published documentation pages.",
+                "schema": {
+                  "kind": "primitive",
+                  "type": "integer",
+                  "description": "Number of published documentation pages."
+                }
+              },
+              {
+                "name": "paths",
+                "required": true,
+                "description": "Canonical document paths.",
+                "schema": {
+                  "kind": "array",
+                  "items": {
+                    "kind": "primitive",
+                    "type": "string"
+                  },
+                  "description": "Canonical document paths."
+                }
+              }
+            ]
+          },
+          "source": {
+            "pointer": "/components/schemas/DocsManifest"
+          },
+          "typescript": "export interface DocsManifest {\n  /** Number of published documentation pages. */\n  count: number;\n  /** Canonical document paths. */\n  paths: Array<string>;\n}",
+          "routePath": "/docs/api-reference/openapi/models/docsmanifest",
+          "canonicalPath": "/docs/api-reference/openapi/models/docsmanifest"
         }
       ],
+      "componentRefs": ["#/components/schemas/DocsManifest"],
       "counts": {
         "operations": 2,
         "schemas": 1,
         "tags": 0
-      }
+      },
+      "routePath": "/docs/api-reference/openapi",
+      "typescript": "export interface DocsManifest {\n  /** Number of published documentation pages. */\n  count: number;\n  /** Canonical document paths. */\n  paths: Array<string>;\n}"
     },
     {
       "id": "internal",
@@ -121,15 +229,19 @@
           "url": "https://internal.example.com"
         }
       ],
+      "security": [],
+      "securitySchemes": [],
       "tags": [],
       "operations": [
         {
+          "id": "post_/build",
           "method": "POST",
           "path": "/build",
           "operationId": null,
           "summary": "Trigger docs build",
           "description": "",
           "tags": ["Build"],
+          "routeTag": "Build",
           "parameters": [],
           "requestBody": {
             "required": true,
@@ -137,6 +249,12 @@
               {
                 "mediaType": "application/json",
                 "schema": "BuildRequest",
+                "schemaNode": {
+                  "kind": "reference",
+                  "ref": "#/components/schemas/BuildRequest",
+                  "name": "BuildRequest",
+                  "nullable": false
+                },
                 "examples": [
                   {
                     "name": "default",
@@ -156,11 +274,37 @@
                 {
                   "mediaType": "application/json",
                   "schema": "BuildJob",
+                  "schemaNode": {
+                    "kind": "reference",
+                    "ref": "#/components/schemas/BuildJob",
+                    "name": "BuildJob",
+                    "nullable": false
+                  },
                   "examples": []
                 }
               ]
             }
-          ]
+          ],
+          "servers": [
+            {
+              "url": "https://internal.example.com"
+            }
+          ],
+          "security": [],
+          "source": {
+            "path": "/build",
+            "method": "POST",
+            "pointer": "/paths/~1build/post"
+          },
+          "componentRefs": ["#/components/schemas/BuildJob", "#/components/schemas/BuildRequest"],
+          "codeSamples": {
+            "curl": "curl --request POST \\\n  --url 'https://internal.example.com/build' \\\n  --header 'content-type: application/json' \\\n  --data '{\"revision\":\"main\"}'",
+            "javascript": "const response = await fetch(\"https://internal.example.com/build\", {\n  method: \"POST\",\n  headers: {\n    \"content-type\": \"application/json\"\n  },\n  body: JSON.stringify({\n    \"revision\": \"main\"\n  })\n});",
+            "python": "import requests\n\nresponse = requests.request(\n    \"https://internal.example.com/build\",\n    method=\"POST\",\n    headers={\n      \"content-type\": \"application/json\"\n    },\n    json={\n      \"revision\": \"main\"\n    }\n)",
+            "notes": []
+          },
+          "routePath": "/docs/api-reference/openapi/operations/build/post-build/post-build",
+          "canonicalPath": "/docs/api-reference/openapi/operations/build/post-build/post-build"
         }
       ],
       "schemas": [
@@ -172,14 +316,51 @@
             {
               "name": "id",
               "type": "string",
-              "required": true
+              "required": true,
+              "schemaNode": {
+                "kind": "primitive",
+                "type": "string"
+              }
             },
             {
               "name": "status",
               "type": "\"queued\" | \"running\" | \"complete\"",
-              "required": true
+              "required": true,
+              "schemaNode": {
+                "kind": "primitive",
+                "type": "string",
+                "enum": ["queued", "running", "complete"]
+              }
             }
-          ]
+          ],
+          "schemaNode": {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "id",
+                "required": true,
+                "schema": {
+                  "kind": "primitive",
+                  "type": "string"
+                }
+              },
+              {
+                "name": "status",
+                "required": true,
+                "schema": {
+                  "kind": "primitive",
+                  "type": "string",
+                  "enum": ["queued", "running", "complete"]
+                }
+              }
+            ]
+          },
+          "source": {
+            "pointer": "/components/schemas/BuildJob"
+          },
+          "typescript": "export interface BuildJob {\n  id: string;\n  status: \"queued\" | \"running\" | \"complete\";\n}",
+          "routePath": "/docs/api-reference/openapi/models/buildjob",
+          "canonicalPath": "/docs/api-reference/openapi/models/buildjob"
         },
         {
           "name": "BuildRequest",
@@ -190,17 +371,46 @@
               "name": "revision",
               "type": "string",
               "required": true,
-              "description": "Git revision to build."
+              "description": "Git revision to build.",
+              "schemaNode": {
+                "kind": "primitive",
+                "type": "string",
+                "description": "Git revision to build."
+              }
             }
-          ]
+          ],
+          "schemaNode": {
+            "kind": "object",
+            "properties": [
+              {
+                "name": "revision",
+                "required": true,
+                "description": "Git revision to build.",
+                "schema": {
+                  "kind": "primitive",
+                  "type": "string",
+                  "description": "Git revision to build."
+                }
+              }
+            ]
+          },
+          "source": {
+            "pointer": "/components/schemas/BuildRequest"
+          },
+          "typescript": "export interface BuildRequest {\n  /** Git revision to build. */\n  revision: string;\n}",
+          "routePath": "/docs/api-reference/openapi/models/buildrequest",
+          "canonicalPath": "/docs/api-reference/openapi/models/buildrequest"
         }
       ],
+      "componentRefs": ["#/components/schemas/BuildJob", "#/components/schemas/BuildRequest"],
       "counts": {
         "operations": 1,
         "schemas": 2,
         "tags": 0
-      }
+      },
+      "routePath": "/docs/api-reference/openapi/internal",
+      "typescript": "export interface BuildJob {\n  id: string;\n  status: \"queued\" | \"running\" | \"complete\";\n}\n\nexport interface BuildRequest {\n  /** Git revision to build. */\n  revision: string;\n}"
     }
   ],
-  "generated": "cdd450f8549c55f4411e06d233bb2defda7a9b098bb4c470b4b1e847b9c226ca"
+  "generated": "e4b6412da89d30b905eb5981511b66db22587362ebe971aa16047e5c8678d1a2"
 }

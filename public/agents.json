@@ -33,6 +33,13 @@
       "href": "/docs-collection.json"
     },
     {
+      "id": "collections",
+      "path": "/collections.json",
+      "contentType": "application/json",
+      "title": "Documentation collection directory",
+      "href": "/collections.json"
+    },
+    {
       "id": "references",
       "path": "/docs-references.json",
       "contentType": "application/json",

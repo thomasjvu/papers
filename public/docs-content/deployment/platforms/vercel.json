@@ -37,7 +37,10 @@
     "description": "When importing the repo, use:",
     "canonicalPath": "/docs/deployment/platforms/vercel",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/deployment/platforms/vercel.md"
+    "sourcePath": "src/docs/content/deployment/platforms/vercel.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

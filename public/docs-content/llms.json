@@ -42,7 +42,10 @@
     "description": "This template generates AI-facing text exports from the docs corpus.",
     "canonicalPath": "/docs/llms",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/llms.md"
+    "sourcePath": "src/docs/content/llms.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

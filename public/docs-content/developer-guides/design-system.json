@@ -67,7 +67,10 @@
     "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.",
     "canonicalPath": "/docs/developer-guides/design-system",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/design-system.md"
+    "sourcePath": "src/docs/content/developer-guides/design-system.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

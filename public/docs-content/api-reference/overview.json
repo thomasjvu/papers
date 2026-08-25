@@ -42,7 +42,10 @@
     "description": "This section covers the internal runtime and build APIs that power the template.",
     "canonicalPath": "/docs/api-reference/overview",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/api-reference/overview.md"
+    "sourcePath": "src/docs/content/api-reference/overview.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

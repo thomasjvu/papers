@@ -57,7 +57,10 @@
     "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.",
     "canonicalPath": "/docs/user-guide/basic-usage",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/basic-usage.md"
+    "sourcePath": "src/docs/content/user-guide/basic-usage.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

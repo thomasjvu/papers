@@ -57,7 +57,10 @@
     "description": "The app reads generated JSON, not raw Markdown directly.",
     "canonicalPath": "/docs/user-guide/troubleshooting",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/troubleshooting.md"
+    "sourcePath": "src/docs/content/user-guide/troubleshooting.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

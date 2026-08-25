@@ -47,3 +47,17 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 - [Overview](/docs/deployment/overview): papers builds to a static site with route-specific HTML output.
 - [Production Setup](/docs/deployment/production-setup): Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...
 
+## API Reference
+
+### Public API
+
+- [GET /docs](/docs/api-reference/openapi/operations/docs/get-docs/get-docs): List published docs
+- [GET /health](/docs/api-reference/openapi/operations/system/get-health/get-health): Health check
+- [DocsManifest](/docs/api-reference/openapi/models/docsmanifest): OpenAPI schema model.
+
+### Internal API
+
+- [POST /build](/docs/api-reference/openapi/operations/build/post-build/post-build): Trigger docs build
+- [BuildJob](/docs/api-reference/openapi/models/buildjob): OpenAPI schema model.
+- [BuildRequest](/docs/api-reference/openapi/models/buildrequest): OpenAPI schema model.
+

@@ -1840,3 +1840,92 @@ page. For the human-facing explanation, see [LLMs.txt](/docs/llms).
 
 ---
 
+
+## API Reference
+
+### Public API
+
+#### GET /docs
+
+URL: /docs/api-reference/openapi/operations/docs/get-docs/get-docs
+
+List published docs
+
+Parameters: query.limit
+
+Responses: 200
+
+```bash
+curl --request GET \
+  --url 'https://api.example.com/docs?limit=20'
+```
+
+#### GET /health
+
+URL: /docs/api-reference/openapi/operations/system/get-health/get-health
+
+Health check
+
+Parameters: none
+
+Responses: 200
+
+```bash
+curl --request GET \
+  --url 'https://api.example.com/health'
+```
+
+#### DocsManifest
+
+URL: /docs/api-reference/openapi/models/docsmanifest
+
+```typescript
+export interface DocsManifest {
+  /** Number of published documentation pages. */
+  count: number;
+  /** Canonical document paths. */
+  paths: Array<string>;
+}
+```
+
+### Internal API
+
+#### POST /build
+
+URL: /docs/api-reference/openapi/operations/build/post-build/post-build
+
+Trigger docs build
+
+Parameters: none
+
+Responses: 202
+
+```bash
+curl --request POST \
+  --url 'https://internal.example.com/build' \
+  --header 'content-type: application/json' \
+  --data '{"revision":"main"}'
+```
+
+#### BuildJob
+
+URL: /docs/api-reference/openapi/models/buildjob
+
+```typescript
+export interface BuildJob {
+  id: string;
+  status: "queued" | "running" | "complete";
+}
+```
+
+#### BuildRequest
+
+URL: /docs/api-reference/openapi/models/buildrequest
+
+```typescript
+export interface BuildRequest {
+  /** Git revision to build. */
+  revision: string;
+}
+```
+

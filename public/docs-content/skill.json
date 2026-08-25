@@ -35,7 +35,10 @@
     "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
     "canonicalPath": "/docs/skill",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/skill.md"
+    "sourcePath": "src/docs/content/skill.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

@@ -42,7 +42,10 @@
     "description": "The interactive map renders the documentation tree as a graph in the right rail.",
     "canonicalPath": "/docs/user-guide/interactive-map",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/interactive-map.md"
+    "sourcePath": "src/docs/content/user-guide/interactive-map.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

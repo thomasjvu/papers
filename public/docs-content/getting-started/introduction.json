@@ -42,7 +42,10 @@
     "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.",
     "canonicalPath": "/docs/getting-started/introduction",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/getting-started/introduction.md"
+    "sourcePath": "src/docs/content/getting-started/introduction.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

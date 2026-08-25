@@ -52,7 +52,10 @@
     "description": "Treat shared/documentation-config.js as the source of truth for navigation.",
     "canonicalPath": "/docs/developer-guides/best-practices",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/best-practices.md"
+    "sourcePath": "src/docs/content/developer-guides/best-practices.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

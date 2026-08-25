@@ -1,7 +1,17 @@
 {
+  "contractVersion": 1,
   "schemaVersion": 1,
   "collection": "docs",
-  "generated": "2026-07-05T21:54:23.877Z",
+  "label": "Documentation",
+  "routePrefix": "/docs",
+  "artifactNamespace": "docs",
+  "artifacts": {
+    "index": "/docs-index.json",
+    "content": "/docs-content",
+    "manifest": "/docs-collection.json",
+    "references": "/docs-references.json"
+  },
+  "generated": "2026-08-25T23:17:10.652Z",
   "count": 27,
   "schema": {
     "title": {
@@ -34,6 +44,24 @@
     },
     "sidebar": {
       "type": "boolean"
+    }
+  },
+  "variants": {
+    "versionConfig": {
+      "current": "1.0",
+      "versions": ["1.0"],
+      "labels": {
+        "1.0": "Latest"
+      },
+      "enabled": false
+    },
+    "i18nConfig": {
+      "enabled": false,
+      "defaultLocale": "en",
+      "locales": ["en"],
+      "labels": {
+        "en": "EN"
+      }
     }
   },
   "navigation": [
@@ -244,146 +272,6 @@
   ],
   "entries": [
     {
-      "path": "getting-started/introduction",
-      "title": "Introduction",
-      "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Introduction",
-        "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.",
-        "canonicalPath": "/docs/getting-started/introduction",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/getting-started/introduction.md"
-      },
-      "sourcePath": "src/docs/content/getting-started/introduction.md"
-    },
-    {
-      "path": "getting-started/quick-start",
-      "title": "Quick Start",
-      "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Quick Start",
-        "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
-        "canonicalPath": "/docs/getting-started/quick-start",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/getting-started/quick-start.md"
-      },
-      "sourcePath": "src/docs/content/getting-started/quick-start.md"
-    },
-    {
-      "path": "getting-started/installation",
-      "title": "Installation",
-      "description": "Node.js 22 or newer npm 9 or newer",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Installation",
-        "description": "Node.js 22 or newer npm 9 or newer",
-        "canonicalPath": "/docs/getting-started/installation",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/getting-started/installation.md"
-      },
-      "sourcePath": "src/docs/content/getting-started/installation.md"
-    },
-    {
-      "path": "user-guide/basic-usage",
-      "title": "Basic Usage",
-      "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Basic Usage",
-        "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.",
-        "canonicalPath": "/docs/user-guide/basic-usage",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/basic-usage.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/basic-usage.md"
-    },
-    {
-      "path": "user-guide/advanced-features",
-      "title": "Advanced Features",
-      "description": "papers ships with more than plain Markdown rendering.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Advanced Features",
-        "description": "papers ships with more than plain Markdown rendering.",
-        "canonicalPath": "/docs/user-guide/advanced-features",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/advanced-features.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/advanced-features.md"
-    },
-    {
-      "path": "user-guide/configuration",
-      "title": "Configuration",
-      "description": "Most customization happens in a small set of files.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Configuration",
-        "description": "Most customization happens in a small set of files.",
-        "canonicalPath": "/docs/user-guide/configuration",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/configuration.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/configuration.md"
-    },
-    {
-      "path": "user-guide/troubleshooting",
-      "title": "Troubleshooting",
-      "description": "The app reads generated JSON, not raw Markdown directly.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Troubleshooting",
-        "description": "The app reads generated JSON, not raw Markdown directly.",
-        "canonicalPath": "/docs/user-guide/troubleshooting",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/troubleshooting.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/troubleshooting.md"
-    },
-    {
-      "path": "user-guide/command-palette",
-      "title": "Command Palette",
-      "description": "The command palette is the fastest way to move through the site.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Command Palette",
-        "description": "The command palette is the fastest way to move through the site.",
-        "canonicalPath": "/docs/user-guide/command-palette",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/command-palette.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/command-palette.md"
-    },
-    {
-      "path": "user-guide/interactive-map",
-      "title": "Interactive Map",
-      "description": "The interactive map renders the documentation tree as a graph in the right rail.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Interactive Map",
-        "description": "The interactive map renders the documentation tree as a graph in the right rail.",
-        "canonicalPath": "/docs/user-guide/interactive-map",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/user-guide/interactive-map.md"
-      },
-      "sourcePath": "src/docs/content/user-guide/interactive-map.md"
-    },
-    {
-      "path": "api-reference/overview",
-      "title": "API Reference Overview",
-      "description": "This section covers the internal runtime and build APIs that power the template.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "API Reference Overview",
-        "description": "This section covers the internal runtime and build APIs that power the template.",
-        "canonicalPath": "/docs/api-reference/overview",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/api-reference/overview.md"
-      },
-      "sourcePath": "src/docs/content/api-reference/overview.md"
-    },
-    {
       "path": "api-reference/content-pipeline",
       "title": "Content Pipeline",
       "description": "The content pipeline turns Markdown source files into static artifacts the app can load directly.",
@@ -393,23 +281,12 @@
         "description": "The content pipeline turns Markdown source files into static artifacts the app can load directly.",
         "canonicalPath": "/docs/api-reference/content-pipeline",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/api-reference/content-pipeline.md"
+        "sourcePath": "src/docs/content/api-reference/content-pipeline.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/api-reference/content-pipeline.md"
-    },
-    {
-      "path": "api-reference/runtime-apis",
-      "title": "Runtime APIs",
-      "description": "Fetches and caches /docs-index.json for the current session.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Runtime APIs",
-        "description": "Fetches and caches /docs-index.json for the current session.",
-        "canonicalPath": "/docs/api-reference/runtime-apis",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
-      },
-      "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
     },
     {
       "path": "api-reference/openapi",
@@ -424,23 +301,131 @@
         "description": "Interactive OpenAPI reference powered by Scalar.",
         "canonicalPath": "/docs/api-reference/openapi",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/api-reference/openapi.md"
+        "sourcePath": "src/docs/content/api-reference/openapi.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/api-reference/openapi.md"
     },
     {
-      "path": "developer-guides/code-examples",
-      "title": "Code Examples",
-      "description": "This page shows the main authoring patterns supported by the current runtime.",
+      "path": "api-reference/overview",
+      "title": "API Reference Overview",
+      "description": "This section covers the internal runtime and build APIs that power the template.",
       "frontmatter": {},
       "metadata": {
-        "title": "Code Examples",
-        "description": "This page shows the main authoring patterns supported by the current runtime.",
-        "canonicalPath": "/docs/developer-guides/code-examples",
+        "title": "API Reference Overview",
+        "description": "This section covers the internal runtime and build APIs that power the template.",
+        "canonicalPath": "/docs/api-reference/overview",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/code-examples.md"
+        "sourcePath": "src/docs/content/api-reference/overview.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/developer-guides/code-examples.md"
+      "sourcePath": "src/docs/content/api-reference/overview.md"
+    },
+    {
+      "path": "api-reference/runtime-apis",
+      "title": "Runtime APIs",
+      "description": "Fetches and caches /docs-index.json for the current session.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Runtime APIs",
+        "description": "Fetches and caches /docs-index.json for the current session.",
+        "canonicalPath": "/docs/api-reference/runtime-apis",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/api-reference/runtime-apis.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
+    },
+    {
+      "path": "deployment/overview",
+      "title": "Deployment Overview",
+      "description": "papers builds to a static site with route-specific HTML output.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Deployment Overview",
+        "description": "papers builds to a static site with route-specific HTML output.",
+        "canonicalPath": "/docs/deployment/overview",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/deployment/overview.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/deployment/overview.md"
+    },
+    {
+      "path": "deployment/platforms/cloudflare",
+      "title": "Cloudflare Pages",
+      "description": "Use these values in Cloudflare Pages:",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Cloudflare Pages",
+        "description": "Use these values in Cloudflare Pages:",
+        "canonicalPath": "/docs/deployment/platforms/cloudflare",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md"
+    },
+    {
+      "path": "deployment/platforms/netlify",
+      "title": "Netlify",
+      "description": "Use these values in Netlify:",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Netlify",
+        "description": "Use these values in Netlify:",
+        "canonicalPath": "/docs/deployment/platforms/netlify",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/deployment/platforms/netlify.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
+    },
+    {
+      "path": "deployment/platforms/vercel",
+      "title": "Vercel",
+      "description": "When importing the repo, use:",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Vercel",
+        "description": "When importing the repo, use:",
+        "canonicalPath": "/docs/deployment/platforms/vercel",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/deployment/platforms/vercel.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/deployment/platforms/vercel.md"
+    },
+    {
+      "path": "deployment/production-setup",
+      "title": "Production Setup",
+      "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Production Setup",
+        "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...",
+        "canonicalPath": "/docs/deployment/production-setup",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/deployment/production-setup.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/deployment/production-setup.md"
     },
     {
       "path": "developer-guides/best-practices",
@@ -452,65 +437,12 @@
         "description": "Treat shared/documentation-config.js as the source of truth for navigation.",
         "canonicalPath": "/docs/developer-guides/best-practices",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/best-practices.md"
+        "sourcePath": "src/docs/content/developer-guides/best-practices.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/best-practices.md"
-    },
-    {
-      "path": "developer-guides/design-system",
-      "title": "Design System",
-      "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Design System",
-        "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.",
-        "canonicalPath": "/docs/developer-guides/design-system",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/design-system.md"
-      },
-      "sourcePath": "src/docs/content/developer-guides/design-system.md"
-    },
-    {
-      "path": "developer-guides/ui-configuration",
-      "title": "UI Configuration",
-      "description": "The docs shell is mostly configured through a few focused files.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "UI Configuration",
-        "description": "The docs shell is mostly configured through a few focused files.",
-        "canonicalPath": "/docs/developer-guides/ui-configuration",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
-      },
-      "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
-    },
-    {
-      "path": "developer-guides/icon-customization",
-      "title": "Icon Customization",
-      "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Icon Customization",
-        "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.",
-        "canonicalPath": "/docs/developer-guides/icon-customization",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/icon-customization.md"
-      },
-      "sourcePath": "src/docs/content/developer-guides/icon-customization.md"
-    },
-    {
-      "path": "developer-guides/themes",
-      "title": "Themes",
-      "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
-      "frontmatter": {},
-      "metadata": {
-        "title": "Themes",
-        "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
-        "canonicalPath": "/docs/developer-guides/themes",
-        "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/developer-guides/themes.md"
-      },
-      "sourcePath": "src/docs/content/developer-guides/themes.md"
     },
     {
       "path": "developer-guides/character-notes",
@@ -525,79 +457,148 @@
         "description": "MDX shortcode for character notifications in documentation articles.",
         "canonicalPath": "/docs/developer-guides/character-notes",
         "contentFormat": "html",
-        "sourcePath": "src/docs/content/developer-guides/character-notes.mdx"
+        "sourcePath": "src/docs/content/developer-guides/character-notes.mdx",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/character-notes.mdx"
     },
     {
-      "path": "deployment/overview",
-      "title": "Deployment Overview",
-      "description": "papers builds to a static site with route-specific HTML output.",
+      "path": "developer-guides/code-examples",
+      "title": "Code Examples",
+      "description": "This page shows the main authoring patterns supported by the current runtime.",
       "frontmatter": {},
       "metadata": {
-        "title": "Deployment Overview",
-        "description": "papers builds to a static site with route-specific HTML output.",
-        "canonicalPath": "/docs/deployment/overview",
+        "title": "Code Examples",
+        "description": "This page shows the main authoring patterns supported by the current runtime.",
+        "canonicalPath": "/docs/developer-guides/code-examples",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/deployment/overview.md"
+        "sourcePath": "src/docs/content/developer-guides/code-examples.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/deployment/overview.md"
+      "sourcePath": "src/docs/content/developer-guides/code-examples.md"
     },
     {
-      "path": "deployment/production-setup",
-      "title": "Production Setup",
-      "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...",
+      "path": "developer-guides/design-system",
+      "title": "Design System",
+      "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.",
       "frontmatter": {},
       "metadata": {
-        "title": "Production Setup",
-        "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...",
-        "canonicalPath": "/docs/deployment/production-setup",
+        "title": "Design System",
+        "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.",
+        "canonicalPath": "/docs/developer-guides/design-system",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/deployment/production-setup.md"
+        "sourcePath": "src/docs/content/developer-guides/design-system.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/deployment/production-setup.md"
+      "sourcePath": "src/docs/content/developer-guides/design-system.md"
     },
     {
-      "path": "deployment/platforms/cloudflare",
-      "title": "Cloudflare Pages",
-      "description": "Use these values in Cloudflare Pages:",
+      "path": "developer-guides/icon-customization",
+      "title": "Icon Customization",
+      "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.",
       "frontmatter": {},
       "metadata": {
-        "title": "Cloudflare Pages",
-        "description": "Use these values in Cloudflare Pages:",
-        "canonicalPath": "/docs/deployment/platforms/cloudflare",
+        "title": "Icon Customization",
+        "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.",
+        "canonicalPath": "/docs/developer-guides/icon-customization",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md"
+        "sourcePath": "src/docs/content/developer-guides/icon-customization.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md"
+      "sourcePath": "src/docs/content/developer-guides/icon-customization.md"
     },
     {
-      "path": "deployment/platforms/vercel",
-      "title": "Vercel",
-      "description": "When importing the repo, use:",
+      "path": "developer-guides/themes",
+      "title": "Themes",
+      "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
       "frontmatter": {},
       "metadata": {
-        "title": "Vercel",
-        "description": "When importing the repo, use:",
-        "canonicalPath": "/docs/deployment/platforms/vercel",
+        "title": "Themes",
+        "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
+        "canonicalPath": "/docs/developer-guides/themes",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/deployment/platforms/vercel.md"
+        "sourcePath": "src/docs/content/developer-guides/themes.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/deployment/platforms/vercel.md"
+      "sourcePath": "src/docs/content/developer-guides/themes.md"
     },
     {
-      "path": "deployment/platforms/netlify",
-      "title": "Netlify",
-      "description": "Use these values in Netlify:",
+      "path": "developer-guides/ui-configuration",
+      "title": "UI Configuration",
+      "description": "The docs shell is mostly configured through a few focused files.",
       "frontmatter": {},
       "metadata": {
-        "title": "Netlify",
-        "description": "Use these values in Netlify:",
-        "canonicalPath": "/docs/deployment/platforms/netlify",
+        "title": "UI Configuration",
+        "description": "The docs shell is mostly configured through a few focused files.",
+        "canonicalPath": "/docs/developer-guides/ui-configuration",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
+        "sourcePath": "src/docs/content/developer-guides/ui-configuration.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
-      "sourcePath": "src/docs/content/deployment/platforms/netlify.md"
+      "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
+    },
+    {
+      "path": "getting-started/installation",
+      "title": "Installation",
+      "description": "Node.js 22 or newer npm 9 or newer",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Installation",
+        "description": "Node.js 22 or newer npm 9 or newer",
+        "canonicalPath": "/docs/getting-started/installation",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/getting-started/installation.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/getting-started/installation.md"
+    },
+    {
+      "path": "getting-started/introduction",
+      "title": "Introduction",
+      "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Introduction",
+        "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first.",
+        "canonicalPath": "/docs/getting-started/introduction",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/getting-started/introduction.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/getting-started/introduction.md"
+    },
+    {
+      "path": "getting-started/quick-start",
+      "title": "Quick Start",
+      "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Quick Start",
+        "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
+        "canonicalPath": "/docs/getting-started/quick-start",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/getting-started/quick-start.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/getting-started/quick-start.md"
     },
     {
       "path": "llms",
@@ -609,7 +610,10 @@
         "description": "This template generates AI-facing text exports from the docs corpus.",
         "canonicalPath": "/docs/llms",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/llms.md"
+        "sourcePath": "src/docs/content/llms.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/llms.md"
     },
@@ -626,9 +630,114 @@
         "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
         "canonicalPath": "/docs/skill",
         "contentFormat": "markdown",
-        "sourcePath": "src/docs/content/skill.md"
+        "sourcePath": "src/docs/content/skill.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/skill.md"
+    },
+    {
+      "path": "user-guide/advanced-features",
+      "title": "Advanced Features",
+      "description": "papers ships with more than plain Markdown rendering.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Advanced Features",
+        "description": "papers ships with more than plain Markdown rendering.",
+        "canonicalPath": "/docs/user-guide/advanced-features",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/advanced-features.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/advanced-features.md"
+    },
+    {
+      "path": "user-guide/basic-usage",
+      "title": "Basic Usage",
+      "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Basic Usage",
+        "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build.",
+        "canonicalPath": "/docs/user-guide/basic-usage",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/basic-usage.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/basic-usage.md"
+    },
+    {
+      "path": "user-guide/command-palette",
+      "title": "Command Palette",
+      "description": "The command palette is the fastest way to move through the site.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Command Palette",
+        "description": "The command palette is the fastest way to move through the site.",
+        "canonicalPath": "/docs/user-guide/command-palette",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/command-palette.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/command-palette.md"
+    },
+    {
+      "path": "user-guide/configuration",
+      "title": "Configuration",
+      "description": "Most customization happens in a small set of files.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Configuration",
+        "description": "Most customization happens in a small set of files.",
+        "canonicalPath": "/docs/user-guide/configuration",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/configuration.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/configuration.md"
+    },
+    {
+      "path": "user-guide/interactive-map",
+      "title": "Interactive Map",
+      "description": "The interactive map renders the documentation tree as a graph in the right rail.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Interactive Map",
+        "description": "The interactive map renders the documentation tree as a graph in the right rail.",
+        "canonicalPath": "/docs/user-guide/interactive-map",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/interactive-map.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/interactive-map.md"
+    },
+    {
+      "path": "user-guide/troubleshooting",
+      "title": "Troubleshooting",
+      "description": "The app reads generated JSON, not raw Markdown directly.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Troubleshooting",
+        "description": "The app reads generated JSON, not raw Markdown directly.",
+        "canonicalPath": "/docs/user-guide/troubleshooting",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/user-guide/troubleshooting.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/user-guide/troubleshooting.md"
     }
   ]
 }

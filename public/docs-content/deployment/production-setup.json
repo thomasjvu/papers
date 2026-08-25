@@ -47,7 +47,10 @@
     "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build...",
     "canonicalPath": "/docs/deployment/production-setup",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/deployment/production-setup.md"
+    "sourcePath": "src/docs/content/deployment/production-setup.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

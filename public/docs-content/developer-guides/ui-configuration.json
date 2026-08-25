@@ -42,7 +42,10 @@
     "description": "The docs shell is mostly configured through a few focused files.",
     "canonicalPath": "/docs/developer-guides/ui-configuration",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
+    "sourcePath": "src/docs/content/developer-guides/ui-configuration.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

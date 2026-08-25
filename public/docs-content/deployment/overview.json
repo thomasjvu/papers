@@ -42,7 +42,10 @@
     "description": "papers builds to a static site with route-specific HTML output.",
     "canonicalPath": "/docs/deployment/overview",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/deployment/overview.md"
+    "sourcePath": "src/docs/content/deployment/overview.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

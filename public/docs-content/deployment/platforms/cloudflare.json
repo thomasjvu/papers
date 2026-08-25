@@ -42,7 +42,10 @@
     "description": "Use these values in Cloudflare Pages:",
     "canonicalPath": "/docs/deployment/platforms/cloudflare",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md"
+    "sourcePath": "src/docs/content/deployment/platforms/cloudflare.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

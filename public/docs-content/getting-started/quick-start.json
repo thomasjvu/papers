@@ -57,7 +57,10 @@
     "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony.",
     "canonicalPath": "/docs/getting-started/quick-start",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/getting-started/quick-start.md"
+    "sourcePath": "src/docs/content/getting-started/quick-start.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

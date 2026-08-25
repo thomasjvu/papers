@@ -47,7 +47,10 @@
     "description": "papers ships with more than plain Markdown rendering.",
     "canonicalPath": "/docs/user-guide/advanced-features",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/user-guide/advanced-features.md"
+    "sourcePath": "src/docs/content/user-guide/advanced-features.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

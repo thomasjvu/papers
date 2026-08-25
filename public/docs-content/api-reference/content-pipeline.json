@@ -102,7 +102,10 @@
     "description": "The content pipeline turns Markdown source files into static artifacts the app can load directly.",
     "canonicalPath": "/docs/api-reference/content-pipeline",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/api-reference/content-pipeline.md"
+    "sourcePath": "src/docs/content/api-reference/content-pipeline.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [
     {

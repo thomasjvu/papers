@@ -52,7 +52,10 @@
     "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control.",
     "canonicalPath": "/docs/developer-guides/icon-customization",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/developer-guides/icon-customization.md"
+    "sourcePath": "src/docs/content/developer-guides/icon-customization.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

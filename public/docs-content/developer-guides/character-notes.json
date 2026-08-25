@@ -35,7 +35,10 @@
     "description": "MDX shortcode for character notifications in documentation articles.",
     "canonicalPath": "/docs/developer-guides/character-notes",
     "contentFormat": "html",
-    "sourcePath": "src/docs/content/developer-guides/character-notes.mdx"
+    "sourcePath": "src/docs/content/developer-guides/character-notes.mdx",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

@@ -62,7 +62,10 @@
     "description": "Fetches and caches /docs-index.json for the current session.",
     "canonicalPath": "/docs/api-reference/runtime-apis",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
+    "sourcePath": "src/docs/content/api-reference/runtime-apis.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],

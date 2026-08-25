@@ -20,7 +20,10 @@
     "description": "Interactive OpenAPI reference powered by Scalar.",
     "canonicalPath": "/docs/api-reference/openapi",
     "contentFormat": "markdown",
-    "sourcePath": "src/docs/content/api-reference/openapi.md"
+    "sourcePath": "src/docs/content/api-reference/openapi.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
   },
   "references": [],
   "links": [],
