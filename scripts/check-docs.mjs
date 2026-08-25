@@ -25,8 +25,9 @@ import {
   getGeneratedDocsSourceDir,
   readMarkdownFileMap,
 } from './lib/generatedDocsSync.mjs';
-import { createLlmsArtifacts } from './lib/llmsArtifacts.mjs';
+import { createHostedSkillArtifact, createLlmsArtifacts } from './lib/llmsArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { createAgentDiscoveryManifest } from '../shared/seo.js';
 import {
   createDefaultSocialImageManifest,
   createRobotsTxt,
@@ -204,11 +205,34 @@ async function main() {
     'public/skill.md is a repository-owned hosted asset and must exist and be non-empty.'
   );
 
+  const mode = resolveEnvMode('production');
+  const viteEnv = loadViteEnv(rootDir, mode);
+  const siteName = viteEnv.VITE_SITE_NAME || homepageConfig.hero?.title || 'papers Docs';
+  const siteUrl = viteEnv.VITE_SITE_URL || '';
+  const siteSubtitle = homepageConfig.hero?.subtitle || 'Documentation';
+  const siteDescription = homepageConfig.hero?.description || '';
+  const skillSource = readFileText(join(rootDir, 'src', 'docs', 'content', 'skill.md'));
+  assert(
+    readFileText(hostedSkillPath) ===
+      createHostedSkillArtifact(skillSource, {
+        name: `${siteName.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-docs`,
+      }),
+    'public/skill.md is out of date. Run `npm run generate:llms`.'
+  );
+  const agentManifestPath = join(publicDir, 'agents.json');
+  assert(existsSync(agentManifestPath), 'Missing public/agents.json. Run `npm run generate:llms`.');
+  assert(
+    readFileText(agentManifestPath) ===
+      `${JSON.stringify(createAgentDiscoveryManifest({ siteName, siteUrl, description: siteDescription }), null, 2)}\n`,
+    'public/agents.json is out of date. Run `npm run generate:llms`.'
+  );
+
   const { llmsTxt, llmsFullTxt } = createLlmsArtifacts({
     documentationTree,
     homepageConfig,
     openapiConfig,
     rootDir,
+    siteUrl,
   });
 
   assert(
@@ -220,12 +244,6 @@ async function main() {
     'public/llms-full.txt is out of date. Run `npm run generate:llms`.'
   );
 
-  const mode = resolveEnvMode('production');
-  const viteEnv = loadViteEnv(rootDir, mode);
-  const siteName = viteEnv.VITE_SITE_NAME || homepageConfig.hero?.title || 'papers Docs';
-  const siteUrl = viteEnv.VITE_SITE_URL || '';
-  const siteSubtitle = homepageConfig.hero?.subtitle || 'Documentation';
-  const siteDescription = homepageConfig.hero?.description || '';
   const routeEntries = createSeoRouteEntries(index, documents, {
     siteName,
     siteSubtitle,

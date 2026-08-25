@@ -1,9 +1,12 @@
 {
   "path": "skill",
   "title": "Agent Skill",
-  "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
-  "frontmatter": {},
-  "content": "# Agent Skill\n\nHost an agent skill file at `/skill.md` so coding agents can load integration instructions without crawling the full docs UI.\n\n## Generated vs hosted\n\n- **Docs page** — this Markdown page explains the feature.\n- **Hosted file** — `/skill.md` at the site root (copy from your product repo or generate in CI).\n\n## Setup\n\n1. Write a skill file with YAML frontmatter (`name`, `description`) and integration steps.\n2. Place it in `public/skill.md` or generate it during build.\n3. Link from your docs nav or command palette.\n4. Optional install page at `/docs/skill` with `HostedFilePreview` for copy/download.\n\n## Install paths (examples)\n\n| Agent           | Typical path                      |\n| --------------- | --------------------------------- |\n| Cursor / Claude | `.cursor/skills/<name>/SKILL.md`  |\n| Codex           | `~/.codex/skills/<name>/SKILL.md` |\n\n## When to regenerate\n\nRegenerate `public/skill.md` when API routes, auth flows, or agent tool names change.\n\nFor AI corpus exports, see [LLMs.txt](/docs/llms).\n",
+  "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
+  "frontmatter": {
+    "title": "Agent Skill",
+    "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site."
+  },
+  "content": "# Agent Skill\n\nUse the hosted `/skill.md` file when an agent needs to understand this\ndocumentation site without crawling the full UI. The companion `/agents.json`\nmanifest lists every machine-readable artifact and its content type.\n\n## Discover first\n\n- Read `/agents.json` for the current artifact index.\n- Read `/docs-collection.json` for typed page metadata and navigation.\n- Read `/docs-references.json` for internal links and backlinks.\n- Read `/openapi-artifacts.json` before opening an interactive API viewer.\n- Use `/llms.txt` for a concise corpus index and `/llms-full.txt` for full text.\n\n## Safe maintenance workflow\n\n1. Treat Markdown/MDX in `src/docs/content/` and navigation in\n   `shared/documentation-config.js` as the source of truth.\n2. Preserve canonical routes, generated artifact names, and static-host\n   behavior when editing content.\n3. Run the relevant generators after source changes, then run `npm test`,\n   `npm run docs:check`, and the release checks before promotion.\n4. Do not invent API endpoints, authentication flows, or credentials that are\n   not present in the published OpenAPI artifacts and documentation.\n\n## Hosted and preview paths\n\n- Hosted skill: `/skill.md`\n- Human-readable preview: `/docs/skill`\n- Concise corpus: `/llms.txt`\n- Full corpus: `/llms-full.txt`\n\nThe build regenerates the hosted skill and agent manifest from this source\npage. For the human-facing explanation, see [LLMs.txt](/docs/llms).\n",
   "contentFormat": "markdown",
   "toc": [
     {
@@ -13,28 +16,23 @@
     },
     {
       "depth": 2,
-      "id": "generated-vs-hosted",
-      "text": "Generated vs hosted"
+      "id": "discover-first",
+      "text": "Discover first"
     },
     {
       "depth": 2,
-      "id": "setup",
-      "text": "Setup"
+      "id": "safe-maintenance-workflow",
+      "text": "Safe maintenance workflow"
     },
     {
       "depth": 2,
-      "id": "install-paths-examples",
-      "text": "Install paths (examples)"
-    },
-    {
-      "depth": 2,
-      "id": "when-to-regenerate",
-      "text": "When to regenerate"
+      "id": "hosted-and-preview-paths",
+      "text": "Hosted and preview paths"
     }
   ],
   "metadata": {
     "title": "Agent Skill",
-    "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
+    "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
     "canonicalPath": "/docs/skill",
     "contentFormat": "markdown",
     "sourcePath": "src/docs/content/skill.md"
@@ -42,13 +40,13 @@
   "references": [
     {
       "target": "/docs/llms",
-      "line": 28
+      "line": 39
     }
   ],
   "links": [
     {
       "target": "/docs/llms",
-      "line": 28,
+      "line": 39,
       "type": "internal"
     }
   ],

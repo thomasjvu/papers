@@ -1,6 +1,7 @@
 import { openapiConfig } from '../shared/documentation-config.js';
 import { buildDocsRouteVariants } from '../shared/docsRouting.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
+import { normalizeSiteUrl } from '../shared/seo.js';
 
 const host = String(process.env.PAPERS_DEPLOY_HOST || '').replace(/\/+$/, '');
 const expectedRevision = process.env.GITHUB_SHA || process.env.SOURCE_COMMIT || '';
@@ -92,6 +93,10 @@ async function main() {
     typeof manifest.defaultDocumentPath === 'string' && manifest.defaultDocumentPath,
     'Deployed build identity is missing defaultDocumentPath.'
   );
+  assert(
+    normalizeSiteUrl(manifest.siteUrl) === normalizeSiteUrl(host),
+    'Deployed build canonical host does not match PAPERS_DEPLOY_HOST.'
+  );
 
   const home = await fetchWithRetry('/');
   const requiredHeaders = {
@@ -157,6 +162,15 @@ async function main() {
   await fetchWithRetry('/robots.txt');
   await fetchWithRetry('/sitemap.xml');
   await fetchWithRetry('/llms.txt');
+  await fetchWithRetry('/llms-full.txt');
+  await fetchWithRetry('/skill.md');
+  const agentManifestResponse = await fetchWithRetry('/agents.json');
+  const agentManifest = JSON.parse(agentManifestResponse.body);
+  assert(agentManifest.schemaVersion === 1, 'Deployed agent discovery manifest is invalid.');
+  assert(
+    agentManifestResponse.headers.get('content-type')?.includes('application/json'),
+    'Deployed agent discovery manifest has an unexpected content type.'
+  );
   const docsCollectionResponse = await fetchWithRetry('/docs-collection.json');
   const docsCollection = JSON.parse(docsCollectionResponse.body);
   assert(docsCollection.schemaVersion === 1, 'Deployed typed collection manifest is invalid.');

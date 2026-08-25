@@ -14,6 +14,9 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      VITE_SITE_URL: ${{ vars.PAPERS_DEPLOY_HOST }}
+      REQUIRE_SITE_URL: ${{ github.event_name == 'push' && 'true' || 'false' }}
 
     steps:
       - name: Checkout code
@@ -22,7 +25,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: npm
 
       - name: Install dependencies

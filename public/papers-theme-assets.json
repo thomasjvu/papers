@@ -1,6 +1,13 @@
 {
   "schemaVersion": 1,
   "themeId": "default",
-  "baseFontFiles": ["DMSerifDisplay-Regular.ttf", "Hubot-Sans.ttf", "Mona-Sans.ttf"],
+  "baseFontFiles": [
+    "DMSerifDisplay-Regular.ttf",
+    "DMSerifDisplay-Regular.woff",
+    "Hubot-Sans.ttf",
+    "Hubot-Sans.woff",
+    "Mona-Sans.ttf",
+    "Mona-Sans.woff"
+  ],
   "generatedFontFiles": []
 }

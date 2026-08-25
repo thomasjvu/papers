@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 
 import { homepageConfig } from '../../shared/documentation-config.js';
@@ -29,13 +28,7 @@ export default function HomePage() {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen"
-      style={{ backgroundColor: 'var(--background-color)' }}
-    >
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--background-color)' }}>
       <HeroSection hero={homepageConfig.hero} />
 
       <div
@@ -53,6 +46,6 @@ export default function HomePage() {
       <QuickStart quickStart={homepageConfig.quickStart} />
 
       <Footer footer={homepageConfig.footer} />
-    </motion.div>
+    </div>
   );
 }

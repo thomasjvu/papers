@@ -20,6 +20,8 @@ verification gate, and update the status row below when complete.
 | 008  | Choose a content-source strategy                        | P2       | M      | 003, 005, 007 | DONE — native direction recorded                       |
 | 009  | Add a maintainer and agent operating contract           | P2       | S      | 006           | DONE — AGENTS.md and contributor contract              |
 | 010  | Ship native Fumadocs-parity content/API artifacts       | P1       | L      | 008, 009      | DONE — typed collections, backlinks, OpenAPI artifacts |
+| 011  | Defer and slim the OpenAPI runtime                      | P1       | M      | 010           | DONE — standalone Scalar route chunk; build ~31s       |
+| 012  | Make SEO and agent discovery first-class                | P1       | M      | 010           | DONE — JSON-LD, agent manifest, typed LLM summaries    |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED (with one-line
 reason)` | `REJECTED (with one-line rationale)`.
@@ -58,15 +60,27 @@ reason)` | `REJECTED (with one-line rationale)`.
 - Plan 010 closes the two native parity milestones recorded in ADR 001 without
   changing the static route contract. It remains separate from the blocked
   owned-host proof in Plan 006.
+- Plan 011 addresses the observed Vite/Rollup stall by preserving Scalar's
+  route-lazy behavior while targeting its standalone browser entry. The
+  standalone `esm-*.js` chunk is deliberately left out of `manualChunks`
+  because Vite's preload graph otherwise requested it from every route. Build
+  timing is now measurable and the shell has no Scalar request.
+- Plan 012 is independent of Plan 011 and strengthens the shared SEO, route
+  HTML, LLM export, hosted skill, and machine-readable artifact contract. It
+  keeps local template mode usable while making missing production host
+  metadata an explicit release failure. Base font delivery now prefers WOFF
+  assets while retaining the original TTF fallback, and CI/deploy workflows
+  validate against Node 22 with explicit host metadata wiring.
 
 ## Audit verdict in one sentence
 
 The local execution pass has closed the release-identity, security-boundary,
 template, asset, browser, strategy, maintainer, typed-collection, reference,
-and OpenAPI-artifact gaps. `papers` is still not production-ready until Plan
-006 proves an owned deployed host and the production Vite/browser ladder is
-green. It is now closer to Fumadocs on the project-relevant content contract,
-but not equivalent to the full Fumadocs ecosystem or API playground surface.
+OpenAPI-artifact, OpenAPI build-stall, and SEO/agent-discovery gaps. `papers`
+is still not production-ready until Plan 006 proves an owned deployed host and
+the production Vite/browser ladder is green. It is now closer to Fumadocs on
+the project-relevant content contract, but not equivalent to the full Fumadocs
+ecosystem or API playground surface.
 
 ## Findings considered and rejected
 
@@ -84,6 +98,9 @@ but not equivalent to the full Fumadocs ecosystem or API playground surface.
 - **Lint warnings as standalone release blockers**: tracked for cleanup inside
   the relevant plans, but not split into a separate plan. The lint command exits
   zero; correctness and release-gate failures have priority.
+- **A new proprietary agent protocol**: rejected. Existing Markdown/JSON
+  artifacts plus ordinary alternate links are sufficient and keep the static
+  host contract portable.
 
 ## Definition of production-ready for the re-audit
 
@@ -110,5 +127,5 @@ The re-audit should not call the project ready until all of these are true:
 - A browser-level smoke path covers homepage, a deep docs route, search,
   Mermaid/MDX content, OpenAPI, theme switching, and direct reloads, with
   explicit asset-size and Lighthouse budgets. **Satisfied locally; Lighthouse
-  performance remains a warning budget rather than an error while the heavy
-  OpenAPI route is optimized.**
+  SEO/accessibility/best-practice gates are green, while performance remains a
+  warning budget for the intentionally heavy OpenAPI route.**

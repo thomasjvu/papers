@@ -74,11 +74,13 @@ test('OpenAPI default and alternate specs use distinct routes', async ({ page })
   await expect(page.locator('.openapi-page')).toBeVisible();
   await expect(page.getByText('Public API', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('2 operations', { exact: true })).toBeVisible();
-  await expect(page.getByText('Health check', { exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Health check', exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Internal API', exact: true }).click();
   await expect(page).toHaveURL(/\/docs\/api-reference\/openapi\/internal$/);
   await expect(page.getByText('Internal API', { exact: true }).first()).toBeVisible();
-  await expect(page.getByText('Trigger docs build', { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Trigger docs build', exact: true })
+  ).toBeVisible();
   await assertNoRuntimeErrors(errors);
 });
 
@@ -98,7 +100,9 @@ test('theme toggle, mobile shell, and explicit 404 behavior work', async ({ page
   const nextMode = (await themeButton.first().textContent()).includes('Light') ? 'Dark' : 'Light';
   await themeButton.first().click();
   await page.getByRole('button', { name: 'Open preferences' }).click();
-  await expect(page.getByRole('button', { name: new RegExp(`Switch to ${nextMode} Mode`, 'i') })).toBeVisible();
+  await expect(
+    page.getByRole('button', { name: new RegExp(`Switch to ${nextMode} Mode`, 'i') })
+  ).toBeVisible();
 
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });

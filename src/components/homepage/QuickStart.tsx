@@ -1,5 +1,3 @@
-import { motion } from 'framer-motion';
-
 interface QuickStartStep {
   title: string;
   code: string;
@@ -16,13 +14,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
   return (
     <section className="py-20">
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <h2
             className="font-bold mb-4"
             style={{
@@ -43,18 +35,11 @@ export function QuickStart({ quickStart }: QuickStartProps) {
           >
             Get up and running in minutes
           </p>
-        </motion.div>
+        </div>
 
         <div className="max-w-3xl mx-auto space-y-4">
           {quickStart.steps.map((step, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="flex items-start gap-4"
-            >
+            <div key={index} className="flex items-start gap-4">
               <div
                 className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center font-bold"
                 style={{
@@ -89,7 +74,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
                   <code>{step.code}</code>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

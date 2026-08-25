@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Icon } from '@iconify/react';
 
 interface Feature {
@@ -15,13 +14,7 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
   return (
     <section className="py-20">
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-16"
-        >
+        <div className="text-center mb-16">
           <h2
             className="font-bold mb-4"
             style={{
@@ -43,16 +36,12 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
           >
             Built with modern tools and best practices for the best developer experience.
           </p>
-        </motion.div>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map((feature, index) => (
-            <motion.div
+          {features.map((feature) => (
+            <div
               key={feature.title}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
               className="p-6 rounded-xl border transition-all hover:scale-[1.02]"
               style={{
                 backgroundColor: 'var(--card-color)',
@@ -91,7 +80,7 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
               >
                 {feature.description}
               </p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

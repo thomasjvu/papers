@@ -32,7 +32,14 @@ const generatedManifestPath = path.join(generatedDir, 'papers-theme.json');
 const publicFontsDir = path.join(appDir, 'public', 'fonts');
 const themeAssetManifestPath = path.join(appDir, 'public', 'papers-theme-assets.json');
 const themeFontAssetsDir = path.join(themeDir, 'assets', 'fonts');
-const BASE_FONT_FILES = ['DMSerifDisplay-Regular.ttf', 'Hubot-Sans.ttf', 'Mona-Sans.ttf'];
+const BASE_FONT_FILES = [
+  'DMSerifDisplay-Regular.ttf',
+  'DMSerifDisplay-Regular.woff',
+  'Hubot-Sans.ttf',
+  'Hubot-Sans.woff',
+  'Mona-Sans.ttf',
+  'Mona-Sans.woff',
+];
 
 function readPreviousThemeAssetManifest() {
   if (!existsSync(themeAssetManifestPath)) {
@@ -90,20 +97,9 @@ const themeAssetManifest = {
   baseFontFiles: BASE_FONT_FILES,
   generatedFontFiles: generatedFontFiles.sort(),
 };
-const themeAssetManifestJson = JSON.stringify(themeAssetManifest, null, 2)
-  .replace(
-    /"baseFontFiles": \[\n(?:\s+"[^\n]+"(?:,\n|\n))+\s+\]/,
-    `"baseFontFiles": [${BASE_FONT_FILES.map((fileName) => JSON.stringify(fileName)).join(', ')}]`
-  )
-  .replace(
-    /"generatedFontFiles": \[\n(?:\s+"[^\n]+"(?:,\n|\n))+\s+\]/,
-    `"generatedFontFiles": [${generatedFontFiles
-      .map((fileName) => JSON.stringify(fileName))
-      .join(', ')}]`
-  );
 writeFileSync(
   themeAssetManifestPath,
-  `${themeAssetManifestJson}\n`,
+  `${JSON.stringify(themeAssetManifest, null, 2)}\n`,
   'utf8'
 );
 

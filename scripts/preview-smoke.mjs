@@ -8,7 +8,7 @@ import {
   buildDocsContentPath,
   buildDocsRouteVariants,
 } from '../shared/docsRouting.js';
-import { getDefaultDocumentPath } from '../shared/seo.js';
+import { buildAbsoluteUrl, getDefaultDocumentPath } from '../shared/seo.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
 import { assertBuildManifest } from './lib/buildIdentity.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
@@ -43,6 +43,8 @@ function getContentType(filePath) {
       return 'application/json; charset=utf-8';
     case '.txt':
       return 'text/plain; charset=utf-8';
+    case '.md':
+      return 'text/markdown; charset=utf-8';
     case '.xml':
       return 'application/xml; charset=utf-8';
     case '.svg':
@@ -82,7 +84,10 @@ function resolveDistFile(pathname) {
 async function withStaticPreviewServer(run) {
   const server = createServer((request, response) => {
     const requestUrl = new URL(request.url || '/', 'http://127.0.0.1');
-    const targetPath = requestUrl.pathname === '/' ? join(distDir, 'index.html') : resolveDistFile(requestUrl.pathname);
+    const targetPath =
+      requestUrl.pathname === '/'
+        ? join(distDir, 'index.html')
+        : resolveDistFile(requestUrl.pathname);
 
     if (!targetPath) {
       response.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -145,8 +150,9 @@ function extractAssetPaths(html) {
 }
 
 async function main() {
-  assertBuildManifest(distDir, { expectedBuildMode: 'production' });
+  const manifest = assertBuildManifest(distDir, { expectedBuildMode: 'production' });
   assert(existsSync(distDir), 'Missing dist/ output. Run `npm run build` first.');
+  const canonicalUrl = (path) => buildAbsoluteUrl(path, manifest.siteUrl || '');
 
   const docsIndex = JSON.parse(readText(join(distDir, 'docs-index.json')));
   const defaultDocPath = getDefaultDocumentPath(documentationTree);
@@ -157,7 +163,10 @@ async function main() {
 
   await withStaticPreviewServer(async (baseUrl) => {
     const home = await fetchText(baseUrl, '/');
-    assert(home.body.includes('/js/theme-init.js'), 'Homepage is missing the local theme init script.');
+    assert(
+      home.body.includes('/js/theme-init.js'),
+      'Homepage is missing the local theme init script.'
+    );
 
     const { scriptPath, stylesheetPath } = extractAssetPaths(home.body);
     assert(scriptPath, 'Could not locate the built JavaScript asset in the homepage HTML.');
@@ -169,7 +178,7 @@ async function main() {
     const docsAlias = await fetchText(baseUrl, '/docs');
     assert(
       docsAlias.body.includes(
-        `<link rel="canonical" href="${buildCanonicalDocsPath(defaultDocPath)}" />`
+        `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(defaultDocPath))}" />`
       ),
       'Docs landing route is missing the expected canonical tag.'
     );
@@ -178,7 +187,7 @@ async function main() {
       const routeHtml = await fetchText(baseUrl, routePath);
       assert(
         routeHtml.body.includes(
-          `<link rel="canonical" href="${buildCanonicalDocsPath(sampleDocPath)}" />`
+          `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(sampleDocPath))}" />`
         ),
         `Served route ${routePath} is missing the expected canonical tag.`
       );
@@ -203,7 +212,7 @@ async function main() {
       );
       const openApiRoute = await fetchText(baseUrl, routePath);
       assert(
-        openApiRoute.body.includes(`<link rel="canonical" href="${routePath}" />`),
+        openApiRoute.body.includes(`<link rel="canonical" href="${canonicalUrl(routePath)}" />`),
         `Served ${routePath} is missing its canonical tag.`
       );
 
@@ -212,8 +221,25 @@ async function main() {
       }
     }
 
-    await fetchText(baseUrl, '/llms.txt');
-    await fetchText(baseUrl, '/skill.md');
+    const llms = await fetchText(baseUrl, '/llms.txt');
+    assert(
+      llms.headers.get('content-type')?.includes('text/plain'),
+      'Preview llms.txt has an unexpected content type.'
+    );
+    const skill = await fetchText(baseUrl, '/skill.md');
+    assert(
+      skill.headers.get('content-type')?.includes('text/markdown'),
+      'Preview skill.md has an unexpected content type.'
+    );
+    const agentManifest = await fetchText(baseUrl, '/agents.json');
+    assert(
+      JSON.parse(agentManifest.body).kind === 'documentation-agent-index',
+      'Agent discovery manifest has an unexpected kind.'
+    );
+    assert(
+      agentManifest.headers.get('content-type')?.includes('application/json'),
+      'Preview agents.json has an unexpected content type.'
+    );
     await fetchText(baseUrl, '/robots.txt');
     await fetchText(baseUrl, '/sitemap.xml');
     await fetchText(baseUrl, '/docs-index.json');

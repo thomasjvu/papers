@@ -4,10 +4,14 @@ import { dirname, join } from 'path';
 
 import { contentCollections } from '../shared/content-collections.js';
 import {
+  AGENT_DISCOVERY_PATH,
   buildAbsoluteUrl,
+  createSeoStructuredData,
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_TWITTER_IMAGE_PATH,
+  getAgentArtifactLinks,
   getHomeMetadataDefaults,
+  serializeJsonLd,
 } from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
@@ -58,6 +62,31 @@ function upsertLinkTag(html, rel, href) {
   return html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
+function upsertAlternateLink(html, { href, contentType, title }) {
+  const tag = `<link rel="alternate" type="${escapeAttribute(contentType)}" title="${escapeAttribute(title)}" href="${escapeAttribute(href)}" />`;
+  const regex = new RegExp(
+    `<link\\s+rel="alternate"\\s+type="${escapeRegExp(contentType)}"\\s+title="${escapeRegExp(title)}"[^>]*\\/?>(?:\\s*)`,
+    'i'
+  );
+
+  if (regex.test(html)) {
+    return html.replace(regex, `    ${tag}\n`);
+  }
+
+  return html.replace('</head>', `    ${tag}\n  </head>`);
+}
+
+function upsertJsonLd(html, data) {
+  const tag = `<script type="application/ld+json">${serializeJsonLd(data)}</script>`;
+  const regex = /<script\s+type="application\/ld\+json">[\s\S]*?<\/script>/i;
+
+  if (regex.test(html)) {
+    return html.replace(regex, tag);
+  }
+
+  return html.replace('</head>', `    ${tag}\n  </head>`);
+}
+
 function applyMetadataToHtml(templateHtml, metadata) {
   let html = templateHtml.replace(
     /<title>[^<]*<\/title>/i,
@@ -72,11 +101,34 @@ function applyMetadataToHtml(templateHtml, metadata) {
   html = upsertMetaTag(html, 'property', 'og:site_name', metadata.siteName);
   html = upsertMetaTag(html, 'property', 'og:url', metadata.url);
   html = upsertMetaTag(html, 'property', 'og:image', metadata.imageUrl);
+  html = upsertMetaTag(html, 'property', 'og:image:alt', `${metadata.title} documentation preview`);
   html = upsertMetaTag(html, 'name', 'twitter:card', 'summary_large_image');
   html = upsertMetaTag(html, 'name', 'twitter:title', metadata.title);
   html = upsertMetaTag(html, 'name', 'twitter:description', metadata.description);
   html = upsertMetaTag(html, 'name', 'twitter:image', metadata.twitterImageUrl);
+  html = upsertMetaTag(
+    html,
+    'name',
+    'twitter:image:alt',
+    `${metadata.title} documentation preview`
+  );
   html = upsertLinkTag(html, 'canonical', metadata.canonicalUrl);
+
+  for (const link of metadata.agentLinks) {
+    html = upsertAlternateLink(html, link);
+  }
+
+  html = upsertJsonLd(
+    html,
+    createSeoStructuredData({
+      siteName: metadata.siteName,
+      title: metadata.title,
+      description: metadata.description,
+      url: metadata.url,
+      routePath: metadata.routePath,
+      type: metadata.type,
+    })
+  );
 
   return html;
 }
@@ -131,6 +183,18 @@ async function generateRouteHtml() {
     }
   );
   const templateHtml = stripNonCriticalPreloads(readFileSync(indexHtmlPath, 'utf8'));
+  const agentLinks = [
+    {
+      href: buildAbsoluteUrl(AGENT_DISCOVERY_PATH, siteUrl) || AGENT_DISCOVERY_PATH,
+      contentType: 'application/json',
+      title: 'Documentation agent index',
+    },
+    ...getAgentArtifactLinks(siteUrl).map((link) => ({
+      href: link.href,
+      contentType: link.contentType,
+      title: link.title,
+    })),
+  ];
   await writeFile(indexHtmlPath, `${templateHtml.trimEnd()}\n`);
 
   for (const entry of routeEntries) {
@@ -150,6 +214,8 @@ async function generateRouteHtml() {
       robots: entry.noIndex ? 'noindex, nofollow' : 'index, follow',
       type: entry.type || 'website',
       siteName,
+      routePath: entry.routePath,
+      agentLinks,
     });
 
     await writeRouteHtml(entry.routePath, html);

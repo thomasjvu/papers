@@ -274,11 +274,11 @@
     {
       "path": "getting-started/installation",
       "title": "Installation",
-      "description": "Node.js 18 or newer npm 9 or newer",
+      "description": "Node.js 22 or newer npm 9 or newer",
       "frontmatter": {},
       "metadata": {
         "title": "Installation",
-        "description": "Node.js 18 or newer npm 9 or newer",
+        "description": "Node.js 22 or newer npm 9 or newer",
         "canonicalPath": "/docs/getting-started/installation",
         "contentFormat": "markdown",
         "sourcePath": "src/docs/content/getting-started/installation.md"
@@ -616,11 +616,14 @@
     {
       "path": "skill",
       "title": "Agent Skill",
-      "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
-      "frontmatter": {},
+      "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
+      "frontmatter": {
+        "title": "Agent Skill",
+        "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site."
+      },
       "metadata": {
         "title": "Agent Skill",
-        "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI.",
+        "description": "Machine-readable entry points and safe maintenance guidance for a papers documentation site.",
         "canonicalPath": "/docs/skill",
         "contentFormat": "markdown",
         "sourcePath": "src/docs/content/skill.md"

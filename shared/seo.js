@@ -2,6 +2,46 @@ import { documentationTree, homepageConfig } from './documentation-config.js';
 
 export const DEFAULT_OG_IMAGE_PATH = '/images/og-image.svg';
 export const DEFAULT_TWITTER_IMAGE_PATH = '/images/twitter-card.svg';
+export const AGENT_DISCOVERY_PATH = '/agents.json';
+
+export const AGENT_ARTIFACTS = Object.freeze([
+  {
+    id: 'llms',
+    path: '/llms.txt',
+    contentType: 'text/plain',
+    title: 'Concise LLM documentation index',
+  },
+  {
+    id: 'llms-full',
+    path: '/llms-full.txt',
+    contentType: 'text/plain',
+    title: 'Full LLM documentation corpus',
+  },
+  {
+    id: 'skill',
+    path: '/skill.md',
+    contentType: 'text/markdown',
+    title: 'Agent integration guidance',
+  },
+  {
+    id: 'collection',
+    path: '/docs-collection.json',
+    contentType: 'application/json',
+    title: 'Typed documentation collection manifest',
+  },
+  {
+    id: 'references',
+    path: '/docs-references.json',
+    contentType: 'application/json',
+    title: 'Documentation reference graph and backlinks',
+  },
+  {
+    id: 'openapi',
+    path: '/openapi-artifacts.json',
+    contentType: 'application/json',
+    title: 'Structured OpenAPI operations and schemas',
+  },
+]);
 
 const FRONTMATTER_REGEX = /^---\r?\n[\s\S]*?\r?\n---\r?\n?/;
 
@@ -165,4 +205,122 @@ export function getHomeMetadataDefaults() {
     siteSubtitle: homepageConfig.hero?.subtitle || 'Documentation',
     siteDescription: homepageConfig.hero?.description || '',
   };
+}
+
+export function getAgentArtifactLinks(siteUrl = '') {
+  return AGENT_ARTIFACTS.map((artifact) => ({
+    ...artifact,
+    href: buildAbsoluteUrl(artifact.path, siteUrl),
+  }));
+}
+
+export function createAgentDiscoveryManifest({ siteName, siteUrl, description } = {}) {
+  const defaults = getHomeMetadataDefaults();
+
+  return {
+    schemaVersion: 1,
+    kind: 'documentation-agent-index',
+    name: siteName || defaults.siteName,
+    description: description || defaults.siteDescription,
+    artifacts: getAgentArtifactLinks(siteUrl),
+  };
+}
+
+function createBreadcrumbItems(routePath, title, siteName, siteUrl) {
+  const normalizedPath = String(routePath || '/').replace(/^\/+|\/+$/g, '');
+
+  if (!normalizedPath) {
+    return [];
+  }
+
+  const segments = normalizedPath.split('/').filter(Boolean);
+  const docsIndex = segments.indexOf('docs');
+  const visibleSegments = docsIndex >= 0 ? segments.slice(docsIndex + 1) : segments;
+  const rootUrl = buildAbsoluteUrl('/', siteUrl);
+  const items = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: siteName,
+      item: rootUrl,
+    },
+  ];
+
+  visibleSegments.forEach((segment, index) => {
+    const isLast = index === visibleSegments.length - 1;
+    const itemPath =
+      docsIndex >= 0
+        ? `/docs/${visibleSegments.slice(0, index + 1).join('/')}`
+        : `/${segments.slice(0, index + 1).join('/')}`;
+    items.push({
+      '@type': 'ListItem',
+      position: index + 2,
+      name: isLast ? title : segment.replace(/[-_]+/g, ' '),
+      item: buildAbsoluteUrl(itemPath, siteUrl),
+    });
+  });
+
+  return items;
+}
+
+export function createSeoStructuredData({
+  siteName,
+  title,
+  description,
+  url,
+  routePath = '/',
+  type = 'website',
+} = {}) {
+  const defaults = getHomeMetadataDefaults();
+  const resolvedSiteName = siteName || defaults.siteName;
+  const resolvedTitle = title || resolvedSiteName;
+  const resolvedDescription = description || defaults.siteDescription;
+  const resolvedUrl = url || routePath || '/';
+  const siteUrl = /^https?:\/\//i.test(resolvedUrl) ? new URL(resolvedUrl).origin : '';
+  const rootUrl = buildAbsoluteUrl('/', siteUrl);
+  const isHomepage = routePath === '/' && type === 'website';
+  const graph = [
+    {
+      '@type': 'WebSite',
+      '@id': `${rootUrl}#website`,
+      url: rootUrl,
+      name: resolvedSiteName,
+      description: defaults.siteDescription,
+    },
+    {
+      '@type': isHomepage ? 'WebSite' : type === 'article' ? 'TechArticle' : 'WebPage',
+      '@id': `${resolvedUrl}#primary`,
+      url: resolvedUrl,
+      name: resolvedTitle,
+      headline: resolvedTitle,
+      description: resolvedDescription,
+      isPartOf: { '@id': `${rootUrl}#website` },
+    },
+  ];
+  const breadcrumbItems = createBreadcrumbItems(
+    routePath,
+    resolvedTitle,
+    resolvedSiteName,
+    siteUrl
+  );
+
+  if (breadcrumbItems.length > 1) {
+    graph.push({
+      '@type': 'BreadcrumbList',
+      '@id': `${resolvedUrl}#breadcrumb`,
+      itemListElement: breadcrumbItems,
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@graph': graph,
+  };
+}
+
+export function serializeJsonLd(value) {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026');
 }

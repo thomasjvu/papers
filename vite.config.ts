@@ -30,6 +30,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
       '@app-shared/documentation-config.js': resolve(__dirname, './shared/documentation-config.js'),
+      '@scalar/api-reference': resolve(__dirname, './node_modules/@scalar/api-reference/esm.js'),
     },
   },
   css: {

@@ -29,6 +29,7 @@ import {
   createSeoRouteEntries,
   createSitemapXml,
 } from '../scripts/lib/seoArtifacts.mjs';
+import { createAgentDiscoveryManifest, createSeoStructuredData } from '../shared/seo.js';
 import { computeInputFingerprint, createBuildIdentity } from '../scripts/lib/buildIdentity.mjs';
 import { combineSearchResults } from '../src/components/CommandPalette/searchUtils.ts';
 import {
@@ -889,6 +890,83 @@ export const architectureTests: ArchitectureTestCase[] = [
 
         await rm(tempDir, { recursive: true, force: true });
       }
+    },
+  },
+  {
+    name: 'SEO structured data and agent discovery expose one canonical contract',
+    async run() {
+      const manifest = createAgentDiscoveryManifest({
+        siteName: 'Example Docs',
+        siteUrl: 'https://docs.example.com',
+        description: 'Example documentation.',
+      });
+
+      assert.equal(manifest.schemaVersion, 1);
+      assert.equal(manifest.kind, 'documentation-agent-index');
+      assert.equal(manifest.artifacts[0]?.href, 'https://docs.example.com/llms.txt');
+      assert.equal(
+        manifest.artifacts[manifest.artifacts.length - 1]?.href,
+        'https://docs.example.com/openapi-artifacts.json'
+      );
+
+      const structuredData = createSeoStructuredData({
+        siteName: 'Example Docs',
+        title: 'Introduction | Example Docs',
+        description: 'Start here.',
+        url: 'https://docs.example.com/docs/getting-started/introduction',
+        routePath: '/docs/getting-started/introduction',
+        type: 'article',
+      });
+      const graph = structuredData['@graph'] as Array<Record<string, unknown>>;
+      assert.equal(structuredData['@context'], 'https://schema.org');
+      assert.equal(graph[1]?.['@type'], 'TechArticle');
+      assert.equal(graph[2]?.['@type'], 'BreadcrumbList');
+      assert.equal((graph[2]?.itemListElement as Array<unknown>).length, 3);
+
+      const indexHtml = await readFile(join(process.cwd(), 'index.html'), 'utf8');
+      assert.match(indexHtml, /rel="alternate"[^>]+href="\/agents\.json"/);
+      assert.match(indexHtml, /property="og:image:alt"/);
+      assert.match(indexHtml, /name="twitter:image:alt"/);
+    },
+  },
+  {
+    name: 'OpenAPI runtime uses the route-lazy standalone Scalar boundary',
+    async run() {
+      const openApiReferenceSource = await readFile(
+        new URL('../src/components/OpenApiReference.tsx', import.meta.url),
+        'utf8'
+      );
+      const viteConfigSource = await readFile(
+        new URL('../vite.config.ts', import.meta.url),
+        'utf8'
+      );
+
+      assert.doesNotMatch(openApiReferenceSource, /@scalar\/api-reference-react/);
+      assert.match(openApiReferenceSource, /import\('@scalar\/api-reference'\)/);
+      assert.match(openApiReferenceSource, /scalarInstance\?\.destroy\(\)/);
+      assert.match(viteConfigSource, /@scalar\/api-reference\/esm\.js/);
+      assert.doesNotMatch(viteConfigSource, /vendor-openapi/);
+    },
+  },
+  {
+    name: 'initial shell defers command palette and serves compressed base fonts',
+    run: async () => {
+      const commandPaletteProviderSource = await readFile(
+        new URL('../src/providers/CommandPaletteProvider.tsx', import.meta.url),
+        'utf8'
+      );
+      const globalStylesSource = await readFile(
+        new URL('../src/globals.css', import.meta.url),
+        'utf8'
+      );
+
+      assert.match(
+        commandPaletteProviderSource,
+        /lazy\(\(\) => import\('\.\.\/components\/CommandPalette\/OptimizedCommandPalette'\)\)/
+      );
+      assert.match(commandPaletteProviderSource, /isOpen \?/);
+      assert.match(globalStylesSource, /Mona-Sans\.woff/);
+      assert.match(globalStylesSource, /Hubot-Sans\.woff/);
     },
   },
   {

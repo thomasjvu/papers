@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Node.js 18 or newer
+- Node.js 22 or newer
 - npm 9 or newer
 
 ## Install Dependencies

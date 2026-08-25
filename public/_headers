@@ -13,6 +13,27 @@
 /sitemap.xml
   Cache-Control: public, max-age=3600
 
+/agents.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/llms.txt
+  Cache-Control: public, max-age=300, must-revalidate
+
+/llms-full.txt
+  Cache-Control: public, max-age=300, must-revalidate
+
+/skill.md
+  Cache-Control: public, max-age=300, must-revalidate
+
+/docs-collection.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/docs-references.json
+  Cache-Control: public, max-age=300, must-revalidate
+
+/openapi-artifacts.json
+  Cache-Control: public, max-age=300, must-revalidate
+
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 

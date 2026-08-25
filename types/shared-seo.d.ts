@@ -1,6 +1,47 @@
 declare module '*/shared/seo.js' {
   export const DEFAULT_OG_IMAGE_PATH: string;
   export const DEFAULT_TWITTER_IMAGE_PATH: string;
+  export const AGENT_DISCOVERY_PATH: string;
+  export const AGENT_ARTIFACTS: ReadonlyArray<{
+    id: string;
+    path: string;
+    contentType: string;
+    title: string;
+  }>;
+
+  export function getAgentArtifactLinks(siteUrl?: string): Array<{
+    id: string;
+    path: string;
+    contentType: string;
+    title: string;
+    href: string;
+  }>;
+  export function createAgentDiscoveryManifest(options?: {
+    siteName?: string;
+    siteUrl?: string;
+    description?: string;
+  }): {
+    schemaVersion: number;
+    kind: string;
+    name: string;
+    description: string;
+    artifacts: Array<{
+      id: string;
+      path: string;
+      contentType: string;
+      title: string;
+      href: string;
+    }>;
+  };
+  export function createSeoStructuredData(options?: {
+    siteName?: string;
+    title?: string;
+    description?: string;
+    url?: string;
+    routePath?: string;
+    type?: 'website' | 'article';
+  }): Record<string, unknown>;
+  export function serializeJsonLd(value: unknown): string;
 
   export function stripFrontmatter(content: string): string;
   export function truncateText(text: string, maxLength?: number): string;

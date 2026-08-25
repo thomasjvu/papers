@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 
@@ -40,16 +39,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
       </div>
 
       <div className="container mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="text-center max-w-4xl mx-auto"
-        >
-          <motion.h1
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
+        <div className="text-center max-w-4xl mx-auto">
+          <h1
             className="mb-6 font-bold"
             style={{
               fontFamily:
@@ -61,12 +52,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
             }}
           >
             {hero.title}
-          </motion.h1>
+          </h1>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          <p
             className="mb-4"
             style={{
               fontFamily: 'var(--mono-font)',
@@ -75,12 +63,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
             }}
           >
             {hero.subtitle}
-          </motion.p>
+          </p>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+          <p
             className="mb-10 max-w-2xl mx-auto"
             style={{
               color: 'var(--muted-color)',
@@ -89,14 +74,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
             }}
           >
             {hero.description}
-          </motion.p>
+          </p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="flex flex-col sm:flex-row gap-4 justify-center"
-          >
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to={hero.cta.primary.href}
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold transition-all hover:scale-105"
@@ -124,13 +104,10 @@ export function HeroSection({ hero }: HeroSectionProps) {
               <Icon icon="mingcute:book-2-line" width="20" />
               {hero.cta.secondary.text}
             </Link>
-          </motion.div>
+          </div>
 
           {hero.artwork ? (
-            <motion.figure
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.5 }}
+            <figure
               className="mx-auto mt-12 max-w-5xl overflow-hidden rounded-[28px] border p-3"
               style={{
                 borderColor: 'var(--border-unified)',
@@ -141,6 +118,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
                 src={hero.artwork.src}
                 alt={hero.artwork.alt}
                 className="w-full rounded-[20px] border"
+                fetchPriority="high"
+                decoding="async"
                 style={{ borderColor: 'var(--border-unified)' }}
               />
               {hero.artwork.caption ? (
@@ -156,9 +135,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
                   {hero.artwork.caption}
                 </figcaption>
               ) : null}
-            </motion.figure>
+            </figure>
           ) : null}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

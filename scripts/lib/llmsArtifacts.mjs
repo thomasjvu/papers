@@ -1,6 +1,8 @@
 import fs from 'fs';
 
 import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { extractDescriptionFromMarkdown, buildAbsoluteUrl } from '../../shared/seo.js';
+import { parseFrontmatter } from './docsArtifacts.mjs';
 import { getDefaultDocsVariantContext, resolveDocFileInfo } from './docsVariants.mjs';
 
 function stripUtf8Bom(content) {
@@ -25,11 +27,40 @@ function getDocFilePath(docPath, options = {}) {
 function getDocUrl(docPath, options = {}) {
   const defaultVariantContext = getDefaultDocsVariantContext(options);
 
-  return buildCanonicalDocsPath(docPath, {
+  const canonicalPath = buildCanonicalDocsPath(docPath, {
     ...options,
     version: defaultVariantContext.version,
     locale: defaultVariantContext.locale,
   });
+
+  return buildAbsoluteUrl(canonicalPath, options.siteUrl || '');
+}
+
+function getAgentDescription(content, frontmatter) {
+  if (typeof frontmatter.description === 'string' && frontmatter.description.trim()) {
+    return frontmatter.description.trim();
+  }
+
+  const body = content.replace(/^---[\s\S]*?---\s*/m, '');
+  for (const paragraph of body.split(/\n\s*\n/)) {
+    const trimmed = paragraph.trim();
+
+    if (
+      !trimmed ||
+      trimmed.startsWith('#') ||
+      trimmed.startsWith('```') ||
+      trimmed.split('\n').every((line) => /^\s*(?:[-*+] |\d+\. |\|)/.test(line))
+    ) {
+      continue;
+    }
+
+    const description = extractDescriptionFromMarkdown(trimmed);
+    if (description) {
+      return description;
+    }
+  }
+
+  return extractDescriptionFromMarkdown(content);
 }
 
 function countTreeFiles(items) {
@@ -77,20 +108,8 @@ export function createLlmsArtifacts(options = {}) {
               }
 
               const content = stripUtf8Bom(fs.readFileSync(filePath, 'utf8'));
-              const lines = content.split('\n');
-              let foundTitle = false;
-
-              for (const line of lines) {
-                if (line.startsWith('# ')) {
-                  foundTitle = true;
-                  continue;
-                }
-
-                if (foundTitle && line.trim() && !line.startsWith('#')) {
-                  description = line.trim();
-                  break;
-                }
-              }
+              const parsed = parseFrontmatter(content);
+              description = getAgentDescription(content, parsed.frontmatter) || '';
             } catch (error) {
               console.warn(`Could not read file ${child.path}:`, error);
             }
@@ -186,4 +205,18 @@ export function createLlmsArtifacts(options = {}) {
     resolvedFileCount,
     expectedFileCount,
   };
+}
+
+export function createHostedSkillArtifact(sourceContent, options = {}) {
+  const parsed = parseFrontmatter(stripUtf8Bom(sourceContent));
+  const name = options.name || 'documentation-agent';
+  const description =
+    options.description ||
+    parsed.frontmatter.description ||
+    'Agent guidance for navigating and maintaining this documentation site.';
+  const body = parsed.body.trim();
+
+  return ensureTrailingNewline(
+    ['---', `name: ${name}`, `description: ${description}`, '---', '', body].join('\n')
+  );
 }

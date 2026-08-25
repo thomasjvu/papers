@@ -1,6 +1,14 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, {
+  createContext,
+  lazy,
+  Suspense,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+} from 'react';
 
-import CommandPalette from '../components/CommandPalette/OptimizedCommandPalette';
+const CommandPalette = lazy(() => import('../components/CommandPalette/OptimizedCommandPalette'));
 
 interface CommandPaletteContextType {
   isOpen: boolean;
@@ -60,7 +68,11 @@ export function CommandPaletteProvider({ children }: CommandPaletteProviderProps
       }}
     >
       {children}
-      <CommandPalette isOpen={isOpen} onClose={closeCommandPalette} />
+      {isOpen ? (
+        <Suspense fallback={null}>
+          <CommandPalette isOpen={isOpen} onClose={closeCommandPalette} />
+        </Suspense>
+      ) : null}
     </CommandPaletteContext.Provider>
   );
 }

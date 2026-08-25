@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "kind": "documentation-agent-index",
+  "name": "papers",
+  "description": "A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.",
+  "artifacts": [
+    {
+      "id": "llms",
+      "path": "/llms.txt",
+      "contentType": "text/plain",
+      "title": "Concise LLM documentation index",
+      "href": "/llms.txt"
+    },
+    {
+      "id": "llms-full",
+      "path": "/llms-full.txt",
+      "contentType": "text/plain",
+      "title": "Full LLM documentation corpus",
+      "href": "/llms-full.txt"
+    },
+    {
+      "id": "skill",
+      "path": "/skill.md",
+      "contentType": "text/markdown",
+      "title": "Agent integration guidance",
+      "href": "/skill.md"
+    },
+    {
+      "id": "collection",
+      "path": "/docs-collection.json",
+      "contentType": "application/json",
+      "title": "Typed documentation collection manifest",
+      "href": "/docs-collection.json"
+    },
+    {
+      "id": "references",
+      "path": "/docs-references.json",
+      "contentType": "application/json",
+      "title": "Documentation reference graph and backlinks",
+      "href": "/docs-references.json"
+    },
+    {
+      "id": "openapi",
+      "path": "/openapi-artifacts.json",
+      "contentType": "application/json",
+      "title": "Structured OpenAPI operations and schemas",
+      "href": "/openapi-artifacts.json"
+    }
+  ]
+}
