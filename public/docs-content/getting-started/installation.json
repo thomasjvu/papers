@@ -64,5 +64,17 @@
       "line": 66
     }
   ],
+  "links": [
+    {
+      "target": "/docs/user-guide/basic-usage",
+      "line": 65,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/troubleshooting",
+      "line": 66,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/getting-started/installation.md"
 }

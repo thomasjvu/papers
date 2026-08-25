@@ -58,5 +58,22 @@
       "line": 47
     }
   ],
+  "links": [
+    {
+      "target": "/docs/deployment/platforms/cloudflare",
+      "line": 45,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/deployment/platforms/vercel",
+      "line": 46,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/deployment/platforms/netlify",
+      "line": 47,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/deployment/overview.md"
 }

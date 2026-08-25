@@ -73,5 +73,22 @@
       "line": 82
     }
   ],
+  "links": [
+    {
+      "target": "/docs/getting-started/installation",
+      "line": 80,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/configuration",
+      "line": 81,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/deployment/overview",
+      "line": 82,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/getting-started/quick-start.md"
 }

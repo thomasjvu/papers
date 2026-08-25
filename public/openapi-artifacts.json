@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "specs": [
+    {
+      "id": "public",
+      "label": "Public API",
+      "url": "/openapi-v1.yaml",
+      "description": "Sample OpenAPI document for the papers documentation template.",
+      "source": {
+        "kind": "local",
+        "value": "/openapi-v1.yaml"
+      },
+      "title": "papers Example API",
+      "version": "0.1.0",
+      "servers": [
+        {
+          "url": "https://api.example.com"
+        }
+      ],
+      "tags": [],
+      "operations": [
+        {
+          "method": "GET",
+          "path": "/docs",
+          "operationId": null,
+          "summary": "List published docs",
+          "description": "",
+          "tags": ["Docs"],
+          "parameters": [
+            {
+              "name": "limit",
+              "in": "query",
+              "required": false,
+              "description": "Maximum number of paths to return.",
+              "schema": "integer",
+              "example": 20
+            }
+          ],
+          "requestBody": null,
+          "responses": [
+            {
+              "status": "200",
+              "description": "Documentation manifest",
+              "content": [
+                {
+                  "mediaType": "application/json",
+                  "schema": "DocsManifest",
+                  "examples": [
+                    {
+                      "name": "default",
+                      "summary": "A small published manifest",
+                      "value": {
+                        "count": 2,
+                        "paths": ["getting-started/introduction", "api-reference/overview"]
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "method": "GET",
+          "path": "/health",
+          "operationId": null,
+          "summary": "Health check",
+          "description": "",
+          "tags": ["System"],
+          "parameters": [],
+          "requestBody": null,
+          "responses": [
+            {
+              "status": "200",
+              "description": "Service is healthy",
+              "content": []
+            }
+          ]
+        }
+      ],
+      "schemas": [
+        {
+          "name": "DocsManifest",
+          "type": "object",
+          "required": ["count", "paths"],
+          "properties": [
+            {
+              "name": "count",
+              "type": "integer",
+              "required": true,
+              "description": "Number of published documentation pages."
+            },
+            {
+              "name": "paths",
+              "type": "Array<string>",
+              "required": true,
+              "description": "Canonical document paths."
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "operations": 2,
+        "schemas": 1,
+        "tags": 0
+      }
+    },
+    {
+      "id": "internal",
+      "label": "Internal API",
+      "url": "/openapi-internal.yaml",
+      "description": "Second example spec for multi-API OpenAPI explorer configuration.",
+      "source": {
+        "kind": "local",
+        "value": "/openapi-internal.yaml"
+      },
+      "title": "papers Internal API",
+      "version": "0.1.0",
+      "servers": [
+        {
+          "url": "https://internal.example.com"
+        }
+      ],
+      "tags": [],
+      "operations": [
+        {
+          "method": "POST",
+          "path": "/build",
+          "operationId": null,
+          "summary": "Trigger docs build",
+          "description": "",
+          "tags": ["Build"],
+          "parameters": [],
+          "requestBody": {
+            "required": true,
+            "content": [
+              {
+                "mediaType": "application/json",
+                "schema": "BuildRequest",
+                "examples": [
+                  {
+                    "name": "default",
+                    "value": {
+                      "revision": "main"
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          "responses": [
+            {
+              "status": "202",
+              "description": "Build accepted",
+              "content": [
+                {
+                  "mediaType": "application/json",
+                  "schema": "BuildJob",
+                  "examples": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "schemas": [
+        {
+          "name": "BuildJob",
+          "type": "object",
+          "required": ["id", "status"],
+          "properties": [
+            {
+              "name": "id",
+              "type": "string",
+              "required": true
+            },
+            {
+              "name": "status",
+              "type": "\"queued\" | \"running\" | \"complete\"",
+              "required": true
+            }
+          ]
+        },
+        {
+          "name": "BuildRequest",
+          "type": "object",
+          "required": ["revision"],
+          "properties": [
+            {
+              "name": "revision",
+              "type": "string",
+              "required": true,
+              "description": "Git revision to build."
+            }
+          ]
+        }
+      ],
+      "counts": {
+        "operations": 1,
+        "schemas": 2,
+        "tags": 0
+      }
+    }
+  ],
+  "generated": "cdd450f8549c55f4411e06d233bb2defda7a9b098bb4c470b4b1e847b9c226ca"
+}

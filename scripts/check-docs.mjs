@@ -14,6 +14,10 @@ import { buildDocsContentPath } from '../shared/docsRouting.js';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
+import { createContentCollectionManifest } from './lib/contentCollectionManifest.mjs';
+import { createDocumentReferenceGraph } from './lib/referenceGraph.mjs';
+import { createOpenApiArtifacts } from './lib/openapiArtifacts.mjs';
+import { serializePrettierJson } from './lib/formatArtifact.mjs';
 import { assertValidDocumentationContent } from './lib/contentValidation.mjs';
 import {
   GENERATED_DOCS_SOURCE_ENV,
@@ -83,6 +87,19 @@ async function main() {
     }
   }
 
+  const openapiArtifactsPath = join(publicDir, 'openapi-artifacts.json');
+  assert(
+    existsSync(openapiArtifactsPath),
+    'Missing public/openapi-artifacts.json. Run `npm run generate:openapi`.'
+  );
+  const expectedOpenapiArtifacts = await serializePrettierJson(
+    await createOpenApiArtifacts({ rootDir, publicDir, config: openapiConfig })
+  );
+  assert(
+    readFileText(openapiArtifactsPath) === expectedOpenapiArtifacts,
+    'public/openapi-artifacts.json is out of date. Run `npm run generate:openapi`.'
+  );
+
   assert(
     existsSync(docsIndexPath),
     'Missing public/docs-index.json. Run `npm run build` or the generators first.'
@@ -100,6 +117,7 @@ async function main() {
     contentRoot: resolveCollectionContentRoot(docsCollection, rootDir),
     frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
     rootDir,
+    frontmatterSchema: docsCollection.frontmatterSchema,
   });
   const { documents, index } = await createGeneratedDocsArtifacts({
     documentationTree,
@@ -108,6 +126,7 @@ async function main() {
     frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
     previousIndex: existingIndex,
     rootDir,
+    frontmatterSchema: docsCollection.frontmatterSchema,
   });
 
   const expectedIndex = serializeArtifactJson(index);
@@ -115,6 +134,41 @@ async function main() {
   assert(
     actualIndex === expectedIndex,
     'public/docs-index.json is out of date. Run `npm run generate:docs`.'
+  );
+
+  const collectionManifestPath = join(publicDir, 'docs-collection.json');
+  assert(
+    existsSync(collectionManifestPath),
+    'Missing public/docs-collection.json. Run `npm run generate:docs`.'
+  );
+  const expectedCollectionManifest = await serializePrettierJson(
+    createContentCollectionManifest({
+      collection: docsCollection,
+      index,
+      documents,
+    })
+  );
+  assert(
+    readFileText(collectionManifestPath) === expectedCollectionManifest,
+    'public/docs-collection.json is out of date. Run `npm run generate:docs`.'
+  );
+
+  const referencesPath = join(publicDir, 'docs-references.json');
+  assert(
+    existsSync(referencesPath),
+    'Missing public/docs-references.json. Run `npm run generate:docs`.'
+  );
+  const expectedReferences = serializeArtifactJson(
+    createDocumentReferenceGraph({
+      documents,
+      paths: index.paths,
+      documentationTree,
+      generated: index.generated,
+    })
+  );
+  assert(
+    readFileText(referencesPath) === expectedReferences,
+    'public/docs-references.json is out of date. Run `npm run generate:docs`.'
   );
 
   const expectedDocumentKeys = Object.keys(documents).sort();

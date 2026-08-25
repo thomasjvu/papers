@@ -6,6 +6,10 @@ declare module '@app-shared/documentation-config.js' {
     children?: FileItem[];
     expanded?: boolean;
     tags?: string[];
+    description?: string;
+    icon?: string;
+    order?: number;
+    hidden?: boolean;
   }
 
   export interface NavItem {
@@ -136,6 +140,10 @@ declare module '*/shared/documentation-config.js' {
     children?: FileItem[];
     expanded?: boolean;
     tags?: string[];
+    description?: string;
+    icon?: string;
+    order?: number;
+    hidden?: boolean;
   }
 
   export interface NavItem {

@@ -10,6 +10,36 @@ paths:
     post:
       summary: Trigger docs build
       tags: [Build]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuildRequest'
+            example:
+              revision: main
       responses:
         '202':
           description: Build accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuildJob'
+components:
+  schemas:
+    BuildRequest:
+      type: object
+      required: [revision]
+      properties:
+        revision:
+          type: string
+          description: Git revision to build.
+    BuildJob:
+      type: object
+      required: [id, status]
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, complete]

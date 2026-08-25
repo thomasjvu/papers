@@ -96,6 +96,7 @@ export async function buildVariantDocuments(docPaths, options = {}) {
             locale: context.locale,
             versionConfig: options.versionConfig,
             i18nConfig: options.i18nConfig,
+            frontmatterSchema: options.frontmatterSchema,
           })
         );
       } catch (error) {
@@ -133,6 +134,7 @@ export async function createGeneratedDocsArtifacts(options = {}) {
     ...options,
     documentationTree,
     frameworkDocPaths,
+    frontmatterSchema: options.frontmatterSchema,
   });
   const { documents, defaultDocsByPath, defaultSourcePathsByPath } = await buildVariantDocuments(
     docPaths,

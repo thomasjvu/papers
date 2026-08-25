@@ -6,6 +6,12 @@ Fetches and caches `/docs-index.json` for the current session.
 
 Use it when you need the generated manifest without loading a specific page.
 
+## `getDocumentBacklinks(path)`
+
+Reads the generated `/docs-references.json` graph and returns the pages that
+link to the requested document. The docs page uses this to render a compact
+`Referenced by` section below the article.
+
 ## `getDocument(path)`
 
 Loads one generated document from `/docs-content/...`.

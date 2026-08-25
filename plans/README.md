@@ -8,17 +8,18 @@ verification gate, and update the status row below when complete.
 
 ## Execution order & status
 
-| Plan | Title                                                   | Priority | Effort | Depends on    | Status                                          |
-| ---- | ------------------------------------------------------- | -------- | ------ | ------------- | ----------------------------------------------- |
-| 001  | Restore a trustworthy verification baseline             | P0       | M      | —             | DONE                                            |
-| 002  | Make routes and published HTML obey one contract        | P0       | M      | 001           | BLOCKED — live host mismatch; no Vercel preview |
-| 003  | Make the content pipeline deterministic and validated   | P1       | L      | 001, 002      | DONE                                            |
-| 004  | Harden dependencies, CSP, and preview deployment        | P1       | M      | 001, 002      | DONE — local URL/CSP/sanitizer gates complete   |
-| 005  | Productize the template and enforce performance budgets | P2       | L      | 001–004       | DONE — local asset/browser/Lighthouse gates     |
-| 006  | Make post-promotion release truth authoritative         | P0       | M      | 002, 004      | BLOCKED — Cloudflare credentials/owned host     |
-| 007  | Complete the content security boundary                  | P0       | M      | 004, 006      | DONE — local content security boundary          |
-| 008  | Choose a content-source strategy                        | P2       | M      | 003, 005, 007 | DONE — native direction recorded                |
-| 009  | Add a maintainer and agent operating contract           | P2       | S      | 006           | DONE — AGENTS.md and contributor contract       |
+| Plan | Title                                                   | Priority | Effort | Depends on    | Status                                                 |
+| ---- | ------------------------------------------------------- | -------- | ------ | ------------- | ------------------------------------------------------ |
+| 001  | Restore a trustworthy verification baseline             | P0       | M      | —             | DONE                                                   |
+| 002  | Make routes and published HTML obey one contract        | P0       | M      | 001           | BLOCKED — live host mismatch; no Vercel preview        |
+| 003  | Make the content pipeline deterministic and validated   | P1       | L      | 001, 002      | DONE                                                   |
+| 004  | Harden dependencies, CSP, and preview deployment        | P1       | M      | 001, 002      | DONE — local URL/CSP/sanitizer gates complete          |
+| 005  | Productize the template and enforce performance budgets | P2       | L      | 001–004       | DONE — local asset/browser/Lighthouse gates            |
+| 006  | Make post-promotion release truth authoritative         | P0       | M      | 002, 004      | BLOCKED — Cloudflare credentials/owned host            |
+| 007  | Complete the content security boundary                  | P0       | M      | 004, 006      | DONE — local content security boundary                 |
+| 008  | Choose a content-source strategy                        | P2       | M      | 003, 005, 007 | DONE — native direction recorded                       |
+| 009  | Add a maintainer and agent operating contract           | P2       | S      | 006           | DONE — AGENTS.md and contributor contract              |
+| 010  | Ship native Fumadocs-parity content/API artifacts       | P1       | L      | 008, 009      | DONE — typed collections, backlinks, OpenAPI artifacts |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED (with one-line
 reason)` | `REJECTED (with one-line rationale)`.
@@ -54,15 +55,18 @@ reason)` | `REJECTED (with one-line rationale)`.
   capabilities without committing to a framework rewrite.
 - Plan 009 is small DX work that can follow the release contract and should
   keep future execution passes from relying on hidden conversational context.
+- Plan 010 closes the two native parity milestones recorded in ADR 001 without
+  changing the static route contract. It remains separate from the blocked
+  owned-host proof in Plan 006.
 
 ## Audit verdict in one sentence
 
 The local execution pass has closed the release-identity, security-boundary,
-template, asset, browser, strategy, and maintainer gaps. `papers` is still not
-production-ready until Plan 006 proves an owned deployed host, and it is not
-yet on par with Fumadocs as a general-purpose content framework: typed
-collections and deeper OpenAPI generation remain explicit follow-up milestones
-in `docs/decisions/001-content-engine.md`.
+template, asset, browser, strategy, maintainer, typed-collection, reference,
+and OpenAPI-artifact gaps. `papers` is still not production-ready until Plan
+006 proves an owned deployed host and the production Vite/browser ladder is
+green. It is now closer to Fumadocs on the project-relevant content contract,
+but not equivalent to the full Fumadocs ecosystem or API playground surface.
 
 ## Findings considered and rejected
 

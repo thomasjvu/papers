@@ -157,6 +157,15 @@ async function main() {
   await fetchWithRetry('/robots.txt');
   await fetchWithRetry('/sitemap.xml');
   await fetchWithRetry('/llms.txt');
+  const docsCollectionResponse = await fetchWithRetry('/docs-collection.json');
+  const docsCollection = JSON.parse(docsCollectionResponse.body);
+  assert(docsCollection.schemaVersion === 1, 'Deployed typed collection manifest is invalid.');
+  const docsReferencesResponse = await fetchWithRetry('/docs-references.json');
+  const docsReferences = JSON.parse(docsReferencesResponse.body);
+  assert(docsReferences.schemaVersion === 1, 'Deployed docs reference graph is invalid.');
+  const openapiArtifactsResponse = await fetchWithRetry('/openapi-artifacts.json');
+  const openapiArtifacts = JSON.parse(openapiArtifactsResponse.body);
+  assert(openapiArtifacts.schemaVersion === 1, 'Deployed OpenAPI artifacts are invalid.');
 
   if (openapiConfig.enabled) {
     await fetchWithRetry(

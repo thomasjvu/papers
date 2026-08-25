@@ -1,4 +1,5 @@
 import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { documentFrontmatterSchema } from '../../shared/contentSchema.js';
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
 import { compileMdxToHtml, isMdxSourcePath } from './mdxCompile.mjs';
 
@@ -22,8 +23,6 @@ import { compileMdxToHtml, isMdxSourcePath } from './mdxCompile.mjs';
 function stripUtf8Bom(content) {
   return content.replace(/^\uFEFF/, '');
 }
-
-const FRONTMATTER_KEYS = new Set(['title', 'description', 'tags']);
 
 function getFrontmatterError(message, lineNumber) {
   const error = new Error(`Frontmatter line ${lineNumber}: ${message}`);
@@ -78,11 +77,39 @@ function parseStringScalar(value, lineNumber, key) {
   return normalized;
 }
 
-function splitArrayValues(value, lineNumber) {
+function parseBooleanScalar(value, lineNumber, key) {
+  const normalized = value.trim().toLowerCase();
+
+  if (normalized !== 'true' && normalized !== 'false') {
+    throw getFrontmatterError(`${key} must be true or false.`, lineNumber);
+  }
+
+  return normalized === 'true';
+}
+
+function parseNumberScalar(value, lineNumber, key, schema) {
+  const normalized = value.trim();
+
+  if (!normalized || normalized.startsWith('"') || normalized.startsWith("'")) {
+    throw getFrontmatterError(`${key} must be an unquoted number.`, lineNumber);
+  }
+
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || (schema.integer && !Number.isInteger(parsed))) {
+    throw getFrontmatterError(
+      `${key} must be a finite${schema.integer ? ' integer' : ''} number.`,
+      lineNumber
+    );
+  }
+
+  return parsed;
+}
+
+function splitArrayValues(value, lineNumber, key) {
   const normalized = value.trim();
 
   if (!normalized.startsWith('[') || !normalized.endsWith(']')) {
-    throw getFrontmatterError('tags must be an inline array of strings.', lineNumber);
+    throw getFrontmatterError(`${key} must be an inline array of strings.`, lineNumber);
   }
 
   const inner = normalized.slice(1, -1).trim();
@@ -97,7 +124,7 @@ function splitArrayValues(value, lineNumber) {
   const pushValue = () => {
     const item = current.trim();
     if (!item) {
-      throw getFrontmatterError('tags cannot contain an empty item.', lineNumber);
+      throw getFrontmatterError(`${key} cannot contain an empty item.`, lineNumber);
     }
 
     const parsed = item.startsWith('"') || item.startsWith("'")
@@ -105,11 +132,11 @@ function splitArrayValues(value, lineNumber) {
       : item;
 
     if (!parsed || /^(?:true|false|null|~|[-+]?\d+(?:\.\d+)?)$/i.test(parsed)) {
-      throw getFrontmatterError('tags must contain only string values.', lineNumber);
+      throw getFrontmatterError(`${key} must contain only string values.`, lineNumber);
     }
 
     if (!item.startsWith('\u0022') && !item.startsWith("'") && /[\u0022']/.test(item)) {
-      throw getFrontmatterError('tags contains an unmatched quote.', lineNumber);
+      throw getFrontmatterError(`${key} contains an unmatched quote.`, lineNumber);
     }
 
     values.push(parsed);
@@ -147,14 +174,29 @@ function splitArrayValues(value, lineNumber) {
   }
 
   if (quote) {
-    throw getFrontmatterError('tags contains an unclosed quote.', lineNumber);
+    throw getFrontmatterError(`${key} contains an unclosed quote.`, lineNumber);
   }
 
   pushValue();
   return values;
 }
 
-export function parseFrontmatter(content) {
+function parseFrontmatterValue(key, rawValue, lineNumber, schema) {
+  switch (schema.type) {
+    case 'string':
+      return parseStringScalar(rawValue, lineNumber, key);
+    case 'string[]':
+      return splitArrayValues(rawValue, lineNumber, key);
+    case 'boolean':
+      return parseBooleanScalar(rawValue, lineNumber, key);
+    case 'number':
+      return parseNumberScalar(rawValue, lineNumber, key, schema);
+    default:
+      throw getFrontmatterError(`unsupported schema type for ${key}.`, lineNumber);
+  }
+}
+
+export function parseFrontmatter(content, schema = documentFrontmatterSchema) {
   const normalized = stripUtf8Bom(content);
   const startsWithFrontmatter = /^---\r?\n/.test(normalized);
 
@@ -192,9 +234,9 @@ export function parseFrontmatter(content) {
     }
 
     const [, key, rawValue = ''] = match;
-    if (!FRONTMATTER_KEYS.has(key)) {
+    if (!Object.hasOwn(schema, key)) {
       throw getFrontmatterError(
-        `unsupported key "${key}"; supported keys are title, description, and tags.`,
+        `unsupported key "${key}"; supported keys are ${Object.keys(schema).join(', ')}.`,
         index + 1
       );
     }
@@ -203,21 +245,7 @@ export function parseFrontmatter(content) {
       throw getFrontmatterError(`duplicate key "${key}".`, index + 1);
     }
 
-    frontmatter[key] = key === 'tags'
-      ? splitArrayValues(rawValue, index + 1)
-      : parseStringScalar(rawValue, index + 1, key);
-  }
-
-  if (typeof frontmatter.title !== 'undefined' && typeof frontmatter.title !== 'string') {
-    throw getFrontmatterError('title must be a string.', 1);
-  }
-
-  if (typeof frontmatter.description !== 'undefined' && typeof frontmatter.description !== 'string') {
-    throw getFrontmatterError('description must be a string.', 1);
-  }
-
-  if (typeof frontmatter.tags !== 'undefined' && !Array.isArray(frontmatter.tags)) {
-    throw getFrontmatterError('tags must be an array of strings.', 1);
+    frontmatter[key] = parseFrontmatterValue(key, rawValue, index + 1, schema[key]);
   }
 
   return {
@@ -331,8 +359,8 @@ function slugifyHeading(value) {
 }
 
 /** Build the stable heading TOC used by route/link validation and page UI. */
-export function createDocumentToc(content) {
-  const { body } = parseFrontmatter(content);
+export function createDocumentToc(content, schema = documentFrontmatterSchema) {
+  const { body } = parseFrontmatter(content, schema);
   const lines = body.split(/\r?\n/);
   const seenIds = new Map();
   const toc = [];
@@ -427,13 +455,14 @@ function getTitleFromBody(docPath, body) {
   return titleMatch ? titleMatch[1].trim() : docPath.split('/').pop() || docPath;
 }
 
-export function extractTopLevelTitle(docPath, content) {
-  const { body, frontmatter } = parseFrontmatter(content);
+export function extractTopLevelTitle(docPath, content, schema = documentFrontmatterSchema) {
+  const { body, frontmatter } = parseFrontmatter(content, schema);
   return frontmatter.title || getTitleFromBody(docPath, body);
 }
 
 export function createDocumentArtifact(docPath, rawContent, sourcePath, options = {}) {
-  const { body, frontmatter } = parseFrontmatter(rawContent);
+  const frontmatterSchema = options.frontmatterSchema || documentFrontmatterSchema;
+  const { body, frontmatter } = parseFrontmatter(rawContent, frontmatterSchema);
   const content = stripUtf8Bom(body);
   const description = frontmatter.description || extractDescriptionFromMarkdown(content);
   const title = frontmatter.title || getTitleFromBody(docPath, content);
@@ -446,7 +475,7 @@ export function createDocumentArtifact(docPath, rawContent, sourcePath, options 
     frontmatter,
     content,
     contentFormat,
-    toc: createDocumentToc(rawContent),
+    toc: createDocumentToc(rawContent, frontmatterSchema),
     metadata: createDocumentMetadata({
       docPath,
       title,
@@ -456,6 +485,7 @@ export function createDocumentArtifact(docPath, rawContent, sourcePath, options 
       ...options,
     }),
     references: extractDocumentReferences(rawContent),
+    links: extractDocumentLinks(rawContent),
     ...(sourcePath
       ? {
           sourcePath,

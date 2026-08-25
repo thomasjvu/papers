@@ -24,7 +24,26 @@ npm run build
 Writes:
 
 - `public/docs-index.json`
+- `public/docs-collection.json` — typed native collection metadata and navigation
+- `public/docs-references.json` — deterministic internal link graph and backlinks
 - `public/docs-content/**/*.json`
+
+Frontmatter is validated against `shared/contentSchema.js`. The supported
+fields are typed `title`, `description`, `tags`, `keywords`, `icon`, `order`,
+`draft`, `toc`, `full`, and `sidebar` values. A malformed or unsupported field
+fails the build with its source line number.
+
+The collection manifest is additive to `docs-index.json`, so existing static
+hosts and runtime consumers keep their small index contract while tooling can
+use typed entries, source metadata, and the navigation tree.
+
+### `scripts/generate-openapi-artifacts.mjs`
+
+Writes `public/openapi-artifacts.json` from configured local OpenAPI assets.
+The artifact extracts operations, parameters, request bodies, responses,
+examples, tags, servers, and component schemas for the API overview UI. Local
+specs are parsed during the build; allowlisted remote specs remain Scalar
+runtime sources and are never fetched by the build.
 
 ### `scripts/generate-seo.mjs`
 
@@ -71,6 +90,10 @@ That is how code fences, live previews, color palettes, and wallet copy blocks s
 ## Generated Output Shape
 
 The manifest contains lightweight page metadata. Each page is stored separately as JSON under `public/docs-content/`, so the app can fetch one page at a time instead of loading the full corpus up front.
+
+The reference graph is also consumed at runtime to show which documentation
+pages link to the current page. Link validation and graph extraction share the
+same parser, so diagnostics and backlinks cannot silently diverge.
 
 ## Metadata Rules
 

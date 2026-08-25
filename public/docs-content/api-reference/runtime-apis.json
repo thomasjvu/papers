@@ -3,7 +3,7 @@
   "title": "Runtime APIs",
   "description": "Fetches and caches /docs-index.json for the current session.",
   "frontmatter": {},
-  "content": "# Runtime APIs\n\n## `loadDocsContent()`\n\nFetches and caches `/docs-index.json` for the current session.\n\nUse it when you need the generated manifest without loading a specific page.\n\n## `getDocument(path)`\n\nLoads one generated document from `/docs-content/...`.\n\n```ts\nimport { getDocument } from '../src/lib/content';\n\nconst doc = await getDocument('deployment/overview');\n```\n\n## `resolveDocumentPath(slug)`\n\nMaps route slugs to the actual page path.\n\nThat is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.\n\n## `clearContentCache()`\n\nClears the in-memory docs manifest and page cache.\n\nUseful in tests or when you intentionally want a fresh fetch cycle.\n\n## Navigation Helpers\n\n`src/lib/navigation.ts` also exposes small helpers such as:\n\n- `flattenNavigation()`\n- `findAdjacentPages()`\n- `findPageTags()`\n\nThese are useful when you want derived data from the shared docs tree.\n\n## `usePagefind()`\n\nLoads the Pagefind browser bundle once and returns normalized search results.\n\n```ts\nconst { search, isAvailable, isLoading } = usePagefind();\n```\n\n## `useTheme()`\n\nExposes:\n\n- `isDarkMode`\n- `toggleTheme()`\n- `prefersReducedMotion`\n- `toggleReducedMotion()`\n- `fontFamily`\n- `setFontFamily()`\n\nThe UI uses this provider for the settings menu, keyboard shortcut, and font cycling.\n\n## Notes\n\nThese APIs are intentionally small. The template stays mostly configuration-driven instead of wrapping everything in a large abstraction layer.\n",
+  "content": "# Runtime APIs\n\n## `loadDocsContent()`\n\nFetches and caches `/docs-index.json` for the current session.\n\nUse it when you need the generated manifest without loading a specific page.\n\n## `getDocumentBacklinks(path)`\n\nReads the generated `/docs-references.json` graph and returns the pages that\nlink to the requested document. The docs page uses this to render a compact\n`Referenced by` section below the article.\n\n## `getDocument(path)`\n\nLoads one generated document from `/docs-content/...`.\n\n```ts\nimport { getDocument } from '../src/lib/content';\n\nconst doc = await getDocument('deployment/overview');\n```\n\n## `resolveDocumentPath(slug)`\n\nMaps route slugs to the actual page path.\n\nThat is why `/docs/getting-started` can resolve to `/docs/getting-started/introduction`.\n\n## `clearContentCache()`\n\nClears the in-memory docs manifest and page cache.\n\nUseful in tests or when you intentionally want a fresh fetch cycle.\n\n## Navigation Helpers\n\n`src/lib/navigation.ts` also exposes small helpers such as:\n\n- `flattenNavigation()`\n- `findAdjacentPages()`\n- `findPageTags()`\n\nThese are useful when you want derived data from the shared docs tree.\n\n## `usePagefind()`\n\nLoads the Pagefind browser bundle once and returns normalized search results.\n\n```ts\nconst { search, isAvailable, isLoading } = usePagefind();\n```\n\n## `useTheme()`\n\nExposes:\n\n- `isDarkMode`\n- `toggleTheme()`\n- `prefersReducedMotion`\n- `toggleReducedMotion()`\n- `fontFamily`\n- `setFontFamily()`\n\nThe UI uses this provider for the settings menu, keyboard shortcut, and font cycling.\n\n## Notes\n\nThese APIs are intentionally small. The template stays mostly configuration-driven instead of wrapping everything in a large abstraction layer.\n",
   "contentFormat": "markdown",
   "toc": [
     {
@@ -15,6 +15,11 @@
       "depth": 2,
       "id": "loaddocscontent",
       "text": "loadDocsContent()"
+    },
+    {
+      "depth": 2,
+      "id": "getdocumentbacklinks-path",
+      "text": "getDocumentBacklinks(path)"
     },
     {
       "depth": 2,
@@ -60,5 +65,6 @@
     "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
   },
   "references": [],
+  "links": [],
   "sourcePath": "src/docs/content/api-reference/runtime-apis.md"
 }

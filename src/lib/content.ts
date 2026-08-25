@@ -21,6 +21,13 @@ export interface Document {
   contentFormat?: DocumentContentFormat;
 }
 
+export interface DocumentBacklink {
+  source: string;
+  href: string;
+  line: number;
+  anchor?: string;
+}
+
 export interface DocumentVariantOptions {
   version?: string | null;
   locale?: string | null;
@@ -43,7 +50,13 @@ interface GeneratedDocumentResponse {
   contentFormat?: DocumentContentFormat;
 }
 
+interface DocumentReferenceGraphResponse {
+  schemaVersion: number;
+  backlinks?: Record<string, DocumentBacklink[]>;
+}
+
 let cachedContent: DocsIndexResponse | null = null;
+let cachedReferenceGraph: DocumentReferenceGraphResponse | null = null;
 const cachedDocuments = new Map<string, Document | null>();
 const pendingDocuments = new Map<string, Promise<Document | null>>();
 
@@ -70,6 +83,34 @@ export async function loadDocsContent(): Promise<DocsIndexResponse> {
       titles: {},
     };
   }
+}
+
+async function loadDocumentReferenceGraph(): Promise<DocumentReferenceGraphResponse | null> {
+  if (cachedReferenceGraph) {
+    return cachedReferenceGraph;
+  }
+
+  try {
+    const response = await fetch('/docs-references.json');
+    if (!response.ok) {
+      return null;
+    }
+
+    const graph = (await response.json()) as DocumentReferenceGraphResponse;
+    if (graph.schemaVersion !== 1 || !graph.backlinks) {
+      return null;
+    }
+
+    cachedReferenceGraph = graph;
+    return graph;
+  } catch {
+    return null;
+  }
+}
+
+export async function getDocumentBacklinks(path: string): Promise<DocumentBacklink[]> {
+  const graph = await loadDocumentReferenceGraph();
+  return graph?.backlinks?.[path] || [];
 }
 
 function getDocumentAssetKey(path: string, options: DocumentVariantOptions = {}): string {
@@ -180,6 +221,7 @@ export async function getDocument(
 
 export function clearContentCache(): void {
   cachedContent = null;
+  cachedReferenceGraph = null;
   cachedDocuments.clear();
   pendingDocuments.clear();
 }

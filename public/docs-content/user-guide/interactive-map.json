@@ -54,5 +54,17 @@
       "line": 33
     }
   ],
+  "links": [
+    {
+      "target": "/docs/user-guide/basic-usage",
+      "line": 32,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/configuration",
+      "line": 33,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/user-guide/interactive-map.md"
 }

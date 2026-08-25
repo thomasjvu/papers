@@ -54,5 +54,17 @@
       "line": 43
     }
   ],
+  "links": [
+    {
+      "target": "/docs/api-reference/content-pipeline",
+      "line": 42,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/api-reference/runtime-apis",
+      "line": 43,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/api-reference/overview.md"
 }

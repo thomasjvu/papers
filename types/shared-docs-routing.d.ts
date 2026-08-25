@@ -121,6 +121,10 @@ declare module '*/shared/docsRouting.js' {
     children?: ContentCollectionTreeItem[];
     expanded?: boolean;
     tags?: string[];
+    description?: string;
+    icon?: string;
+    order?: number;
+    hidden?: boolean;
   }
 
   export interface ContentCollection {
@@ -130,6 +134,8 @@ declare module '*/shared/docsRouting.js' {
     contentDir: string;
     tree: ContentCollectionTreeItem[];
     description?: string;
+    schemaVersion?: number;
+    frontmatterSchema?: Record<string, { type: string; integer?: boolean }>;
   }
 
   export function buildCollectionRoutePath(

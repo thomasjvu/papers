@@ -4,6 +4,7 @@
  */
 
 import { documentationTree } from './documentation-config.js';
+import { documentFrontmatterSchema, DOCUMENT_FRONTMATTER_SCHEMA_VERSION } from './contentSchema.js';
 
 /** @type {import('./docsRouting.js').ContentCollection[]} */
 export const contentCollections = [
@@ -14,6 +15,8 @@ export const contentCollections = [
     contentDir: 'src/docs/content',
     tree: documentationTree,
     description: 'Primary documentation tree',
+    schemaVersion: DOCUMENT_FRONTMATTER_SCHEMA_VERSION,
+    frontmatterSchema: documentFrontmatterSchema,
   },
 ];
 

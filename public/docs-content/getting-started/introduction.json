@@ -58,5 +58,22 @@
       "line": 50
     }
   ],
+  "links": [
+    {
+      "target": "/docs/getting-started/quick-start",
+      "line": 48,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/getting-started/installation",
+      "line": 49,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/basic-usage",
+      "line": 50,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/getting-started/introduction.md"
 }

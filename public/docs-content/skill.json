@@ -45,5 +45,12 @@
       "line": 28
     }
   ],
+  "links": [
+    {
+      "target": "/docs/llms",
+      "line": 28,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/skill.md"
 }

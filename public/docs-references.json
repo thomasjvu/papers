@@ -1,0 +1,516 @@
+{
+  "schemaVersion": 1,
+  "generated": "2026-07-05T21:54:23.877Z",
+  "collection": "docs",
+  "nodes": [
+    {
+      "path": "getting-started/introduction",
+      "href": "/docs/getting-started/introduction",
+      "title": "Introduction",
+      "description": "papers is a static docs template for teams that want a polished documentation site without adding a CMS or backend first."
+    },
+    {
+      "path": "getting-started/quick-start",
+      "href": "/docs/getting-started/quick-start",
+      "title": "Quick Start",
+      "description": "Use this path if you want your own docs site running quickly with the least amount of ceremony."
+    },
+    {
+      "path": "getting-started/installation",
+      "href": "/docs/getting-started/installation",
+      "title": "Installation",
+      "description": "Node.js 18 or newer npm 9 or newer"
+    },
+    {
+      "path": "user-guide/basic-usage",
+      "href": "/docs/user-guide/basic-usage",
+      "title": "Basic Usage",
+      "description": "The day-to-day workflow is simple: edit content, regenerate docs output, preview locally, then ship a static build."
+    },
+    {
+      "path": "user-guide/advanced-features",
+      "href": "/docs/user-guide/advanced-features",
+      "title": "Advanced Features",
+      "description": "papers ships with more than plain Markdown rendering."
+    },
+    {
+      "path": "user-guide/configuration",
+      "href": "/docs/user-guide/configuration",
+      "title": "Configuration",
+      "description": "Most customization happens in a small set of files."
+    },
+    {
+      "path": "user-guide/troubleshooting",
+      "href": "/docs/user-guide/troubleshooting",
+      "title": "Troubleshooting",
+      "description": "The app reads generated JSON, not raw Markdown directly."
+    },
+    {
+      "path": "user-guide/command-palette",
+      "href": "/docs/user-guide/command-palette",
+      "title": "Command Palette",
+      "description": "The command palette is the fastest way to move through the site."
+    },
+    {
+      "path": "user-guide/interactive-map",
+      "href": "/docs/user-guide/interactive-map",
+      "title": "Interactive Map",
+      "description": "The interactive map renders the documentation tree as a graph in the right rail."
+    },
+    {
+      "path": "api-reference/overview",
+      "href": "/docs/api-reference/overview",
+      "title": "API Reference Overview",
+      "description": "This section covers the internal runtime and build APIs that power the template."
+    },
+    {
+      "path": "api-reference/content-pipeline",
+      "href": "/docs/api-reference/content-pipeline",
+      "title": "Content Pipeline",
+      "description": "The content pipeline turns Markdown source files into static artifacts the app can load directly."
+    },
+    {
+      "path": "api-reference/runtime-apis",
+      "href": "/docs/api-reference/runtime-apis",
+      "title": "Runtime APIs",
+      "description": "Fetches and caches /docs-index.json for the current session."
+    },
+    {
+      "path": "api-reference/openapi",
+      "href": "/docs/api-reference/openapi",
+      "title": "OpenAPI Explorer",
+      "description": "Interactive OpenAPI reference powered by Scalar."
+    },
+    {
+      "path": "developer-guides/code-examples",
+      "href": "/docs/developer-guides/code-examples",
+      "title": "Code Examples",
+      "description": "This page shows the main authoring patterns supported by the current runtime."
+    },
+    {
+      "path": "developer-guides/best-practices",
+      "href": "/docs/developer-guides/best-practices",
+      "title": "Best Practices",
+      "description": "Treat shared/documentation-config.js as the source of truth for navigation."
+    },
+    {
+      "path": "developer-guides/design-system",
+      "href": "/docs/developer-guides/design-system",
+      "title": "Design System",
+      "description": "The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven."
+    },
+    {
+      "path": "developer-guides/ui-configuration",
+      "href": "/docs/developer-guides/ui-configuration",
+      "title": "UI Configuration",
+      "description": "The docs shell is mostly configured through a few focused files."
+    },
+    {
+      "path": "developer-guides/icon-customization",
+      "href": "/docs/developer-guides/icon-customization",
+      "title": "Icon Customization",
+      "description": "The app uses Iconify for most UI icons and a small amount of custom SVG usage when you want full control."
+    },
+    {
+      "path": "developer-guides/themes",
+      "href": "/docs/developer-guides/themes",
+      "title": "Themes",
+      "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell."
+    },
+    {
+      "path": "developer-guides/character-notes",
+      "href": "/docs/developer-guides/character-notes",
+      "title": "Character Notes",
+      "description": "MDX shortcode for character notifications in documentation articles."
+    },
+    {
+      "path": "deployment/overview",
+      "href": "/docs/deployment/overview",
+      "title": "Deployment Overview",
+      "description": "papers builds to a static site with route-specific HTML output."
+    },
+    {
+      "path": "deployment/production-setup",
+      "href": "/docs/deployment/production-setup",
+      "title": "Production Setup",
+      "description": "Before you ship, set the values users and crawlers should actually see. You can provide them through .env.local, .env.production, or your host's build..."
+    },
+    {
+      "path": "deployment/platforms/cloudflare",
+      "href": "/docs/deployment/platforms/cloudflare",
+      "title": "Cloudflare Pages",
+      "description": "Use these values in Cloudflare Pages:"
+    },
+    {
+      "path": "deployment/platforms/vercel",
+      "href": "/docs/deployment/platforms/vercel",
+      "title": "Vercel",
+      "description": "When importing the repo, use:"
+    },
+    {
+      "path": "deployment/platforms/netlify",
+      "href": "/docs/deployment/platforms/netlify",
+      "title": "Netlify",
+      "description": "Use these values in Netlify:"
+    },
+    {
+      "path": "llms",
+      "href": "/docs/llms",
+      "title": "LLMs.txt",
+      "description": "This template generates AI-facing text exports from the docs corpus."
+    },
+    {
+      "path": "skill",
+      "href": "/docs/skill",
+      "title": "Agent Skill",
+      "description": "Host an agent skill file at /skill.md so coding agents can load integration instructions without crawling the full docs UI."
+    }
+  ],
+  "edges": [
+    {
+      "source": "api-reference/content-pipeline",
+      "target": "api-reference/runtime-apis",
+      "href": "/docs/api-reference/runtime-apis",
+      "line": 137
+    },
+    {
+      "source": "api-reference/content-pipeline",
+      "target": "developer-guides/code-examples",
+      "href": "/docs/developer-guides/code-examples",
+      "line": 138
+    },
+    {
+      "source": "api-reference/overview",
+      "target": "api-reference/content-pipeline",
+      "href": "/docs/api-reference/content-pipeline",
+      "line": 42
+    },
+    {
+      "source": "api-reference/overview",
+      "target": "api-reference/runtime-apis",
+      "href": "/docs/api-reference/runtime-apis",
+      "line": 43
+    },
+    {
+      "source": "deployment/overview",
+      "target": "deployment/platforms/cloudflare",
+      "href": "/docs/deployment/platforms/cloudflare",
+      "line": 45
+    },
+    {
+      "source": "deployment/overview",
+      "target": "deployment/platforms/netlify",
+      "href": "/docs/deployment/platforms/netlify",
+      "line": 47
+    },
+    {
+      "source": "deployment/overview",
+      "target": "deployment/platforms/vercel",
+      "href": "/docs/deployment/platforms/vercel",
+      "line": 46
+    },
+    {
+      "source": "developer-guides/ui-configuration",
+      "target": "developer-guides/themes",
+      "href": "/docs/developer-guides/themes",
+      "line": 30
+    },
+    {
+      "source": "getting-started/installation",
+      "target": "user-guide/basic-usage",
+      "href": "/docs/user-guide/basic-usage",
+      "line": 65
+    },
+    {
+      "source": "getting-started/installation",
+      "target": "user-guide/troubleshooting",
+      "href": "/docs/user-guide/troubleshooting",
+      "line": 66
+    },
+    {
+      "source": "getting-started/introduction",
+      "target": "getting-started/installation",
+      "href": "/docs/getting-started/installation",
+      "line": 49
+    },
+    {
+      "source": "getting-started/introduction",
+      "target": "getting-started/quick-start",
+      "href": "/docs/getting-started/quick-start",
+      "line": 48
+    },
+    {
+      "source": "getting-started/introduction",
+      "target": "user-guide/basic-usage",
+      "href": "/docs/user-guide/basic-usage",
+      "line": 50
+    },
+    {
+      "source": "getting-started/quick-start",
+      "target": "deployment/overview",
+      "href": "/docs/deployment/overview",
+      "line": 82
+    },
+    {
+      "source": "getting-started/quick-start",
+      "target": "getting-started/installation",
+      "href": "/docs/getting-started/installation",
+      "line": 80
+    },
+    {
+      "source": "getting-started/quick-start",
+      "target": "user-guide/configuration",
+      "href": "/docs/user-guide/configuration",
+      "line": 81
+    },
+    {
+      "source": "skill",
+      "target": "llms",
+      "href": "/docs/llms",
+      "line": 28
+    },
+    {
+      "source": "user-guide/advanced-features",
+      "target": "user-guide/configuration",
+      "href": "/docs/user-guide/configuration",
+      "line": 51
+    },
+    {
+      "source": "user-guide/basic-usage",
+      "target": "user-guide/command-palette",
+      "href": "/docs/user-guide/command-palette",
+      "line": 65
+    },
+    {
+      "source": "user-guide/basic-usage",
+      "target": "user-guide/interactive-map",
+      "href": "/docs/user-guide/interactive-map",
+      "line": 66
+    },
+    {
+      "source": "user-guide/basic-usage",
+      "target": "user-guide/troubleshooting",
+      "href": "/docs/user-guide/troubleshooting",
+      "line": 67
+    },
+    {
+      "source": "user-guide/command-palette",
+      "target": "user-guide/advanced-features",
+      "href": "/docs/user-guide/advanced-features",
+      "line": 36
+    },
+    {
+      "source": "user-guide/command-palette",
+      "target": "user-guide/basic-usage",
+      "href": "/docs/user-guide/basic-usage",
+      "line": 37
+    },
+    {
+      "source": "user-guide/configuration",
+      "target": "developer-guides/design-system",
+      "href": "/docs/developer-guides/design-system",
+      "line": 58
+    },
+    {
+      "source": "user-guide/configuration",
+      "target": "developer-guides/ui-configuration",
+      "href": "/docs/developer-guides/ui-configuration",
+      "line": 57
+    },
+    {
+      "source": "user-guide/interactive-map",
+      "target": "user-guide/basic-usage",
+      "href": "/docs/user-guide/basic-usage",
+      "line": 32
+    },
+    {
+      "source": "user-guide/interactive-map",
+      "target": "user-guide/configuration",
+      "href": "/docs/user-guide/configuration",
+      "line": 33
+    }
+  ],
+  "backlinks": {
+    "getting-started/introduction": [],
+    "getting-started/quick-start": [
+      {
+        "source": "getting-started/introduction",
+        "href": "/docs/getting-started/introduction",
+        "line": 48
+      }
+    ],
+    "getting-started/installation": [
+      {
+        "source": "getting-started/introduction",
+        "href": "/docs/getting-started/introduction",
+        "line": 49
+      },
+      {
+        "source": "getting-started/quick-start",
+        "href": "/docs/getting-started/quick-start",
+        "line": 80
+      }
+    ],
+    "user-guide/basic-usage": [
+      {
+        "source": "getting-started/installation",
+        "href": "/docs/getting-started/installation",
+        "line": 65
+      },
+      {
+        "source": "getting-started/introduction",
+        "href": "/docs/getting-started/introduction",
+        "line": 50
+      },
+      {
+        "source": "user-guide/command-palette",
+        "href": "/docs/user-guide/command-palette",
+        "line": 37
+      },
+      {
+        "source": "user-guide/interactive-map",
+        "href": "/docs/user-guide/interactive-map",
+        "line": 32
+      }
+    ],
+    "user-guide/advanced-features": [
+      {
+        "source": "user-guide/command-palette",
+        "href": "/docs/user-guide/command-palette",
+        "line": 36
+      }
+    ],
+    "user-guide/configuration": [
+      {
+        "source": "getting-started/quick-start",
+        "href": "/docs/getting-started/quick-start",
+        "line": 81
+      },
+      {
+        "source": "user-guide/advanced-features",
+        "href": "/docs/user-guide/advanced-features",
+        "line": 51
+      },
+      {
+        "source": "user-guide/interactive-map",
+        "href": "/docs/user-guide/interactive-map",
+        "line": 33
+      }
+    ],
+    "user-guide/troubleshooting": [
+      {
+        "source": "getting-started/installation",
+        "href": "/docs/getting-started/installation",
+        "line": 66
+      },
+      {
+        "source": "user-guide/basic-usage",
+        "href": "/docs/user-guide/basic-usage",
+        "line": 67
+      }
+    ],
+    "user-guide/command-palette": [
+      {
+        "source": "user-guide/basic-usage",
+        "href": "/docs/user-guide/basic-usage",
+        "line": 65
+      }
+    ],
+    "user-guide/interactive-map": [
+      {
+        "source": "user-guide/basic-usage",
+        "href": "/docs/user-guide/basic-usage",
+        "line": 66
+      }
+    ],
+    "api-reference/overview": [],
+    "api-reference/content-pipeline": [
+      {
+        "source": "api-reference/overview",
+        "href": "/docs/api-reference/overview",
+        "line": 42
+      }
+    ],
+    "api-reference/runtime-apis": [
+      {
+        "source": "api-reference/content-pipeline",
+        "href": "/docs/api-reference/content-pipeline",
+        "line": 137
+      },
+      {
+        "source": "api-reference/overview",
+        "href": "/docs/api-reference/overview",
+        "line": 43
+      }
+    ],
+    "api-reference/openapi": [],
+    "developer-guides/code-examples": [
+      {
+        "source": "api-reference/content-pipeline",
+        "href": "/docs/api-reference/content-pipeline",
+        "line": 138
+      }
+    ],
+    "developer-guides/best-practices": [],
+    "developer-guides/design-system": [
+      {
+        "source": "user-guide/configuration",
+        "href": "/docs/user-guide/configuration",
+        "line": 58
+      }
+    ],
+    "developer-guides/ui-configuration": [
+      {
+        "source": "user-guide/configuration",
+        "href": "/docs/user-guide/configuration",
+        "line": 57
+      }
+    ],
+    "developer-guides/icon-customization": [],
+    "developer-guides/themes": [
+      {
+        "source": "developer-guides/ui-configuration",
+        "href": "/docs/developer-guides/ui-configuration",
+        "line": 30
+      }
+    ],
+    "developer-guides/character-notes": [],
+    "deployment/overview": [
+      {
+        "source": "getting-started/quick-start",
+        "href": "/docs/getting-started/quick-start",
+        "line": 82
+      }
+    ],
+    "deployment/production-setup": [],
+    "deployment/platforms/cloudflare": [
+      {
+        "source": "deployment/overview",
+        "href": "/docs/deployment/overview",
+        "line": 45
+      }
+    ],
+    "deployment/platforms/vercel": [
+      {
+        "source": "deployment/overview",
+        "href": "/docs/deployment/overview",
+        "line": 46
+      }
+    ],
+    "deployment/platforms/netlify": [
+      {
+        "source": "deployment/overview",
+        "href": "/docs/deployment/overview",
+        "line": 47
+      }
+    ],
+    "llms": [
+      {
+        "source": "skill",
+        "href": "/docs/skill",
+        "line": 28
+      }
+    ],
+    "skill": []
+  }
+}

@@ -73,5 +73,22 @@
       "line": 67
     }
   ],
+  "links": [
+    {
+      "target": "/docs/user-guide/command-palette",
+      "line": 65,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/interactive-map",
+      "line": 66,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/user-guide/troubleshooting",
+      "line": 67,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/user-guide/basic-usage.md"
 }

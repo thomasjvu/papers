@@ -23,6 +23,10 @@ export const frameworkDocPaths = [];
  * @property {FileItem[]} [children]
  * @property {boolean} [expanded]
  * @property {string[]} [tags]
+ * @property {string} [description]
+ * @property {string} [icon]
+ * @property {number} [order]
+ * @property {boolean} [hidden]
  */
 
 /**

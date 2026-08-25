@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 
 import DocsLogoMark from '../components/DocsLogoMark';
@@ -13,6 +13,9 @@ import { buildDocsLandingPath } from '../../shared/docsRouting.js';
 import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
 import { buildOpenApiRoutePath } from '../lib/openapi';
 import { applySeoMetadata } from '../utils/seo';
+import OpenApiOverview from '../components/OpenApiOverview';
+import { loadOpenApiArtifacts } from '../lib/openapiArtifacts';
+import type { OpenApiSpecArtifact } from '../lib/openapiArtifacts';
 
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 const DOCS_LANDING_PATH = buildDocsLandingPath(DEFAULT_DOCUMENT_PATH);
@@ -20,6 +23,7 @@ const OPENAPI_SPECS = openapiConfig.enabled ? openapiConfig.specs : [];
 
 export default function OpenApiPage() {
   const { specId } = useParams();
+  const [artifacts, setArtifacts] = useState<OpenApiSpecArtifact[]>([]);
   const specs = OPENAPI_SPECS;
   const activeSpec = useMemo(() => {
     if (specId) {
@@ -47,6 +51,23 @@ export default function OpenApiPage() {
       type: 'article',
     });
   }, [activeSpec]);
+
+  const activeArtifact = activeSpec
+    ? artifacts.find((artifact) => artifact.id === activeSpec.id) || null
+    : null;
+
+  useEffect(() => {
+    let active = true;
+    void loadOpenApiArtifacts().then((nextArtifacts) => {
+      if (active && nextArtifacts) {
+        setArtifacts(nextArtifacts.specs);
+      }
+    });
+
+    return () => {
+      active = false;
+    };
+  }, []);
 
   if (!openapiConfig.enabled) {
     return <Navigate to={DOCS_LANDING_PATH} replace />;
@@ -128,6 +149,7 @@ export default function OpenApiPage() {
       </header>
 
       <main className="openapi-page-main flex min-h-0 flex-1 flex-col">
+        <OpenApiOverview artifact={activeArtifact} />
         <OpenApiReference specUrl={activeSpecUrl} />
       </main>
     </div>

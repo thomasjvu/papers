@@ -10,6 +10,9 @@ import { getContentCollection } from '../shared/content-collections.js';
 
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
+import { createContentCollectionManifest } from './lib/contentCollectionManifest.mjs';
+import { createDocumentReferenceGraph } from './lib/referenceGraph.mjs';
+import { serializePrettierJson } from './lib/formatArtifact.mjs';
 
 async function readExistingIndex(indexPath) {
   try {
@@ -50,6 +53,7 @@ async function generateDocsContent() {
     previousIndex,
     generatedAt,
     rootDir,
+    frontmatterSchema: docsCollection.frontmatterSchema,
   });
 
   await rm(contentDir, { recursive: true, force: true });
@@ -57,6 +61,27 @@ async function generateDocsContent() {
   await rm(join(rootDir, 'public', 'docs-content.json'), { force: true });
   await writeDocumentFiles(contentDir, documents);
   await writeFile(indexPath, serializeArtifactJson(index));
+  await writeFile(
+    join(rootDir, 'public', 'docs-collection.json'),
+    await serializePrettierJson(
+      createContentCollectionManifest({
+        collection: docsCollection,
+        index,
+        documents,
+      })
+    )
+  );
+  await writeFile(
+    join(rootDir, 'public', 'docs-references.json'),
+    serializeArtifactJson(
+      createDocumentReferenceGraph({
+        documents,
+        paths: index.paths,
+        documentationTree,
+        generated: index.generated,
+      })
+    )
+  );
 
   console.log(`Generated documentation content for ${index.count} files`);
   console.log(`Generated ${Object.keys(documents).length} docs artifacts.`);

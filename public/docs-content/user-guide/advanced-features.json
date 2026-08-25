@@ -59,5 +59,17 @@
       "line": 52
     }
   ],
+  "links": [
+    {
+      "target": "/docs/user-guide/configuration",
+      "line": 51,
+      "type": "internal"
+    },
+    {
+      "target": "/llms",
+      "line": 52,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/user-guide/advanced-features.md"
 }

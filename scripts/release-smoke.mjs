@@ -17,6 +17,9 @@ const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
 const distDocsContentDir = join(distDir, 'docs-content');
 const distDocsIndexPath = join(distDir, 'docs-index.json');
+const distDocsCollectionPath = join(distDir, 'docs-collection.json');
+const distDocsReferencesPath = join(distDir, 'docs-references.json');
+const distOpenApiArtifactsPath = join(distDir, 'openapi-artifacts.json');
 const distHeadersPath = join(distDir, '_headers');
 
 function assert(condition, message) {
@@ -44,6 +47,9 @@ function main() {
   assertBuildManifest(distDir, { expectedBuildMode: 'production' });
   assert(existsSync(distDir), 'Missing dist/ output. Run `npm run build` first.');
   assert(existsSync(distDocsIndexPath), 'Missing dist/docs-index.json.');
+  assert(existsSync(distDocsCollectionPath), 'Missing dist/docs-collection.json.');
+  assert(existsSync(distDocsReferencesPath), 'Missing dist/docs-references.json.');
+  assert(existsSync(distOpenApiArtifactsPath), 'Missing dist/openapi-artifacts.json.');
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
   assert(existsSync(join(distDir, 'sitemap.xml')), 'Missing dist/sitemap.xml.');
   assert(existsSync(join(distDir, 'llms.html')), 'Missing dist/llms.html.');
@@ -60,6 +66,15 @@ function main() {
   assert(headers.includes("script-src 'self'"), 'CSP is missing self-only script-src.');
 
   const docsIndex = JSON.parse(readText(distDocsIndexPath));
+  const docsCollection = JSON.parse(readText(distDocsCollectionPath));
+  const docsReferences = JSON.parse(readText(distDocsReferencesPath));
+  const openapiArtifacts = JSON.parse(readText(distOpenApiArtifactsPath));
+  assert(docsCollection.schemaVersion === 1, 'Typed docs collection manifest has an invalid schema version.');
+  assert(Array.isArray(docsCollection.entries), 'Typed docs collection manifest is missing entries.');
+  assert(docsReferences.schemaVersion === 1, 'Docs reference graph has an invalid schema version.');
+  assert(Array.isArray(docsReferences.edges), 'Docs reference graph is missing edges.');
+  assert(openapiArtifacts.schemaVersion === 1, 'OpenAPI artifact manifest has an invalid schema version.');
+  assert(Array.isArray(openapiArtifacts.specs), 'OpenAPI artifact manifest is missing specs.');
   const defaultDocPath = getDefaultDocumentPath(documentationTree);
   assert(defaultDocPath, 'Could not resolve the default documentation path.');
   assert(docsIndex.paths.includes(defaultDocPath), 'Default documentation path is missing from docs-index.json.');

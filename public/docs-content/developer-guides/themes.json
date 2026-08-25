@@ -40,5 +40,12 @@
     "sourcePath": "src/docs/content/developer-guides/themes.md"
   },
   "references": [],
+  "links": [
+    {
+      "target": "https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md",
+      "line": 29,
+      "type": "external"
+    }
+  ],
   "sourcePath": "src/docs/content/developer-guides/themes.md"
 }

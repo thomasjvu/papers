@@ -16,7 +16,39 @@ paths:
   /docs:
     get:
       summary: List published docs
+      parameters:
+        - name: limit
+          in: query
+          description: Maximum number of paths to return.
+          schema:
+            type: integer
+            minimum: 1
+          example: 20
       tags: [Docs]
       responses:
         '200':
           description: Documentation manifest
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocsManifest'
+              examples:
+                default:
+                  summary: A small published manifest
+                  value:
+                    count: 2
+                    paths: [getting-started/introduction, api-reference/overview]
+components:
+  schemas:
+    DocsManifest:
+      type: object
+      required: [count, paths]
+      properties:
+        count:
+          type: integer
+          description: Number of published documentation pages.
+        paths:
+          type: array
+          items:
+            type: string
+          description: Canonical document paths.

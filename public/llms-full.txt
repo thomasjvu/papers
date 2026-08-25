@@ -689,7 +689,26 @@ npm run build
 Writes:
 
 - `public/docs-index.json`
+- `public/docs-collection.json` — typed native collection metadata and navigation
+- `public/docs-references.json` — deterministic internal link graph and backlinks
 - `public/docs-content/**/*.json`
+
+Frontmatter is validated against `shared/contentSchema.js`. The supported
+fields are typed `title`, `description`, `tags`, `keywords`, `icon`, `order`,
+`draft`, `toc`, `full`, and `sidebar` values. A malformed or unsupported field
+fails the build with its source line number.
+
+The collection manifest is additive to `docs-index.json`, so existing static
+hosts and runtime consumers keep their small index contract while tooling can
+use typed entries, source metadata, and the navigation tree.
+
+### `scripts/generate-openapi-artifacts.mjs`
+
+Writes `public/openapi-artifacts.json` from configured local OpenAPI assets.
+The artifact extracts operations, parameters, request bodies, responses,
+examples, tags, servers, and component schemas for the API overview UI. Local
+specs are parsed during the build; allowlisted remote specs remain Scalar
+runtime sources and are never fetched by the build.
 
 ### `scripts/generate-seo.mjs`
 
@@ -736,6 +755,10 @@ That is how code fences, live previews, color palettes, and wallet copy blocks s
 ## Generated Output Shape
 
 The manifest contains lightweight page metadata. Each page is stored separately as JSON under `public/docs-content/`, so the app can fetch one page at a time instead of loading the full corpus up front.
+
+The reference graph is also consumed at runtime to show which documentation
+pages link to the current page. Link validation and graph extraction share the
+same parser, so diagnostics and backlinks cannot silently diverge.
 
 ## Metadata Rules
 
@@ -794,6 +817,12 @@ URL: /docs/api-reference/runtime-apis
 Fetches and caches `/docs-index.json` for the current session.
 
 Use it when you need the generated manifest without loading a specific page.
+
+## `getDocumentBacklinks(path)`
+
+Reads the generated `/docs-references.json` graph and returns the pages that
+link to the requested document. The docs page uses this to render a compact
+`Referenced by` section below the article.
 
 ## `getDocument(path)`
 
@@ -868,6 +897,12 @@ description: Interactive OpenAPI reference powered by Scalar.
 # OpenAPI Explorer
 
 Configure specs in `shared/documentation-config.js` under `openapiConfig`, then open the interactive viewer from the sidebar or at `/docs/api-reference/openapi`.
+
+The build also emits `public/openapi-artifacts.json`. For local specs it is a
+deterministic summary of operations, parameters, request bodies, responses,
+examples, and component schemas. Scalar remains the full interactive renderer;
+the summary is available before the viewer finishes loading and gives agents a
+stable machine-readable contract to inspect.
 
 
 ---

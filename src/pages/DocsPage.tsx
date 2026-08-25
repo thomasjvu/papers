@@ -3,11 +3,12 @@ import { useState, useEffect, useMemo } from 'react';
 
 import DocumentationPage from '../components/docs/DocumentationPage';
 import NotFoundPage from './NotFoundPage';
-import { getDocument, resolveDocumentPath } from '../lib/content';
+import { getDocument, getDocumentBacklinks, resolveDocumentPath } from '../lib/content';
 import { createLogger } from '../utils/logger';
 import { applySeoMetadata } from '../utils/seo';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
+import DocumentBacklinks from '../components/docs/DocumentBacklinks';
 
 const logger = createLogger('DocsPage');
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
@@ -25,6 +26,7 @@ export default function DocsPage() {
   const [docSourcePath, setDocSourcePath] = useState<string | undefined>(undefined);
   const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>('markdown');
   const [isNotFound, setIsNotFound] = useState(false);
+  const [backlinks, setBacklinks] = useState<Awaited<ReturnType<typeof getDocumentBacklinks>>>([]);
 
   const slug = params['*'] || '';
   const routeContext = useMemo(() => parseDocsRoutePath(slug), [slug]);
@@ -52,12 +54,16 @@ export default function DocsPage() {
 
     setLoading(true);
     setIsNotFound(false);
+    setBacklinks([]);
 
-    void getDocument(docPath, {
-      version: routeContext.activeVersion,
-      locale: routeContext.activeLocale,
-    })
-      .then((doc) => {
+    void Promise.all([
+      getDocument(docPath, {
+        version: routeContext.activeVersion,
+        locale: routeContext.activeLocale,
+      }),
+      getDocumentBacklinks(docPath),
+    ])
+      .then(([doc, nextBacklinks]) => {
         if (!active) {
           return;
         }
@@ -69,6 +75,7 @@ export default function DocsPage() {
           setDocDescription(doc.description || extractDescriptionFromMarkdown(doc.content));
           setDocSourcePath(doc.sourcePath);
           setDocContentFormat(doc.contentFormat || 'markdown');
+          setBacklinks(nextBacklinks);
           setIsNotFound(false);
           return;
         }
@@ -142,6 +149,7 @@ export default function DocsPage() {
       currentPath={currentDocPath || docPath}
       sourcePath={docSourcePath}
       contentFormat={docContentFormat}
+      trailingContent={<DocumentBacklinks backlinks={backlinks} />}
       isLoading={loading}
       pendingPath={docPath}
     />

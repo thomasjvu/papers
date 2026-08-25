@@ -50,5 +50,12 @@
       "line": 30
     }
   ],
+  "links": [
+    {
+      "target": "./themes",
+      "line": 30,
+      "type": "internal"
+    }
+  ],
   "sourcePath": "src/docs/content/developer-guides/ui-configuration.md"
 }

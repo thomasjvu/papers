@@ -420,7 +420,7 @@ function validateSourceLinks({
   }
 }
 
-async function readSourceRecords(files, rootDir, contentRoot, issues) {
+async function readSourceRecords(files, rootDir, contentRoot, issues, frontmatterSchema) {
   const records = [];
 
   for (const file of files) {
@@ -436,7 +436,7 @@ async function readSourceRecords(files, rootDir, contentRoot, issues) {
 
     try {
       record.content = await readFile(file.absolutePath, 'utf8');
-      parseFrontmatter(record.content);
+      parseFrontmatter(record.content, frontmatterSchema);
       records.push(record);
     } catch (error) {
       const lineSuffix = error.lineNumber ? `:${error.lineNumber}` : '';
@@ -510,6 +510,7 @@ export async function validateDocumentationContent(options = {}) {
   const versionConfig = options.versionConfig || defaultVersionConfig;
   const i18nConfig = options.i18nConfig || defaultI18nConfig;
   const configuredOpenapi = options.openapiConfig || defaultOpenapiConfig;
+  const frontmatterSchema = options.frontmatterSchema;
   const issues = [];
   const externalLinks = [];
   const treeDocumentPaths = collectDocumentationPaths(documentationTree);
@@ -561,7 +562,13 @@ export async function validateDocumentationContent(options = {}) {
   }
 
   validateDuplicateVariantSources(allSourceFiles, issues);
-  const sourceRecords = await readSourceRecords(allSourceFiles, rootDir, contentRoot, issues);
+  const sourceRecords = await readSourceRecords(
+    allSourceFiles,
+    rootDir,
+    contentRoot,
+    issues,
+    frontmatterSchema
+  );
 
   for (const featureIssue of getDocumentationFeatureValidationIssues({
     documentationTree,

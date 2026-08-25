@@ -48,6 +48,8 @@ import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/
 import { collectLazyFeatureBoundaryIssues } from '../src/framework/lazyFeatureBoundaries.ts';
 import { isPapersTemplateRoot, shouldUseLocalTemplate } from '../packages/create-papers/index.mjs';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
+import { createDocumentReferenceGraph } from '../scripts/lib/referenceGraph.mjs';
+import { createOpenApiArtifacts } from '../scripts/lib/openapiArtifacts.mjs';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -237,6 +239,7 @@ export const architectureTests: ArchitectureTestCase[] = [
           sourcePath: 'src/docs/content/getting-started/introduction.mdx',
         },
         references: [],
+        links: [],
         sourcePath: 'src/docs/content/getting-started/introduction.mdx',
       });
       assert.deepEqual(documents['user-guide/no-title'], {
@@ -254,7 +257,94 @@ export const architectureTests: ArchitectureTestCase[] = [
           contentFormat: 'markdown',
         },
         references: [],
+        links: [],
       });
+    },
+  },
+  {
+    name: 'native frontmatter schema and reference graph produce typed relationships',
+    run: () => {
+      const parsed = parseFrontmatter(
+        [
+          '---',
+          'title: Typed page',
+          'keywords: [native, collections]',
+          'order: 2',
+          'draft: true',
+          'toc: false',
+          '---',
+          '',
+          'See [the next page](/docs/guides/next).',
+        ].join('\n')
+      );
+
+      assert.deepEqual(parsed.frontmatter, {
+        title: 'Typed page',
+        keywords: ['native', 'collections'],
+        order: 2,
+        draft: true,
+        toc: false,
+      });
+
+      const { documents } = createDocsArtifacts(
+        {
+          'guides/current': parsed.body,
+          'guides/next': '# Next page',
+        },
+        '2026-08-25T00:00:00.000Z'
+      );
+      const graph = createDocumentReferenceGraph({
+        documents,
+        paths: ['guides/current', 'guides/next'],
+        documentationTree: [
+          {
+            type: 'directory',
+            name: 'Guides',
+            path: 'guides',
+            children: [
+              { type: 'file', name: 'Current.md', path: 'guides/current' },
+              { type: 'file', name: 'Next.md', path: 'guides/next' },
+            ],
+          },
+        ],
+        generated: '2026-08-25T00:00:00.000Z',
+      });
+
+      assert.deepEqual(graph.edges, [
+        {
+          source: 'guides/current',
+          target: 'guides/next',
+          href: '/docs/guides/next',
+          line: 1,
+        },
+      ]);
+      assert.deepEqual(graph.backlinks['guides/next'], [
+        {
+          source: 'guides/current',
+          href: '/docs/guides/current',
+          line: 1,
+        },
+      ]);
+    },
+  },
+  {
+    name: 'OpenAPI artifacts expose operations parameters examples and schemas',
+    run: async () => {
+      const artifacts = await createOpenApiArtifacts({ rootDir: process.cwd() });
+      const publicSpec = artifacts.specs.find((spec) => spec.id === 'public');
+      const internalSpec = artifacts.specs.find((spec) => spec.id === 'internal');
+
+      assert(publicSpec);
+      assert(internalSpec);
+      assert.equal(publicSpec.counts.operations, 2);
+      assert.equal(publicSpec.counts.schemas, 1);
+      assert.equal(publicSpec.operations?.[0]?.method, 'GET');
+      assert.equal(publicSpec.operations?.[0]?.path, '/docs');
+      assert.equal(publicSpec.operations?.[0]?.parameters[0]?.name, 'limit');
+      assert.equal(publicSpec.operations?.[0]?.responses[0]?.content[0]?.schema, 'DocsManifest');
+      assert.equal(publicSpec.schemas?.[0]?.properties[0]?.name, 'count');
+      assert.equal(internalSpec.operations?.[0]?.requestBody?.content[0]?.schema, 'BuildRequest');
+      assert.equal(internalSpec.schemas?.length, 2);
     },
   },
   {

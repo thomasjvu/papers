@@ -54,5 +54,22 @@
       "line": 32
     }
   ],
+  "links": [
+    {
+      "target": "/llms.txt",
+      "line": 30,
+      "type": "internal"
+    },
+    {
+      "target": "/llms-full.txt",
+      "line": 32,
+      "type": "internal"
+    },
+    {
+      "target": "#",
+      "line": 34,
+      "type": "action"
+    }
+  ],
   "sourcePath": "src/docs/content/llms.md"
 }

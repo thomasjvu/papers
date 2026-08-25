@@ -73,9 +73,20 @@ test('OpenAPI default and alternate specs use distinct routes', async ({ page })
   await page.goto('/docs/api-reference/openapi', { waitUntil: 'networkidle' });
   await expect(page.locator('.openapi-page')).toBeVisible();
   await expect(page.getByText('Public API', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('2 operations', { exact: true })).toBeVisible();
+  await expect(page.getByText('Health check', { exact: true })).toBeVisible();
   await page.getByRole('tab', { name: 'Internal API', exact: true }).click();
   await expect(page).toHaveURL(/\/docs\/api-reference\/openapi\/internal$/);
   await expect(page.getByText('Internal API', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('Trigger docs build', { exact: true })).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
+test('generated reference graph renders backlinks on documentation pages', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/user-guide/configuration', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('heading', { name: 'Referenced by' })).toBeVisible();
+  await expect(page.getByText('user-guide/advanced-features', { exact: true })).toBeVisible();
   await assertNoRuntimeErrors(errors);
 });
 
