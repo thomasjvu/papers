@@ -467,7 +467,7 @@ Known docs routes are emitted as static HTML during `npm run build`.
 If a direct request to `/docs/...` or `/llms` returns 404, check:
 
 - `npm run build` completed successfully
-- the deployed `dist/` output still includes `docs/.../index.html` and `llms/index.html`
+- the deployed `dist/` output still includes `docs/<route>.html` and `llms.html`
 - no catch-all host rule is rewriting `/docs/*` or `/llms` back to the homepage
 - `vercel.json` is being used only as fallback routing, not instead of the generated files
 
@@ -1042,6 +1042,15 @@ That improves the table of contents, the interactive map, Pagefind excerpts, and
 
 Code samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.
 
+The documentation shell can render a small Mermaid diagram when a visual explanation is clearer than prose:
+
+```mermaid
+flowchart LR
+  source[Markdown or MDX] --> validate[Build validation]
+  validate --> artifact[Static route artifact]
+  artifact --> host[CDN or static host]
+```
+
 ## Regenerate Early
 
 Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.
@@ -1383,7 +1392,7 @@ URL: /docs/developer-guides/character-notes
 
 ---
 title: Character Notes
-description: MDX shortcode for Mercenary character notifications in documentation articles.
+description: MDX shortcode for character notifications in documentation articles.
 ---
 
 # Character Notes
@@ -1422,6 +1431,15 @@ Supported `type` values: `info`, `warning`, `alert`, `success`, `tip` (default `
   Press Cmd/Ctrl + K to open the command palette from any docs page.
 </CharacterNote>
 
+<Callout type="tip" title="Composable blocks">
+  Callouts, tabs, cards, and character notes compile into safe static HTML during the build.
+</Callout>
+
+<Tabs>
+  <Tab label="Markdown">Use Markdown for prose and fenced code examples.</Tab>
+  <Tab label="MDX">Use MDX when a page benefits from a structured content block.</Tab>
+</Tabs>
+
 ## Build pipeline
 
 Character notes compile at build time through `remarkMdxShortcodes` in `scripts/lib/mdxShortcodes.mjs`. Avatar URLs come from `shared/character-note-config.js` (generic SVG placeholders in the papers template; fork installs can point at branded art).
@@ -1456,7 +1474,7 @@ URL: /docs/deployment/overview
 At minimum, your host should:
 
 - publish the `dist/` directory
-- serve generated files directly, including `dist/docs/**/index.html`, `dist/llms/index.html`, and `dist/404.html`
+- serve generated files directly, including `dist/docs/<route>.html`, `dist/llms.html`, and `dist/404.html`
 - serve static assets normally
 - avoid catch-all rewrites that send `/docs/*` or `/llms` to the homepage when matching files already exist
 

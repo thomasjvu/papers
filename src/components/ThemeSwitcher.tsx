@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import React, { useMemo, useCallback } from 'react';
 
 import { papersThemeAllowsLightDarkToggle } from '../lib/papersTheme';
-import { useTheme } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/useTheme';
 
 type ThemeSwitcherProps = {
   className?: string;

@@ -1,6 +1,6 @@
 ---
 title: Character Notes
-description: MDX shortcode for Mercenary character notifications in documentation articles.
+description: MDX shortcode for character notifications in documentation articles.
 ---
 
 # Character Notes
@@ -38,6 +38,15 @@ Supported `type` values: `info`, `warning`, `alert`, `success`, `tip` (default `
 <CharacterNote type="tip" title="Shortcut">
   Press Cmd/Ctrl + K to open the command palette from any docs page.
 </CharacterNote>
+
+<Callout type="tip" title="Composable blocks">
+  Callouts, tabs, cards, and character notes compile into safe static HTML during the build.
+</Callout>
+
+<Tabs>
+  <Tab label="Markdown">Use Markdown for prose and fenced code examples.</Tab>
+  <Tab label="MDX">Use MDX when a page benefits from a structured content block.</Tab>
+</Tabs>
 
 ## Build pipeline
 

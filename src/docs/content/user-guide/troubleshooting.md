@@ -23,7 +23,7 @@ Known docs routes are emitted as static HTML during `npm run build`.
 If a direct request to `/docs/...` or `/llms` returns 404, check:
 
 - `npm run build` completed successfully
-- the deployed `dist/` output still includes `docs/.../index.html` and `llms/index.html`
+- the deployed `dist/` output still includes `docs/<route>.html` and `llms.html`
 - no catch-all host rule is rewriting `/docs/*` or `/llms` back to the homepage
 - `vercel.json` is being used only as fallback routing, not instead of the generated files
 

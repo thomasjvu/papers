@@ -2,6 +2,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 
 import DocumentationPage from '../components/docs/DocumentationPage';
+import NotFoundPage from './NotFoundPage';
 import { getDocument, resolveDocumentPath } from '../lib/content';
 import { createLogger } from '../utils/logger';
 import { applySeoMetadata } from '../utils/seo';
@@ -23,6 +24,7 @@ export default function DocsPage() {
   const [docDescription, setDocDescription] = useState<string>('');
   const [docSourcePath, setDocSourcePath] = useState<string | undefined>(undefined);
   const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>('markdown');
+  const [isNotFound, setIsNotFound] = useState(false);
 
   const slug = params['*'] || '';
   const routeContext = useMemo(() => parseDocsRoutePath(slug), [slug]);
@@ -49,6 +51,7 @@ export default function DocsPage() {
     let active = true;
 
     setLoading(true);
+    setIsNotFound(false);
 
     void getDocument(docPath, {
       version: routeContext.activeVersion,
@@ -66,17 +69,11 @@ export default function DocsPage() {
           setDocDescription(doc.description || extractDescriptionFromMarkdown(doc.content));
           setDocSourcePath(doc.sourcePath);
           setDocContentFormat(doc.contentFormat || 'markdown');
+          setIsNotFound(false);
           return;
         }
 
-        const notFoundContent =
-          '# Not Found\n\nThe requested documentation page could not be found.';
-        setContent(notFoundContent);
-        setCurrentDocPath(docPath);
-        setDocTitle('Not Found');
-        setDocDescription(extractDescriptionFromMarkdown(notFoundContent));
-        setDocSourcePath(undefined);
-        setDocContentFormat('markdown');
+        setIsNotFound(true);
       })
       .catch((error) => {
         if (!active) {
@@ -133,6 +130,10 @@ export default function DocsPage() {
         </div>
       </div>
     );
+  }
+
+  if (hasLoadedOnce && isNotFound) {
+    return <NotFoundPage />;
   }
 
   return (

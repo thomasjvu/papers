@@ -54,7 +54,7 @@ export default defineConfig({
             if (id.includes('framer-motion')) {
               return 'vendor-motion';
             }
-            if (id.includes('react') || id.includes('react-dom') || id.includes('scheduler')) {
+            if (/node_modules\/(react|react-dom|scheduler)(\/|$)/.test(id)) {
               return 'vendor-react';
             }
             if (id.includes('react-router')) {
@@ -62,12 +62,6 @@ export default defineConfig({
             }
             if (id.includes('@iconify')) {
               return 'vendor-iconify';
-            }
-            if (id.includes('dompurify')) {
-              return 'vendor-sanitize';
-            }
-            if (id.includes('mermaid')) {
-              return 'vendor-mermaid';
             }
           }
         },

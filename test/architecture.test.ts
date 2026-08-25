@@ -3,11 +3,14 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
+import { JSDOM } from 'jsdom';
+
 import { buildPaddedViewBox } from '../src/utils/mermaidLayout.ts';
 import {
   createDocsArtifacts,
   enrichDocumentArtifact,
   extractDocumentLinks,
+  parseFrontmatter,
   serializeArtifactJson,
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
@@ -26,6 +29,7 @@ import {
   createSeoRouteEntries,
   createSitemapXml,
 } from '../scripts/lib/seoArtifacts.mjs';
+import { computeInputFingerprint, createBuildIdentity } from '../scripts/lib/buildIdentity.mjs';
 import { combineSearchResults } from '../src/components/CommandPalette/searchUtils.ts';
 import {
   buildCanonicalDocsPath,
@@ -39,8 +43,11 @@ import { buildOpenApiRoutePath, getOpenApiRoutePrefix } from '../shared/openapiR
 import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
+import { sanitizeMermaidSvg } from '../src/utils/sanitizeMermaidSvg.ts';
 import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/themeRegistry.mjs';
 import { collectLazyFeatureBoundaryIssues } from '../src/framework/lazyFeatureBoundaries.ts';
+import { isPapersTemplateRoot, shouldUseLocalTemplate } from '../packages/create-papers/index.mjs';
+import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -71,6 +78,121 @@ const seoTestDocumentationTree = [
 ];
 
 export const architectureTests: ArchitectureTestCase[] = [
+  {
+    name: 'build identity fingerprints published inputs and records release metadata',
+    run: async () => {
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-build-identity-'));
+      try {
+        await writeFile(join(tempDir, 'package.json'), '{"version":"0.0.0"}');
+        await mkdir(join(tempDir, 'src'), { recursive: true });
+        await writeFile(join(tempDir, 'src', 'input.md'), 'first');
+
+        const firstFingerprint = computeInputFingerprint(tempDir);
+        const firstIdentity = createBuildIdentity(tempDir, 'production');
+
+        assert.deepEqual(firstIdentity.inputFiles, ['package.json', 'src/input.md']);
+        assert.equal(firstIdentity.inputFingerprint, firstFingerprint.inputFingerprint);
+        assert.equal(firstIdentity.buildMode, 'production');
+        assert.equal(firstIdentity.packageVersion, '0.0.0');
+        assert.equal(firstIdentity.siteName, 'papers');
+        assert.equal(firstIdentity.defaultDocumentPath, 'getting-started/introduction');
+        assert.equal(firstIdentity.siteUrl, '');
+
+        await writeFile(join(tempDir, 'src', 'input.md'), 'changed');
+        const secondFingerprint = computeInputFingerprint(tempDir);
+        assert.notEqual(secondFingerprint.inputFingerprint, firstFingerprint.inputFingerprint);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    },
+  },
+  {
+    name: 'content-engine fixture exercises native artifacts and validation',
+    run: async () => {
+      const fixtureRoot = join(process.cwd(), 'test/fixtures/content-engine');
+      const fixtureSource = await readFile(join(fixtureRoot, 'fixture.mdx'), 'utf8');
+      const navigation = JSON.parse(await readFile(join(fixtureRoot, 'navigation.json'), 'utf8'));
+      const parsed = parseFrontmatter(fixtureSource);
+
+      assert.deepEqual(parsed.frontmatter, {
+        title: 'Content Engine Fixture',
+        description: 'Representative source for the native content-engine benchmark.',
+        tags: ['benchmark', 'mdx', 'api'],
+      });
+      assert.equal(navigation.children[0].children[0].path, 'content-engine/guides/fixture');
+
+      const { documents } = createDocsArtifacts(
+        { 'guides/fixture': fixtureSource },
+        '2026-08-24T00:00:00.000Z',
+        { 'guides/fixture': 'test/fixtures/content-engine/fixture.mdx' }
+      );
+      const document = await enrichDocumentArtifact(documents['guides/fixture']);
+
+      assert.equal(document.contentFormat, 'html');
+      assert.match(document.content, /papers-callout--note/);
+      assert.match(document.content, /papers-tabs/);
+      assert.deepEqual(document.toc, [
+        { depth: 1, id: 'content-engine-fixture', text: 'Content Engine Fixture' },
+        { depth: 2, id: 'details', text: 'Details' },
+      ]);
+      assert.deepEqual(document.references, [
+        { target: '/openapi-v1.yaml', line: 13 },
+        { target: '#details', line: 13 },
+      ]);
+
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-content-engine-fixture-'));
+      try {
+        await mkdir(join(tempDir, 'content', 'guides'), { recursive: true });
+        await mkdir(join(tempDir, 'public'), { recursive: true });
+        await writeFile(join(tempDir, 'content', 'guides', 'fixture.mdx'), fixtureSource);
+        await writeFile(
+          join(tempDir, 'public', 'openapi-v1.yaml'),
+          'openapi: 3.0.0\ninfo:\n  title: Fixture\n  version: 1.0.0\n'
+        );
+
+        const validation = await validateDocumentationContent({
+          rootDir: tempDir,
+          contentRoot: 'content',
+          publicDir: 'public',
+          documentationTree: [
+            {
+              type: 'file' as const,
+              name: 'Fixture.mdx',
+              path: 'guides/fixture',
+            },
+          ],
+          versionConfig: {
+            enabled: false,
+            current: '1.0',
+            versions: ['1.0'],
+            labels: {},
+          },
+          i18nConfig: {
+            enabled: false,
+            defaultLocale: 'en',
+            locales: ['en'],
+          },
+          openapiConfig: {
+            enabled: false,
+            pagePath: 'api-reference/openapi',
+            defaultSpecId: 'public',
+            specs: [],
+          },
+        });
+
+        assert.deepEqual(validation.issues, []);
+        assert.deepEqual(validation.externalLinks, [
+          {
+            sourcePath: 'content/guides/fixture.mdx',
+            line: 14,
+            target: 'https://example.com/reference',
+          },
+        ]);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
+    },
+  },
   {
     name: 'createDocsArtifacts builds a manifest and per-page records',
     run: () => {
@@ -1001,6 +1123,72 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'content security rejects unsafe Mermaid SVG and OpenAPI spec URLs',
+    run: async () => {
+      assert.deepEqual(validateOpenApiSpecUrl('/openapi-v1.yaml', { allowedOrigins: [] }), {
+        kind: 'local',
+        value: '/openapi-v1.yaml',
+      });
+      assert.deepEqual(
+        validateOpenApiSpecUrl('https://api.example.com/openapi.json', {
+          allowedOrigins: ['https://api.example.com'],
+        }),
+        {
+          kind: 'remote',
+          value: 'https://api.example.com/openapi.json',
+          origin: 'https://api.example.com',
+        }
+      );
+      assert.throws(() => validateOpenApiSpecUrl('javascript:alert(1)', { allowedOrigins: [] }));
+      assert.throws(() => validateOpenApiSpecUrl('//untrusted.example/openapi.json', {}));
+      assert.throws(() =>
+        validateOpenApiSpecUrl('https://untrusted.example/openapi.json', {
+          allowedOrigins: ['https://api.example.com'],
+        })
+      );
+      assert.throws(() =>
+        assertValidOpenApiConfig({
+          enabled: true,
+          defaultSpecId: 'missing',
+          specs: [{ id: 'public', label: 'Public API', url: '/openapi-v1.yaml' }],
+        })
+      );
+
+      const dom = new JSDOM('<!doctype html><html><body></body></html>');
+      const runtime = globalThis as unknown as {
+        window?: unknown;
+        document?: unknown;
+      };
+      const previousWindow = runtime.window;
+      const previousDocument = runtime.document;
+      runtime.window = dom.window;
+      runtime.document = dom.window.document;
+
+      try {
+        const sanitized = sanitizeMermaidSvg(
+          '<svg onload="alert(1)"><script>alert(1)</script><foreignObject>bad</foreignObject><a href="javascript:alert(1)">link</a></svg>'
+        );
+        assert.doesNotMatch(sanitized, /onload|script|foreignObject|javascript:/i);
+      } finally {
+        if (previousWindow === undefined) {
+          delete runtime.window;
+        } else {
+          runtime.window = previousWindow;
+        }
+        if (previousDocument === undefined) {
+          delete runtime.document;
+        } else {
+          runtime.document = previousDocument;
+        }
+        dom.window.close();
+      }
+
+      const docsPageSource = await readFile(join(process.cwd(), 'src/pages/DocsPage.tsx'), 'utf8');
+      assert.match(docsPageSource, /setIsNotFound\(true\)/);
+      assert.match(docsPageSource, /<NotFoundPage\s*\/>/);
+    },
+  },
+  {
     name: 'adjacent page navigation supports shift plus arrow keys',
     run: async () => {
       const hookSource = await readFile(
@@ -1094,6 +1282,64 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(resolverSource, /specifier\.startsWith\('@\/'\)/);
       assert.match(treeScriptSource, /\.\.\/shared\/documentation-config\.js/);
       assert.match(treeScriptSource, /\.\/lib\/documentationTreeWriter\.mjs/);
+    },
+  },
+  {
+    name: 'maintainer contract names source ownership and credential boundaries',
+    run: async () => {
+      const agentsSource = await readFile(join(process.cwd(), 'AGENTS.md'), 'utf8');
+
+      for (const heading of [
+        '## 1. Project identity and constraints',
+        '## 2. Source ownership',
+        '## 3. Verification ladder',
+        '## 4. Change boundaries',
+        '## 5. Deployment rules',
+        '## 6. Stop and report rules',
+        '## 7. Handoff expectations',
+      ]) {
+        assert.match(agentsSource, new RegExp(heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+      }
+
+      assert.match(agentsSource, /npm run format:check/);
+      assert.match(agentsSource, /npm run release:check/);
+      assert.match(agentsSource, /PAPERS_DEPLOY_HOST/);
+      assert.match(agentsSource, /FRAMEWORK\.md/);
+      assert.match(agentsSource, /RELEASING\.md/);
+    },
+  },
+  {
+    name: 'create-papers only treats a marker-complete checkout as a local template',
+    run: async () => {
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-create-template-'));
+      try {
+        await writeFile(join(tempDir, 'package.json'), '{}');
+        assert.equal(await isPapersTemplateRoot(tempDir), false);
+        assert.equal(await shouldUseLocalTemplate(tempDir, { repo: 'thomasjvu/papers' }), false);
+        await assert.rejects(
+          () => shouldUseLocalTemplate(tempDir, { forceLocal: true }),
+          /requires a papers template checkout/
+        );
+
+        await Promise.all(
+          ['shared/documentation-config.js', 'src/docs/content', 'vite.config.ts'].map(
+            async (marker) => {
+              const markerPath = join(tempDir, marker);
+              if (marker.endsWith('/')) {
+                await mkdir(markerPath, { recursive: true });
+              } else {
+                await mkdir(join(markerPath, '..'), { recursive: true });
+                await writeFile(markerPath, 'marker');
+              }
+            }
+          )
+        );
+        assert.equal(await isPapersTemplateRoot(tempDir), true);
+        assert.equal(await shouldUseLocalTemplate(tempDir, { repo: 'thomasjvu/papers' }), true);
+        assert.equal(await shouldUseLocalTemplate(tempDir, { repo: 'someone/else' }), false);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
     },
   },
   {

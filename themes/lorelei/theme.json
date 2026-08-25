@@ -2,7 +2,7 @@
   "id": "lorelei",
   "name": "Lorelei",
   "description": "Midnight creative studio — cyan accent, Cormorant display, DM Sans body.",
-  "author": "Phantasy / Lorelei",
+  "author": "Community example",
   "css": "tokens.css",
   "iconSet": "mingcute",
   "defaultColorMode": "dark",

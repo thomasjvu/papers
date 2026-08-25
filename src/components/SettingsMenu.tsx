@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import React, { useMemo, useCallback } from 'react';
 
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
-import { useTheme } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/useTheme';
 
 type SettingsMenuProps = {
   className?: string;

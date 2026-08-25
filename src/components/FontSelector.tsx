@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import React, { useCallback, useMemo } from 'react';
 
-import { useTheme } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/useTheme';
 
 type FontSelectorProps = {
   className?: string;

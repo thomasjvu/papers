@@ -1,0 +1,20 @@
+{
+  "type": "directory",
+  "name": "Content Engine",
+  "path": "content-engine",
+  "children": [
+    {
+      "type": "directory",
+      "name": "Guides",
+      "path": "content-engine/guides",
+      "children": [
+        {
+          "type": "file",
+          "name": "Fixture.mdx",
+          "path": "content-engine/guides/fixture",
+          "tags": ["benchmark", "mdx"]
+        }
+      ]
+    }
+  ]
+}

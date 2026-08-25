@@ -6,7 +6,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 
 import { socialLinks } from '../constants/social';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
-import { useTheme } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/useTheme';
 
 import DocsLogoMark from './DocsLogoMark';
 import SettingsMenu from './SettingsMenu';

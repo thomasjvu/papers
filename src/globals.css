@@ -29,14 +29,6 @@
   font-display: swap;
 }
 
-@font-face {
-  font-family: 'Noto Serif JP';
-  src: url('/fonts/NotoSerifJP.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 html {
   font-size: 90%;
 }
@@ -59,7 +51,7 @@ html {
   --brand-font: 'BBH Bartle', 'Hubot Sans', sans-serif;
   --title-font: 'Hubot Sans', sans-serif;
   --body-font: 'Mona Sans', sans-serif;
-  --serif-font: 'Noto Serif JP', 'DM Serif Display', 'Times New Roman', serif;
+  --serif-font: 'DM Serif Display', 'Times New Roman', serif;
   --icon-color: #111111;
   --primary-color-rgb: 17, 17, 17;
   --hover-color: rgba(17, 17, 17, 0.05);
@@ -470,6 +462,27 @@ a:focus-visible {
 .logo-image--lg {
   height: 2.5rem;
   width: 2.5rem;
+}
+
+.logo-fallback {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--border-unified);
+  border-radius: calc(var(--space-2) - 2px);
+  background: var(--primary-color);
+  color: var(--selection-text-color);
+  font-family: var(--mono-font);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.logo-fallback--lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
 }
 
 /* Custom animations */

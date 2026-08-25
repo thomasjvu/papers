@@ -21,28 +21,28 @@ Generated output lands in `public/docs-content/` (and per-collection indexes). T
 
 ## Shipped
 
-| Feature                                    | Status                                                             |
-| ------------------------------------------ | ------------------------------------------------------------------ |
-| Markdown + frontmatter                     | Yes                                                                |
-| MDX (sanitized HTML at build)              | Yes                                                                |
-| GitHub callouts                            | Yes                                                                |
-| CharacterNote MDX shortcode                | Yes — Mercenary avatar variants for info/warning/alert/success/tip |
-| Mermaid diagrams                           | Yes                                                                |
-| Pagefind search + command palette          | Yes                                                                |
-| Interactive doc graph                      | Yes                                                                |
-| `llms.txt` generation                      | Yes                                                                |
-| Hosted asset preview (`HostedFilePreview`) | Yes                                                                |
-| Themed code blocks                         | Yes — per-theme `--code-bg`, clip-path, min-height tokens          |
-| OpenAPI explorer (Scalar)                  | Yes                                                                |
-| Edit on GitHub footer                      | Yes                                                                |
-| Version / i18n scaffolding                 | Yes                                                                |
-| Language switcher UI + palette actions     | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)     |
-| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit)   |
-| Sidebar variants                           | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`            |
-| Tree sync                                  | `npm run check:docs-tree`                                          |
-| Starter CLI                                | `npm create papers`                                                |
-| DESIGN.md design book (`/design`)          | Yes — `designBookConfig` + `npm run generate:design-book`          |
-| Lorelei theme                              | Yes — `themes/lorelei`                                             |
+| Feature                                    | Status                                                                |
+| ------------------------------------------ | --------------------------------------------------------------------- |
+| Markdown + frontmatter                     | Yes                                                                   |
+| MDX (sanitized HTML at build)              | Yes                                                                   |
+| GitHub callouts                            | Yes                                                                   |
+| CharacterNote MDX shortcode                | Yes — configurable avatar variants for info/warning/alert/success/tip |
+| Mermaid diagrams                           | Yes                                                                   |
+| Pagefind search + command palette          | Yes                                                                   |
+| Interactive doc graph                      | Yes                                                                   |
+| `llms.txt` generation                      | Yes                                                                   |
+| Hosted asset preview (`HostedFilePreview`) | Yes                                                                   |
+| Themed code blocks                         | Yes — per-theme `--code-bg`, clip-path, min-height tokens             |
+| OpenAPI explorer (Scalar)                  | Yes                                                                   |
+| Edit on GitHub footer                      | Yes                                                                   |
+| Version / i18n scaffolding                 | Yes                                                                   |
+| Language switcher UI + palette actions     | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)        |
+| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit)      |
+| Sidebar variants                           | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`               |
+| Tree sync                                  | `npm run check:docs-tree`                                             |
+| Starter CLI                                | `npm create papers`                                                   |
+| DESIGN.md design book (`/design`)          | Yes — `designBookConfig` + `npm run generate:design-book`             |
+| Lorelei theme                              | Yes — `themes/lorelei`                                                |
 
 ## Enable versioned or localized docs
 
@@ -87,10 +87,13 @@ Enforced by `src/framework/lazyFeatureBoundaries.ts` and architecture tests.
 - **Framework (this repo):** routing, chrome, OpenAPI viewer, generators, sample template docs.
 - **Product instances** (e.g. companion docs apps): own Markdown content + `brandingConfig` / i18n locales only. Do not land product copy in papers.
 
+For the content-engine direction and parity scorecard, see
+[docs/decisions/001-content-engine.md](docs/decisions/001-content-engine.md).
+
 ## Near-term improvements
 
 1. SSR prerender for first paint
-2. Plugin seam (`papers.config.js` remark/rehype hooks)
+2. Typed collection metadata and a bounded content adapter seam
 3. Publish `create-papers` to npm
 4. Interactive MDX `<Tabs>` hydration
 5. Content lint in CI (broken links, frontmatter)

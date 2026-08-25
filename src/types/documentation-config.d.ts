@@ -78,6 +78,7 @@ declare module '@app-shared/documentation-config.js' {
   export interface BrandingConfig {
     productName: string;
     logo?: { src: string; alt: string } | null;
+    heroFont?: 'brand' | 'title';
     copyright: {
       holder: string;
       year?: number;
@@ -103,6 +104,7 @@ declare module '@app-shared/documentation-config.js' {
     routePrefix?: string;
     pagePath?: string;
     defaultSpecId: string;
+    allowedOrigins?: string[];
     specs: OpenApiSpecConfig[];
   }
 
@@ -206,6 +208,7 @@ declare module '*/shared/documentation-config.js' {
   export interface BrandingConfig {
     productName: string;
     logo?: { src: string; alt: string } | null;
+    heroFont?: 'brand' | 'title';
     copyright: {
       holder: string;
       year?: number;
@@ -231,6 +234,7 @@ declare module '*/shared/documentation-config.js' {
     routePrefix?: string;
     pagePath?: string;
     defaultSpecId: string;
+    allowedOrigins?: string[];
     specs: OpenApiSpecConfig[];
   }
 

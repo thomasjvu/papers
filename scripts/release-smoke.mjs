@@ -9,6 +9,8 @@ import {
 } from '../shared/docsRouting.js';
 import { getDefaultDocumentPath } from '../shared/seo.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
+import { assertValidOpenApiConfig, normalizeLocalOpenApiPath } from '../shared/openapiSpecUrls.js';
+import { assertBuildManifest } from './lib/buildIdentity.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 
 const rootDir = process.cwd();
@@ -38,6 +40,8 @@ function ensureRouteHtml(routePath) {
 }
 
 function main() {
+  assertValidOpenApiConfig(openapiConfig);
+  assertBuildManifest(distDir, { expectedBuildMode: 'production' });
   assert(existsSync(distDir), 'Missing dist/ output. Run `npm run build` first.');
   assert(existsSync(distDocsIndexPath), 'Missing dist/docs-index.json.');
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
@@ -97,7 +101,7 @@ function main() {
 
     if (spec.url.startsWith('/')) {
       assert(
-        existsSync(join(distDir, spec.url.replace(/^\/+/, ''))),
+        existsSync(join(distDir, normalizeLocalOpenApiPath(spec.url).replace(/^\/+/, ''))),
         `Missing OpenAPI asset: ${spec.url}`
       );
     }

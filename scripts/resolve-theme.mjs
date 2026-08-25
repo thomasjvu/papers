@@ -1,4 +1,12 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs';
+import {
+  cpSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -22,10 +30,46 @@ const themeActivePath = path.join(packageDir, 'src', 'theme-active.css');
 const generatedDir = path.join(packageDir, 'src', 'lib', 'generated');
 const generatedManifestPath = path.join(generatedDir, 'papers-theme.json');
 const publicFontsDir = path.join(appDir, 'public', 'fonts');
+const themeAssetManifestPath = path.join(appDir, 'public', 'papers-theme-assets.json');
 const themeFontAssetsDir = path.join(themeDir, 'assets', 'fonts');
+const BASE_FONT_FILES = ['DMSerifDisplay-Regular.ttf', 'Hubot-Sans.ttf', 'Mona-Sans.ttf'];
+
+function readPreviousThemeAssetManifest() {
+  if (!existsSync(themeAssetManifestPath)) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(readFileSync(themeAssetManifestPath, 'utf8'));
+  } catch (error) {
+    throw new Error(`Could not parse ${themeAssetManifestPath}: ${error.message}`);
+  }
+}
+
+function removePreviouslyGeneratedFonts(previousManifest) {
+  for (const fileName of previousManifest?.generatedFontFiles || []) {
+    if (
+      typeof fileName !== 'string' ||
+      path.basename(fileName) !== fileName ||
+      BASE_FONT_FILES.includes(fileName)
+    ) {
+      continue;
+    }
+
+    const filePath = path.join(publicFontsDir, fileName);
+    if (existsSync(filePath)) {
+      unlinkSync(filePath);
+    }
+  }
+}
 
 mkdirSync(generatedDir, { recursive: true });
 mkdirSync(publicFontsDir, { recursive: true });
+
+const previousThemeAssetManifest = readPreviousThemeAssetManifest();
+removePreviouslyGeneratedFonts(previousThemeAssetManifest);
+
+const generatedFontFiles = [];
 
 if (existsSync(themeFontAssetsDir)) {
   for (const fileName of readdirSync(themeFontAssetsDir)) {
@@ -34,11 +78,34 @@ if (existsSync(themeFontAssetsDir)) {
     }
 
     cpSync(path.join(themeFontAssetsDir, fileName), path.join(publicFontsDir, fileName));
+    generatedFontFiles.push(fileName);
   }
 }
 
 writeFileSync(themeActivePath, `${themeImports.join('\n')}\n`, 'utf8');
 writeFileSync(generatedManifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+const themeAssetManifest = {
+  schemaVersion: 1,
+  themeId: id,
+  baseFontFiles: BASE_FONT_FILES,
+  generatedFontFiles: generatedFontFiles.sort(),
+};
+const themeAssetManifestJson = JSON.stringify(themeAssetManifest, null, 2)
+  .replace(
+    /"baseFontFiles": \[\n(?:\s+"[^\n]+"(?:,\n|\n))+\s+\]/,
+    `"baseFontFiles": [${BASE_FONT_FILES.map((fileName) => JSON.stringify(fileName)).join(', ')}]`
+  )
+  .replace(
+    /"generatedFontFiles": \[\n(?:\s+"[^\n]+"(?:,\n|\n))+\s+\]/,
+    `"generatedFontFiles": [${generatedFontFiles
+      .map((fileName) => JSON.stringify(fileName))
+      .join(', ')}]`
+  );
+writeFileSync(
+  themeAssetManifestPath,
+  `${themeAssetManifestJson}\n`,
+  'utf8'
+);
 
 const fontSnippets = (manifest.fonts || [])
   .map((font) => {

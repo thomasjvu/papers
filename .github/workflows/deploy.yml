@@ -73,12 +73,28 @@ jobs:
           name: docs-dist
           path: dist
 
+      - name: Verify deployment identity
+        id: deployment
+        run: |
+          node scripts/check-deployment-config.mjs --preflight
+          echo "project_name=$(node scripts/check-deployment-config.mjs --project-name)" >> "$GITHUB_OUTPUT"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PAPERS_DEPLOY_HOST: ${{ vars.PAPERS_DEPLOY_HOST }}
+
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/pages-action@v1
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+          projectName: ${{ steps.deployment.outputs.project_name }}
           directory: dist
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
           branch: main
+
+      - name: Verify the deployed artifact
+        run: npm run postdeploy:smoke
+        env:
+          GITHUB_SHA: ${{ github.sha }}
+          PAPERS_DEPLOY_HOST: ${{ vars.PAPERS_DEPLOY_HOST }}

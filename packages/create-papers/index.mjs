@@ -3,11 +3,12 @@
 import { spawnSync } from 'node:child_process';
 import { cp, mkdir, readdir, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const packageRoot = dirname(fileURLToPath(import.meta.url));
 const docsRoot = resolve(packageRoot, '..', '..');
 const defaultRepo = 'thomasjvu/papers';
+const TEMPLATE_MARKERS = ['shared/documentation-config.js', 'src/docs/content', 'vite.config.ts'];
 
 const EXCLUDED_DIRECTORIES = new Set([
   '.git',
@@ -67,13 +68,33 @@ function parseArgs(argv) {
   return options;
 }
 
-async function pathExists(path) {
+export async function pathExists(path) {
   try {
     await stat(path);
     return true;
   } catch {
     return false;
   }
+}
+
+export async function isPapersTemplateRoot(root) {
+  const markerResults = await Promise.all(
+    TEMPLATE_MARKERS.map((marker) => pathExists(join(root, marker)))
+  );
+  return markerResults.every(Boolean);
+}
+
+export async function shouldUseLocalTemplate(
+  root,
+  { forceLocal = false, repo = defaultRepo } = {}
+) {
+  const hasMarkers = await isPapersTemplateRoot(root);
+  if (forceLocal && !hasMarkers) {
+    throw new Error(
+      `PAPERS_TEMPLATE_ROOT=local requires a papers template checkout with: ${TEMPLATE_MARKERS.join(', ')}`
+    );
+  }
+  return hasMarkers && (forceLocal || repo === defaultRepo);
 }
 
 async function copyTemplateDirectory(sourceRoot, targetRoot) {
@@ -139,10 +160,15 @@ async function main() {
     }
   }
 
-  const useLocalTemplate =
-    process.env.PAPERS_TEMPLATE_ROOT === 'local' || (await pathExists(join(docsRoot, 'package.json')));
+  const useLocalTemplate = await shouldUseLocalTemplate(docsRoot, {
+    forceLocal: process.env.PAPERS_TEMPLATE_ROOT === 'local',
+    repo: options.repo,
+  });
 
-  if (useLocalTemplate && (process.env.PAPERS_TEMPLATE_ROOT === 'local' || options.repo === defaultRepo)) {
+  if (
+    useLocalTemplate &&
+    (process.env.PAPERS_TEMPLATE_ROOT === 'local' || options.repo === defaultRepo)
+  ) {
     await scaffoldFromLocalTemplate(targetDir);
   } else {
     await scaffoldFromGitHub(targetDir, options.repo);
@@ -164,7 +190,10 @@ async function main() {
   console.log('\nCustomize shared/documentation-config.js and src/docs/content/ first.');
 }
 
-main().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exit(1);
-});
+const invokedScript = process.argv[1] ? pathToFileURL(resolve(process.argv[1])).href : '';
+if (invokedScript === import.meta.url) {
+  main().catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exit(1);
+  });
+}

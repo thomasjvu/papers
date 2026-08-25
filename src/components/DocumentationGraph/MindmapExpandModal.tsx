@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
-import { useTheme } from '../../providers/ThemeProvider';
+import { useTheme } from '../../providers/useTheme';
 
 import OptimizedDocumentationGraph from './OptimizedDocumentationGraph';
 

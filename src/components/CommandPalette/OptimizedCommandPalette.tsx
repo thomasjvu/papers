@@ -5,7 +5,7 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 import { TIMING_CONSTANTS } from '../../constants/ui';
 import { useDebouncedCallback } from '../../hooks/useDebounce';
-import { useTheme } from '../../providers/ThemeProvider';
+import { useTheme } from '../../providers/useTheme';
 
 import SearchResult, { type SearchResultType } from './SearchResult';
 import { useSearchLogic } from './useSearchLogic';

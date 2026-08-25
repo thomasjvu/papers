@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+import { brandingConfig } from '@app-shared/documentation-config.js';
+
 interface FooterLink {
   text: string;
   href: string;
@@ -21,11 +23,29 @@ export function Footer({ footer }: FooterProps) {
               className="font-bold text-lg"
               style={{ fontFamily: 'var(--mono-font)', color: 'var(--primary-color)' }}
             >
-              papers
+              {brandingConfig.productName}
             </span>
-            <span style={{ color: 'var(--muted-color)' }}>
-              — Open Source Documentation Framework
-            </span>
+            {brandingConfig.attribution ? (
+              <span style={{ color: 'var(--muted-color)' }}>
+                —{' '}
+                {brandingConfig.attribution.href ? (
+                  <a
+                    href={brandingConfig.attribution.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {brandingConfig.attribution.text}
+                  </a>
+                ) : (
+                  brandingConfig.attribution.text
+                )}
+              </span>
+            ) : null}
+            {brandingConfig.copyright?.notice ? (
+              <span style={{ color: 'var(--muted-color)' }}>
+                — {brandingConfig.copyright.notice}
+              </span>
+            ) : null}
           </div>
 
           <div className="flex items-center gap-6">

@@ -10,6 +10,7 @@ import {
 } from '../shared/docsRouting.js';
 import { getDefaultDocumentPath } from '../shared/seo.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
+import { assertBuildManifest } from './lib/buildIdentity.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 
 const rootDir = process.cwd();
@@ -144,6 +145,7 @@ function extractAssetPaths(html) {
 }
 
 async function main() {
+  assertBuildManifest(distDir, { expectedBuildMode: 'production' });
   assert(existsSync(distDir), 'Missing dist/ output. Run `npm run build` first.');
 
   const docsIndex = JSON.parse(readText(join(distDir, 'docs-index.json')));

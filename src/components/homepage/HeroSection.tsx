@@ -2,7 +2,9 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { Icon } from '@iconify/react';
 
-import { useTheme } from '../../providers/ThemeProvider';
+import { brandingConfig } from '@app-shared/documentation-config.js';
+
+import { useTheme } from '../../providers/useTheme';
 
 interface HeroSectionProps {
   hero: {
@@ -23,7 +25,6 @@ interface HeroSectionProps {
 
 export function HeroSection({ hero }: HeroSectionProps) {
   const { isDarkMode } = useTheme();
-  const isBrandTitle = hero.title.trim().toLowerCase() === 'phantasy';
 
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
@@ -51,7 +52,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
             transition={{ delay: 0.1 }}
             className="mb-6 font-bold"
             style={{
-              fontFamily: isBrandTitle ? 'var(--brand-font)' : 'var(--title-font)',
+              fontFamily:
+                brandingConfig.heroFont === 'brand' ? 'var(--brand-font)' : 'var(--title-font)',
               color: 'var(--text-color)',
               fontSize: 'clamp(var(--text-4xl), 7vw, 5.75rem)',
               letterSpacing: '-0.04em',

@@ -1,17 +1,33 @@
 import type { ReactElement } from 'react';
 
+import { brandingConfig } from '@app-shared/documentation-config.js';
+
 type DocsLogoMarkProps = {
   size?: 'sm' | 'lg';
 };
 
-const LOGO_SRC = import.meta.env.VITE_DOCS_LOGO_URL || '/boss-raid-pfp.png';
-
 export default function DocsLogoMark({ size = 'sm' }: DocsLogoMarkProps): ReactElement {
+  const logoSrc = import.meta.env.VITE_DOCS_LOGO_URL || brandingConfig.logo?.src;
+  const logoAlt = brandingConfig.logo?.alt || brandingConfig.productName || 'Documentation';
+  const mark = brandingConfig.productName.trim().charAt(0).toUpperCase() || 'D';
+
+  if (!logoSrc) {
+    return (
+      <span
+        aria-label={brandingConfig.productName || 'Documentation'}
+        className={`logo-fallback shrink-0 ${size === 'lg' ? 'logo-fallback--lg' : ''}`}
+        role="img"
+      >
+        {mark}
+      </span>
+    );
+  }
+
   return (
     <img
-      alt={import.meta.env.VITE_SITE_NAME || 'Docs'}
+      alt={logoAlt}
       className={`logo-image shrink-0 ${size === 'lg' ? 'logo-image--lg' : ''}`}
-      src={LOGO_SRC}
+      src={logoSrc}
     />
   );
 }

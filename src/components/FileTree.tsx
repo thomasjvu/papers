@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
-import { useTheme } from '../providers/ThemeProvider';
+import { useTheme } from '../providers/useTheme';
 import type { FileItem } from '../types/documentation';
 
 import styles from './FileTree.module.css';

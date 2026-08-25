@@ -151,8 +151,8 @@ export default function NotFoundPage() {
               </div>
               <p className="mb-3" style={{ color: 'var(--muted-color)' }}>
                 This build generates real HTML files for known docs routes. Verify the deployed
-                `dist/` output still includes your `docs/.../index.html` files and that no catch-all
-                host rule is rewriting `/docs/*` or `/llms` back to the homepage.
+                dist/ output still includes your docs/&lt;route&gt;.html files and llms.html and
+                that no catch-all host rule is rewriting /docs/* or /llms back to the homepage.
               </p>
               <Link
                 to={buildCanonicalDocsPath('user-guide/troubleshooting')}

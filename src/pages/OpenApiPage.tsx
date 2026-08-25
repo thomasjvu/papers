@@ -6,7 +6,9 @@ import DocsLogoMark from '../components/DocsLogoMark';
 import OpenApiReference from '../components/OpenApiReference';
 import OpenApiSpecSelector from '../components/OpenApiSpecSelector';
 import ThemeSwitcher from '../components/ThemeSwitcher';
+import NotFoundPage from './NotFoundPage';
 import { openapiConfig } from '../../shared/documentation-config.js';
+import { getOpenApiSpecUrl } from '../../shared/openapiSpecUrls.js';
 import { buildDocsLandingPath } from '../../shared/docsRouting.js';
 import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
 import { buildOpenApiRoutePath } from '../lib/openapi';
@@ -14,14 +16,14 @@ import { applySeoMetadata } from '../utils/seo';
 
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 const DOCS_LANDING_PATH = buildDocsLandingPath(DEFAULT_DOCUMENT_PATH);
+const OPENAPI_SPECS = openapiConfig.enabled ? openapiConfig.specs : [];
 
 export default function OpenApiPage() {
   const { specId } = useParams();
-  const specs = openapiConfig.enabled ? openapiConfig.specs : [];
+  const specs = OPENAPI_SPECS;
   const activeSpec = useMemo(() => {
-    const requested = specs.find((spec) => spec.id === specId);
-    if (requested) {
-      return requested;
+    if (specId) {
+      return specs.find((spec) => spec.id === specId) || null;
     }
 
     return specs.find((spec) => spec.id === openapiConfig.defaultSpecId) || specs[0] || null;
@@ -51,12 +53,14 @@ export default function OpenApiPage() {
   }
 
   if (specId && !activeSpec) {
-    return <Navigate to={buildOpenApiRoutePath()} replace />;
+    return <NotFoundPage />;
   }
 
   if (!activeSpec) {
     return <Navigate to={DOCS_LANDING_PATH} replace />;
   }
+
+  const activeSpecUrl = getOpenApiSpecUrl(activeSpec, openapiConfig);
 
   return (
     <div
@@ -106,7 +110,7 @@ export default function OpenApiPage() {
             defaultSpecId={openapiConfig.defaultSpecId}
           />
           <a
-            href={activeSpec.url}
+            href={activeSpecUrl}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs transition-opacity hover:opacity-80"
@@ -124,7 +128,7 @@ export default function OpenApiPage() {
       </header>
 
       <main className="openapi-page-main flex min-h-0 flex-1 flex-col">
-        <OpenApiReference specUrl={activeSpec.url} />
+        <OpenApiReference specUrl={activeSpecUrl} />
       </main>
     </div>
   );

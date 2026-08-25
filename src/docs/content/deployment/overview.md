@@ -17,7 +17,7 @@
 At minimum, your host should:
 
 - publish the `dist/` directory
-- serve generated files directly, including `dist/docs/**/index.html`, `dist/llms/index.html`, and `dist/404.html`
+- serve generated files directly, including `dist/docs/<route>.html`, `dist/llms.html`, and `dist/404.html`
 - serve static assets normally
 - avoid catch-all rewrites that send `/docs/*` or `/llms` to the homepage when matching files already exist
 

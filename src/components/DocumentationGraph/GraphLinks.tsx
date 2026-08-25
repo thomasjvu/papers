@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import React from 'react';
 
-import { useTheme } from '../../providers/ThemeProvider';
+import { useTheme } from '../../providers/useTheme';
 
 interface GraphNode {
   id: string;

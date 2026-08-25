@@ -11,6 +11,7 @@ import {
 } from '../shared/documentation-config.js';
 import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
 import { buildDocsContentPath } from '../shared/docsRouting.js';
+import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
 import { assertValidDocumentationContent } from './lib/contentValidation.mjs';
@@ -71,8 +72,25 @@ async function listJsonFiles(dir, prefix = '') {
 }
 
 async function main() {
-  assert(existsSync(docsIndexPath), 'Missing public/docs-index.json. Run `npm run build` or the generators first.');
-  assert(existsSync(docsContentDir), 'Missing public/docs-content/. Run `npm run build` or the generators first.');
+  assertValidOpenApiConfig(openapiConfig);
+  for (const spec of openapiConfig.specs) {
+    const validatedUrl = validateOpenApiSpecUrl(spec.url, openapiConfig);
+    if (validatedUrl.kind === 'local') {
+      assert(
+        existsSync(join(publicDir, validatedUrl.value.replace(/^\/+/, ''))),
+        'Configured local OpenAPI asset is missing: ' + spec.url
+      );
+    }
+  }
+
+  assert(
+    existsSync(docsIndexPath),
+    'Missing public/docs-index.json. Run `npm run build` or the generators first.'
+  );
+  assert(
+    existsSync(docsContentDir),
+    'Missing public/docs-content/. Run `npm run build` or the generators first.'
+  );
 
   const existingIndex = JSON.parse(readFileText(docsIndexPath));
   const docsCollection = getContentCollection('docs');
@@ -94,13 +112,18 @@ async function main() {
 
   const expectedIndex = serializeArtifactJson(index);
   const actualIndex = readFileText(docsIndexPath);
-  assert(actualIndex === expectedIndex, 'public/docs-index.json is out of date. Run `npm run generate:docs`.');
+  assert(
+    actualIndex === expectedIndex,
+    'public/docs-index.json is out of date. Run `npm run generate:docs`.'
+  );
 
   const expectedDocumentKeys = Object.keys(documents).sort();
   const actualDocumentFiles = await listJsonFiles(docsContentDir);
   const actualDocumentKeys = actualDocumentFiles.map((filePath) => filePath.replace(/\.json$/, ''));
   const extraDocumentKeys = actualDocumentKeys.filter((key) => !expectedDocumentKeys.includes(key));
-  const missingDocumentKeys = expectedDocumentKeys.filter((key) => !actualDocumentKeys.includes(key));
+  const missingDocumentKeys = expectedDocumentKeys.filter(
+    (key) => !actualDocumentKeys.includes(key)
+  );
 
   assert(
     missingDocumentKeys.length === 0,
@@ -145,7 +168,7 @@ async function main() {
 
   const mode = resolveEnvMode('production');
   const viteEnv = loadViteEnv(rootDir, mode);
-  const siteName = viteEnv.VITE_SITE_NAME || homepageConfig.hero?.title || 'Phantasy Docs';
+  const siteName = viteEnv.VITE_SITE_NAME || homepageConfig.hero?.title || 'papers Docs';
   const siteUrl = viteEnv.VITE_SITE_URL || '';
   const siteSubtitle = homepageConfig.hero?.subtitle || 'Documentation';
   const siteDescription = homepageConfig.hero?.description || '';

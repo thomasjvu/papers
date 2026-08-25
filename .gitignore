@@ -12,6 +12,8 @@
 /dist
 /build
 /coverage
+/test-results
+/.lighthouseci
 
 # deployment tooling
 .vercel

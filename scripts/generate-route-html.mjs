@@ -34,7 +34,10 @@ function escapeRegExp(value) {
 function upsertMetaTag(html, key, value, content) {
   const escapedContent = escapeAttribute(content);
   const tag = `<meta ${key}="${value}" content="${escapedContent}" />`;
-  const regex = new RegExp(`<meta\\s+${key}="${escapeRegExp(value)}"\\s+content="[^"]*"\\s*\\/?>`, 'i');
+  const regex = new RegExp(
+    `<meta\\s+${key}="${escapeRegExp(value)}"\\s+content="[^"]*"\\s*\\/?>`,
+    'i'
+  );
 
   if (regex.test(html)) {
     return html.replace(regex, tag);
@@ -56,7 +59,10 @@ function upsertLinkTag(html, rel, href) {
 }
 
 function applyMetadataToHtml(templateHtml, metadata) {
-  let html = templateHtml.replace(/<title>[^<]*<\/title>/i, `<title>${escapeAttribute(metadata.title)}</title>`);
+  let html = templateHtml.replace(
+    /<title>[^<]*<\/title>/i,
+    `<title>${escapeAttribute(metadata.title)}</title>`
+  );
 
   html = upsertMetaTag(html, 'name', 'description', metadata.description);
   html = upsertMetaTag(html, 'name', 'robots', metadata.robots);
@@ -73,6 +79,15 @@ function applyMetadataToHtml(templateHtml, metadata) {
   html = upsertLinkTag(html, 'canonical', metadata.canonicalUrl);
 
   return html;
+}
+
+function stripNonCriticalPreloads(html) {
+  return html
+    .replace(
+      /^\s*<link rel="modulepreload" crossorigin href="[^\n]*(?:vendor-(?:mermaid|openapi|markdown|syntax|sanitize)|DocsPage-|OpenApiPage-|DesignBookPage-)[^\n]*>\s*$/gm,
+      ''
+    )
+    .replace(/^\s*<link rel="stylesheet" crossorigin href="[^\n]*vendor-openapi-[^\n]*>\s*$/gm, '');
 }
 
 async function writeRouteHtml(routePath, html) {
@@ -115,7 +130,8 @@ async function generateRouteHtml() {
       siteDescription,
     }
   );
-  const templateHtml = readFileSync(indexHtmlPath, 'utf8');
+  const templateHtml = stripNonCriticalPreloads(readFileSync(indexHtmlPath, 'utf8'));
+  await writeFile(indexHtmlPath, `${templateHtml.trimEnd()}\n`);
 
   for (const entry of routeEntries) {
     const canonicalUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;

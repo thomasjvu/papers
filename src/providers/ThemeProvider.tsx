@@ -1,29 +1,7 @@
-import {
-  createContext,
-  useState,
-  useEffect,
-  useContext,
-  ReactNode,
-  useMemo,
-  useCallback,
-  useRef,
-} from 'react';
+import { useState, useEffect, type ReactNode, useMemo, useCallback, useRef } from 'react';
 import { papersThemeDefaultDarkMode } from '../lib/papersTheme';
 import safeLocalStorage from '../utils/storage';
-
-type FontFamily = 'sans-serif' | 'mono' | 'serif';
-
-type ThemeContextType = {
-  isDarkMode: boolean;
-  toggleTheme: () => void;
-  toggleDarkMode: () => void;
-  prefersReducedMotion: boolean;
-  toggleReducedMotion: () => void;
-  fontFamily: FontFamily;
-  setFontFamily: (font: FontFamily) => void;
-};
-
-const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
+import { ThemeContext, type FontFamily } from './theme-context';
 const DEFAULT_DARK_MODE = papersThemeDefaultDarkMode();
 
 function isEditableTarget(target: EventTarget | null): boolean {
@@ -203,12 +181,4 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   );
 
   return <ThemeContext.Provider value={contextValue}>{children}</ThemeContext.Provider>;
-}
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error('useTheme must be used within a ThemeProvider');
-  }
-  return context;
 }

@@ -16,6 +16,15 @@ That improves the table of contents, the interactive map, Pagefind excerpts, and
 
 Code samples, environment variables, and deployment commands should be runnable or obviously placeholder-safe.
 
+The documentation shell can render a small Mermaid diagram when a visual explanation is clearer than prose:
+
+```mermaid
+flowchart LR
+  source[Markdown or MDX] --> validate[Build validation]
+  validate --> artifact[Static route artifact]
+  artifact --> host[CDN or static host]
+```
+
 ## Regenerate Early
 
 Rerun `npm run generate:docs` while authoring instead of waiting until the end. That catches broken paths and stale content sooner.

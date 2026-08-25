@@ -1,3 +1,5 @@
+import { assertValidOpenApiConfig } from './openapiSpecUrls.js';
+
 /**
  * Framework-owned doc paths (generated or vendored), merged into the docs index.
  * @type {string[]}
@@ -73,6 +75,7 @@ export const chromeConfig = {
  * @type {{
  *   productName: string,
  *   logo?: { src: string, alt: string } | null,
+ *   heroFont?: 'brand' | 'title',
  *   copyright: { holder: string, year?: number, notice?: string },
  *   attribution: { text: string, href?: string } | null,
  *   social: Array<{ name: string, href: string, icon: string }>,
@@ -81,6 +84,7 @@ export const chromeConfig = {
 export const brandingConfig = {
   productName: 'papers',
   logo: null,
+  heroFont: 'title',
   copyright: {
     holder: 'papers',
     notice: 'MIT License.',
@@ -100,6 +104,7 @@ export const openapiConfig = {
   enabled: true,
   pagePath: 'api-reference/openapi',
   defaultSpecId: 'public',
+  allowedOrigins: [],
   specs: [
     {
       id: 'public',
@@ -115,6 +120,8 @@ export const openapiConfig = {
     },
   ],
 };
+
+assertValidOpenApiConfig(openapiConfig);
 
 /** @type {{ enabled: boolean, title?: string, subtitle?: string, route?: string, sourcePath?: string }} */
 export const designBookConfig = {

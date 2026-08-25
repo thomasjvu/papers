@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { documentationTree } from '../../data/documentation';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
-import { useTheme } from '../../providers/ThemeProvider';
+import { useTheme } from '../../providers/useTheme';
 import type { FileItem } from '../../types/documentation';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
 import { homepageConfig } from '../../../shared/documentation-config.js';
@@ -262,7 +262,7 @@ export const useSearchLogic = (query: string) => {
     }
 
     return results;
-  }, [preferenceCommands]);
+  }, [preferenceCommands, routeContext.activeLocale, routeContext.activeVersion]);
 
   const completeSearchIndex = useMemo(() => {
     const allResults = [...searchIndex];

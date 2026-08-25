@@ -5,7 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 
 import { documentationTree } from '../../data/documentation';
 import { useCommandPalette } from '../../providers/CommandPaletteProvider';
-import { useTheme } from '../../providers/ThemeProvider';
+import { useTheme } from '../../providers/useTheme';
 import type { FileItem } from '../../types/documentation';
 import { stripMarkdownBom } from '../../utils/markdown';
 import safeLocalStorage from '../../utils/storage';
@@ -13,7 +13,9 @@ import type { DocumentContentFormat } from '../../lib/content';
 import { prefetchDocument } from '../../lib/content';
 import ContentRenderer from '../ContentRenderer';
 import DocsVariantSelector from '../DocsVariantSelector';
-import DocumentationGraph from '../DocumentationGraph/OptimizedDocumentationGraph';
+const DocumentationGraph = React.lazy(
+  () => import('../DocumentationGraph/OptimizedDocumentationGraph')
+);
 import LanguageSwitcher from '../chrome/LanguageSwitcher';
 import SiteAttribution from '../chrome/SiteAttribution';
 import fileTreeStyles from '../FileTree.module.css';
@@ -553,18 +555,26 @@ const DocumentationPage = React.memo(
                     className="absolute inset-0 flex h-full flex-col will-change-[opacity]"
                   >
                     <div className="min-h-0 flex-1">
-                      <DocumentationGraph
-                        currentPath={path}
-                        onNodeClick={(nodePath) => {
-                          navigate(
-                            buildCanonicalDocsPath(nodePath, {
-                              version: routeContext.activeVersion,
-                              locale: routeContext.activeLocale,
-                            })
-                          );
-                        }}
-                        className="h-full w-full"
-                      />
+                      <React.Suspense
+                        fallback={
+                          <div className="flex h-full items-center justify-center text-sm text-muted">
+                            Loading interactive map…
+                          </div>
+                        }
+                      >
+                        <DocumentationGraph
+                          currentPath={path}
+                          onNodeClick={(nodePath) => {
+                            navigate(
+                              buildCanonicalDocsPath(nodePath, {
+                                version: routeContext.activeVersion,
+                                locale: routeContext.activeLocale,
+                              })
+                            );
+                          }}
+                          className="h-full w-full"
+                        />
+                      </React.Suspense>
                     </div>
                   </motion.div>
                 ) : (

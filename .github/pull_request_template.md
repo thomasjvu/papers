@@ -23,8 +23,20 @@ Please delete options that are not relevant.
 - [ ] I have made corresponding changes to the documentation
 - [ ] My changes generate no new warnings
 - [ ] I have tested my changes locally
-- [ ] I have checked my code with `npm run lint` and `npm run format`
+- [ ] I have checked my code with `npm run lint` and `npm run format:check`
 - [ ] I have checked TypeScript types with `npm run type-check`
+- [ ] If this changes docs, routes, headers, assets, or deployment, I ran the
+      relevant docs/security/release gates (`npm run docs:check`,
+      `npm run check:security-policy`, `npm run check:assets`, and/or
+      `npm run release:check`)
+
+## Verification notes
+
+See [AGENTS.md](../AGENTS.md) for source ownership and the read-only
+verification ladder, [FRAMEWORK.md](../FRAMEWORK.md) for architecture, and
+[RELEASING.md](../RELEASING.md) for deployment. Commands such as `npm run
+build` regenerate local artifacts; mention any intentional generated-file
+changes below.
 
 ## Screenshots (if applicable)
 

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 
 import { normalizeMermaidDiagram, waitForDiagramFonts } from '../utils/mermaidLayout';
 import { createLogger } from '../utils/logger';
+import { sanitizeMermaidSvg } from '../utils/sanitizeMermaidSvg';
 
 const logger = createLogger('MermaidDiagram');
 
@@ -29,12 +30,11 @@ async function renderMermaidChart(
 
   mermaid.initialize({
     startOnLoad: false,
-    // antiscript allows <strong> in node labels (strict strips them)
-    securityLevel: 'antiscript',
+    securityLevel: 'strict',
     theme: 'base',
     flowchart: {
       useMaxWidth: isInline,
-      htmlLabels: true,
+      htmlLabels: false,
       curve: 'basis',
       // padding = space inside node around label
       padding: isInline ? 22 : 28,
@@ -65,7 +65,13 @@ async function renderMermaidChart(
   });
 
   const { svg } = await mermaid.render(renderId, chart);
-  return svg;
+  const sanitizedSvg = sanitizeMermaidSvg(svg);
+
+  if (!sanitizedSvg) {
+    throw new Error('Mermaid output was rejected by the SVG security policy.');
+  }
+
+  return sanitizedSvg;
 }
 
 export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
