@@ -7,7 +7,8 @@ import {
   buildDocsContentPath,
   buildDocsRouteVariants,
 } from '../shared/docsRouting.js';
-import { getDefaultDocumentPath } from '../shared/seo.js';
+import { buildAbsoluteUrl, getDefaultDocumentPath } from '../shared/seo.js';
+import { loadViteEnv } from './lib/loadViteEnv.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -54,8 +55,14 @@ function main() {
   assert(existsSync(distHeadersPath), 'Missing dist/_headers.');
 
   const indexHtml = ensureRouteHtml('/');
-  assert(indexHtml.includes('/js/theme-init.js'), 'index.html is missing the local theme init script.');
-  assert(!indexHtml.includes('code.iconify.design'), 'index.html still references the external Iconify CDN.');
+  assert(
+    indexHtml.includes('/js/theme-init.js'),
+    'index.html is missing the local theme init script.'
+  );
+  assert(
+    !indexHtml.includes('code.iconify.design'),
+    'index.html still references the external Iconify CDN.'
+  );
 
   const headers = readText(distHeadersPath);
   assert(headers.includes("script-src 'self'"), 'CSP is missing self-only script-src.');
@@ -63,16 +70,22 @@ function main() {
   const docsIndex = JSON.parse(readText(distDocsIndexPath));
   const defaultDocPath = getDefaultDocumentPath(documentationTree);
   assert(defaultDocPath, 'Could not resolve the default documentation path.');
-  assert(docsIndex.paths.includes(defaultDocPath), 'Default documentation path is missing from docs-index.json.');
+  assert(
+    docsIndex.paths.includes(defaultDocPath),
+    'Default documentation path is missing from docs-index.json.'
+  );
 
   for (const routePath of buildDocsRouteVariants('')) {
     ensureRouteHtml(routePath);
   }
 
+  const siteUrl = loadViteEnv(rootDir, 'production').VITE_SITE_URL || '';
+  const canonicalPath = buildCanonicalDocsPath(defaultDocPath);
+  const canonicalUrl = buildAbsoluteUrl(canonicalPath, siteUrl) || canonicalPath;
   for (const routePath of buildDocsRouteVariants(defaultDocPath)) {
     const html = ensureRouteHtml(routePath);
     assert(
-      html.includes(`<link rel="canonical" href="${buildCanonicalDocsPath(defaultDocPath)}" />`),
+      html.includes(`<link rel="canonical" href="${canonicalUrl}" />`),
       `Canonical tag mismatch for ${routePath}.`
     );
   }
@@ -81,7 +94,10 @@ function main() {
   const sampleDocJsonPath = join(distDocsContentDir, `${buildDocsContentPath(sampleDocPath)}.json`);
   assert(existsSync(sampleDocJsonPath), `Missing generated docs JSON for ${sampleDocPath}.`);
   const sampleDocument = JSON.parse(readText(sampleDocJsonPath));
-  assert(typeof sampleDocument.sourcePath === 'string', 'Generated docs JSON is missing sourcePath metadata.');
+  assert(
+    typeof sampleDocument.sourcePath === 'string',
+    'Generated docs JSON is missing sourcePath metadata.'
+  );
 
   console.log('Release smoke checks passed.');
 }
