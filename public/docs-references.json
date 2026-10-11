@@ -363,13 +363,13 @@
       "source": "user-guide/command-palette",
       "target": "user-guide/advanced-features",
       "href": "/docs/user-guide/advanced-features",
-      "line": 36
+      "line": 45
     },
     {
       "source": "user-guide/command-palette",
       "target": "user-guide/basic-usage",
       "href": "/docs/user-guide/basic-usage",
-      "line": 37
+      "line": 46
     },
     {
       "source": "user-guide/configuration",
@@ -544,7 +544,7 @@
       {
         "source": "user-guide/command-palette",
         "href": "/docs/user-guide/command-palette",
-        "line": 36
+        "line": 45
       }
     ],
     "user-guide/basic-usage": [
@@ -561,7 +561,7 @@
       {
         "source": "user-guide/command-palette",
         "href": "/docs/user-guide/command-palette",
-        "line": 37
+        "line": 46
       },
       {
         "source": "user-guide/interactive-map",

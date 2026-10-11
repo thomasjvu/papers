@@ -455,3 +455,31 @@ test('steps and cards render in Markdown and MDX', async ({ page }) => {
   await expect(page.locator('.papers-card-grid .papers-card')).toHaveCount(2);
   await assertNoRuntimeErrors(errors);
 });
+
+test('Pagefind index supports section filters for docs: and api: scopes', async ({ page }) => {
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await page
+    .getByPlaceholder('Search documentation or type a command...')
+    .fill('docs: content tabs');
+  await expect(page.getByRole('button', { name: /Callouts And Code Blocks/i }).first()).toBeVisible(
+    {
+      timeout: 15_000,
+    }
+  );
+  const counts = await page.evaluate(async () => {
+    const pagefind = window.pagefind;
+    const docs = await pagefind.search('character', { filters: { section: 'docs' } });
+    const api = await pagefind.search('character', { filters: { section: 'api' } });
+    const apiOnly = await pagefind.search('get', { filters: { section: 'api' } });
+    const apiData = await Promise.all(apiOnly.results.slice(0, 5).map((result) => result.data()));
+    return {
+      docs: docs.results.length,
+      api: api.results.length,
+      apiKinds: Array.from(new Set(apiData.map((data) => data.meta.kind))),
+    };
+  });
+  expect(counts.docs).toBeGreaterThan(0);
+  expect(counts.api).toBe(0);
+  for (const kind of counts.apiKinds) expect(kind).toMatch(/^openapi-/);
+});

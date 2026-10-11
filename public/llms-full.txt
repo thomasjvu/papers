@@ -553,6 +553,15 @@ Local navigation results are always available.
 
 Pagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.
 
+### Scoping And Ranking
+
+- Start a query with `docs:` to search only guides, or `api:` to search only
+  the OpenAPI reference. For example, `api: users`.
+- On a versioned or translated page, guide results come from the same version
+  and language as the page you are reading.
+- Pages whose title matches your query rank first. The ranking settings live in
+  `src/lib/searchRanking.ts`.
+
 ## Next Steps
 
 - [Advanced Features](/docs/user-guide/advanced-features)
