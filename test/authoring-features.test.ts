@@ -13,6 +13,8 @@ import {
 import { resolveTabIndex } from '../src/lib/tabSync.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
+import { createWordPattern, markWords, type HighlighterNode } from '../src/utils/codeWords.ts';
+import { parseCodeFenceMeta, parseDiffLanguage } from '../shared/codeFence.js';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -325,6 +327,79 @@ export const authoringFeatureTests: TestCase[] = [
         mdx,
         /^<details class="admonition admonition-details"><summary class="admonition-title">Show more<\/summary>/
       );
+    },
+  },
+  {
+    name: 'fence meta reads quoted highlight words and line-number flags',
+    run: () => {
+      assert.deepEqual(parseCodeFenceMeta(' title="a.ts" "apiKey" \'x y\' {2}'), {
+        title: 'a.ts',
+        highlightWords: ['apiKey', 'x y'],
+        highlightLines: [2],
+      });
+      assert.equal(parseCodeFenceMeta(' noLineNumbers').showLineNumbers, false);
+      assert.equal(parseCodeFenceMeta(' showLineNumbers=false').showLineNumbers, false);
+      assert.equal(parseCodeFenceMeta(' showLineNumbers').showLineNumbers, true);
+      assert.equal(parseCodeFenceMeta(' {1}').showLineNumbers, undefined);
+      const many = parseCodeFenceMeta(
+        Array.from({ length: 12 }, (_, index) => ` "w${index}"`).join('')
+      );
+      assert.equal(many.highlightWords?.length, 10);
+    },
+  },
+  {
+    name: 'parseDiffLanguage splits diff-<lang> into diff marking plus syntax language',
+    run: () => {
+      assert.deepEqual(parseDiffLanguage('diff-ts'), { isDiff: true, syntaxLanguage: 'ts' });
+      assert.deepEqual(parseDiffLanguage('diff'), { isDiff: true, syntaxLanguage: 'diff' });
+      assert.deepEqual(parseDiffLanguage('ts'), { isDiff: false, syntaxLanguage: 'ts' });
+      assert.deepEqual(parseDiffLanguage('diff-'), { isDiff: false, syntaxLanguage: 'diff-' });
+    },
+  },
+  {
+    name: 'markWords wraps matches in marks without touching line numbers',
+    run: () => {
+      const pattern = createWordPattern(['api', 'apiKey', 'a.b']);
+      const row: HighlighterNode = {
+        type: 'element',
+        tagName: 'span',
+        children: [
+          {
+            type: 'element',
+            tagName: 'span',
+            properties: { className: ['linenumber'] },
+            children: [{ type: 'text', value: 'apiKey' }],
+          },
+          { type: 'text', value: 'const apiKey = a.b + axb;' },
+        ],
+      };
+      const marked = markWords(row, pattern);
+      assert.equal(marked.children?.[0], row.children?.[0]);
+      const texts = (marked.children ?? [])
+        .slice(1)
+        .map((child) =>
+          child.type === 'element' ? `[${child.children?.[0].value}]` : String(child.value)
+        )
+        .join('');
+      assert.equal(texts, 'const [apiKey] = [a.b] + axb;');
+      assert.equal(createWordPattern([]), null);
+      assert.equal(markWords(row, null), row);
+    },
+  },
+  {
+    name: 'MDX code meta carries highlight words and line-number flags to CodeBlock',
+    run: async () => {
+      const html = await compileMdxToHtml('```ts "apiKey" noLineNumbers\nconst apiKey = 1;\n```');
+      const { document } = new JSDOM(`<body>${html}</body>`).window;
+      assert.deepEqual(readHtmlCodeBlock(document.body.firstElementChild!), {
+        language: 'ts',
+        code: 'const apiKey = 1;',
+        highlightWords: ['apiKey'],
+        showLineNumbers: false,
+      });
+      const diffTs = await compileMdxToHtml('```diff-ts\n-a\n+b\n```');
+      assert.match(diffTs, /data-code-language="diff-ts"/);
+      assert.match(diffTs, /data-line-kind="added"/);
     },
   },
 ];

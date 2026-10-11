@@ -9,7 +9,8 @@ import React, {
 
 import { ANIMATION_DURATION } from '../constants/ui';
 import { getLanguageDisplay } from '../utils/languageUtils';
-import { getDiffLineKind } from '../utils/markdownCore';
+import { getDiffLineKind, parseDiffLanguage } from '../utils/markdownCore';
+import { createWordPattern, markWords, type HighlighterNode } from '../utils/codeWords';
 
 import styles from './CodeBlock.module.css';
 
@@ -19,6 +20,8 @@ interface CodeSnippet {
   label?: string;
   title?: string;
   highlightLines?: number[];
+  highlightWords?: string[];
+  showLineNumbers?: boolean;
 }
 
 interface CodeBlockProps {
@@ -35,6 +38,11 @@ type SyntaxHighlighterProps = {
   showLineNumbers?: boolean;
   wrapLines?: boolean;
   wrapLongLines?: boolean;
+  renderer?: (props: {
+    rows: HighlighterNode[];
+    stylesheet: Record<string, CSSProperties>;
+    useInlineStyles: boolean;
+  }) => React.ReactNode;
   lineProps?: (lineNumber: number) => {
     className?: string;
     style?: CSSProperties;
@@ -51,8 +59,16 @@ type SyntaxHighlighterComponent = ComponentType<SyntaxHighlighterProps> & {
   registerLanguage: (name: string, language: unknown) => void;
 };
 
+type CreateElement = (props: {
+  node: HighlighterNode;
+  stylesheet: Record<string, CSSProperties>;
+  useInlineStyles: boolean;
+  key: string;
+}) => React.ReactNode;
+
 type SyntaxModule = {
   SyntaxHighlighter: SyntaxHighlighterComponent;
+  createElement: CreateElement;
 };
 
 const REGISTERED_LANGUAGES = new Set([
@@ -64,10 +80,21 @@ const REGISTERED_LANGUAGES = new Set([
   'markup',
   'tsx',
   'typescript',
+  'diff',
+  'python',
+  'yaml',
+  'sql',
+  'go',
+  'rust',
 ]);
 
 const LANGUAGE_ALIASES: Record<string, string> = {
   env: 'bash',
+  py: 'python',
+  yml: 'yaml',
+  rs: 'rust',
+  sh: 'bash',
+  shell: 'bash',
   html: 'markup',
   js: 'javascript',
   md: 'markdown',
@@ -155,7 +182,10 @@ const minimalSyntaxTheme: Record<string, CSSProperties> = {
     color: 'var(--code-text-color)',
   },
   inserted: {
-    color: 'var(--code-text-color)',
+    color: 'var(--code-inserted-color, rgb(34, 140, 80))',
+  },
+  deleted: {
+    color: 'var(--code-deleted-color, rgb(200, 60, 60))',
   },
   'attr-name': {
     color: 'var(--code-subtle-color)',
@@ -184,9 +214,6 @@ const minimalSyntaxTheme: Record<string, CSSProperties> = {
   regex: {
     color: 'var(--code-subtle-color)',
   },
-  deleted: {
-    color: 'var(--code-subtle-color)',
-  },
   bold: {
     fontWeight: 700,
   },
@@ -213,6 +240,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
   ({ snippets = [], title, defaultLanguage, showLineNumbers = true, className = '' }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [copied, setCopied] = useState(false);
+    // Per-block line-number toggle; null follows the fence/default setting.
+    const [lineNumberOverride, setLineNumberOverride] = useState<boolean | null>(null);
     const [mounted, setMounted] = useState(false);
     const [syntaxModule, setSyntaxModule] = useState<SyntaxModule | null>(null);
 
@@ -234,6 +263,13 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
           markup,
           tsx,
           typescript,
+          diff,
+          python,
+          yaml,
+          sql,
+          go,
+          rust,
+          createElementModule,
         ] = await Promise.all([
           import('react-syntax-highlighter/dist/esm/prism-light'),
           import('react-syntax-highlighter/dist/esm/languages/prism/bash'),
@@ -244,6 +280,13 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
           import('react-syntax-highlighter/dist/esm/languages/prism/markup'),
           import('react-syntax-highlighter/dist/esm/languages/prism/tsx'),
           import('react-syntax-highlighter/dist/esm/languages/prism/typescript'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/diff'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/python'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/yaml'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/sql'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/go'),
+          import('react-syntax-highlighter/dist/esm/languages/prism/rust'),
+          import('react-syntax-highlighter/dist/esm/create-element'),
         ]);
 
         const SyntaxHighlighter = PrismLight as SyntaxHighlighterComponent;
@@ -255,9 +298,18 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
         SyntaxHighlighter.registerLanguage('markup', markup.default);
         SyntaxHighlighter.registerLanguage('tsx', tsx.default);
         SyntaxHighlighter.registerLanguage('typescript', typescript.default);
+        SyntaxHighlighter.registerLanguage('diff', diff.default);
+        SyntaxHighlighter.registerLanguage('python', python.default);
+        SyntaxHighlighter.registerLanguage('yaml', yaml.default);
+        SyntaxHighlighter.registerLanguage('sql', sql.default);
+        SyntaxHighlighter.registerLanguage('go', go.default);
+        SyntaxHighlighter.registerLanguage('rust', rust.default);
 
         if (!cancelled) {
-          setSyntaxModule({ SyntaxHighlighter });
+          setSyntaxModule({
+            SyntaxHighlighter,
+            createElement: createElementModule.default as unknown as CreateElement,
+          });
         }
       }
 
@@ -318,14 +370,37 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
     }
 
     const { SyntaxHighlighter } = syntaxModule;
-    const normalizedLanguage = normalizeLanguage(currentSnippet.language);
+    const { isDiff, syntaxLanguage } = parseDiffLanguage(currentSnippet.language);
+    const normalizedLanguage = normalizeLanguage(syntaxLanguage);
     const snippetTitle = title ?? currentSnippet.title;
     const trimmedCode = currentSnippet.code.trim();
-    const isDiff = currentSnippet.language.toLowerCase() === 'diff';
     const codeLines = trimmedCode.split('\n');
     const highlighted = new Set(currentSnippet.highlightLines ?? []);
     // Only wrap lines when a block uses line metadata, so plain blocks render exactly as before.
     const needsLineProps = isDiff || highlighted.size > 0;
+    const wordPattern = createWordPattern(currentSnippet.highlightWords ?? []);
+    const lineNumbersVisible =
+      lineNumberOverride ?? currentSnippet.showLineNumbers ?? showLineNumbers;
+    const { createElement: createHighlighterElement } = syntaxModule;
+    const wordRenderer = wordPattern
+      ? ({
+          rows,
+          stylesheet,
+          useInlineStyles,
+        }: {
+          rows: HighlighterNode[];
+          stylesheet: Record<string, CSSProperties>;
+          useInlineStyles: boolean;
+        }) =>
+          rows.map((row, index) =>
+            createHighlighterElement({
+              node: markWords(row, wordPattern),
+              stylesheet,
+              useInlineStyles,
+              key: `code-row-${index}`,
+            })
+          )
+      : undefined;
     const lineProps = (lineNumber: number) => {
       const classes = [styles.codeLine];
       const diffKind = getDiffLineKind(codeLines[lineNumber - 1] ?? '', isDiff);
@@ -368,6 +443,17 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             </span>
             <button
               className={styles.codeBlockCopyBtn}
+              onClick={() => setLineNumberOverride(!lineNumbersVisible)}
+              title={lineNumbersVisible ? 'Hide line numbers' : 'Show line numbers'}
+              aria-label={lineNumbersVisible ? 'Hide line numbers' : 'Show line numbers'}
+              aria-pressed={lineNumbersVisible}
+              type="button"
+              data-line-number-toggle=""
+            >
+              <Icon icon="mingcute:list-ordered-line" className="h-4 w-4" />
+            </button>
+            <button
+              className={styles.codeBlockCopyBtn}
               onClick={copyToClipboard}
               title={copied ? 'Copied!' : 'Copy to clipboard'}
               aria-label={copied ? 'Copied' : 'Copy to clipboard'}
@@ -385,7 +471,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             <SyntaxHighlighter
               language={normalizedLanguage}
               style={minimalSyntaxTheme}
-              showLineNumbers={showLineNumbers}
+              showLineNumbers={lineNumbersVisible}
+              renderer={wordRenderer}
               wrapLines={true}
               wrapLongLines={true}
               lineProps={needsLineProps ? lineProps : undefined}

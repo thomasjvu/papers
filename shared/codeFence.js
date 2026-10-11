@@ -5,6 +5,7 @@
  */
 
 const MAX_HIGHLIGHT_LINE = 10000;
+const MAX_HIGHLIGHT_WORDS = 10;
 
 /** Parse `1,3-5` line ranges. Invalid, zero, reversed, or huge ranges are ignored. */
 export function parseHighlightLines(spec) {
@@ -32,6 +33,21 @@ export function parseCodeFenceMeta(meta) {
     rest = rest.replace(titleMatch[0], ' ');
   }
 
+  // Quoted terms such as "token" or 'apiKey' highlight every occurrence.
+  const words = [];
+  rest = rest.replace(/"([^"\n]{1,80})"|'([^'\n]{1,80})'/g, (_match, double, single) => {
+    const word = (double ?? single ?? '').trim();
+    if (word && !words.includes(word) && words.length < MAX_HIGHLIGHT_WORDS) words.push(word);
+    return ' ';
+  });
+  if (words.length > 0) result.highlightWords = words;
+
+  if (/(?:^|\s)(?:showLineNumbers=false|noLineNumbers)(?=\s|$)/.test(rest)) {
+    result.showLineNumbers = false;
+  } else if (/(?:^|\s)showLineNumbers(?:=true)?(?=\s|$)/.test(rest)) {
+    result.showLineNumbers = true;
+  }
+
   const rangeMatch = /\{([^}]*)\}/.exec(rest);
   if (rangeMatch) {
     const lines = parseHighlightLines(rangeMatch[1]);
@@ -46,6 +62,19 @@ export function parseCodeFenceInfo(info) {
   const trimmed = String(info || '').trim();
   const language = trimmed.match(/^\S*/)?.[0] || 'text';
   return { language, ...parseCodeFenceMeta(trimmed.slice(language.length)) };
+}
+
+/**
+ * `diff` fences mark +/- lines; `diff-ts` (any `diff-<language>`) also colours
+ * the code with that language. Returns the language used for syntax colours.
+ */
+export function parseDiffLanguage(language) {
+  const value = String(language || '').toLowerCase();
+  if (value === 'diff') return { isDiff: true, syntaxLanguage: 'diff' };
+  if (value.startsWith('diff-') && value.length > 5) {
+    return { isDiff: true, syntaxLanguage: value.slice(5) };
+  }
+  return { isDiff: false, syntaxLanguage: value };
 }
 
 /** Classify a diff line by its leading marker; non-diff blocks never mark lines. */

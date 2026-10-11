@@ -4,7 +4,7 @@
  * (`title="..."`, `{1,3-5}`, `diff`). Output uses the same `admonition-*`
  * classes as Markdown pages and passes through the MDX sanitizer.
  */
-import { getDiffLineKind, parseCodeFenceMeta } from '../../shared/codeFence.js';
+import { getDiffLineKind, parseCodeFenceMeta, parseDiffLanguage } from '../../shared/codeFence.js';
 
 export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger', 'details'];
 
@@ -201,8 +201,16 @@ export function remarkAdmonitionDirectives() {
 function transformCodeNode(node) {
   const meta = parseCodeFenceMeta(node.meta || '');
   const language = node.lang || 'text';
-  const isDiff = language.toLowerCase() === 'diff';
-  if (!meta.title && !meta.highlightLines && !isDiff) return null;
+  const { isDiff } = parseDiffLanguage(language);
+  if (
+    !meta.title &&
+    !meta.highlightLines &&
+    !meta.highlightWords &&
+    meta.showLineNumbers === undefined &&
+    !isDiff
+  ) {
+    return null;
+  }
 
   const highlighted = new Set(meta.highlightLines || []);
   const lines = String(node.value || '').split('\n');
@@ -247,7 +255,19 @@ function transformCodeNode(node) {
 
   return {
     type: 'codeFigure',
-    data: { hName: 'div', hProperties: { className: 'papers-code', dataCodeLanguage: language } },
+    data: {
+      hName: 'div',
+      hProperties: {
+        className: 'papers-code',
+        dataCodeLanguage: language,
+        ...(meta.highlightWords
+          ? { dataHighlightWords: encodeURIComponent(JSON.stringify(meta.highlightWords)) }
+          : {}),
+        ...(meta.showLineNumbers !== undefined
+          ? { dataLineNumbers: String(meta.showLineNumbers) }
+          : {}),
+      },
+    },
     children,
   };
 }

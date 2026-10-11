@@ -281,8 +281,11 @@ test('callouts, GitHub alerts, and code fence metadata render accessibly', async
   const highlighted = page.locator('[class*="codeLineHighlighted"]');
   await expect(highlighted).toHaveCount(3);
   await expect(highlighted.first()).toContainText('@vitejs/plugin-react');
-  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
-  await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
+  const packageDiff = page
+    .locator('[data-code-title]', { hasText: /^package\.json$/ })
+    .locator('xpath=../..');
+  await expect(packageDiff.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await expect(packageDiff.locator('[data-line-kind="removed"]')).toHaveCount(1);
   await assertNoRuntimeErrors(errors);
 });
 
@@ -380,5 +383,34 @@ test('collapsible callouts open from the keyboard', async ({ page }) => {
   await details.locator('summary').focus();
   await page.keyboard.press('Enter');
   await expect(details.locator('.admonition-content')).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
+test('code blocks support word highlights, diff colours, and a line-number toggle', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  await expect(page.locator('mark.code-word-highlight', { hasText: 'apiKey' })).toHaveCount(2);
+  await expect(page.locator('mark.code-word-highlight', { hasText: 'fetchDocs' })).toHaveCount(1);
+
+  const diffTs = page
+    .locator('[data-code-title]', { hasText: /^greet\.ts$/ })
+    .locator('xpath=../..');
+  await expect(diffTs.locator('[data-line-kind="added"]')).toHaveCount(1);
+  // diff-ts is tokenized as TypeScript, not as plain diff text.
+  await expect(diffTs.locator('.token', { hasText: /^function$/ })).toHaveCount(1);
+
+  const plain = page
+    .locator('[data-code-title]', { hasText: 'src/greet.ts' })
+    .locator('xpath=../..');
+  await expect(plain.locator('.linenumber').first()).toBeVisible();
+  const toggle = plain.getByRole('button', { name: 'Hide line numbers' });
+  await toggle.click();
+  await expect(plain.locator('.linenumber')).toHaveCount(0);
+  await expect(plain.getByRole('button', { name: 'Show line numbers' })).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  );
   await assertNoRuntimeErrors(errors);
 });

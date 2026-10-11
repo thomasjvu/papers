@@ -30,6 +30,8 @@ const sanitizeSchema = {
       'ariaLabel',
       'dataCodeLanguage',
       'dataCodeTitle',
+      'dataHighlightWords',
+      'dataLineNumbers',
       'dataCallout',
       'dataMermaidChart',
       'dataMathTex',

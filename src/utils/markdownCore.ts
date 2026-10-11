@@ -4,13 +4,14 @@ import { markedHighlight } from 'marked-highlight';
 import { stripMarkdownBom } from './markdown.ts';
 import {
   getDiffLineKind,
+  parseDiffLanguage,
   parseCodeFenceInfo,
   parseHighlightLines,
   type CodeFenceInfo,
   type CodeLineKind,
 } from '../../shared/codeFence.js';
 
-export { getDiffLineKind, parseCodeFenceInfo, parseHighlightLines };
+export { getDiffLineKind, parseCodeFenceInfo, parseDiffLanguage, parseHighlightLines };
 export type { CodeFenceInfo, CodeLineKind };
 
 export interface CodeBlockData {
@@ -21,6 +22,10 @@ export interface CodeBlockData {
   title?: string;
   /** 1-based line numbers to emphasize, from a `{1,3-5}` fence attribute. */
   highlightLines?: number[];
+  /** Terms to emphasize wherever they appear, from quoted fence attributes. */
+  highlightWords?: string[];
+  /** Per-block line-number default from `showLineNumbers` / `noLineNumbers`. */
+  showLineNumbers?: boolean;
 }
 
 export interface MermaidBlockData {
@@ -360,10 +365,12 @@ function createRenderer(
 
     const blockId = createId('codeblock');
     const snippets = createCodeBlockSnippets(language, code);
-    if (fenceInfo.title || fenceInfo.highlightLines) {
-      for (const snippet of snippets) {
-        if (fenceInfo.title) snippet.title = fenceInfo.title;
-        if (fenceInfo.highlightLines) snippet.highlightLines = [...fenceInfo.highlightLines];
+    for (const snippet of snippets) {
+      if (fenceInfo.title) snippet.title = fenceInfo.title;
+      if (fenceInfo.highlightLines) snippet.highlightLines = [...fenceInfo.highlightLines];
+      if (fenceInfo.highlightWords) snippet.highlightWords = [...fenceInfo.highlightWords];
+      if (fenceInfo.showLineNumbers !== undefined) {
+        snippet.showLineNumbers = fenceInfo.showLineNumbers;
       }
     }
     codeBlocksData.set(blockId, snippets);

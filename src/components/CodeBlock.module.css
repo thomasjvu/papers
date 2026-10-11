@@ -87,6 +87,10 @@
     overflow-wrap: anywhere;
   }
 
+  .codeBlockCopyBtn + .codeBlockCopyBtn {
+    margin-left: 0.25rem;
+  }
+
   .codeBlockFilename + .codeBlockLanguage {
     margin-right: 0.75rem;
   }
@@ -110,6 +114,14 @@
   .codeLineRemoved {
     background-color: rgba(214, 60, 60, 0.14);
     border-left-color: rgb(214, 60, 60);
+  }
+
+  .codeBlockContent :global(.code-word-highlight) {
+    padding: 0 0.15em;
+    border-radius: 3px;
+    background-color: rgba(var(--primary-color-rgb), 0.22);
+    color: inherit;
+    outline: 1px solid rgba(var(--primary-color-rgb), 0.45);
   }
 
   .codeBlockCopyBtn {
