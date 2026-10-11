@@ -50,7 +50,9 @@
     "release:preview-check": "node scripts/preview-smoke.mjs",
     "postdeploy:smoke": "node scripts/postdeploy-smoke.mjs",
     "browser:check": "npm run build && playwright test",
-    "lighthouse:check": "node scripts/lighthouse-check.mjs"
+    "lighthouse:check": "node scripts/lighthouse-check.mjs",
+    "visual:check": "node scripts/visual-check.mjs",
+    "visual:update": "node scripts/visual-check.mjs --update"
   },
   "engines": {
     "node": ">=24.0.0"
