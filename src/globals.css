@@ -1286,6 +1286,14 @@
   }
 
   /* Edit / issue / source — in-flow under prev/next (not absolute, not hidden on mobile) */
+  .doc-page-updated {
+    margin: 0.75rem 0 0;
+    text-align: center;
+    font-family: var(--mono-font);
+    font-size: 0.75rem;
+    color: var(--muted-color);
+  }
+
   .doc-page-footer {
     position: static;
     width: 100%;
@@ -2111,6 +2119,56 @@
   .doc-content .papers-code__line--removed {
     background-color: rgba(214, 60, 60, 0.14);
     border-left-color: rgb(214, 60, 60);
+  }
+
+  /* Content tabs (:::tabs) */
+  .md-tabs {
+    margin: var(--space-6) 0;
+    border: 1px solid var(--border-unified);
+    border-radius: var(--radius-md, 8px);
+  }
+
+  .md-tabs__list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.5rem 0.75rem 0;
+    border-bottom: 1px solid var(--border-unified);
+  }
+
+  .md-tabs__tab {
+    padding: 0.4rem 0.8rem;
+    border: none;
+    border-bottom: 2px solid transparent;
+    background: transparent;
+    color: var(--muted-color);
+    font-family: var(--mono-font);
+    font-size: 0.8125rem;
+    cursor: pointer;
+  }
+
+  .md-tabs__tab[aria-selected='true'] {
+    border-bottom-color: var(--primary-color);
+    color: var(--papers-text-color);
+    font-weight: 600;
+  }
+
+  .md-tabs__tab:focus-visible,
+  .md-tabs__panel:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .md-tabs__panel {
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .md-tabs__panel > :first-child {
+    margin-top: 0;
+  }
+
+  .md-tabs__panel > :last-child {
+    margin-bottom: 0;
   }
 
   /* Epigraph / pull-quote: large open mark with text wrapping beside it */

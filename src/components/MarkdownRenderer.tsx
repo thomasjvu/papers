@@ -10,11 +10,13 @@ import {
   type MermaidBlockData,
 } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
+import { readHtmlCodeBlock } from '../utils/htmlCodeBlocks';
 import { resolveDocumentPath } from '../lib/content';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
+import ContentTabs from './ContentTabs';
 import LiveExample from './LiveExample';
 import MathFormula from './MathFormula';
 import { hydrateMathPlaceholders } from '../utils/renderMath';
@@ -35,14 +37,22 @@ const HTML_RENDERER_SANITIZE_CONFIG = {
   USE_PROFILES: { html: true },
 };
 
-type HtmlSegment = { kind: 'html'; html: string } | { kind: 'mermaid'; chart: string };
+type HtmlSegment =
+  | { kind: 'html'; html: string }
+  | { kind: 'mermaid'; chart: string }
+  | { kind: 'code'; snippet: CodeBlockData };
 
 /**
  * Splits sanitized MDX HTML at top-level Mermaid placeholders so diagrams can be
  * rendered by <MermaidDiagram> while the rest stays static HTML.
  */
 export function splitHtmlSegments(html: string): HtmlSegment[] {
-  if (typeof document === 'undefined' || !html.includes('data-mermaid-chart')) {
+  if (
+    typeof document === 'undefined' ||
+    (!html.includes('data-mermaid-chart') &&
+      !html.includes('<pre') &&
+      !html.includes('papers-code'))
+  ) {
     return [{ kind: 'html', html }];
   }
   const template = document.createElement('template');
@@ -51,6 +61,13 @@ export function splitHtmlSegments(html: string): HtmlSegment[] {
   let buffer = '';
   for (const node of Array.from(template.content.childNodes)) {
     const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : null;
+    const codeSnippet = element ? readHtmlCodeBlock(element) : null;
+    if (codeSnippet) {
+      if (buffer) segments.push({ kind: 'html', html: buffer });
+      buffer = '';
+      segments.push({ kind: 'code', snippet: codeSnippet });
+      continue;
+    }
     const encoded = element?.getAttribute('data-mermaid-chart');
     if (encoded) {
       let chart: string | null = null;
@@ -100,7 +117,14 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
   return (
     <div ref={containerRef}>
       {segments.map((segment, index) =>
-        segment.kind === 'mermaid' ? (
+        segment.kind === 'code' ? (
+          <CodeBlock
+            key={`code-${index}`}
+            snippets={[segment.snippet]}
+            showLineNumbers={true}
+            className="my-6"
+          />
+        ) : segment.kind === 'mermaid' ? (
           <Suspense
             key={`mermaid-${index}`}
             fallback={
@@ -327,6 +351,21 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
 
   const element = node as Element;
   const tagName = element.tagName.toLowerCase();
+
+  if (tagName === 'div' && element.classList.contains('md-tabs')) {
+    const panels = Array.from(element.children)
+      .filter((child) => child.classList.contains('md-tabs__panel'))
+      .map((panel, index) => ({
+        label: panel.getAttribute('data-tab-label') || `Tab ${index + 1}`,
+        content: renderNodes(panel.childNodes, `${key}-panel-${index}`, context),
+      }));
+    if (panels.length === 0) {
+      return null;
+    }
+    return (
+      <ContentTabs key={key} group={element.getAttribute('data-tabs-group')} panels={panels} />
+    );
+  }
 
   if (tagName === 'div' && element.hasAttribute('data-codeblock-id')) {
     const blockId = element.getAttribute('data-codeblock-id');

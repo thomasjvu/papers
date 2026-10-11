@@ -158,6 +158,8 @@ export const processMarkdown = async (
         'tabindex',
         'aria-label',
         'role',
+        'data-tabs-group',
+        'data-tab-label',
         'width',
         'height',
         'target',

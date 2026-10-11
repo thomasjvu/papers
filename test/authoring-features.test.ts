@@ -8,8 +8,11 @@ import {
   getDiffLineKind,
   parseCodeFenceInfo,
   parseHighlightLines,
+  splitTabPanels,
 } from '../src/utils/markdownCore.ts';
+import { resolveTabIndex } from '../src/lib/tabSync.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
+import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -242,6 +245,68 @@ export const authoringFeatureTests: TestCase[] = [
       assert.match(html, /data-line-kind="added">\+new</);
       assert.match(html, /<span class="papers-code__line"> ctx<\/span>/);
       assert.match(html, /<pre><code class="language-js">plain\n<\/code><\/pre>/);
+    },
+  },
+  {
+    name: 'MDX single-line <Callout> renders as a block callout, not a nested div',
+    run: async () => {
+      const html = await compileMdxToHtml('<Callout type="warning">Legacy</Callout>');
+      assert.doesNotMatch(html, /<p><div>/);
+      assert.match(html, /^<div class="admonition admonition-warning papers-callout/);
+      assert.match(html, /admonition-content">Legacy<\/div>/);
+      const inline = await compileMdxToHtml('Text with <Callout>x</Callout> inside.');
+      assert.match(inline, /^<p>Text with/);
+    },
+  },
+  {
+    name: 'readHtmlCodeBlock lifts compiled MDX code into CodeBlock snippets',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        '```ts\nconst a = 1;\n```\n\n```bash title="setup.sh" {2}\nnpm ci\nnpm run build\n```\n\n```diff\n-a\n+b\n```\n\nText.'
+      );
+      const { document } = new JSDOM(`<body>${html}</body>`).window;
+      const blocks = Array.from(document.body.children)
+        .map((element) => readHtmlCodeBlock(element))
+        .filter(Boolean);
+      assert.deepEqual(blocks, [
+        { language: 'ts', code: 'const a = 1;' },
+        { language: 'bash', code: 'npm ci\nnpm run build', title: 'setup.sh', highlightLines: [2] },
+        { language: 'diff', code: '-a\n+b' },
+      ]);
+      const paragraph = document.querySelector('p');
+      assert.equal(paragraph && readHtmlCodeBlock(paragraph), null);
+    },
+  },
+  {
+    name: 'markdown :::tabs render labelled panels with an optional group key',
+    run: async () => {
+      const { html, codeBlocks } = await render(
+        ':::tabs pkg\n::tab npm\n```bash\nnpm i\n```\n::tab pnpm\nUse **pnpm**.\n:::'
+      );
+      assert.match(html, /<div class="md-tabs" data-tabs-group="pkg">/);
+      assert.match(html, /<div class="md-tabs__panel" data-tab-label="npm"><div data-codeblock-id/);
+      assert.match(html, /data-tab-label="pnpm"><p>Use <strong>pnpm<\/strong>/);
+      assert.equal(codeBlocks.size, 1);
+      const ungrouped = await render(':::tabs\n::tab A\none\n::tab B\ntwo\n:::');
+      assert.match(ungrouped.html, /<div class="md-tabs"><div/);
+      const badGroup = await render(':::tabs "><x\n::tab A\none\n:::');
+      assert.doesNotMatch(badGroup.html, /data-tabs-group/);
+      const escaped = await render(':::tabs\n::tab <b>"x"</b>\none\n:::');
+      assert.match(escaped.html, /data-tab-label="&lt;b&gt;&quot;x&quot;&lt;\/b&gt;"/);
+      const empty = await render(':::tabs\nno markers\n:::');
+      assert.doesNotMatch(empty.html, /md-tabs/);
+    },
+  },
+  {
+    name: 'splitTabPanels and resolveTabIndex handle markers and stale choices',
+    run: () => {
+      assert.deepEqual(splitTabPanels('intro\n::tab A\none\n::tab B\ntwo'), [
+        { label: 'A', content: 'one\n' },
+        { label: 'B', content: 'two' },
+      ]);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], 'pnpm'), 1);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], 'yarn'), 0);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], null), 0);
     },
   },
 ];

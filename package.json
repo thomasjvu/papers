@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:docs && npm run generate:seo -- --mode development && vite",
-    "build": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind && npm run write:build-manifest",
+    "build": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind && npm run generate:last-updated && npm run write:build-manifest",
     "generate:design-book": "node scripts/generate-design-book.mjs",
     "resolve:theme": "node scripts/resolve-theme.mjs",
     "papers:theme": "node scripts/papers-theme.mjs",
@@ -33,6 +33,7 @@
     "generate:pagefind": "node scripts/generate-pagefind.mjs",
     "generate:seo": "node scripts/generate-seo.mjs",
     "generate:route-html": "node scripts/generate-route-html.mjs",
+    "generate:last-updated": "node scripts/generate-last-updated.mjs",
     "write:build-manifest": "node scripts/write-build-manifest.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "sync:generated": "node scripts/sync-generated-docs.mjs",

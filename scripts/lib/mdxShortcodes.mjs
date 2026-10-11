@@ -315,8 +315,43 @@ function visitChildren(node, visitor) {
   });
 }
 
+const BLOCK_SHORTCODES = new Set(['Callout', 'Tabs', 'Card', 'CharacterNote']);
+
+/**
+ * `<Callout>text</Callout>` written on one line parses as a text element inside a
+ * paragraph. When a paragraph holds only one block shortcode, promote it to a
+ * flow element so it renders as a block instead of an unstyled nested div.
+ */
+export function hoistInlineBlockShortcodes(node) {
+  if (!Array.isArray(node.children)) {
+    return;
+  }
+
+  node.children = node.children.map((child) => {
+    if (child.type === 'paragraph') {
+      const meaningful = child.children.filter(
+        (leaf) => !(leaf.type === 'text' && leaf.value.trim() === '')
+      );
+      const [only] = meaningful;
+      if (
+        meaningful.length === 1 &&
+        only.type === 'mdxJsxTextElement' &&
+        BLOCK_SHORTCODES.has(only.name)
+      ) {
+        const hoisted = { ...only, type: 'mdxJsxFlowElement' };
+        hoistInlineBlockShortcodes(hoisted);
+        return hoisted;
+      }
+      return child;
+    }
+    hoistInlineBlockShortcodes(child);
+    return child;
+  });
+}
+
 export function remarkMdxShortcodes(options = {}) {
   return (tree) => {
+    hoistInlineBlockShortcodes(tree);
     validateMdxComponents(tree, options);
     visitChildren(tree, (node) => {
       const replacement = transformShortcode(node);

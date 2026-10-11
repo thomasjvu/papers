@@ -294,8 +294,79 @@ test('MDX pages render callouts and code fence metadata', async ({ page }) => {
   await expect(page.locator('.admonition-info .admonition-tip')).toHaveCount(1);
   await expect(page.locator('.admonition-tip', { hasText: 'GitHub alert' })).toBeVisible();
   await expect(page.locator('[data-code-title]', { hasText: 'setup.sh' })).toBeVisible();
-  await expect(page.locator('.papers-code__line--highlighted')).toHaveText('npm run generate:docs');
   await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
   await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
   await assertNoRuntimeErrors(errors);
+});
+
+test('MDX code blocks get the copy button and syntax highlighting', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  const setup = page.locator('[data-code-title]', { hasText: 'setup.sh' });
+  await expect(setup).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy to clipboard' }).first()).toBeVisible();
+  await expect(page.locator('[class*="codeLineHighlighted"]')).toContainText(
+    'npm run generate:docs'
+  );
+  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('doc pages show a build-time last-updated date', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  const updated = page.locator('.doc-page-updated');
+  await expect(updated).toContainText('Last updated');
+  const iso = await updated.locator('time').getAttribute('datetime');
+  expect(Number.isNaN(Date.parse(iso))).toBe(false);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('grouped content tabs sync across the page and persist after reload', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  const sets = page.locator('.md-tabs[data-tabs-group="pkg"]');
+  await expect(sets).toHaveCount(2);
+  await expect(sets.nth(1).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+
+  await sets.nth(0).getByRole('tab', { name: 'pnpm', exact: true }).click();
+  await expect(sets.nth(1).getByRole('tab', { name: 'pnpm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await expect(sets.nth(1).getByRole('tabpanel')).toContainText('pnpm dev');
+
+  await sets.nth(1).getByRole('tab', { name: 'pnpm', exact: true }).focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(sets.nth(0).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await page.keyboard.press('ArrowRight');
+
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(sets.nth(0).getByRole('tab', { name: 'pnpm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await assertNoRuntimeErrors(errors);
+});
+
+test('doc routes ship a per-page social preview image', async ({ page, request }) => {
+  const response = await request.get('/docs/getting-started/introduction');
+  const html = await response.text();
+  const match = html.match(/property="og:image"\s+content="([^"]+)"/);
+  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.svg$/);
+  const image = await request.get(new URL(match[1], 'http://localhost').pathname);
+  expect(image.ok()).toBe(true);
+  expect(await image.text()).toContain('Introduction');
+
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    'content',
+    /\/images\/og\/docs\/getting-started\/introduction\.svg$/
+  );
 });
