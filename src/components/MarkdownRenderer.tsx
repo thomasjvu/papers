@@ -35,12 +35,50 @@ const HTML_RENDERER_SANITIZE_CONFIG = {
   USE_PROFILES: { html: true },
 };
 
+type HtmlSegment = { kind: 'html'; html: string } | { kind: 'mermaid'; chart: string };
+
+/**
+ * Splits sanitized MDX HTML at top-level Mermaid placeholders so diagrams can be
+ * rendered by <MermaidDiagram> while the rest stays static HTML.
+ */
+export function splitHtmlSegments(html: string): HtmlSegment[] {
+  if (typeof document === 'undefined' || !html.includes('data-mermaid-chart')) {
+    return [{ kind: 'html', html }];
+  }
+  const template = document.createElement('template');
+  template.innerHTML = html;
+  const segments: HtmlSegment[] = [];
+  let buffer = '';
+  for (const node of Array.from(template.content.childNodes)) {
+    const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : null;
+    const encoded = element?.getAttribute('data-mermaid-chart');
+    if (encoded) {
+      let chart: string | null = null;
+      try {
+        chart = decodeURIComponent(encoded);
+      } catch {
+        chart = null;
+      }
+      if (chart) {
+        if (buffer) segments.push({ kind: 'html', html: buffer });
+        buffer = '';
+        segments.push({ kind: 'mermaid', chart });
+        continue;
+      }
+    }
+    buffer += element ? element.outerHTML : (node.textContent ?? '');
+  }
+  if (buffer) segments.push({ kind: 'html', html: buffer });
+  return segments;
+}
+
 export function HtmlRenderer({ html }: HtmlRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sanitizedHtml = useMemo(
     () => DOMPurify.sanitize(html, HTML_RENDERER_SANITIZE_CONFIG),
     [html]
   );
+  const segments = useMemo(() => splitHtmlSegments(sanitizedHtml), [sanitizedHtml]);
 
   // Typeset math placeholders emitted by the MDX pipeline (scripts/lib/mdxCompile.mjs).
   useEffect(() => {
@@ -53,9 +91,34 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
     return () => {
       cancelled = true;
     };
-  }, [sanitizedHtml]);
+  }, [segments]);
 
-  return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
+  if (segments.length === 1 && segments[0].kind === 'html') {
+    return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: segments[0].html }} />;
+  }
+
+  return (
+    <div ref={containerRef}>
+      {segments.map((segment, index) =>
+        segment.kind === 'mermaid' ? (
+          <Suspense
+            key={`mermaid-${index}`}
+            fallback={
+              <div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>
+            }
+          >
+            <MermaidDiagram chart={segment.chart} />
+          </Suspense>
+        ) : (
+          <div
+            key={`html-${index}`}
+            className="contents"
+            dangerouslySetInnerHTML={{ __html: segment.html }}
+          />
+        )
+      )}
+    </div>
+  );
 }
 
 interface ProcessedMarkdownData {

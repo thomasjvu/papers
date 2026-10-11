@@ -1,11 +1,11 @@
 ---
-title: Math In MDX
-description: KaTeX math in .mdx pages, alongside MDX shortcodes.
+title: Math And Diagrams In MDX
+description: KaTeX math and Mermaid diagrams in .mdx pages, alongside MDX shortcodes.
 ---
 
-# Math In MDX
+# Math And Diagrams In MDX
 
-`.mdx` pages support the same math syntax as Markdown pages, typeset by KaTeX.
+`.mdx` pages support the same math and Mermaid syntax as Markdown pages.
 
 ## Inline
 
@@ -20,6 +20,14 @@ $$
 
 ```math
 f(x) = \sum_{n=0}^{\infty} \frac{f^{(n)}(a)}{n!}(x - a)^n
+```
+
+## Diagrams
+
+```mermaid
+flowchart LR
+  Write[Write MDX] --> Compile[Compile]
+  Compile --> Render["$$e^{i\pi} + 1 = 0$$"]
 ```
 
 > [!NOTE]

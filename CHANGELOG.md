@@ -11,6 +11,8 @@
 
 ### Fixed
 
+- CI Lighthouse gate: Chrome runs without the sandbox on Linux CI runners, and the preview server's process group is killed so the job can no longer hang
+
 - theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
 - Mermaid diagrams rendered as empty boxes: the SVG sanitizer's `ALLOWED_URI_REGEXP` stripped all geometry and `<foreignObject>` labels; diagrams now keep shapes, edges and HTML labels with theme-token colors
 - `check:runtime-audit` passes: Tailwind 3's glob dependencies (braces, micromatch, chokidar, fast-glob) are gone and vue / source-map-js / dompurify were updated within range
@@ -21,6 +23,8 @@
 - KaTeX math: inline `$...$`, display `$$...$$`, and typeset ` ```math ` fences (KaTeX lazy-loads only on pages with math)
 - Mermaid labels with KaTeX math (`$$...$$`) rendered as native MathML; verified with KaTeX 0.16.47 and 0.18.10 overrides
 - `developer-guides/math-and-diagrams` example page with unit and Playwright coverage
+- Mermaid diagrams in `.mdx` pages (with readable source fallback)
+- browser test pinning hover and focus states to the Tailwind 3 baseline
 - math in `.mdx` pages (`remark-math`), with a `developer-guides/math-in-mdx` example page
 - `developer-guides/tailwind-integration` guide for downstream Tailwind 4 sites
 - `npm run visual:check` / `visual:update`: per-theme Playwright screenshot comparison

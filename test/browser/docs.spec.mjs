@@ -97,7 +97,7 @@ test('KaTeX math and Mermaid diagrams with math labels render', async ({ page })
   await assertNoRuntimeErrors(errors);
 });
 
-test('KaTeX math renders in MDX pages', async ({ page }) => {
+test('KaTeX math and Mermaid diagrams render in MDX pages', async ({ page }) => {
   const errors = collectRuntimeErrors(page);
   await page.goto('/docs/developer-guides/math-in-mdx', { waitUntil: 'networkidle' });
   await expect(page.locator('.math-inline[data-math-rendered="true"] .katex')).toHaveCount(1, {
@@ -108,6 +108,41 @@ test('KaTeX math renders in MDX pages', async ({ page }) => {
   );
   await expect(page.getByText('Prices like $5 or $10')).toBeVisible();
   await expect(page.locator('.papers-callout')).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
+test('hover and focus states match the Tailwind 3 baseline', async ({ page }) => {
+  // Expected values were measured on the Tailwind 3 build before the v4 migration.
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1280, height: 900 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.addInitScript(() => {
+    localStorage.setItem('darkMode', 'false');
+    localStorage.setItem('prefersReducedMotion', 'true');
+  });
+  const style = (locator, property) =>
+    locator.evaluate((element, name) => getComputedStyle(element).getPropertyValue(name), property);
+
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  const sidebarItem = page.getByText('quick-start.md', { exact: true }).locator('xpath=..');
+  await page.mouse.move(1279, 899);
+  expect(await style(sidebarItem, 'background-color')).toBe('rgba(0, 0, 0, 0)');
+  await sidebarItem.hover();
+  await expect.poll(() => style(sidebarItem, 'background-color')).toBe('rgba(0, 0, 0, 0.05)');
+
+  const search = page.getByRole('button', { name: /Search docs/i });
+  await page.mouse.move(1279, 899);
+  await page.keyboard.press('Shift');
+  await search.focus();
+  await expect.poll(() => style(search, 'outline-style')).toBe('solid');
+  expect(await style(search, 'outline-width')).toBe('2px');
+  expect(await style(search, 'box-shadow')).toBe('rgba(17, 17, 17, 0.16) 0px 0px 0px 2px');
+
+  await page.goto('/', { waitUntil: 'networkidle' });
+  const hero = page.getByRole('link', { name: /Installation/ }).first();
+  await hero.hover();
+  // Tailwind 4 scales with the `scale` property instead of `transform`.
+  await expect.poll(() => style(hero, 'scale')).toBe('1.05');
   await assertNoRuntimeErrors(errors);
 });
 

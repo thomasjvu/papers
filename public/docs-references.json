@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T03:01:11.353Z",
+  "generated": "2026-10-11T04:37:01.406Z",
   "collection": "docs",
   "nodes": [
     {
@@ -96,8 +96,8 @@
     {
       "path": "developer-guides/math-in-mdx",
       "href": "/docs/developer-guides/math-in-mdx",
-      "title": "Math In MDX",
-      "description": "KaTeX math in .mdx pages, alongside MDX shortcodes."
+      "title": "Math And Diagrams In MDX",
+      "description": "KaTeX math and Mermaid diagrams in .mdx pages, alongside MDX shortcodes."
     },
     {
       "path": "developer-guides/tailwind-integration",

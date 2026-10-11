@@ -949,6 +949,21 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'compileMdxToHtml emits Mermaid placeholders with readable fallback source',
+    run: async () => {
+      const html = await compileMdxToHtml('```mermaid\nflowchart LR\n  A["x < y"] --> B\n```\n');
+      const chart = 'flowchart LR\n  A["x < y"] --> B';
+      assert.match(
+        html,
+        new RegExp(
+          `<div class="mermaid-placeholder" data-mermaid-chart="${encodeURIComponent(chart)}">`
+        )
+      );
+      assert.match(html, /<pre>flowchart LR/);
+      assert.doesNotMatch(html, /language-mermaid/);
+    },
+  },
+  {
     name: 'Papers CSS tokens stay out of Tailwind 4 theme namespaces',
     run: async () => {
       const files = [

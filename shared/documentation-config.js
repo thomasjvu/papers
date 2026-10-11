@@ -339,9 +339,9 @@ export const documentationTree = [
       },
       {
         type: 'file',
-        name: 'Math In MDX.md',
+        name: 'Math And Diagrams In MDX.md',
         path: 'developer-guides/math-in-mdx',
-        tags: ['math', 'katex', 'mdx'],
+        tags: ['math', 'katex', 'mermaid', 'mdx'],
       },
       {
         type: 'file',
