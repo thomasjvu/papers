@@ -30,6 +30,8 @@ declare module '@app-shared/documentation-config.js' {
       artwork?: {
         src: string;
         alt: string;
+        width?: number;
+        height?: number;
         caption?: string;
       };
       cta: {
@@ -164,6 +166,8 @@ declare module '*/shared/documentation-config.js' {
       artwork?: {
         src: string;
         alt: string;
+        width?: number;
+        height?: number;
         caption?: string;
       };
       cta: {

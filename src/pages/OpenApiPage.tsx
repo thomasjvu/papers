@@ -1,87 +1,144 @@
 import { Icon } from '@iconify/react';
-import { useEffect, useMemo, useState } from 'react';
-import { Link, Navigate, useParams } from 'react-router-dom';
+import { lazy, Suspense, useEffect, useMemo, useState } from 'react';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 
+import { openapiConfig } from '../../shared/documentation-config.js';
+import { buildDocsLandingPath } from '../../shared/docsRouting.js';
+import { getOpenApiSpecUrl } from '../../shared/openapiSpecUrls.js';
 import DocsLogoMark from '../components/DocsLogoMark';
-import OpenApiReference from '../components/OpenApiReference';
+import { OpenApiModel, OpenApiOperation } from '../components/OpenApiOperation';
+import OpenApiOverview from '../components/OpenApiOverview';
 import OpenApiSpecSelector from '../components/OpenApiSpecSelector';
 import ThemeSwitcher from '../components/ThemeSwitcher';
-import NotFoundPage from './NotFoundPage';
-import { openapiConfig } from '../../shared/documentation-config.js';
-import { getOpenApiSpecUrl } from '../../shared/openapiSpecUrls.js';
-import { buildDocsLandingPath } from '../../shared/docsRouting.js';
 import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
-import { buildOpenApiRoutePath } from '../lib/openapi';
-import { applySeoMetadata } from '../utils/seo';
-import OpenApiOverview from '../components/OpenApiOverview';
+import { buildOpenApiRoutePath, getOpenApiRoutePrefix } from '../lib/openapi';
 import { loadOpenApiArtifacts } from '../lib/openapiArtifacts';
-import type { OpenApiSpecArtifact } from '../lib/openapiArtifacts';
+import type { OpenApiArtifacts, OpenApiSpecArtifact } from '../lib/openapiArtifacts';
+import NotFoundPage from './NotFoundPage';
+import { applySeoMetadata } from '../utils/seo';
 
+const OpenApiReference = lazy(() => import('../components/OpenApiReference'));
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 const DOCS_LANDING_PATH = buildDocsLandingPath(DEFAULT_DOCUMENT_PATH);
 const OPENAPI_SPECS = openapiConfig.enabled ? openapiConfig.specs : [];
 
+type OpenApiView =
+  | {
+      kind: 'overview';
+      spec: (typeof OPENAPI_SPECS)[number];
+      artifact: OpenApiSpecArtifact;
+      routePath: string;
+    }
+  | {
+      kind: 'operation';
+      spec: (typeof OPENAPI_SPECS)[number];
+      artifact: OpenApiSpecArtifact;
+      operation: NonNullable<OpenApiSpecArtifact['operations']>[number];
+      routePath: string;
+    }
+  | {
+      kind: 'model';
+      spec: (typeof OPENAPI_SPECS)[number];
+      artifact: OpenApiSpecArtifact;
+      model: NonNullable<OpenApiSpecArtifact['schemas']>[number];
+      routePath: string;
+    };
+
+function resolveView(pathname: string, artifacts: OpenApiArtifacts | null): OpenApiView | null {
+  for (const spec of OPENAPI_SPECS) {
+    const defaultSpec = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
+    const overviewPath = buildOpenApiRoutePath(defaultSpec);
+    const artifact = artifacts?.specs.find((item) => item.id === spec.id);
+
+    if (pathname === overviewPath && artifact) {
+      return { kind: 'overview', spec, artifact, routePath: overviewPath };
+    }
+
+    if (!artifact) continue;
+    const operation = artifact.operations?.find((item) => item.routePath === pathname);
+    if (operation)
+      return { kind: 'operation', spec, artifact, operation, routePath: operation.routePath };
+    const model = artifact.schemas?.find((item) => item.routePath === pathname);
+    if (model) return { kind: 'model', spec, artifact, model, routePath: model.routePath };
+  }
+
+  return null;
+}
+
+function findSpecForPath(pathname: string) {
+  return OPENAPI_SPECS.find((spec) => {
+    const defaultSpec = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
+    return pathname === buildOpenApiRoutePath(defaultSpec);
+  });
+}
+
 export default function OpenApiPage() {
-  const { specId } = useParams();
-  const [artifacts, setArtifacts] = useState<OpenApiSpecArtifact[]>([]);
-  const specs = OPENAPI_SPECS;
-  const activeSpec = useMemo(() => {
-    if (specId) {
-      return specs.find((spec) => spec.id === specId) || null;
-    }
-
-    return specs.find((spec) => spec.id === openapiConfig.defaultSpecId) || specs[0] || null;
-  }, [specId, specs]);
-
-  useEffect(() => {
-    if (!activeSpec) {
-      return;
-    }
-
-    const routePath = buildOpenApiRoutePath(
-      activeSpec.id === openapiConfig.defaultSpecId ? null : activeSpec.id
-    );
-
-    applySeoMetadata({
-      title: `${activeSpec.label} | ${SITE_NAME}`,
-      description:
-        activeSpec.description || `Interactive OpenAPI reference for ${activeSpec.label}.`,
-      path: routePath,
-      canonicalPath: routePath,
-      type: 'article',
-    });
-  }, [activeSpec]);
-
-  const activeArtifact = activeSpec
-    ? artifacts.find((artifact) => artifact.id === activeSpec.id) || null
-    : null;
+  const location = useLocation();
+  const [artifacts, setArtifacts] = useState<OpenApiArtifacts | null>(null);
+  const [isInteractiveViewerRequested, setIsInteractiveViewerRequested] = useState(false);
+  const routePrefix = getOpenApiRoutePrefix(openapiConfig);
+  const view = useMemo(
+    () => resolveView(location.pathname, artifacts),
+    [artifacts, location.pathname]
+  );
+  const pathSpec = findSpecForPath(location.pathname);
+  const activeSpec =
+    view?.spec ||
+    pathSpec ||
+    OPENAPI_SPECS.find((spec) => spec.id === openapiConfig.defaultSpecId) ||
+    OPENAPI_SPECS[0] ||
+    null;
 
   useEffect(() => {
     let active = true;
     void loadOpenApiArtifacts().then((nextArtifacts) => {
-      if (active && nextArtifacts) {
-        setArtifacts(nextArtifacts.specs);
-      }
+      if (active) setArtifacts(nextArtifacts);
     });
-
     return () => {
       active = false;
     };
   }, []);
 
-  if (!openapiConfig.enabled) {
-    return <Navigate to={DOCS_LANDING_PATH} replace />;
-  }
+  useEffect(() => {
+    if (!activeSpec) return;
+    const routePath =
+      view?.routePath ||
+      buildOpenApiRoutePath(activeSpec.id === openapiConfig.defaultSpecId ? null : activeSpec.id);
+    const title =
+      view?.kind === 'operation'
+        ? `${view.operation.summary || `${view.operation.method} ${view.operation.path}`} | ${SITE_NAME}`
+        : view?.kind === 'model'
+          ? `${view.model.name} | ${SITE_NAME}`
+          : `${view?.artifact.title || activeSpec.label} | ${SITE_NAME}`;
+    const description =
+      view?.kind === 'operation'
+        ? view.operation.description ||
+          view.operation.summary ||
+          `${view.operation.method} ${view.operation.path}`
+        : view?.kind === 'model'
+          ? view.model.description || `Schema model ${view.model.name}.`
+          : activeSpec.description || `Interactive OpenAPI reference for ${activeSpec.label}.`;
 
-  if (specId && !activeSpec) {
-    return <NotFoundPage />;
-  }
+    applySeoMetadata({
+      title,
+      description,
+      path: routePath,
+      canonicalPath: routePath,
+      type: 'article',
+    });
+  }, [activeSpec, view]);
 
-  if (!activeSpec) {
-    return <Navigate to={DOCS_LANDING_PATH} replace />;
-  }
+  if (!openapiConfig.enabled) return <Navigate to={DOCS_LANDING_PATH} replace />;
+  if (!activeSpec) return <Navigate to={DOCS_LANDING_PATH} replace />;
+  if (!location.pathname.startsWith(routePrefix)) return <NotFoundPage />;
+  if (artifacts && !view) return <NotFoundPage />;
 
+  const activeArtifact =
+    view?.artifact || artifacts?.specs.find((artifact) => artifact.id === activeSpec.id) || null;
   const activeSpecUrl = getOpenApiSpecUrl(activeSpec, openapiConfig);
+  const overviewPath = buildOpenApiRoutePath(
+    activeSpec.id === openapiConfig.defaultSpecId ? null : activeSpec.id
+  );
 
   return (
     <div
@@ -126,7 +183,7 @@ export default function OpenApiPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           <OpenApiSpecSelector
-            specs={specs}
+            specs={OPENAPI_SPECS}
             activeSpecId={activeSpec.id}
             defaultSpecId={openapiConfig.defaultSpecId}
           />
@@ -149,8 +206,73 @@ export default function OpenApiPage() {
       </header>
 
       <main className="openapi-page-main flex min-h-0 flex-1 flex-col">
-        <OpenApiOverview artifact={activeArtifact} />
-        <OpenApiReference specUrl={activeSpecUrl} />
+        {view?.kind === 'operation' ? (
+          <OpenApiOperation
+            artifact={view.artifact}
+            operation={view.operation}
+            overviewPath={overviewPath}
+          />
+        ) : view?.kind === 'model' ? (
+          <OpenApiModel artifact={view.artifact} model={view.model} overviewPath={overviewPath} />
+        ) : (
+          <>
+            <OpenApiOverview artifact={activeArtifact} />
+            {isInteractiveViewerRequested ? (
+              <Suspense
+                fallback={
+                  <div
+                    className="flex min-h-[30rem] items-center justify-center text-sm"
+                    style={{ color: 'var(--muted-color)' }}
+                  >
+                    Loading interactive viewer…
+                  </div>
+                }
+              >
+                <OpenApiReference specUrl={activeSpecUrl} />
+              </Suspense>
+            ) : (
+              <section
+                className="openapi-reference-gate mx-auto w-full max-w-7xl border-b px-4 py-6 md:px-6"
+                aria-labelledby="openapi-reference-gate-heading"
+                style={{ borderColor: 'var(--border-unified)' }}
+              >
+                <div
+                  className="flex flex-wrap items-center justify-between gap-4 rounded-lg border px-4 py-5"
+                  style={{
+                    borderColor: 'var(--border-unified)',
+                    backgroundColor: 'var(--card-color)',
+                  }}
+                >
+                  <div className="min-w-0">
+                    <h2
+                      id="openapi-reference-gate-heading"
+                      className="text-sm font-semibold"
+                      style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+                    >
+                      Interactive API explorer
+                    </h2>
+                    <p className="mt-1 text-xs" style={{ color: 'var(--muted-color)' }}>
+                      Load Scalar when you need try-it-out controls and the full interactive
+                      reference.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsInteractiveViewerRequested(true)}
+                    className="inline-flex shrink-0 items-center rounded-md border px-3 py-2 text-xs font-semibold transition-opacity hover:opacity-80"
+                    style={{
+                      borderColor: 'var(--primary-color)',
+                      color: 'var(--primary-color)',
+                      fontFamily: 'var(--mono-font)',
+                    }}
+                  >
+                    Load interactive viewer
+                  </button>
+                </div>
+              </section>
+            )}
+          </>
+        )}
       </main>
     </div>
   );

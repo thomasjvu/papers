@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 
 import { contentCollections } from '../shared/content-collections.js';
@@ -24,6 +24,8 @@ async function generateSeoArtifacts() {
     process.exit(1);
   }
 
+  const openapiArtifacts = JSON.parse(await readFile(join(publicDir, 'openapi-artifacts.json'), 'utf8'));
+
   const mode = resolveEnvMode('production');
   const viteEnv = loadViteEnv(rootDir, mode);
   const defaults = getHomeMetadataDefaults();
@@ -39,6 +41,8 @@ async function generateSeoArtifacts() {
       siteName,
       siteSubtitle,
       siteDescription,
+      openapiArtifacts,
+      collections: contentCollections,
     }
   );
   const socialImages = createDefaultSocialImageManifest({

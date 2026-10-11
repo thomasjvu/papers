@@ -1,11 +1,12 @@
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
+import { div as MotionDiv } from 'framer-motion/m';
 import { useLocation } from 'react-router-dom';
 import { useMemo, memo, type ReactNode } from 'react';
 
-import { documentationTree } from '../data/documentation';
+import { getContentCollection } from '../data/collections';
 import { findPageTags } from '../lib/navigation';
-import { parseDocsRoutePath } from '../../shared/docsRouting.js';
+import { parseCollectionRoutePath } from '../../shared/docsRouting.js';
+import type { ContentCollection } from '../../shared/docsRouting.js';
 import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
 import { prefetchDocument } from '../lib/content';
 
@@ -18,6 +19,7 @@ type ContentRendererProps = {
   sourcePath?: string;
   contentFormat?: 'markdown' | 'html' | 'mdx';
   trailingContent?: ReactNode;
+  collection?: ContentCollection;
 };
 
 const ContentRenderer = memo(function ContentRenderer({
@@ -26,12 +28,19 @@ const ContentRenderer = memo(function ContentRenderer({
   sourcePath,
   contentFormat = 'markdown',
   trailingContent,
+  collection,
 }: ContentRendererProps) {
   const location = useLocation();
-  const docsRouteSlug = location.pathname.startsWith('/docs')
-    ? location.pathname.replace(/^\/docs\/?/, '')
+  const activeCollection = collection || getContentCollection('docs');
+  const routePrefix =
+    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+  const docsRouteSlug = location.pathname.startsWith(routePrefix)
+    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
     : '';
-  const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
+  const routeContext = useMemo(
+    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
+    [activeCollection, docsRouteSlug]
+  );
 
   const {
     prev: prevPage,
@@ -41,8 +50,12 @@ const ContentRenderer = memo(function ContentRenderer({
     path,
     version: routeContext.activeVersion,
     locale: routeContext.activeLocale,
+    collection: activeCollection,
   });
-  const pageTags = useMemo(() => findPageTags(path, documentationTree), [path]);
+  const pageTags = useMemo(
+    () => findPageTags(path, activeCollection.tree),
+    [activeCollection.tree, path]
+  );
   const isSynopsisPage = useMemo(() => path.toLowerCase().includes('synopsis'), [path]);
 
   const warmPage = (targetPath?: string) => {
@@ -50,10 +63,14 @@ const ContentRenderer = memo(function ContentRenderer({
       return;
     }
 
-    prefetchDocument(targetPath, {
-      version: routeContext.activeVersion,
-      locale: routeContext.activeLocale,
-    });
+    prefetchDocument(
+      targetPath,
+      {
+        version: routeContext.activeVersion,
+        locale: routeContext.activeLocale,
+      },
+      activeCollection.id
+    );
   };
 
   return (
@@ -87,7 +104,7 @@ const ContentRenderer = memo(function ContentRenderer({
             {trailingContent}
 
             {pageTags.length > 0 && (
-              <motion.div
+              <MotionDiv
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
@@ -116,11 +133,11 @@ const ContentRenderer = memo(function ContentRenderer({
                     {tag}
                   </span>
                 ))}
-              </motion.div>
+              </MotionDiv>
             )}
           </div>
 
-          <motion.div
+          <MotionDiv
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.2 }}
@@ -169,7 +186,7 @@ const ContentRenderer = memo(function ContentRenderer({
 
             {/* Row 2: edit / issue / source (GitHub) — in flow, not absolute-positioned */}
             <DocPageFooter path={path} sourcePath={sourcePath} />
-          </motion.div>
+          </MotionDiv>
         </div>
       </div>
     </div>

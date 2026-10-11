@@ -2,8 +2,8 @@
 
 ## Requirements
 
-- Node.js 22 or newer
-- npm 9 or newer
+- Node.js 24 or newer
+- npm 10 or newer
 
 ## Install Dependencies
 

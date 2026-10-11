@@ -2,12 +2,15 @@ import { Icon } from '@iconify/react';
 import { useMemo, createElement, useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { documentationTree } from '../../data/documentation';
 import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/useTheme';
 import type { FileItem } from '../../types/documentation';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
+import { contentCollections, getCollectionVariants } from '../../../shared/content-collections.js';
+import {
+  buildCanonicalCollectionPath,
+  parseCollectionRoutePath,
+} from '../../../shared/docsRouting.js';
 import { homepageConfig } from '../../../shared/documentation-config.js';
 import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
 
@@ -72,6 +75,40 @@ function createFaqResult(faq: (typeof FAQ_ITEMS)[number]): SearchResultType {
   };
 }
 
+function normalizeRoutePath(pathname: string): string {
+  return pathname.replace(/^\/+|\/+$/g, '');
+}
+
+function getCollectionRouteContext(pathname: string) {
+  const normalizedPath = normalizeRoutePath(pathname);
+  const collection =
+    contentCollections.find((entry) => {
+      const prefix = normalizeRoutePath(entry.routePrefix || 'docs');
+      return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
+    }) || contentCollections[0];
+
+  if (!collection) {
+    return {
+      collection: null,
+      activeLocale: null,
+      activeVersion: null,
+      docPath: '',
+      i18nConfig,
+    };
+  }
+
+  const parsed = parseCollectionRoutePath(collection, normalizedPath);
+  const variants = getCollectionVariants(collection);
+
+  return {
+    collection,
+    activeLocale: parsed.activeLocale,
+    activeVersion: parsed.activeVersion,
+    docPath: parsed.docPath,
+    i18nConfig: variants.i18nConfig,
+  };
+}
+
 const FONT_OPTIONS = [
   { value: 'sans-serif' as const, label: 'Sans Serif', icon: 'mingcute:font-size-line' },
   { value: 'mono' as const, label: 'Monospace', icon: 'mingcute:code-line' },
@@ -125,12 +162,10 @@ export const useSearchLogic = (query: string) => {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const routeContext = useMemo(() => {
-    const slug = location.pathname.startsWith('/docs')
-      ? location.pathname.replace(/^\/docs\/?/, '')
-      : location.pathname.replace(/^\/+|\/+$/g, '');
-    return parseDocsRoutePath(slug);
-  }, [location.pathname]);
+  const routeContext = useMemo(
+    () => getCollectionRouteContext(location.pathname),
+    [location.pathname]
+  );
 
   const preferenceCommands = useMemo<SearchResultType[]>(() => {
     const commands: SearchResultType[] = [
@@ -166,9 +201,9 @@ export const useSearchLogic = (query: string) => {
     });
 
     if (languageSwitcherShows('command-palette')) {
-      const activeLocale = routeContext.activeLocale || i18nConfig.defaultLocale;
+      const activeLocale = routeContext.activeLocale || routeContext.i18nConfig.defaultLocale;
       const docPath = routeContext.docPath || 'index';
-      for (const locale of i18nConfig.locales || []) {
+      for (const locale of routeContext.i18nConfig.locales || []) {
         if (locale === activeLocale) continue;
         const label = getLocaleLabel(locale);
         commands.push({
@@ -177,8 +212,9 @@ export const useSearchLogic = (query: string) => {
           type: 'action',
           description: `Change documentation language to ${label}`,
           action: () => {
+            if (!routeContext.collection) return;
             navigate(
-              buildCanonicalDocsPath(docPath, {
+              buildCanonicalCollectionPath(routeContext.collection, docPath, {
                 version: routeContext.activeVersion,
                 locale,
               })
@@ -203,6 +239,8 @@ export const useSearchLogic = (query: string) => {
     routeContext.activeLocale,
     routeContext.activeVersion,
     routeContext.docPath,
+    routeContext.collection,
+    routeContext.i18nConfig,
   ]);
 
   const searchIndex = useMemo(() => {
@@ -229,27 +267,41 @@ export const useSearchLogic = (query: string) => {
       results.push(createFaqResult(faq));
     });
 
-    function processTree(items: FileItem[], parentPath = '') {
+    function processTree(
+      items: FileItem[],
+      collection: (typeof contentCollections)[number],
+      parentPath = ''
+    ) {
       items.forEach((item) => {
         if (item.type === 'file') {
+          const routeOptions =
+            routeContext.collection?.id === collection.id
+              ? {
+                  version: routeContext.activeVersion,
+                  locale: routeContext.activeLocale,
+                }
+              : {};
+          const collectionDescription =
+            contentCollections.length > 1
+              ? [collection.label, parentPath].filter(Boolean).join(' / ')
+              : parentPath;
           results.push({
-            title: item.name.replace(/\.md$/, ''),
-            path: buildCanonicalDocsPath(item.path, {
-              version: routeContext.activeVersion,
-              locale: routeContext.activeLocale,
-            }),
+            title: item.name.replace(/\.(?:md|mdx)$/, ''),
+            path: buildCanonicalCollectionPath(collection, item.path, routeOptions),
             type: 'page',
-            description: parentPath,
+            description: collectionDescription,
             icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
           });
         } else if (item.type === 'directory' && item.children) {
           const nextParentPath = parentPath ? `${parentPath} / ${item.name}` : item.name;
-          processTree(item.children, nextParentPath);
+          processTree(item.children, collection, nextParentPath);
         }
       });
     }
 
-    processTree(documentationTree);
+    for (const collection of contentCollections) {
+      processTree(collection.tree, collection);
+    }
 
     if (homepageConfig.enabled) {
       results.push({
@@ -262,7 +314,12 @@ export const useSearchLogic = (query: string) => {
     }
 
     return results;
-  }, [preferenceCommands, routeContext.activeLocale, routeContext.activeVersion]);
+  }, [
+    preferenceCommands,
+    routeContext.activeLocale,
+    routeContext.activeVersion,
+    routeContext.collection,
+  ]);
 
   const completeSearchIndex = useMemo(() => {
     const allResults = [...searchIndex];

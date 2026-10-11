@@ -33,6 +33,16 @@ function normalizeDocPath(path = '') {
     .replace(/^\/+|\/+$/g, '');
 }
 
+export function getCollectionRoutingOptions(collection, options = {}) {
+  const variants = collection?.variants || {};
+
+  return {
+    ...options,
+    versionConfig: options.versionConfig || variants.versionConfig || versionConfig,
+    i18nConfig: options.i18nConfig || variants.i18nConfig || i18nConfig,
+  };
+}
+
 function splitRouteSegments(path = '') {
   const normalized = normalizeDocPath(path);
   return normalized ? normalized.split('/').filter(Boolean) : [];
@@ -322,18 +332,20 @@ function normalizeCollectionRoutePrefix(routePrefix = '/docs') {
 export function buildCollectionRoutePath(collection, path = '', options = {}) {
   const prefix = normalizeCollectionRoutePrefix(collection?.routePrefix);
   const normalizedPath = normalizeDocPath(path);
+  const routeOptions = getCollectionRoutingOptions(collection, options);
   const segments = [
     ...prefix.split('/').filter(Boolean),
-    ...resolvePrefixSegments(options),
+    ...resolvePrefixSegments(routeOptions),
     ...splitRouteSegments(normalizedPath),
   ];
   return `/${segments.join('/')}`;
 }
 
 export function buildCanonicalCollectionPath(collection, path = '', options = {}) {
-  const { versioning, i18n } = getFeatureState(options);
+  const routeOptions = getCollectionRoutingOptions(collection, options);
+  const { versioning, i18n } = getFeatureState(routeOptions);
   return buildCollectionRoutePath(collection, path, {
-    ...options,
+    ...routeOptions,
     includeVersion: versioning.enabled,
     includeLocale: i18n.enabled,
   });
@@ -341,12 +353,13 @@ export function buildCanonicalCollectionPath(collection, path = '', options = {}
 
 export function buildCollectionRouteVariants(collection, path = '', options = {}) {
   const normalizedPath = normalizeDocPath(path);
-  const { versioning, i18n } = getFeatureState(options);
+  const routeOptions = getCollectionRoutingOptions(collection, options);
+  const { versioning, i18n } = getFeatureState(routeOptions);
   const routePaths = new Set();
 
   routePaths.add(
     buildCollectionRoutePath(collection, normalizedPath, {
-      ...options,
+      ...routeOptions,
       includeVersion: false,
       includeLocale: false,
     })
@@ -356,7 +369,7 @@ export function buildCollectionRouteVariants(collection, path = '', options = {}
     for (const version of versioning.versions) {
       routePaths.add(
         buildCollectionRoutePath(collection, normalizedPath, {
-          ...options,
+          ...routeOptions,
           version,
           includeVersion: true,
           includeLocale: false,
@@ -369,7 +382,7 @@ export function buildCollectionRouteVariants(collection, path = '', options = {}
     for (const locale of i18n.locales) {
       routePaths.add(
         buildCollectionRoutePath(collection, normalizedPath, {
-          ...options,
+          ...routeOptions,
           locale,
           includeVersion: false,
           includeLocale: true,
@@ -379,10 +392,10 @@ export function buildCollectionRouteVariants(collection, path = '', options = {}
   }
 
   if (versioning.enabled || i18n.enabled) {
-    for (const context of getDocsVariantContexts(options)) {
+    for (const context of getDocsVariantContexts(routeOptions)) {
       routePaths.add(
         buildCanonicalCollectionPath(collection, normalizedPath, {
-          ...options,
+          ...routeOptions,
           version: context.version,
           locale: context.locale,
         })
@@ -393,7 +406,20 @@ export function buildCollectionRouteVariants(collection, path = '', options = {}
   return Array.from(routePaths);
 }
 
+export function buildCollectionContentPath(collection, path = '', options = {}) {
+  return buildDocsContentPath(path, getCollectionRoutingOptions(collection, options));
+}
+
+export function getCollectionVariantContexts(collection, options = {}) {
+  return getDocsVariantContexts(getCollectionRoutingOptions(collection, options));
+}
+
+export function buildCollectionLandingPath(collection, path = '', options = {}) {
+  return buildCanonicalCollectionPath(collection, path || '', options);
+}
+
 export function parseCollectionRoutePath(collection, slug = '', options = {}) {
+  const routeOptions = getCollectionRoutingOptions(collection, options);
   const prefixSegments = normalizeCollectionRoutePrefix(collection?.routePrefix)
     .split('/')
     .filter(Boolean);
@@ -408,7 +434,7 @@ export function parseCollectionRoutePath(collection, slug = '', options = {}) {
     break;
   }
 
-  const docsContext = parseDocsRoutePath(segments.slice(index).join('/'), options);
+  const docsContext = parseDocsRoutePath(segments.slice(index).join('/'), routeOptions);
   return {
     ...docsContext,
     originalSlug: normalizeDocPath(slug),

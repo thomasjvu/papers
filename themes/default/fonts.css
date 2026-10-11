@@ -1,0 +1,31 @@
+/* Default theme fonts. Keep these with the theme so route HTML can preload the
+   exact files a selected theme uses. */
+@font-face {
+  font-family: 'Mona Sans';
+  src:
+    url('/fonts/Mona-Sans.woff') format('woff'),
+    url('/fonts/Mona-Sans.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Hubot Sans';
+  src:
+    url('/fonts/Hubot-Sans.woff') format('woff'),
+    url('/fonts/Hubot-Sans.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'DM Serif Display';
+  src:
+    url('/fonts/DMSerifDisplay-Regular.woff') format('woff'),
+    url('/fonts/DMSerifDisplay-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}

@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
-import { documentationTree } from '../data/documentation';
+import { buildCanonicalCollectionPath } from '../../shared/docsRouting.js';
+import type { ContentCollection } from '../../shared/docsRouting.js';
+import { getContentCollection } from '../data/collections';
 import { findAdjacentPages } from '../lib/navigation';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { KEYBOARD_KEYS } from '../constants/ui';
@@ -15,6 +16,7 @@ type UseAdjacentPageNavigationOptions = {
   version: string | null;
   locale: string | null;
   enabled?: boolean;
+  collection?: ContentCollection;
 };
 
 export function useAdjacentPageNavigation({
@@ -22,11 +24,17 @@ export function useAdjacentPageNavigation({
   version,
   locale,
   enabled = true,
+  collection,
 }: UseAdjacentPageNavigationOptions) {
   const navigate = useNavigate();
   const { isOpen: isCommandPaletteOpen } = useCommandPalette();
+  const activeCollection = collection || getContentCollection('docs');
 
-  const { prev, next } = useMemo(() => findAdjacentPages(path, documentationTree), [path]);
+  const navigationTree = activeCollection.tree;
+  const { prev, next } = useMemo(
+    () => findAdjacentPages(path, navigationTree),
+    [navigationTree, path]
+  );
 
   const goToPage = useCallback(
     (page?: AdjacentPage) => {
@@ -35,13 +43,13 @@ export function useAdjacentPageNavigation({
       }
 
       navigate(
-        buildCanonicalDocsPath(page.path, {
+        buildCanonicalCollectionPath(activeCollection, page.path, {
           version,
           locale,
         })
       );
     },
-    [locale, navigate, version]
+    [activeCollection, locale, navigate, version]
   );
 
   useEffect(() => {

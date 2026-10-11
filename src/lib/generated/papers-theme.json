@@ -4,9 +4,22 @@
   "description": "Neutral light/dark documentation shell.",
   "author": "papers",
   "css": "tokens.css",
+  "fontCss": "fonts.css",
   "iconSet": "mingcute",
   "defaultColorMode": "dark",
   "features": {
     "lightDarkToggle": true
-  }
+  },
+  "fonts": [
+    {
+      "preload": "/fonts/Mona-Sans.woff",
+      "type": "font/woff",
+      "crossOrigin": true
+    },
+    {
+      "preload": "/fonts/Hubot-Sans.woff",
+      "type": "font/woff",
+      "crossOrigin": true
+    }
+  ]
 }

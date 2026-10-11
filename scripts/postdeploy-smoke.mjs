@@ -179,7 +179,10 @@ async function main() {
   assert(docsReferences.schemaVersion === 1, 'Deployed docs reference graph is invalid.');
   const openapiArtifactsResponse = await fetchWithRetry('/openapi-artifacts.json');
   const openapiArtifacts = JSON.parse(openapiArtifactsResponse.body);
-  assert(openapiArtifacts.schemaVersion === 1, 'Deployed OpenAPI artifacts are invalid.');
+  assert(
+    openapiArtifacts.schemaVersion === 1 && openapiArtifacts.contractVersion === 2,
+    'Deployed OpenAPI artifacts are invalid.'
+  );
 
   if (openapiConfig.enabled) {
     await fetchWithRetry(
@@ -190,6 +193,15 @@ async function main() {
           : openapiConfig.defaultSpecId
       )
     );
+
+    for (const spec of openapiArtifacts.specs || []) {
+      for (const operation of spec.operations || []) {
+        await fetchWithRetry(operation.routePath);
+      }
+      for (const model of spec.schemas || []) {
+        await fetchWithRetry(model.routePath);
+      }
+    }
   }
 
   console.log('Post-deploy smoke checks passed for ' + host + ' at ' + expectedRevision + '.');

@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
+import { button as MotionButton } from 'framer-motion/m';
 import React, { useMemo, useCallback } from 'react';
 
 import { useTheme } from '../providers/useTheme';
@@ -77,7 +77,7 @@ const MotionToggle = React.memo(({ className = '' }: MotionToggleProps): React.R
     return prefersReducedMotion ? 'static' : 'motion';
   }, [prefersReducedMotion]);
 
-  const ButtonComponent = prefersReducedMotion ? 'button' : motion.button;
+  const ButtonComponent = prefersReducedMotion ? 'button' : MotionButton;
   const buttonProps = prefersReducedMotion ? {} : buttonAnimations;
 
   return (

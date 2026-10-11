@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { div as MotionDiv } from 'framer-motion/m';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
@@ -68,7 +69,7 @@ export default function MindmapExpandModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          <motion.div
+          <MotionDiv
             initial="hidden"
             animate="visible"
             exit="hidden"
@@ -83,7 +84,7 @@ export default function MindmapExpandModal({
             }}
           />
 
-          <motion.div
+          <MotionDiv
             initial="hidden"
             animate="visible"
             exit="hidden"
@@ -132,7 +133,7 @@ export default function MindmapExpandModal({
                 />
               </div>
             </div>
-          </motion.div>
+          </MotionDiv>
         </>
       )}
     </AnimatePresence>,

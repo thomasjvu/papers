@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { line as MotionLine } from 'framer-motion/m';
 import React from 'react';
 
 import { useTheme } from '../../providers/useTheme';
@@ -51,7 +51,7 @@ const GraphLinks: React.FC<GraphLinksProps> = React.memo(
           if (!isVisible) return null;
 
           return (
-            <motion.line
+            <MotionLine
               key={`${link.source}-${link.target}-${link.linkType}`}
               x1={sourceNode.x}
               y1={sourceNode.y}

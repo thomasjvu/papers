@@ -1,8 +1,9 @@
 import { existsSync, readFileSync, rmSync } from 'fs';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
+import { join } from 'path';
 import * as pagefind from 'pagefind';
-import { buildCanonicalDocsPath, buildDocsContentPath, getDocsVariantContexts } from '../shared/docsRouting.js';
+import { contentCollections, validateContentCollections } from '../shared/content-collections.js';
+import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
+import { createPagefindRecords } from './lib/pagefindArtifacts.mjs';
 import { resolveAppDir, resolvePackageDir } from './lib/papersPaths.mjs';
 
 const importMetaUrl = import.meta.url;
@@ -11,8 +12,8 @@ const appDir = resolveAppDir(packageDir);
 const distDir = join(appDir, 'dist');
 const pagefindOutputDir = join(distDir, 'pagefind');
 const searchPagesDir = join(distDir, 'search-pages');
-const docsIndexPath = join(appDir, 'public', 'docs-index.json');
-const docsContentDir = join(appDir, 'public', 'docs-content');
+const publicDir = join(appDir, 'public');
+const openapiArtifactsPath = join(appDir, 'public', 'openapi-artifacts.json');
 
 console.log('Generating Pagefind search index...');
 
@@ -21,7 +22,10 @@ if (!existsSync(distDir)) {
   process.exit(1);
 }
 
-if (!existsSync(docsIndexPath) || !existsSync(docsContentDir)) {
+const validatedCollections = validateContentCollections(contentCollections, { rootDir: appDir });
+const collectionArtifacts = readAllCollectionArtifacts(publicDir, validatedCollections);
+
+if (!collectionArtifacts) {
   console.error('Generated docs artifacts not found. Run generate:docs first.');
   process.exit(1);
 }
@@ -34,89 +38,35 @@ if (existsSync(searchPagesDir)) {
   rmSync(searchPagesDir, { recursive: true, force: true });
 }
 
-const docsIndex = JSON.parse(readFileSync(docsIndexPath, 'utf-8'));
-
-function stripUtf8Bom(content) {
-  return content.replace(/^\uFEFF/, '');
-}
-
-function getTitle(docPath, content) {
-  const titleMatch = stripUtf8Bom(content).match(/^#\s+(.+)$/m);
-  return titleMatch ? titleMatch[1].trim() : docPath;
-}
-
-function stripMarkdown(content) {
-  return stripUtf8Bom(content)
-    .replace(/^```[\s\S]*?^```$/gm, '')
-    .replace(/`([^`]+)`/g, '$1')
-    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
-    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
-    .replace(/^>\s?/gm, '')
-    .replace(/^#+\s+/gm, '')
-    .replace(/[*_~]/g, '')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\r?\n{2,}/g, '\n\n')
-    .trim();
-}
-
-function getSearchUrl(docPath, context) {
-  return buildCanonicalDocsPath(docPath, {
-    version: context.version,
-    locale: context.locale,
-  });
-}
-
-function getGeneratedDocumentPath(docPath, context) {
-  const key = buildDocsContentPath(docPath, {
-    version: context.version,
-    locale: context.locale,
-  });
-
-  return join(docsContentDir, `${key}.json`);
-}
-
 async function buildSearchIndex() {
   const { index } = await pagefind.createIndex();
-  const variantContexts = getDocsVariantContexts();
-  const indexedDocumentPaths = new Set();
-  let indexedCount = 0;
+  const openapiArtifacts = existsSync(openapiArtifactsPath)
+    ? JSON.parse(readFileSync(openapiArtifactsPath, 'utf-8'))
+    : null;
+  const records = createPagefindRecords({
+    collections: validatedCollections,
+    artifactsByCollectionId: collectionArtifacts,
+    openapiArtifacts,
+  });
 
-  for (const context of variantContexts) {
-    for (const docPath of docsIndex.paths) {
-      const documentPath = getGeneratedDocumentPath(docPath, context);
-      const documentKey = `${getSearchUrl(docPath, context)}::${documentPath}`;
-
-      if (indexedDocumentPaths.has(documentKey)) {
-        continue;
-      }
-
-      indexedDocumentPaths.add(documentKey);
-
-      if (!existsSync(documentPath)) {
-        console.warn(`Skipping missing generated document: ${documentPath}`);
-        continue;
-      }
-
-      const documentData = JSON.parse(readFileSync(documentPath, 'utf-8'));
-      const rawContent = documentData.content ?? '';
-      const title = documentData.title || docsIndex.titles?.[docPath] || getTitle(docPath, rawContent);
-      const searchableContent = stripMarkdown(rawContent);
-
-      await index.addCustomRecord({
-        url: getSearchUrl(docPath, context),
-        content: `${title}\n\n${searchableContent}`,
-        language: context.locale || 'en',
-        meta: { title },
-      });
-
-      indexedCount += 1;
-    }
+  for (const record of records) {
+    await index.addCustomRecord(record);
   }
 
   await index.writeFiles({ outputPath: pagefindOutputDir });
   await pagefind.close();
 
-  console.log(`Indexed ${indexedCount} documentation pages.`);
+  const documentationRecords = records.filter((record) => record.meta?.kind === 'documentation');
+  const openapiRecords = records.length - documentationRecords.length;
+  const collectionCounts = validatedCollections.map((collection) => {
+    const count = documentationRecords.filter(
+      (record) => record.meta?.collection === collection.id
+    ).length;
+    return `${collection.id}: ${count}`;
+  });
+  console.log(
+    `Indexed ${records.length} search records (${collectionCounts.join(', ')}; OpenAPI: ${openapiRecords}).`
+  );
   console.log(`Wrote Pagefind assets to ${pagefindOutputDir}`);
 }
 

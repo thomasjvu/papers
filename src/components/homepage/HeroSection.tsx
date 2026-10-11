@@ -13,6 +13,8 @@ interface HeroSectionProps {
     artwork?: {
       src: string;
       alt: string;
+      width?: number;
+      height?: number;
       caption?: string;
     };
     cta: {
@@ -117,6 +119,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
               <img
                 src={hero.artwork.src}
                 alt={hero.artwork.alt}
+                width={hero.artwork.width}
+                height={hero.artwork.height}
                 className="w-full rounded-[20px] border"
                 fetchPriority="high"
                 decoding="async"

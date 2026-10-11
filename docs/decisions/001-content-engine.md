@@ -31,7 +31,9 @@ The two bounded parity milestones have now landed on the native path:
 - `public/openapi-artifacts.json` deterministically summarizes local OpenAPI
   operations, parameters, request bodies, responses, examples, tags, servers,
   and component schemas. The existing Scalar viewer remains the interactive
-  surface.
+  surface; generated operation/model routes, curl/JS/Python samples, TypeScript
+  definitions, canonical/SEO/LLM entries, and browser coverage now ship
+  alongside it.
 
 These capabilities close the previously identified native gaps without
 renaming the existing JSON, route HTML, or static-host artifacts. They improve
@@ -109,9 +111,9 @@ now is:
 - collection and reference manifests preserve navigation metadata, inbound
   links, and source diagnostics without replacing the existing docs index.
 
-The remaining gaps are explicit: arbitrary user-defined collection schemas,
-validation of unknown MDX component names, full generated operation pages or
-playground behavior, and a proven owned deployment host.
+The remaining gaps are explicit: richer arbitrary user-defined schema/renderer
+breadth, unsupported OpenAPI keyword coverage and full playground breadth, npm
+publication, and a proven owned deployment host.
 
 ## Bounded external capability spike
 
@@ -126,7 +128,7 @@ The compatibility result is:
 | Slice                                             | Result                                        | Constraint                                                                                                                |
 | ------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
 | MDX collections/schema/TOC/references             | **Pass as a target, not an integrated spike** | Worth emulating behind native typed artifacts; installing it would create a second source model now                       |
-| OpenAPI generated pages/playground/examples/types | **Partial**                                   | Current Scalar route is stable, but generated pages and schema-derived types need a separate adapter contract             |
+| OpenAPI generated pages/playground/examples/types | **Shipped/weakly verified**                   | Generated pages and schema-derived types are now present, while richer playground behavior remains limited                |
 | Vite/static route HTML/Pagefind/LLM/theme outputs | **Unproven**                                  | No official evidence in the reviewed materials guarantees the current artifact names or CDN behavior                      |
 | Hosting/runtime assumptions                       | **Tradeoff**                                  | A framework-specific runtime integration would expand the deployment contract and weaken the current static-first promise |
 
@@ -179,10 +181,11 @@ coverage.
 
 ### Milestone 2 — bounded API-reference adapter — COMPLETE
 
-Owner: API/docs maintainers. Input is the validated OpenAPI config/spec. Output
-is an additive API-reference artifact consumed by the current OpenAPI route:
+Owner: API/docs maintainers. Input is the validated OpenAPI config/spec. The
+shipped adapter provides bounded support for the current OpenAPI route:
 operation pages, examples, response samples, and optional schema-derived type
-snippets. The adapter must use the existing allowlisted URL validator and CSP;
+snippets; Scalar remains an optional interactive surface. The adapter must use
+the existing allowlisted URL validator and CSP;
 it must not fetch arbitrary sources during a normal build.
 
 Gate: local and remote-allowlist negative tests, route/browser tests for every

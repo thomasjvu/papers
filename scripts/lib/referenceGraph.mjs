@@ -1,6 +1,9 @@
 import { posix } from 'node:path';
 
-import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import {
+  buildCanonicalCollectionPath,
+  buildCanonicalDocsPath,
+} from '../../shared/docsRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { extractDocumentLinks } from './docsArtifacts.mjs';
 
@@ -38,11 +41,13 @@ function getAnchor(suffix) {
   return rawAnchor ? decodeURIComponent(rawAnchor) : '';
 }
 
-function buildRouteAliases(documentationTree, defaultDocumentPath) {
+function buildRouteAliases(documentationTree, defaultDocumentPath, routePrefix = 'docs') {
   const aliases = new Map([['', defaultDocumentPath]]);
 
-  for (const alias of getDirectoryAliasEntries(documentationTree)) {
-    const routePath = alias.routePath.replace(/^\/docs\/?/, '').replace(/^\/+|\/+$/g, '');
+  for (const alias of getDirectoryAliasEntries(documentationTree, routePrefix)) {
+    const routePath = alias.routePath
+      .replace(new RegExp(`^/${routePrefix}/?`), '')
+      .replace(/^\/+|\/+$/g, '');
     aliases.set(routePath, alias.docPath);
   }
 
@@ -80,11 +85,23 @@ function resolveReferenceTarget(sourcePath, target, pathSet, aliases) {
  * validation remains the failure gate, while this artifact only describes
  * resolvable document-to-document edges.
  */
-export function createDocumentReferenceGraph({ documents, paths, documentationTree, generated }) {
+export function createDocumentReferenceGraph({
+  documents,
+  paths,
+  documentationTree,
+  generated,
+  collection,
+  versionConfig,
+  i18nConfig,
+}) {
   const documentPaths = (paths || Object.keys(documents || {})).filter((path) => documents?.[path]);
   const pathSet = new Set(documentPaths);
   const defaultDocumentPath = getDefaultDocumentPath(documentationTree || []) || documentPaths[0] || '';
-  const aliases = buildRouteAliases(documentationTree || [], defaultDocumentPath);
+  const routePrefix = String(collection?.routePrefix || '/docs').replace(/^\/+|\/+$/g, '');
+  const aliases = buildRouteAliases(documentationTree || [], defaultDocumentPath, routePrefix);
+  const buildCanonicalPath = collection
+    ? (path) => buildCanonicalCollectionPath(collection, path, { versionConfig, i18nConfig })
+    : (path) => buildCanonicalDocsPath(path, { versionConfig, i18nConfig });
   const edges = [];
   const backlinks = Object.fromEntries(documentPaths.map((path) => [path, []]));
 
@@ -101,14 +118,14 @@ export function createDocumentReferenceGraph({ documents, paths, documentationTr
       const edge = {
         source,
         target: resolved.path,
-        href: buildCanonicalDocsPath(resolved.path),
+        href: buildCanonicalPath(resolved.path),
         line: link.line,
         ...(resolved.anchor !== null ? { anchor: resolved.anchor } : {}),
       };
       edges.push(edge);
       backlinks[resolved.path].push({
         source,
-        href: buildCanonicalDocsPath(source),
+        href: buildCanonicalPath(source),
         line: link.line,
         ...(resolved.anchor !== null ? { anchor: resolved.anchor } : {}),
       });
@@ -132,10 +149,10 @@ export function createDocumentReferenceGraph({ documents, paths, documentationTr
   return {
     schemaVersion: 1,
     generated: generated || null,
-    collection: 'docs',
+    collection: collection?.id || 'docs',
     nodes: documentPaths.map((path) => ({
       path,
-      href: buildCanonicalDocsPath(path),
+      href: buildCanonicalPath(path),
       title: documents[path].title,
       description: documents[path].description || '',
     })),

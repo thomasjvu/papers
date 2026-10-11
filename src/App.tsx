@@ -6,9 +6,10 @@ import HomePage from './pages/HomePage';
 import HostedAssetRedirectPage from './pages/HostedAssetRedirectPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { designBookConfig, homepageConfig, openapiConfig } from '../shared/documentation-config.js';
+import { contentCollections } from '../shared/content-collections.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
 import { getOpenApiRoutePrefix } from './lib/openapi';
-import { buildDocsLandingPath } from '../shared/docsRouting.js';
+import { buildCollectionLandingPath, buildDocsLandingPath } from '../shared/docsRouting.js';
 
 const DocsPage = lazy(() => import('./pages/DocsPage'));
 const OpenApiPage = lazy(() => import('./pages/OpenApiPage'));
@@ -38,13 +39,31 @@ export default function App() {
               element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
             />
           )}
-          <Route
-            path="/docs"
-            element={<Navigate to={buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)} replace />}
-          />
+          {contentCollections.map((collection) => {
+            const defaultPath = collection.tree?.[0]?.path || DEFAULT_DOCUMENT_PATH;
+            const routePrefix =
+              String(collection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+
+            return (
+              <Route
+                key={collection.id}
+                path={routePrefix}
+                element={
+                  <Navigate
+                    to={
+                      collection.id === 'docs'
+                        ? buildDocsLandingPath(defaultPath)
+                        : buildCollectionLandingPath(collection, defaultPath)
+                    }
+                    replace
+                  />
+                }
+              />
+            );
+          })}
           {openapiConfig.enabled ? (
             <Route
-              path={`${getOpenApiRoutePrefix(openapiConfig)}/:specId?`}
+              path={`${getOpenApiRoutePrefix(openapiConfig)}/*`}
               element={
                 <Suspense fallback={<RouteLoadingState />}>
                   <OpenApiPage />
@@ -62,14 +81,21 @@ export default function App() {
               }
             />
           ) : null}
-          <Route
-            path="/docs/*"
-            element={
-              <Suspense fallback={<RouteLoadingState />}>
-                <DocsPage />
-              </Suspense>
-            }
-          />
+          {contentCollections.map((collection) => {
+            const routePrefix =
+              String(collection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+            return (
+              <Route
+                key={`${collection.id}-content`}
+                path={`${routePrefix}/*`}
+                element={
+                  <Suspense fallback={<RouteLoadingState />}>
+                    <DocsPage collectionId={collection.id} />
+                  </Suspense>
+                }
+              />
+            );
+          })}
           <Route path="/llms" element={<HostedAssetRedirectPage docPath="llms" />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

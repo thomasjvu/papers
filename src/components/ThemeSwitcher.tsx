@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
+import { button as MotionButton } from 'framer-motion/m';
 import React, { useMemo, useCallback } from 'react';
 
 import { papersThemeAllowsLightDarkToggle } from '../lib/papersTheme';
@@ -59,7 +59,7 @@ const ThemeSwitcher = React.memo(
     }
 
     return (
-      <motion.button
+      <MotionButton
         onClick={handleToggleTheme}
         className={`p-2 rounded-full flex items-center gap-2 ${className}`}
         style={buttonStyle}
@@ -71,7 +71,7 @@ const ThemeSwitcher = React.memo(
         <span className="text-2xs" style={{ fontFamily: 'var(--mono-font)' }}>
           {displayText}
         </span>
-      </motion.button>
+      </MotionButton>
     );
   }
 );

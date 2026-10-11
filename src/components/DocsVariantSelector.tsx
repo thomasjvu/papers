@@ -1,36 +1,50 @@
 import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
+import {
+  buildCanonicalCollectionPath,
+  parseCollectionRoutePath,
+} from '../../shared/docsRouting.js';
+import type { ContentCollection } from '../../shared/docsRouting.js';
+import { getContentCollection } from '../data/collections';
 import { i18nConfig, versionConfig } from '@app-shared/documentation-config.js';
 
 type DocsVariantSelectorProps = {
   docPath: string;
+  collection?: ContentCollection;
 };
 
 /**
  * Version selector only. Language uses the pill {@link LanguageSwitcher} below —
  * do not render a second locale dropdown here.
  */
-export default function DocsVariantSelector({ docPath }: DocsVariantSelectorProps) {
+export default function DocsVariantSelector({ docPath, collection }: DocsVariantSelectorProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const docsRouteSlug = location.pathname.startsWith('/docs')
-    ? location.pathname.replace(/^\/docs\/?/, '')
+  const activeCollection = collection || getContentCollection('docs');
+  const routePrefix =
+    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+  const docsRouteSlug = location.pathname.startsWith(routePrefix)
+    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
     : '';
-  const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
+  const routeContext = useMemo(
+    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
+    [activeCollection, docsRouteSlug]
+  );
 
-  const versions = versionConfig.enabled ? versionConfig.versions : [];
+  const activeVersionConfig = activeCollection.variants?.versionConfig || versionConfig;
+  const activeI18nConfig = activeCollection.variants?.i18nConfig || i18nConfig;
+  const versions = activeVersionConfig.enabled ? activeVersionConfig.versions : [];
 
-  if (!versionConfig.enabled || versions.length === 0) {
+  if (!activeVersionConfig.enabled || versions.length === 0) {
     return null;
   }
 
   const navigateWithVersion = (nextVersion: string) => {
     navigate(
-      buildCanonicalDocsPath(docPath, {
+      buildCanonicalCollectionPath(activeCollection, docPath, {
         version: nextVersion,
-        locale: i18nConfig.enabled ? routeContext.activeLocale : null,
+        locale: activeI18nConfig.enabled ? routeContext.activeLocale : null,
       })
     );
   };
@@ -43,7 +57,7 @@ export default function DocsVariantSelector({ docPath }: DocsVariantSelectorProp
       >
         <span style={{ fontFamily: 'var(--mono-font)' }}>Version</span>
         <select
-          value={routeContext.activeVersion || versionConfig.current}
+          value={routeContext.activeVersion || activeVersionConfig.current}
           onChange={(event) => navigateWithVersion(event.target.value)}
           className="rounded-md border px-2 py-1 text-xs"
           style={{
@@ -55,7 +69,7 @@ export default function DocsVariantSelector({ docPath }: DocsVariantSelectorProp
         >
           {versions.map((version) => (
             <option key={version} value={version}>
-              {versionConfig.labels?.[version] || version}
+              {activeVersionConfig.labels?.[version] || version}
             </option>
           ))}
         </select>

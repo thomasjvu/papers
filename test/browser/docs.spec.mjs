@@ -70,17 +70,91 @@ test('MDX blocks and Mermaid render in the static docs artifact', async ({ page 
 
 test('OpenAPI default and alternate specs use distinct routes', async ({ page }) => {
   const errors = collectRuntimeErrors(page);
+  const scalarRequests = [];
+  page.on('request', (request) => {
+    if (request.url().includes('/assets/esm-')) {
+      scalarRequests.push(request.url());
+    }
+  });
+
   await page.goto('/docs/api-reference/openapi', { waitUntil: 'networkidle' });
   await expect(page.locator('.openapi-page')).toBeVisible();
   await expect(page.getByText('Public API', { exact: true }).first()).toBeVisible();
   await expect(page.getByText('2 operations', { exact: true })).toBeVisible();
-  await expect(page.getByRole('heading', { name: 'Health check', exact: true })).toBeVisible();
+  await expect(
+    page.locator('.openapi-overview').getByRole('heading', { name: 'Health check', exact: true })
+  ).toBeVisible();
+  await expect(scalarRequests).toHaveLength(0);
+  await page.getByRole('button', { name: 'Load interactive viewer', exact: true }).click();
+  await expect(page.locator('.scalar-api-reference')).toBeVisible({ timeout: 20_000 });
+  await expect.poll(() => scalarRequests.length).toBeGreaterThan(0);
   await page.getByRole('tab', { name: 'Internal API', exact: true }).click();
-  await expect(page).toHaveURL(/\/docs\/api-reference\/openapi\/internal$/);
+  await expect
+    .poll(() => new URL(page.url()).pathname)
+    .toBe('/docs/api-reference/openapi/internal');
   await expect(page.getByText('Internal API', { exact: true }).first()).toBeVisible();
   await expect(
-    page.getByRole('heading', { name: 'Trigger docs build', exact: true })
+    page
+      .locator('.openapi-overview')
+      .getByRole('heading', { name: 'Trigger docs build', exact: true })
   ).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
+test('generated OpenAPI operation route reloads with static reference parity', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/api-reference/openapi/operations/docs/get-docs/get-docs', {
+    waitUntil: 'networkidle',
+  });
+
+  await expect(
+    page.getByRole('heading', { name: 'List published docs', exact: true })
+  ).toBeVisible();
+  await expect(page.getByText('GET', { exact: true }).first()).toBeVisible();
+  await expect(page.getByText('/docs', { exact: true })).toBeVisible();
+  await expect(page.locator('pre code').first()).toContainText('curl --request GET');
+  await expect(page.locator('pre code').first()).toContainText(
+    'https://api.example.com/docs?limit=20'
+  );
+
+  const canonical = page.locator('link[rel="canonical"]');
+  await expect(canonical).toHaveCount(1);
+  await expect(canonical).toHaveAttribute(
+    'href',
+    /\/docs\/api-reference\/openapi\/operations\/docs\/get-docs\/get-docs$/
+  );
+  await assertNoRuntimeErrors(errors);
+});
+
+test('generated OpenAPI model route reloads with its TypeScript definition', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/api-reference/openapi/models/docsmanifest', {
+    waitUntil: 'networkidle',
+  });
+
+  await expect(page.getByRole('heading', { name: 'DocsManifest', exact: true })).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'TypeScript definition', exact: true })
+  ).toBeVisible();
+  const definition = page.locator('pre code').filter({ hasText: 'export interface DocsManifest' });
+  await expect(definition).toBeVisible();
+  await expect(definition).toContainText('count: number;');
+  await expect(definition).toContainText('paths: Array<string>;');
+  await assertNoRuntimeErrors(errors);
+});
+
+test('docs route supports reduced motion and keyboard focus', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+
+  await expect(page.locator('html')).toHaveClass(/reduce-motion/);
+  await page.keyboard.press('Tab');
+  const focused = page.locator(':focus-visible');
+  await expect(focused).toHaveCount(1);
+  await expect(focused).toBeVisible();
+  await expect(focused).toHaveAccessibleName(/papers/i);
+  await expect(focused).toHaveCSS('outline-style', 'solid');
   await assertNoRuntimeErrors(errors);
 });
 

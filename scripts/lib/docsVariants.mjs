@@ -1,5 +1,5 @@
 import { existsSync } from 'fs';
-import { join } from 'path';
+import { join, relative, resolve, sep } from 'path';
 
 import { buildDocsContentPath, getDocsVariantContexts } from '../../shared/docsRouting.js';
 
@@ -22,14 +22,16 @@ export function createVariantSourceCandidates(docPath, options = {}) {
   const locale =
     typeof options.locale === 'string' && options.locale.trim() ? options.locale.trim() : null;
   const rootDir = options.rootDir || process.cwd();
+  const contentDir = String(options.contentDir || join('src', 'docs', 'content')).replaceAll(
+    '\\',
+    '/'
+  );
   const candidateBases = [];
 
   if (version && locale) {
     candidateBases.push(
       join(
-        'src',
-        'docs',
-        'content',
+        contentDir,
         'variants',
         'versions',
         version,
@@ -42,26 +44,28 @@ export function createVariantSourceCandidates(docPath, options = {}) {
 
   if (version) {
     candidateBases.push(
-      join('src', 'docs', 'content', 'variants', 'versions', version, normalizedDocPath)
+      join(contentDir, 'variants', 'versions', version, normalizedDocPath)
     );
   }
 
   if (locale) {
     candidateBases.push(
-      join('src', 'docs', 'content', 'variants', 'locales', locale, normalizedDocPath)
+      join(contentDir, 'variants', 'locales', locale, normalizedDocPath)
     );
   }
 
-  candidateBases.push(join('src', 'docs', 'content', normalizedDocPath));
+  candidateBases.push(join(contentDir, normalizedDocPath));
 
   return Array.from(new Set(candidateBases)).flatMap((candidateBase) =>
     DOC_FILE_EXTENSIONS.map((extension) => {
       const relativePath = `${candidateBase}${extension}`;
 
-      return {
-        filePath: join(rootDir, relativePath),
-        sourcePath: createSourcePath(relativePath),
-      };
+      const filePath = resolve(rootDir, relativePath);
+      const sourcePath = createSourcePath(
+        relative(rootDir, filePath).replaceAll(sep, '/')
+      );
+
+      return { filePath, sourcePath };
     })
   );
 }

@@ -1,4 +1,5 @@
 import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
 
 import type { OpenApiSpecArtifact } from '../lib/openapiArtifacts';
 
@@ -83,9 +84,10 @@ export default function OpenApiOverview({ artifact }: OpenApiOverviewProps) {
       {operations.length > 0 && (
         <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
           {operations.map((operation) => (
-            <div
-              key={`${operation.method}:${operation.path}`}
-              className="rounded-md border px-3 py-2"
+            <Link
+              key={`${operation.method}:${operation.path}:${operation.id}`}
+              to={operation.routePath}
+              className="block rounded-md border px-3 py-2 transition-opacity hover:opacity-80"
               style={{
                 borderColor: 'var(--border-unified)',
                 backgroundColor: 'var(--card-color)',
@@ -102,10 +104,18 @@ export default function OpenApiOverview({ artifact }: OpenApiOverviewProps) {
                   {operation.path}
                 </code>
               </div>
-              <p className="mt-1 truncate text-2xs" style={{ color: 'var(--muted-color)' }}>
+              <h2
+                className="mt-1 truncate text-2xs font-medium"
+                style={{ color: 'var(--text-color)' }}
+              >
                 {operation.summary || operation.operationId || 'Untitled operation'}
-              </p>
-            </div>
+              </h2>
+              {operation.tags.length > 0 && (
+                <p className="mt-1 truncate text-2xs" style={{ color: 'var(--muted-color)' }}>
+                  {operation.tags.join(' · ')}
+                </p>
+              )}
+            </Link>
           ))}
         </div>
       )}
@@ -115,9 +125,22 @@ export default function OpenApiOverview({ artifact }: OpenApiOverviewProps) {
           className="mt-3 text-2xs"
           style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
         >
-          Models: {schemas.map((schema) => schema.name).join(', ')}
+          Models:{' '}
+          {schemas.map((schema, index) => (
+            <span key={schema.name}>
+              {index > 0 ? ', ' : ''}
+              <Link to={schema.routePath} className="underline-offset-2 hover:underline">
+                {schema.name}
+              </Link>
+            </span>
+          ))}
         </p>
       )}
+
+      <p className="mt-4 text-2xs" style={{ color: 'var(--muted-color)' }}>
+        Generated reference pages are static and searchable. Load the interactive Scalar viewer
+        below when you need try-it-out workflows.
+      </p>
     </section>
   );
 }

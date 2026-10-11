@@ -31,6 +31,7 @@ npm run build
 npm run release:check
 npx playwright test
 npm run lighthouse:check
+npm audit --audit-level=high
 ```
 
 3. Sanity-check the build output.
@@ -67,11 +68,29 @@ its static asset behavior. The root `/llms` and `/skill` snapshots are
 compatibility aliases with `noindex` metadata and canonical URLs pointing to
 `/docs/llms` and `/docs/skill` respectively.
 
-5. Create the GitHub release.
+5. Release the framework and starter from one versioned tag.
 
-Recommended tag: `v0.1.0`
+The root framework and `create-papers` starter intentionally share one semver
+version. Update both package contracts, the starter smoke fixture, and
+[CHANGELOG.md](CHANGELOG.md) together. The release tag must be exactly
+`v<root-package-version>`; for example:
 
-Use [CHANGELOG.md](CHANGELOG.md) as the release body starting point.
+```bash
+node -p "require('./package.json').version"
+git tag v0.1.0
+git push origin v0.1.0
+```
+
+The trusted `Release create-papers` workflow validates the tag, runs the full
+framework gate and packed clean-consumer smoke, generates a manifest pinned to
+the tag commit, publishes with npm provenance, probes the exact public version,
+and records the resolved tarball URL in the GitHub release notes. Do not run a
+manual `npm publish` unless package ownership, access, provenance, and release
+credentials have been explicitly confirmed.
+
+The current checkout has not proven public npm availability or ownership. A
+release is complete only when the post-publish exact-version probe succeeds;
+use [CHANGELOG.md](CHANGELOG.md) as the release body starting point.
 
 ## Post-Deploy Checks
 
@@ -105,10 +124,17 @@ host-specific smoke proof exists.
 - `npm run check:runtime-audit` audits shipped runtime dependencies and fails
   on high or critical findings. The current production dependency tree reports
   zero findings; dev-only tooling is not shipped to the site.
+- `npm run lighthouse:check` uses the maintained `lighthouse` package and the
+  Chromium executable supplied by Playwright. It audits the four routes in
+  `lighthouserc.cjs`, writes JSON and HTML reports only under `.lighthouseci/`,
+  and preserves the existing error and warning assertions. CI uploads that
+  directory only as a private seven-day GitHub artifact; it does not publish
+  reports to public Lighthouse storage.
+- Both `npm run check:runtime-audit` and `npm audit --audit-level=high` must
+  report zero high or critical findings before release. Keep development
+  tooling on maintained releases and investigate the complete dependency tree
+  rather than suppressing an advisory or lowering the audit level.
 - Markdown/MDX and Mermaid output must stay behind the repository sanitizers;
   OpenAPI URLs must be local root-relative assets or explicitly allowlisted
   HTTPS origins. Adding a remote font, spec, embed, or script requires a
   config and both host-policy updates.
-- A full `npm audit` may surface advisories in the development-only Lighthouse
-  toolchain. Treat those as tooling supply-chain work, not as a reason to
-  suppress the runtime audit or to call the deployed browser bundle clean.

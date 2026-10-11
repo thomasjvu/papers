@@ -1,4 +1,8 @@
 import { characterNoteAvatars } from '../../shared/character-note-config.js';
+import {
+  MDX_COMPONENT_REGISTRY,
+  normalizeMdxComponentNames,
+} from '../../shared/mdxComponents.js';
 
 const CALLOUT_TONES = new Set(['note', 'tip', 'warning', 'important']);
 const CHARACTER_NOTE_TYPES = new Set(['info', 'warning', 'alert', 'success', 'tip']);
@@ -21,6 +25,76 @@ function readJsxAttribute(attributes, name) {
   }
 
   return null;
+}
+
+function getMdxPosition(node) {
+  const start = node?.position?.start;
+  return start ? `:${start.line}:${start.column}` : '';
+}
+
+function createMdxDiagnostic(message, node) {
+  const error = new Error(`MDX${getMdxPosition(node)}: ${message}`);
+  if (node?.position?.start?.line) {
+    error.lineNumber = node.position.start.line;
+    error.columnNumber = node.position.start.column;
+  }
+  return error;
+}
+
+function validateMdxNode(node, allowedComponents) {
+  if (node?.type !== 'mdxJsxFlowElement' && node?.type !== 'mdxJsxTextElement') {
+    return;
+  }
+
+  const descriptor = MDX_COMPONENT_REGISTRY[node.name];
+  if (!descriptor || !allowedComponents.has(node.name)) {
+    throw createMdxDiagnostic(
+      `unsupported component <${node.name}>. Use one of: ${Array.from(allowedComponents).join(', ')}.`,
+      node
+    );
+  }
+
+  const allowedProps = new Set(descriptor.allowedProps);
+  for (const attribute of node.attributes || []) {
+    if (attribute.type === 'mdxJsxExpressionAttribute') {
+      throw createMdxDiagnostic(
+        `dynamic JSX attributes are not supported on <${node.name}>; use a quoted value.`,
+        node
+      );
+    }
+
+    if (!allowedProps.has(attribute.name)) {
+      throw createMdxDiagnostic(
+        `unsupported prop "${attribute.name}" on <${node.name}>. Allowed props: ${descriptor.allowedProps.join(', ') || 'none'}.`,
+        node
+      );
+    }
+
+    if (attribute.value === null || attribute.value === undefined) {
+      throw createMdxDiagnostic(
+        `prop "${attribute.name}" on <${node.name}> must have a quoted value.`,
+        node
+      );
+    }
+
+    if (typeof attribute.value !== 'string') {
+      throw createMdxDiagnostic(
+        `prop "${attribute.name}" on <${node.name}> must be a static quoted value.`,
+        node
+      );
+    }
+  }
+}
+
+export function validateMdxComponents(tree, options = {}) {
+  const allowedComponents = new Set(normalizeMdxComponentNames(options.components));
+
+  visitChildren(tree, (node) => {
+    validateMdxNode(node, allowedComponents);
+    return node;
+  });
+
+  return tree;
 }
 
 function normalizeChildren(children = []) {
@@ -256,8 +330,9 @@ function visitChildren(node, visitor) {
   });
 }
 
-export function remarkMdxShortcodes() {
+export function remarkMdxShortcodes(options = {}) {
   return (tree) => {
+    validateMdxComponents(tree, options);
     visitChildren(tree, (node) => {
       const replacement = transformShortcode(node);
       if (replacement) {

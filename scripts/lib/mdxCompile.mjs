@@ -6,7 +6,7 @@ import remarkRehype from 'remark-rehype';
 import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 
-import { remarkMdxShortcodes } from './mdxShortcodes.mjs';
+import { remarkMdxShortcodes, validateMdxComponents } from './mdxShortcodes.mjs';
 
 const sanitizeSchema = {
   ...defaultSchema,
@@ -102,13 +102,20 @@ function remarkCallouts() {
   };
 }
 
-export async function compileMdxToHtml(source) {
+export function validateMdxComponentsInSource(source, options = {}) {
+  const processor = unified().use(remarkParse).use(remarkMdx);
+  const tree = processor.parse(source);
+  validateMdxComponents(tree, options);
+  return tree;
+}
+
+export async function compileMdxToHtml(source, options = {}) {
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
     .use(remarkMdx)
     .use(remarkCallouts)
-    .use(remarkMdxShortcodes)
+    .use(remarkMdxShortcodes, options)
     .use(remarkRehype, { allowDangerousHtml: false })
     .use(rehypeSanitize, sanitizeSchema)
     .use(rehypeStringify)

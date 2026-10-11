@@ -1,4 +1,6 @@
 declare module '*/shared/docsRouting.js' {
+  import type { I18nConfig, VersionConfig } from '*/shared/documentation-config.js';
+
   export interface DocsRouteContext {
     originalSlug: string;
     docPath: string;
@@ -7,6 +9,7 @@ declare module '*/shared/docsRouting.js' {
     activeVersion: string | null;
     activeLocale: string | null;
     hasExplicitPrefix: boolean;
+    collectionId?: string;
   }
 
   export interface VersioningState {
@@ -114,6 +117,23 @@ declare module '*/shared/docsRouting.js' {
     }
   ): string;
 
+  export interface ContentCollectionVariants {
+    versionConfig?: VersionConfig;
+    i18nConfig?: I18nConfig;
+  }
+
+  export interface ContentSchemaField {
+    type: string;
+    integer?: boolean;
+  }
+
+  export interface ContentSchemaAdapter {
+    kind: 'papers-content-schema';
+    version: number;
+    fields: Record<string, ContentSchemaField>;
+    unknownFields: 'reject';
+  }
+
   export interface ContentCollectionTreeItem {
     name: string;
     path: string;
@@ -135,8 +155,34 @@ declare module '*/shared/docsRouting.js' {
     tree: ContentCollectionTreeItem[];
     description?: string;
     schemaVersion?: number;
-    frontmatterSchema?: Record<string, { type: string; integer?: boolean }>;
+    schemaAdapter?: ContentSchemaAdapter;
+    schema?: ContentSchemaAdapter | Record<string, ContentSchemaField>;
+    frontmatterSchema?: Record<string, ContentSchemaField>;
+    variants?: ContentCollectionVariants;
+    artifactNamespace?: string;
+    frameworkDocPaths?: string[];
+    frameworkContentDir?: string;
+    mdxComponents?: string[];
   }
+
+  export function getCollectionRoutingOptions(
+    collection?: ContentCollection,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      includeVersion?: boolean;
+      includeLocale?: boolean;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): {
+    version?: string | null;
+    locale?: string | null;
+    includeVersion?: boolean;
+    includeLocale?: boolean;
+    versionConfig?: unknown;
+    i18nConfig?: unknown;
+  };
 
   export function buildCollectionRoutePath(
     collection: ContentCollection,
@@ -152,7 +198,7 @@ declare module '*/shared/docsRouting.js' {
   ): string;
 
   export function buildCanonicalCollectionPath(
-    collection: ContentCollection,
+    collection?: ContentCollection,
     path?: string,
     options?: {
       version?: string | null;
@@ -162,8 +208,54 @@ declare module '*/shared/docsRouting.js' {
     }
   ): string;
 
-  export function parseCollectionRoutePath(
+  export function buildCollectionRouteVariants(
     collection: ContentCollection,
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string[];
+
+  export function buildCollectionContentPath(
+    collection?: ContentCollection,
+    path?: string,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+
+  export function getCollectionVariantContexts(
+    collection?: ContentCollection,
+    options?: {
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): Array<{
+    version: string | null;
+    locale: string | null;
+    key: string;
+    isDefault: boolean;
+  }>;
+
+  export function buildCollectionLandingPath(
+    collection?: ContentCollection,
+    path?: string | null,
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): string;
+
+  export function parseCollectionRoutePath(
+    collection?: ContentCollection,
     slug?: string,
     options?: {
       versionConfig?: unknown;

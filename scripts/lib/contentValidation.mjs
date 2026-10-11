@@ -10,8 +10,11 @@ import {
   versionConfig as defaultVersionConfig,
 } from '../../shared/documentation-config.js';
 import {
+  buildCollectionContentPath,
+  buildCollectionRouteVariants,
   buildDocsContentPath,
   buildDocsRouteVariants,
+  getCollectionRoutingOptions,
   getDocsVariantContexts,
   getDocumentationFeatureValidationIssues,
 } from '../../shared/docsRouting.js';
@@ -22,6 +25,7 @@ import {
   extractDocumentLinks,
   parseFrontmatter,
 } from './docsArtifacts.mjs';
+import { validateMdxComponentsInSource } from './mdxCompile.mjs';
 
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx']);
 export const EXCLUDED_SOURCE_DIRECTORIES = new Set(['generated', 'variants']);
@@ -161,47 +165,82 @@ function addRoute(routeMap, ambiguousRoutes, routePath, target) {
 }
 
 function createRouteModel({
+  collection,
   documentationTree,
   documentPaths,
   openapiConfig,
   versionConfig,
   i18nConfig,
+  routeCollections,
 }) {
   const routeMap = new Map();
   const ambiguousRoutes = new Set();
   const routeOptions = { versionConfig, i18nConfig };
+  const collectionEntries = routeCollections || [
+    {
+      collection,
+      documentationTree,
+      documentPaths,
+    },
+  ];
 
   addRoute(routeMap, ambiguousRoutes, '/', { type: 'site' });
 
-  for (const documentPath of documentPaths) {
-    for (const routePath of buildDocsRouteVariants(documentPath, routeOptions)) {
-      addRoute(routeMap, ambiguousRoutes, routePath, {
+  for (const entry of collectionEntries) {
+    const entryOptions = entry.collection
+      ? getCollectionRoutingOptions(entry.collection, routeOptions)
+      : routeOptions;
+    const buildRoutes = entry.collection
+      ? (path) => buildCollectionRouteVariants(entry.collection, path, entryOptions)
+      : (path) => buildDocsRouteVariants(path, entryOptions);
+    const routePrefix = entry.collection?.routePrefix || '/docs';
+
+    for (const documentPath of entry.documentPaths) {
+      for (const routePath of buildRoutes(documentPath)) {
+        addRoute(routeMap, ambiguousRoutes, routePath, {
+          type: 'document',
+          collectionId: entry.collection?.id || 'docs',
+          documentPath,
+        });
+      }
+    }
+
+    const defaultDocumentPath =
+      getDefaultDocumentPath(entry.documentationTree) || entry.documentPaths[0];
+    if (defaultDocumentPath) {
+      addRoute(routeMap, ambiguousRoutes, routePrefix, {
         type: 'document',
-        documentPath,
+        collectionId: entry.collection?.id || 'docs',
+        documentPath: defaultDocumentPath,
       });
+    }
+
+    const normalizedPrefix = String(routePrefix).replace(/^\/+|\/+$/g, '');
+    const prefixPattern = new RegExp(`^/${normalizedPrefix}/?`);
+    for (const alias of getDirectoryAliasEntries(entry.documentationTree, normalizedPrefix)) {
+      const aliasPath = alias.routePath.replace(prefixPattern, '');
+      for (const routePath of buildRoutes(aliasPath)) {
+        addRoute(routeMap, ambiguousRoutes, routePath, {
+          type: 'document',
+          collectionId: entry.collection?.id || 'docs',
+          documentPath: alias.docPath,
+        });
+      }
     }
   }
 
-  const defaultDocumentPath = getDefaultDocumentPath(documentationTree) || documentPaths[0];
-  if (defaultDocumentPath) {
-    addRoute(routeMap, ambiguousRoutes, '/docs', {
+  if (!collection || collection.id === 'docs') {
+    addRoute(routeMap, ambiguousRoutes, '/llms', {
       type: 'document',
-      documentPath: defaultDocumentPath,
+      collectionId: 'docs',
+      documentPath: 'llms',
+    });
+    addRoute(routeMap, ambiguousRoutes, '/skill', {
+      type: 'document',
+      collectionId: 'docs',
+      documentPath: 'skill',
     });
   }
-
-  for (const alias of getDirectoryAliasEntries(documentationTree)) {
-    const aliasPath = alias.routePath.replace(/^\/docs\/?/, '');
-    for (const routePath of buildDocsRouteVariants(aliasPath, routeOptions)) {
-      addRoute(routeMap, ambiguousRoutes, routePath, {
-        type: 'document',
-        documentPath: alias.docPath,
-      });
-    }
-  }
-
-  addRoute(routeMap, ambiguousRoutes, '/llms', { type: 'document', documentPath: 'llms' });
-  addRoute(routeMap, ambiguousRoutes, '/skill', { type: 'document', documentPath: 'skill' });
 
   if (openapiConfig?.enabled) {
     const openapiDocumentPath = normalizeDocPath(openapiConfig.pagePath || '');
@@ -227,8 +266,8 @@ function resolveRouteTarget(pathname, routeModel) {
   return routeModel.routeMap.get(normalized) || null;
 }
 
-function getHeadingIds(content) {
-  return new Set(createDocumentToc(content).map((heading) => heading.id));
+function getHeadingIds(content, frontmatterSchema) {
+  return new Set(createDocumentToc(content, frontmatterSchema).map((heading) => heading.id));
 }
 
 function getAnchorFromSuffix(suffix) {
@@ -252,7 +291,15 @@ function findSourceRecord(documentPath, sourceRecords) {
   );
 }
 
-function checkAnchor(targetRecord, suffix, sourceRecords, issues, sourcePath, line) {
+function checkAnchor(
+  targetRecord,
+  suffix,
+  sourceRecords,
+  issues,
+  sourcePath,
+  line,
+  frontmatterSchema
+) {
   const anchor = getAnchorFromSuffix(suffix);
   if (anchor === null || anchor === '') {
     return;
@@ -265,7 +312,7 @@ function checkAnchor(targetRecord, suffix, sourceRecords, issues, sourcePath, li
   }
 
   const resolvedRecord = findSourceRecord(targetRecord.documentPath, sourceRecords);
-  if (!resolvedRecord || !getHeadingIds(resolvedRecord.content).has(decodedAnchor)) {
+  if (!resolvedRecord || !getHeadingIds(resolvedRecord.content, frontmatterSchema).has(decodedAnchor)) {
     issues.push(`${sourcePath}:${line}: unresolved heading anchor "#${decodedAnchor}"`);
   }
 }
@@ -314,6 +361,7 @@ function validateLink({
   contentRoot,
   sourcePath,
   issues,
+  frontmatterSchema,
 }) {
   if (reference.type === 'action') {
     return;
@@ -323,7 +371,15 @@ function validateLink({
   const { pathname, suffix } = splitTargetSuffix(target);
 
   if (!pathname && suffix.startsWith('#')) {
-    checkAnchor(sourceRecord, suffix, sourceRecords, issues, sourcePath, line);
+    checkAnchor(
+      sourceRecord,
+      suffix,
+      sourceRecords,
+      issues,
+      sourcePath,
+      line,
+      frontmatterSchema
+    );
     return;
   }
 
@@ -353,7 +409,15 @@ function validateLink({
       if (suffix.startsWith('#') && routeTarget.type === 'document') {
         const targetRecord = findSourceRecord(routeTarget.documentPath, sourceRecords);
         if (targetRecord) {
-          checkAnchor(targetRecord, suffix, sourceRecords, issues, sourcePath, line);
+          checkAnchor(
+            targetRecord,
+            suffix,
+            sourceRecords,
+            issues,
+            sourcePath,
+            line,
+            frontmatterSchema
+          );
         }
       }
       return;
@@ -372,7 +436,15 @@ function validateLink({
     if (suffix.startsWith('#')) {
       const targetRecord = findSourceRecord(documentPath, sourceRecords);
       if (targetRecord) {
-        checkAnchor(targetRecord, suffix, sourceRecords, issues, sourcePath, line);
+        checkAnchor(
+          targetRecord,
+          suffix,
+          sourceRecords,
+          issues,
+          sourcePath,
+          line,
+          frontmatterSchema
+        );
       }
     }
     return;
@@ -393,6 +465,7 @@ function validateSourceLinks({
   contentRoot,
   issues,
   externalLinks,
+  frontmatterSchema,
 }) {
   for (const sourceRecord of sourceRecords) {
     for (const reference of extractDocumentLinks(sourceRecord.content)) {
@@ -415,12 +488,20 @@ function validateSourceLinks({
         contentRoot,
         sourcePath: sourceRecord.sourcePath,
         issues,
+        frontmatterSchema,
       });
     }
   }
 }
 
-async function readSourceRecords(files, rootDir, contentRoot, issues, frontmatterSchema) {
+async function readSourceRecords(
+  files,
+  rootDir,
+  contentRoot,
+  issues,
+  frontmatterSchema,
+  mdxComponents
+) {
   const records = [];
 
   for (const file of files) {
@@ -437,6 +518,9 @@ async function readSourceRecords(files, rootDir, contentRoot, issues, frontmatte
     try {
       record.content = await readFile(file.absolutePath, 'utf8');
       parseFrontmatter(record.content, frontmatterSchema);
+      if (file.absolutePath.toLowerCase().endsWith('.mdx')) {
+        validateMdxComponentsInSource(record.content, { components: mdxComponents });
+      }
       records.push(record);
     } catch (error) {
       const lineSuffix = error.lineNumber ? `:${error.lineNumber}` : '';
@@ -476,17 +560,30 @@ function validateDuplicateVariantSources(files, issues) {
   }
 }
 
-function validateGeneratedDocumentKeys(documentPaths, versionConfig, i18nConfig, issues) {
+function validateGeneratedDocumentKeys(
+  documentPaths,
+  versionConfig,
+  i18nConfig,
+  issues,
+  collection
+) {
   const keys = new Map();
 
   for (const context of getDocsVariantContexts({ versionConfig, i18nConfig })) {
     for (const documentPath of documentPaths) {
-      const key = buildDocsContentPath(documentPath, {
-        version: context.version,
-        locale: context.locale,
-        versionConfig,
-        i18nConfig,
-      });
+      const key = collection
+        ? buildCollectionContentPath(collection, documentPath, {
+            version: context.version,
+            locale: context.locale,
+            versionConfig,
+            i18nConfig,
+          })
+        : buildDocsContentPath(documentPath, {
+            version: context.version,
+            locale: context.locale,
+            versionConfig,
+            i18nConfig,
+          });
       const existing = keys.get(key);
       if (existing && existing !== documentPath) {
         issues.push(`Duplicate generated document key "${key}" for "${existing}" and "${documentPath}".`);
@@ -510,7 +607,9 @@ export async function validateDocumentationContent(options = {}) {
   const versionConfig = options.versionConfig || defaultVersionConfig;
   const i18nConfig = options.i18nConfig || defaultI18nConfig;
   const configuredOpenapi = options.openapiConfig || defaultOpenapiConfig;
-  const frontmatterSchema = options.frontmatterSchema;
+  const collection = options.collection;
+  const frontmatterSchema = options.schemaAdapter || options.frontmatterSchema;
+  const mdxComponents = options.mdxComponents;
   const issues = [];
   const externalLinks = [];
   const treeDocumentPaths = collectDocumentationPaths(documentationTree);
@@ -567,7 +666,8 @@ export async function validateDocumentationContent(options = {}) {
     rootDir,
     contentRoot,
     issues,
-    frontmatterSchema
+    frontmatterSchema,
+    mdxComponents
   );
 
   for (const featureIssue of getDocumentationFeatureValidationIssues({
@@ -578,15 +678,23 @@ export async function validateDocumentationContent(options = {}) {
     issues.push(featureIssue);
   }
 
-  validateGeneratedDocumentKeys(treeDocumentPaths, versionConfig, i18nConfig, issues);
+  validateGeneratedDocumentKeys(
+    treeDocumentPaths,
+    versionConfig,
+    i18nConfig,
+    issues,
+    collection
+  );
 
   const routeDocumentPaths = Array.from(documentPathSet);
   const routeModel = createRouteModel({
+    collection,
     documentationTree,
     documentPaths: routeDocumentPaths,
     openapiConfig: configuredOpenapi,
     versionConfig,
     i18nConfig,
+    routeCollections: options.routeCollections,
   });
 
   for (const routePath of routeModel.ambiguousRoutes) {
@@ -601,6 +709,7 @@ export async function validateDocumentationContent(options = {}) {
     contentRoot,
     issues,
     externalLinks,
+    frontmatterSchema,
   });
 
   return {

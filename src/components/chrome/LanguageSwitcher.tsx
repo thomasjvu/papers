@@ -1,7 +1,12 @@
 import { useEffect, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
+import {
+  buildCanonicalCollectionPath,
+  parseCollectionRoutePath,
+} from '../../../shared/docsRouting.js';
+import type { ContentCollection } from '../../../shared/docsRouting.js';
+import { getContentCollection } from '../../data/collections';
 import { DEFAULT_DOCUMENT_PATH } from '../../lib/navigation';
 import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
 
@@ -10,6 +15,7 @@ type LanguageSwitcherProps = {
   className?: string;
   /** Current logical doc path (without locale prefix). */
   docPath?: string;
+  collection?: ContentCollection;
 };
 
 /**
@@ -19,13 +25,21 @@ export default function LanguageSwitcher({
   variant = 'pills',
   className = '',
   docPath,
+  collection,
 }: LanguageSwitcherProps) {
   const location = useLocation();
-  const docsRouteSlug = location.pathname.startsWith('/docs')
-    ? location.pathname.replace(/^\/docs\/?/, '')
+  const activeCollection = collection || getContentCollection('docs');
+  const routePrefix =
+    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+  const docsRouteSlug = location.pathname.startsWith(routePrefix)
+    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
     : location.pathname.replace(/^\/+|\/+$/g, '');
-  const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
-  const activeLocale = routeContext.activeLocale || i18nConfig.defaultLocale;
+  const routeContext = useMemo(
+    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
+    [activeCollection, docsRouteSlug]
+  );
+  const activeI18nConfig = activeCollection.variants?.i18nConfig || i18nConfig;
+  const activeLocale = routeContext.activeLocale || activeI18nConfig.defaultLocale;
   const logicalPath = docPath || routeContext.docPath || DEFAULT_DOCUMENT_PATH;
 
   useEffect(() => {
@@ -33,11 +47,11 @@ export default function LanguageSwitcher({
     document.documentElement.lang = activeLocale;
   }, [activeLocale]);
 
-  if (!languageSwitcherShows('sidebar')) {
+  if (!languageSwitcherShows('sidebar') || !activeI18nConfig.enabled) {
     return null;
   }
 
-  const locales = i18nConfig.locales || [];
+  const locales = activeI18nConfig.locales || [];
 
   if (variant === 'menu') {
     return (
@@ -46,7 +60,7 @@ export default function LanguageSwitcher({
         <select
           value={activeLocale || ''}
           onChange={(event) => {
-            const href = buildCanonicalDocsPath(logicalPath, {
+            const href = buildCanonicalCollectionPath(activeCollection, logicalPath, {
               version: routeContext.activeVersion,
               locale: event.target.value,
             });
@@ -80,7 +94,7 @@ export default function LanguageSwitcher({
     >
       {locales.map((code) => {
         const active = activeLocale === code;
-        const href = buildCanonicalDocsPath(logicalPath, {
+        const href = buildCanonicalCollectionPath(activeCollection, logicalPath, {
           version: routeContext.activeVersion,
           locale: code,
         });

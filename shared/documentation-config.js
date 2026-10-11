@@ -33,6 +33,7 @@ export const frameworkDocPaths = [];
  * @typedef {Object} HomepageConfig
  * @property {boolean} enabled
  * @property {Object} hero
+ * @property {Object} [hero.artwork]
  * @property {Object[]} [features]
  * @property {Object} [quickStart]
  */
@@ -147,6 +148,8 @@ export const homepageConfig = {
     artwork: {
       src: '/images/docs/placeholders/template-hero-banner.svg',
       alt: 'Placeholder hero banner for a documentation homepage',
+      width: 1600,
+      height: 900,
       caption:
         'Placeholder hero banner. Replace with a product screenshot, illustrated system overview, or docs brand artwork.',
     },

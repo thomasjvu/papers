@@ -12,12 +12,15 @@ import {
 import {
   buildCanonicalCollectionPath,
   buildCanonicalDocsPath,
+  buildCollectionContentPath,
   buildCollectionRouteVariants,
   buildDocsContentPath,
   buildDocsRouteVariants,
+  getCollectionRoutingOptions,
+  parseCollectionRoutePath,
   parseDocsRoutePath,
 } from '../../shared/docsRouting.js';
-import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
+import { createOpenApiRouteEntries } from './openapiArtifacts.mjs';
 
 function escapeXml(value) {
   return value
@@ -56,7 +59,7 @@ function getDocumentDescription(document) {
 }
 
 function getDocsRouteContext(routePath, options) {
-  const routePrefix = options.routePrefix || 'docs';
+  const routePrefix = String(options.routePrefix || 'docs').replace(/^\/+|\/+$/g, '');
   const prefixPath = `/${routePrefix}`;
 
   if (!routePath.startsWith(prefixPath)) {
@@ -64,32 +67,49 @@ function getDocsRouteContext(routePath, options) {
   }
 
   const slugPath = routePath.slice(prefixPath.length).replace(/^\//, '');
-  return parseDocsRoutePath(slugPath, {
-    versionConfig: options.versionConfig,
-    i18nConfig: options.i18nConfig,
-  });
+  return options.collection
+    ? parseCollectionRoutePath(options.collection, slugPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      })
+    : parseDocsRoutePath(slugPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      });
 }
 
 function getDocumentForRoute(docPath, routePath, documentsByPath, options) {
   const routeContext = getDocsRouteContext(routePath, options);
 
   if (routeContext) {
-    const variantKey = buildDocsContentPath(docPath, {
-      version: routeContext.activeVersion,
-      locale: routeContext.activeLocale,
-      versionConfig: options.versionConfig,
-      i18nConfig: options.i18nConfig,
-    });
+    const variantKey = options.collection
+      ? buildCollectionContentPath(options.collection, docPath, {
+          version: routeContext.activeVersion,
+          locale: routeContext.activeLocale,
+          versionConfig: options.versionConfig,
+          i18nConfig: options.i18nConfig,
+        })
+      : buildDocsContentPath(docPath, {
+          version: routeContext.activeVersion,
+          locale: routeContext.activeLocale,
+          versionConfig: options.versionConfig,
+          i18nConfig: options.i18nConfig,
+        });
 
     if (documentsByPath[variantKey]) {
       return documentsByPath[variantKey];
     }
   }
 
-  const defaultVariantKey = buildDocsContentPath(docPath, {
-    versionConfig: options.versionConfig,
-    i18nConfig: options.i18nConfig,
-  });
+  const defaultVariantKey = options.collection
+    ? buildCollectionContentPath(options.collection, docPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      })
+    : buildDocsContentPath(docPath, {
+        versionConfig: options.versionConfig,
+        i18nConfig: options.i18nConfig,
+      });
 
   return documentsByPath[defaultVariantKey] || documentsByPath[docPath] || null;
 }
@@ -137,9 +157,12 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   const siteName = options.siteName || defaults.siteName;
   const siteSubtitle = options.siteSubtitle || defaults.siteSubtitle;
   const siteDescription = options.siteDescription || defaults.siteDescription;
-  const routePrefix = options.routePrefix || 'docs';
+  const routePrefix = String(options.routePrefix || 'docs').replace(/^\/+|\/+$/g, '');
+  const collectionOptions = options.collection
+    ? getCollectionRoutingOptions(options.collection, options)
+    : options;
   const routeOptions = {
-    ...options,
+    ...collectionOptions,
     siteName,
     routePrefix,
   };
@@ -215,6 +238,8 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
 export function createAllCollectionSeoRouteEntries(collections, artifactsByCollectionId, options = {}) {
   const routeMap = new Map();
   const entries = [];
+  const primaryCollection =
+    collections.find((collection) => collection.id === 'docs') || collections[0];
 
   for (const collection of collections) {
     const artifacts = artifactsByCollectionId[collection.id];
@@ -222,19 +247,20 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
       continue;
     }
 
+    const collectionOptions = getCollectionRoutingOptions(collection, options);
     const collectionEntries = createSeoRouteEntries(artifacts.index, artifacts.documents, {
       ...options,
+      ...collectionOptions,
       collection,
       routePrefix: collection.routePrefix,
       documentationTree: collection.tree,
-      skipSiteRoutes: collection.id !== collections[0]?.id,
+      skipSiteRoutes: collection.id !== primaryCollection?.id,
       routeMap,
     });
 
     entries.push(...collectionEntries);
   }
 
-  const primaryCollection = collections[0];
   const primaryArtifacts = primaryCollection
     ? artifactsByCollectionId[primaryCollection.id]
     : null;
@@ -257,8 +283,7 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
     entries.push({
       routePath,
       canonicalPath: buildCanonicalCollectionPath(primaryCollection, docPath, {
-        versionConfig: options.versionConfig,
-        i18nConfig: options.i18nConfig,
+        ...getCollectionRoutingOptions(primaryCollection, options),
       }),
       title: `${document.title} | ${options.siteName || getHomeMetadataDefaults().siteName}`,
       description: getDocumentDescription(document),
@@ -268,28 +293,18 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
     });
   }
 
-  if (openapiConfig.enabled && openapiConfig.specs.length > 0) {
-    for (const spec of openapiConfig.specs) {
-      const routePath = buildOpenApiRoutePath(
-        openapiConfig,
-        spec.id === openapiConfig.defaultSpecId ? null : spec.id
-      );
-
-      if (routeMap.has(routePath)) {
+  if (openapiConfig.enabled && openapiConfig.specs.length > 0 && options.openapiArtifacts) {
+    for (const entry of createOpenApiRouteEntries(
+      options.openapiArtifacts,
+      openapiConfig,
+      options.siteName || getHomeMetadataDefaults().siteName
+    )) {
+      if (routeMap.has(entry.routePath)) {
         continue;
       }
 
-      routeMap.set(routePath, true);
-      entries.push({
-        routePath,
-        canonicalPath: routePath,
-        title: `${spec.label} | ${options.siteName || getHomeMetadataDefaults().siteName}`,
-        description:
-          spec.description || `Interactive OpenAPI reference for ${spec.label}.`,
-        type: 'article',
-        includeInSitemap: true,
-        noIndex: false,
-      });
+      routeMap.set(entry.routePath, true);
+      entries.push(entry);
     }
   }
 

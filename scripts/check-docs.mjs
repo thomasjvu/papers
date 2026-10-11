@@ -2,43 +2,50 @@ import { existsSync, readFileSync } from 'fs';
 import { readdir } from 'fs/promises';
 import { join } from 'path';
 
-import { getContentCollection } from '../shared/content-collections.js';
 import {
-  documentationTree,
-  frameworkDocPaths,
+  contentCollections,
+  getCollectionArtifactPaths,
+  getCollectionVariants,
+  validateContentCollections,
+} from '../shared/content-collections.js';
+import {
   homepageConfig,
   openapiConfig,
 } from '../shared/documentation-config.js';
 import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
-import { buildDocsContentPath } from '../shared/docsRouting.js';
+import { buildCollectionContentPath, buildDocsContentPath } from '../shared/docsRouting.js';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
-import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
-import { createContentCollectionManifest } from './lib/contentCollectionManifest.mjs';
+import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
+import {
+  createContentCollectionManifest,
+  createContentCollectionsManifest,
+} from './lib/contentCollectionManifest.mjs';
 import { createDocumentReferenceGraph } from './lib/referenceGraph.mjs';
 import { createOpenApiArtifacts } from './lib/openapiArtifacts.mjs';
 import { serializePrettierJson } from './lib/formatArtifact.mjs';
-import { assertValidDocumentationContent } from './lib/contentValidation.mjs';
+import {
+  createCollectionGenerationOptions,
+  getCollectionFrameworkDocPaths,
+} from './generate-docs.mjs';
 import {
   GENERATED_DOCS_SOURCE_ENV,
   diffMarkdownFileMaps,
   getGeneratedDocsSourceDir,
   readMarkdownFileMap,
 } from './lib/generatedDocsSync.mjs';
-import { createHostedSkillArtifact, createLlmsArtifacts } from './lib/llmsArtifacts.mjs';
+import { createAllLlmsArtifacts, createHostedSkillArtifact } from './lib/llmsArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
 import { createAgentDiscoveryManifest } from '../shared/seo.js';
 import {
   createDefaultSocialImageManifest,
   createRobotsTxt,
-  createSeoRouteEntries,
+  createAllCollectionSeoRouteEntries,
   createSitemapXml,
 } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
 const publicDir = join(rootDir, 'public');
-const docsContentDir = join(publicDir, 'docs-content');
-const docsIndexPath = join(publicDir, 'docs-index.json');
 const generatedDocsDir = join(rootDir, 'src', 'docs', 'content', 'generated');
 
 function assert(condition, message) {
@@ -49,6 +56,10 @@ function assert(condition, message) {
 
 function readFileText(filePath) {
   return readFileSync(filePath, 'utf8');
+}
+
+function resolvePublicArtifactPath(artifactPath) {
+  return join(publicDir, artifactPath.replace(/^\/+/, ''));
 }
 
 async function listJsonFiles(dir, prefix = '') {
@@ -93,111 +104,136 @@ async function main() {
     existsSync(openapiArtifactsPath),
     'Missing public/openapi-artifacts.json. Run `npm run generate:openapi`.'
   );
-  const expectedOpenapiArtifacts = await serializePrettierJson(
-    await createOpenApiArtifacts({ rootDir, publicDir, config: openapiConfig })
-  );
+  const openapiArtifacts = await createOpenApiArtifacts({ rootDir, publicDir, config: openapiConfig });
+  const expectedOpenapiArtifacts = await serializePrettierJson(openapiArtifacts);
   assert(
     readFileText(openapiArtifactsPath) === expectedOpenapiArtifacts,
     'public/openapi-artifacts.json is out of date. Run `npm run generate:openapi`.'
   );
 
-  assert(
-    existsSync(docsIndexPath),
-    'Missing public/docs-index.json. Run `npm run build` or the generators first.'
-  );
-  assert(
-    existsSync(docsContentDir),
-    'Missing public/docs-content/. Run `npm run build` or the generators first.'
-  );
+  const collections = validateContentCollections(contentCollections, { rootDir });
+  const routeCollections = collections.map((collection) => ({
+    collection,
+    documentationTree: collection.tree,
+    documentPaths: Array.from(
+      new Set([
+        ...collectDocumentPaths(collection.tree || []),
+        ...getCollectionFrameworkDocPaths(collection),
+      ])
+    ).sort(),
+  }));
+  const artifactsByCollectionId = {};
+  const manifests = {};
 
-  const existingIndex = JSON.parse(readFileText(docsIndexPath));
-  const docsCollection = getContentCollection('docs');
-  await assertValidDocumentationContent({
-    documentationTree,
-    frameworkDocPaths,
-    contentRoot: resolveCollectionContentRoot(docsCollection, rootDir),
-    frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
-    rootDir,
-    frontmatterSchema: docsCollection.frontmatterSchema,
-  });
-  const { documents, index } = await createGeneratedDocsArtifacts({
-    documentationTree,
-    frameworkDocPaths,
-    contentRoot: resolveCollectionContentRoot(docsCollection, rootDir),
-    frameworkContentRoot: join(rootDir, 'src', 'docs', 'content'),
-    previousIndex: existingIndex,
-    rootDir,
-    frontmatterSchema: docsCollection.frontmatterSchema,
-  });
+  for (const collection of collections) {
+    const artifactPaths = getCollectionArtifactPaths(collection);
+    const indexPath = resolvePublicArtifactPath(artifactPaths.index);
+    const contentDir = resolvePublicArtifactPath(artifactPaths.content);
+    const manifestPath = resolvePublicArtifactPath(artifactPaths.manifest);
+    const referencesPath = resolvePublicArtifactPath(artifactPaths.references);
 
-  const expectedIndex = serializeArtifactJson(index);
-  const actualIndex = readFileText(docsIndexPath);
-  assert(
-    actualIndex === expectedIndex,
-    'public/docs-index.json is out of date. Run `npm run generate:docs`.'
-  );
+    assert(
+      existsSync(indexPath),
+      `Missing ${artifactPaths.index}. Run \`npm run generate:docs\`.`
+    );
+    assert(
+      existsSync(contentDir),
+      `Missing ${artifactPaths.content}/. Run \`npm run generate:docs\`.`
+    );
+    assert(
+      existsSync(manifestPath),
+      `Missing ${artifactPaths.manifest}. Run \`npm run generate:docs\`.`
+    );
+    assert(
+      existsSync(referencesPath),
+      `Missing ${artifactPaths.references}. Run \`npm run generate:docs\`.`
+    );
 
-  const collectionManifestPath = join(publicDir, 'docs-collection.json');
-  assert(
-    existsSync(collectionManifestPath),
-    'Missing public/docs-collection.json. Run `npm run generate:docs`.'
-  );
-  const expectedCollectionManifest = await serializePrettierJson(
-    createContentCollectionManifest({
-      collection: docsCollection,
+    const generationOptions = createCollectionGenerationOptions({
+      collection,
+      rootDir,
+      publicDir,
+      routeCollections,
+    });
+    generationOptions.previousIndex = JSON.parse(readFileText(indexPath));
+    const { documents, index } = await createGeneratedDocsArtifacts(generationOptions);
+    const collectionManifest = createContentCollectionManifest({
+      collection,
       index,
       documents,
-    })
-  );
-  assert(
-    readFileText(collectionManifestPath) === expectedCollectionManifest,
-    'public/docs-collection.json is out of date. Run `npm run generate:docs`.'
-  );
-
-  const referencesPath = join(publicDir, 'docs-references.json');
-  assert(
-    existsSync(referencesPath),
-    'Missing public/docs-references.json. Run `npm run generate:docs`.'
-  );
-  const expectedReferences = serializeArtifactJson(
-    createDocumentReferenceGraph({
+    });
+    const variants = getCollectionVariants(collection);
+    const references = createDocumentReferenceGraph({
       documents,
       paths: index.paths,
-      documentationTree,
+      documentationTree: collection.tree,
       generated: index.generated,
-    })
-  );
-  assert(
-    readFileText(referencesPath) === expectedReferences,
-    'public/docs-references.json is out of date. Run `npm run generate:docs`.'
-  );
+      collection,
+      versionConfig: variants.versionConfig,
+      i18nConfig: variants.i18nConfig,
+    });
 
-  const expectedDocumentKeys = Object.keys(documents).sort();
-  const actualDocumentFiles = await listJsonFiles(docsContentDir);
-  const actualDocumentKeys = actualDocumentFiles.map((filePath) => filePath.replace(/\.json$/, ''));
-  const extraDocumentKeys = actualDocumentKeys.filter((key) => !expectedDocumentKeys.includes(key));
-  const missingDocumentKeys = expectedDocumentKeys.filter(
-    (key) => !actualDocumentKeys.includes(key)
-  );
-
-  assert(
-    missingDocumentKeys.length === 0,
-    `public/docs-content is missing generated docs: ${missingDocumentKeys.join(', ')}.`
-  );
-  assert(
-    extraDocumentKeys.length === 0,
-    `public/docs-content has stale generated docs: ${extraDocumentKeys.join(', ')}.`
-  );
-
-  for (const [documentKey, document] of Object.entries(documents)) {
-    const filePath = join(docsContentDir, `${documentKey}.json`);
-    const expectedDocument = serializeArtifactJson(document);
-    const actualDocument = readFileText(filePath);
     assert(
-      actualDocument === expectedDocument,
-      `${filePath} is out of date. Run \`npm run generate:docs\`.`
+      readFileText(indexPath) === serializeArtifactJson(index),
+      `${artifactPaths.index} is out of date. Run \`npm run generate:docs\`.`
     );
+    assert(
+      readFileText(manifestPath) === await serializePrettierJson(collectionManifest),
+      `${artifactPaths.manifest} is out of date. Run \`npm run generate:docs\`.`
+    );
+    assert(
+      readFileText(referencesPath) === serializeArtifactJson(references),
+      `${artifactPaths.references} is out of date. Run \`npm run generate:docs\`.`
+    );
+
+    const expectedDocumentKeys = Object.keys(documents).sort();
+    const actualDocumentFiles = await listJsonFiles(contentDir);
+    const actualDocumentKeys = actualDocumentFiles.map((filePath) =>
+      filePath.replace(/\.json$/, '')
+    );
+    const extraDocumentKeys = actualDocumentKeys.filter(
+      (key) => !expectedDocumentKeys.includes(key)
+    );
+    const missingDocumentKeys = expectedDocumentKeys.filter(
+      (key) => !actualDocumentKeys.includes(key)
+    );
+
+    assert(
+      missingDocumentKeys.length === 0,
+      `${artifactPaths.content} is missing generated docs: ${missingDocumentKeys.join(', ')}.`
+    );
+    assert(
+      extraDocumentKeys.length === 0,
+      `${artifactPaths.content} has stale generated docs: ${extraDocumentKeys.join(', ')}.`
+    );
+
+    for (const [documentKey, document] of Object.entries(documents)) {
+      const filePath = join(contentDir, `${documentKey}.json`);
+      assert(
+        readFileText(filePath) === serializeArtifactJson(document),
+        `${filePath} is out of date. Run \`npm run generate:docs\`.`
+      );
+    }
+
+    artifactsByCollectionId[collection.id] = { index, documents };
+    manifests[collection.id] = collectionManifest;
   }
+
+  const collectionsManifestPath = join(publicDir, 'collections.json');
+  assert(
+    existsSync(collectionsManifestPath),
+    'Missing public/collections.json. Run `npm run generate:docs`.'
+  );
+  assert(
+    readFileText(collectionsManifestPath) ===
+      (await serializePrettierJson(
+        createContentCollectionsManifest({ collections, manifests })
+      )),
+    'public/collections.json is out of date. Run `npm run generate:docs`.'
+  );
+
+  const primaryCollection = collections.find((collection) => collection.id === 'docs') || collections[0];
+  assert(primaryCollection, 'At least one content collection must be configured.');
 
   const hostedSkillPath = join(publicDir, 'skill.md');
   assert(
@@ -211,7 +247,9 @@ async function main() {
   const siteUrl = viteEnv.VITE_SITE_URL || '';
   const siteSubtitle = homepageConfig.hero?.subtitle || 'Documentation';
   const siteDescription = homepageConfig.hero?.description || '';
-  const skillSource = readFileText(join(rootDir, 'src', 'docs', 'content', 'skill.md'));
+  const skillSource = readFileText(
+    join(resolveCollectionContentRoot(primaryCollection, rootDir), 'skill.md')
+  );
   assert(
     readFileText(hostedSkillPath) ===
       createHostedSkillArtifact(skillSource, {
@@ -223,16 +261,26 @@ async function main() {
   assert(existsSync(agentManifestPath), 'Missing public/agents.json. Run `npm run generate:llms`.');
   assert(
     readFileText(agentManifestPath) ===
-      `${JSON.stringify(createAgentDiscoveryManifest({ siteName, siteUrl, description: siteDescription }), null, 2)}\n`,
+      `${JSON.stringify(
+        createAgentDiscoveryManifest({
+          siteName,
+          siteUrl,
+          description: siteDescription,
+          collections,
+        }),
+        null,
+        2
+      )}\n`,
     'public/agents.json is out of date. Run `npm run generate:llms`.'
   );
 
-  const { llmsTxt, llmsFullTxt } = createLlmsArtifacts({
-    documentationTree,
+  const { llmsTxt, llmsFullTxt } = createAllLlmsArtifacts({
+    collections,
     homepageConfig,
-    openapiConfig,
     rootDir,
     siteUrl,
+    openapiArtifacts,
+    getCollectionVariants,
   });
 
   assert(
@@ -244,11 +292,17 @@ async function main() {
     'public/llms-full.txt is out of date. Run `npm run generate:llms`.'
   );
 
-  const routeEntries = createSeoRouteEntries(index, documents, {
-    siteName,
-    siteSubtitle,
-    siteDescription,
-  });
+  const routeEntries = createAllCollectionSeoRouteEntries(
+    collections,
+    artifactsByCollectionId,
+    {
+      siteName,
+      siteSubtitle,
+      siteDescription,
+      openapiArtifacts,
+      collections,
+    }
+  );
   const socialImages = createDefaultSocialImageManifest({
     siteName,
     siteSubtitle,
@@ -298,10 +352,17 @@ async function main() {
     );
   }
 
-  const sourcePathCheck = Object.keys(documents).find((documentKey) => {
-    const defaultKey = buildDocsContentPath(documents[documentKey].path);
-    return documentKey === defaultKey && typeof documents[documentKey].sourcePath !== 'string';
-  });
+  const primaryVariants = getCollectionVariants(primaryCollection);
+  const sourcePathCheck = Object.keys(artifactsByCollectionId[primaryCollection.id].documents).find(
+    (documentKey) => {
+      const document = artifactsByCollectionId[primaryCollection.id].documents[documentKey];
+      const defaultKey =
+        primaryCollection.id === 'docs'
+          ? buildDocsContentPath(document.path)
+          : buildCollectionContentPath(primaryCollection, document.path, primaryVariants);
+      return documentKey === defaultKey && typeof document.sourcePath !== 'string';
+    }
+  );
   assert(!sourcePathCheck, `Generated doc ${sourcePathCheck} is missing sourcePath metadata.`);
 
   console.log('Docs artifact checks passed.');

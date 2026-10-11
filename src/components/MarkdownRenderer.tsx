@@ -1,6 +1,6 @@
 import { Icon } from '@iconify/react';
 import DOMPurify from 'dompurify';
-import { motion } from 'framer-motion';
+import { div as MotionDiv } from 'framer-motion/m';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
 
@@ -655,7 +655,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
 
   if (!processedData && isProcessing) {
     return (
-      <motion.div initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
+      <MotionDiv initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
         <div className="animate-pulse space-y-4">
           <div className="ui-skeleton-strong h-8 w-3/4 rounded"></div>
           <div className="ui-skeleton h-4 w-full rounded"></div>
@@ -663,20 +663,20 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
           <div className="ui-skeleton h-32 rounded"></div>
           <div className="ui-skeleton h-4 w-4/5 rounded"></div>
         </div>
-      </motion.div>
+      </MotionDiv>
     );
   }
 
   if (!processedData || !renderedContent) {
     return (
-      <motion.div initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
+      <MotionDiv initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
         <p className="ui-meta">No content available.</p>
-      </motion.div>
+      </MotionDiv>
     );
   }
 
   return (
-    <motion.div
+    <MotionDiv
       initial={{ opacity: 0.9, y: 0 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.15 }}
@@ -697,7 +697,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
       <div className="markdown-content prose prose-gray dark:prose-invert max-w-none">
         {renderedContent}
       </div>
-    </motion.div>
+    </MotionDiv>
   );
 };
 

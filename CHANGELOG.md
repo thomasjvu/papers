@@ -6,6 +6,12 @@
 
 - theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
 
+### Added
+
+- reproducible `create-papers` package metadata with an immutable template commit manifest
+- packed-package clean-consumer smoke coverage that scaffolds, installs, builds, and checks a direct docs route offline
+- contributor and security policies plus a trusted provenance-enabled package release workflow
+
 ## 0.1.0 - 2026-03-12
 
 First public beta release.

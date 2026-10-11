@@ -552,11 +552,11 @@
     {
       "path": "getting-started/installation",
       "title": "Installation",
-      "description": "Node.js 22 or newer npm 9 or newer",
+      "description": "Node.js 24 or newer npm 10 or newer",
       "frontmatter": {},
       "metadata": {
         "title": "Installation",
-        "description": "Node.js 22 or newer npm 9 or newer",
+        "description": "Node.js 24 or newer npm 10 or newer",
         "canonicalPath": "/docs/getting-started/installation",
         "contentFormat": "markdown",
         "sourcePath": "src/docs/content/getting-started/installation.md",

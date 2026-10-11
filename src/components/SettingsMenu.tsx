@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
+import { button as MotionButton } from 'framer-motion/m';
 import React, { useMemo, useCallback } from 'react';
 
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
@@ -53,7 +53,7 @@ const SettingsMenu = React.memo(({ className = '' }: SettingsMenuProps) => {
   }
 
   return (
-    <motion.button
+    <MotionButton
       onClick={handleOpenPreferences}
       className={`flex items-center justify-center rounded-full p-2 ${className}`}
       {...buttonAnimations}
@@ -63,7 +63,7 @@ const SettingsMenu = React.memo(({ className = '' }: SettingsMenuProps) => {
       type="button"
     >
       <Icon icon="mingcute:settings-3-fill" className="h-5 w-5" aria-hidden="true" />
-    </motion.button>
+    </MotionButton>
   );
 });
 

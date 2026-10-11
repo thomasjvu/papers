@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, domAnimation, LazyMotion } from 'framer-motion';
+import { div as MotionDiv } from 'framer-motion/m';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
@@ -163,175 +164,177 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
       };
 
   return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={backdropVariants}
-            transition={{ duration: 0.15 }}
-            onClick={onClose}
-            className="fixed inset-0 z-50"
-            style={{
-              backgroundColor: 'var(--overlay-color)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-            }}
-          />
+    <LazyMotion features={domAnimation}>
+      <AnimatePresence>
+        {isOpen && (
+          <>
+            <MotionDiv
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={backdropVariants}
+              transition={{ duration: 0.15 }}
+              onClick={onClose}
+              className="fixed inset-0 z-50"
+              style={{
+                backgroundColor: 'var(--overlay-color)',
+                backdropFilter: 'blur(6px)',
+                WebkitBackdropFilter: 'blur(6px)',
+              }}
+            />
 
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={modalVariants}
-            transition={{ duration: 0.15 }}
-            className="fixed inset-0 flex items-start justify-center pt-[20vh] z-50 pointer-events-none"
-          >
-            <div className="w-full max-w-2xl px-4 pointer-events-auto">
-              <div
-                data-command-palette
-                className="rounded-lg shadow-2xl overflow-hidden"
-                style={{
-                  backgroundColor: 'var(--card-color)',
-                  border: '1px solid var(--border-color)',
-                }}
-              >
-                <div className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
-                  <div className="relative">
-                    <input
-                      ref={inputRef}
-                      type="text"
-                      defaultValue={query}
-                      onChange={(event) => handleInputChange(event.target.value)}
-                      placeholder="Search documentation or type a command..."
-                      className="w-full px-3 py-2 rounded-md outline-none text-base"
-                      style={{
-                        color: 'var(--text-color)',
-                        fontFamily: 'var(--mono-font)',
-                        backgroundColor: 'transparent',
-                        border: '1px solid transparent',
-                      }}
-                    />
-                  </div>
-                </div>
-
+            <MotionDiv
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={modalVariants}
+              transition={{ duration: 0.15 }}
+              className="fixed inset-0 flex items-start justify-center pt-[20vh] z-50 pointer-events-none"
+            >
+              <div className="w-full max-w-2xl px-4 pointer-events-auto">
                 <div
-                  ref={resultsRef}
-                  className="max-h-96 overflow-y-auto command-palette-scroll"
-                  tabIndex={-1}
-                  style={{ outline: 'none' }}
-                >
-                  {filteredResults.length > 0 ? (
-                    filteredResults.map((result, index) => (
-                      <SearchResult
-                        key={result.path}
-                        result={result}
-                        index={index}
-                        isSelected={index === selectedIndex}
-                        onSelect={handleSelect}
-                        onMouseEnter={setSelectedIndex}
-                      />
-                    ))
-                  ) : (
-                    <div className="p-8 text-center" style={{ color: 'var(--muted-color)' }}>
-                      No results found for &ldquo;{query}&rdquo;
-                    </div>
-                  )}
-                </div>
-
-                {activeFaq?.answer && (
-                  <div
-                    className="px-4 py-4 border-t"
-                    style={{
-                      borderColor: 'var(--border-color)',
-                      backgroundColor: 'var(--hover-color)',
-                    }}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div
-                        className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
-                        style={{
-                          backgroundColor: 'var(--primary-color)',
-                          color: 'var(--selection-text-color)',
-                        }}
-                      >
-                        <Icon icon="mingcute:question-line" className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <div
-                          className="text-xs uppercase tracking-[0.2em] mb-1"
-                          style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
-                        >
-                          FAQ Preview
-                        </div>
-                        <div
-                          className="text-sm font-semibold"
-                          style={{ color: 'var(--text-color)' }}
-                        >
-                          {activeFaq.title}
-                        </div>
-                        <p
-                          className="mt-2 text-sm leading-6"
-                          style={{ color: 'var(--text-secondary)' }}
-                        >
-                          {activeFaq.answer}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                <div
-                  className="px-4 py-2 border-t flex items-center justify-between"
+                  data-command-palette
+                  className="rounded-lg shadow-2xl overflow-hidden"
                   style={{
-                    fontSize: 'var(--text-2xs)',
-                    borderColor: 'var(--border-color)',
-                    color: 'var(--muted-color)',
+                    backgroundColor: 'var(--card-color)',
+                    border: '1px solid var(--border-color)',
                   }}
                 >
-                  <div className="flex items-center gap-4 flex-wrap">
-                    <span>
-                      <kbd
-                        className="px-1.5 py-0.5 rounded border"
-                        style={{ borderColor: 'var(--border-color)' }}
-                      >
-                        up
-                      </kbd>
-                      <kbd
-                        className="px-1.5 py-0.5 rounded border ml-1"
-                        style={{ borderColor: 'var(--border-color)' }}
-                      >
-                        down
-                      </kbd>{' '}
-                      <span style={{ fontFamily: 'var(--mono-font)' }}>to navigate</span>
-                    </span>
-                    <span>
-                      <kbd
-                        className="px-1.5 py-0.5 rounded border"
-                        style={{ borderColor: 'var(--border-color)' }}
-                      >
-                        enter
-                      </kbd>{' '}
-                      <span style={{ fontFamily: 'var(--mono-font)' }}>to open or preview</span>
-                    </span>
-                    <span>
-                      <kbd
-                        className="px-1.5 py-0.5 rounded border"
-                        style={{ borderColor: 'var(--border-color)' }}
-                      >
-                        esc
-                      </kbd>{' '}
-                      <span style={{ fontFamily: 'var(--mono-font)' }}>to close</span>
-                    </span>
+                  <div className="p-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+                    <div className="relative">
+                      <input
+                        ref={inputRef}
+                        type="text"
+                        defaultValue={query}
+                        onChange={(event) => handleInputChange(event.target.value)}
+                        placeholder="Search documentation or type a command..."
+                        className="w-full px-3 py-2 rounded-md outline-none text-base"
+                        style={{
+                          color: 'var(--text-color)',
+                          fontFamily: 'var(--mono-font)',
+                          backgroundColor: 'transparent',
+                          border: '1px solid transparent',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  <div
+                    ref={resultsRef}
+                    className="max-h-96 overflow-y-auto command-palette-scroll"
+                    tabIndex={-1}
+                    style={{ outline: 'none' }}
+                  >
+                    {filteredResults.length > 0 ? (
+                      filteredResults.map((result, index) => (
+                        <SearchResult
+                          key={result.path}
+                          result={result}
+                          index={index}
+                          isSelected={index === selectedIndex}
+                          onSelect={handleSelect}
+                          onMouseEnter={setSelectedIndex}
+                        />
+                      ))
+                    ) : (
+                      <div className="p-8 text-center" style={{ color: 'var(--muted-color)' }}>
+                        No results found for &ldquo;{query}&rdquo;
+                      </div>
+                    )}
+                  </div>
+
+                  {activeFaq?.answer && (
+                    <div
+                      className="px-4 py-4 border-t"
+                      style={{
+                        borderColor: 'var(--border-color)',
+                        backgroundColor: 'var(--hover-color)',
+                      }}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                          style={{
+                            backgroundColor: 'var(--primary-color)',
+                            color: 'var(--selection-text-color)',
+                          }}
+                        >
+                          <Icon icon="mingcute:question-line" className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <div
+                            className="text-xs uppercase tracking-[0.2em] mb-1"
+                            style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
+                          >
+                            FAQ Preview
+                          </div>
+                          <div
+                            className="text-sm font-semibold"
+                            style={{ color: 'var(--text-color)' }}
+                          >
+                            {activeFaq.title}
+                          </div>
+                          <p
+                            className="mt-2 text-sm leading-6"
+                            style={{ color: 'var(--text-secondary)' }}
+                          >
+                            {activeFaq.answer}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div
+                    className="px-4 py-2 border-t flex items-center justify-between"
+                    style={{
+                      fontSize: 'var(--text-2xs)',
+                      borderColor: 'var(--border-color)',
+                      color: 'var(--muted-color)',
+                    }}
+                  >
+                    <div className="flex items-center gap-4 flex-wrap">
+                      <span>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded border"
+                          style={{ borderColor: 'var(--border-color)' }}
+                        >
+                          up
+                        </kbd>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded border ml-1"
+                          style={{ borderColor: 'var(--border-color)' }}
+                        >
+                          down
+                        </kbd>{' '}
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>to navigate</span>
+                      </span>
+                      <span>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded border"
+                          style={{ borderColor: 'var(--border-color)' }}
+                        >
+                          enter
+                        </kbd>{' '}
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>to open or preview</span>
+                      </span>
+                      <span>
+                        <kbd
+                          className="px-1.5 py-0.5 rounded border"
+                          style={{ borderColor: 'var(--border-color)' }}
+                        >
+                          esc
+                        </kbd>{' '}
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>to close</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+            </MotionDiv>
+          </>
+        )}
+      </AnimatePresence>
+    </LazyMotion>
   );
 }

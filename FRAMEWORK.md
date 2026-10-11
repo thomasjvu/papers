@@ -21,28 +21,28 @@ Generated output lands in `public/docs-content/` (and per-collection indexes). T
 
 ## Shipped
 
-| Feature                                    | Status                                                                |
-| ------------------------------------------ | --------------------------------------------------------------------- |
-| Markdown + frontmatter                     | Yes                                                                   |
-| MDX (sanitized HTML at build)              | Yes                                                                   |
-| GitHub callouts                            | Yes                                                                   |
-| CharacterNote MDX shortcode                | Yes — configurable avatar variants for info/warning/alert/success/tip |
-| Mermaid diagrams                           | Yes                                                                   |
-| Pagefind search + command palette          | Yes                                                                   |
-| Interactive doc graph                      | Yes                                                                   |
-| `llms.txt` generation                      | Yes                                                                   |
-| Hosted asset preview (`HostedFilePreview`) | Yes                                                                   |
-| Themed code blocks                         | Yes — per-theme `--code-bg`, clip-path, min-height tokens             |
-| OpenAPI explorer (Scalar)                  | Yes                                                                   |
-| Edit on GitHub footer                      | Yes                                                                   |
-| Version / i18n scaffolding                 | Yes                                                                   |
-| Language switcher UI + palette actions     | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)        |
-| Branding / attribution chrome              | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit)      |
-| Sidebar variants                           | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`               |
-| Tree sync                                  | `npm run check:docs-tree`                                             |
-| Starter CLI                                | `npm create papers`                                                   |
-| DESIGN.md design book (`/design`)          | Yes — `designBookConfig` + `npm run generate:design-book`             |
-| Lorelei theme                              | Yes — `themes/lorelei`                                                |
+| Feature                                            | Status                                                                |
+| -------------------------------------------------- | --------------------------------------------------------------------- |
+| Markdown + frontmatter                             | Yes                                                                   |
+| MDX (sanitized HTML at build)                      | Yes                                                                   |
+| GitHub callouts                                    | Yes                                                                   |
+| CharacterNote MDX shortcode                        | Yes — configurable avatar variants for info/warning/alert/success/tip |
+| Mermaid diagrams                                   | Yes                                                                   |
+| Pagefind search + command palette                  | Yes                                                                   |
+| Interactive doc graph                              | Yes                                                                   |
+| `llms.txt` generation                              | Yes                                                                   |
+| Hosted asset preview (`HostedFilePreview`)         | Yes                                                                   |
+| Themed code blocks                                 | Yes — per-theme `--code-bg`, clip-path, min-height tokens             |
+| OpenAPI explorer + generated operation/model pages | Yes                                                                   |
+| Edit on GitHub footer                              | Yes                                                                   |
+| Version / i18n scaffolding                         | Yes                                                                   |
+| Language switcher UI + palette actions             | Yes — `chromeConfig.languageSwitcher` (auto when multi-locale)        |
+| Branding / attribution chrome                      | Yes — `brandingConfig` + `SiteAttribution` (no hardcoded credit)      |
+| Sidebar variants                                   | Yes — `chromeConfig.sidebarVariant`: `tree` \| `groups`               |
+| Tree sync                                          | `npm run check:docs-tree`                                             |
+| Starter CLI                                        | `npm create papers`                                                   |
+| DESIGN.md design book (`/design`)                  | Yes — `designBookConfig` + `npm run generate:design-book`             |
+| Lorelei theme                                      | Yes — `themes/lorelei`                                                |
 
 ## Enable versioned or localized docs
 
@@ -73,7 +73,7 @@ Add locale overlays under `src/docs/content/variants/locales/{locale}/…` (same
 
 ## OpenAPI
 
-Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). Interactive Scalar explorer at `/docs/{pagePath}`.
+Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). The build generates stable operation and model reference pages plus machine-readable artifacts for configured specs. The interactive Scalar explorer remains lazy at `/docs/{pagePath}`. Richer playground behavior and broader schema/code-sample coverage remain bounded future work.
 
 ## Lazy feature invariants
 
@@ -97,6 +97,7 @@ For the content-engine direction and parity scorecard, see
 3. Publish `create-papers` to npm
 4. Interactive MDX `<Tabs>` hydration
 5. Content lint in CI (broken links, frontmatter)
+6. Broader generated OpenAPI schema/code-sample coverage and richer playground behavior
 
 ## Positioning
 

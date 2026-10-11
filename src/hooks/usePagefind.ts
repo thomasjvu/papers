@@ -1,6 +1,11 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 
-import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { contentCollections } from '../../shared/content-collections.js';
+import {
+  buildCanonicalCollectionPath,
+  buildCanonicalDocsPath,
+  parseCollectionRoutePath,
+} from '../../shared/docsRouting.js';
 
 interface PagefindResult {
   url: string;
@@ -33,7 +38,11 @@ interface PagefindInstance {
   init: () => Promise<void>;
 }
 
-function normalizePagefindUrl(url: string): string {
+function normalizeCollectionPrefix(routePrefix: string): string {
+  return routePrefix.replace(/^\/+|\/+$/g, '');
+}
+
+export function normalizePagefindUrl(url: string, collections = contentCollections): string {
   if (url.startsWith('/search-pages/')) {
     const docPath = url
       .replace(/^\/search-pages\//, '')
@@ -45,6 +54,19 @@ function normalizePagefindUrl(url: string): string {
 
     if (docPath === 'skill') {
       return '/skill.md';
+    }
+
+    const collection = collections.find((entry) => {
+      const prefix = normalizeCollectionPrefix(entry.routePrefix || '/docs');
+      return docPath === prefix || docPath.startsWith(`${prefix}/`);
+    });
+
+    if (collection) {
+      const routeContext = parseCollectionRoutePath(collection, docPath);
+      return buildCanonicalCollectionPath(collection, routeContext.docPath, {
+        version: routeContext.activeVersion,
+        locale: routeContext.activeLocale,
+      });
     }
 
     return buildCanonicalDocsPath(docPath);

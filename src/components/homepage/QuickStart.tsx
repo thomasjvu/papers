@@ -52,7 +52,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
                 {index + 1}
               </div>
               <div className="flex-1">
-                <h4
+                <h3
                   className="font-semibold mb-2"
                   style={{
                     color: 'var(--text-color)',
@@ -60,7 +60,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
                   }}
                 >
                   {step.title}
-                </h4>
+                </h3>
                 <div
                   className="p-4 rounded-lg"
                   style={{

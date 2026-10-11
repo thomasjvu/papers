@@ -1,9 +1,10 @@
 import { Icon } from '@iconify/react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { aside as MotionAside, button as MotionButton, div as MotionDiv } from 'framer-motion/m';
 import React, { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 
-import { documentationTree } from '../../data/documentation';
+import { getContentCollection } from '../../data/collections';
 import { useCommandPalette } from '../../providers/CommandPaletteProvider';
 import { useTheme } from '../../providers/useTheme';
 import type { FileItem } from '../../types/documentation';
@@ -24,7 +25,12 @@ import SettingsMenu from '../SettingsMenu';
 import { getMobileTogglePositionClasses, uiConfig } from '../../config/ui';
 import { brandingConfig } from '../../lib/chrome';
 import TableOfContents from './TableOfContents';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
+import {
+  buildCanonicalCollectionPath,
+  buildCanonicalDocsPath,
+  parseCollectionRoutePath,
+} from '../../../shared/docsRouting.js';
+import type { ContentCollection } from '../../../shared/docsRouting.js';
 
 interface DocumentationPageProps {
   initialContent: string;
@@ -35,6 +41,7 @@ interface DocumentationPageProps {
   trailingContent?: ReactNode;
   isLoading?: boolean;
   pendingPath?: string;
+  collection?: ContentCollection;
 }
 
 function getInitialRightSidebarState(): boolean {
@@ -56,12 +63,14 @@ const DocumentationPage = React.memo(
     trailingContent,
     isLoading = false,
     pendingPath,
+    collection,
   }: DocumentationPageProps) => {
     const navigate = useNavigate();
     const location = useLocation();
     const { openCommandPalette } = useCommandPalette();
     const { prefersReducedMotion } = useTheme();
     const content = useMemo(() => stripMarkdownBom(initialContent), [initialContent]);
+    const activeCollection = collection || getContentCollection('docs');
     const path = currentPath;
     const siteName = import.meta.env.VITE_SITE_NAME || 'papers';
     const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
@@ -70,10 +79,16 @@ const DocumentationPage = React.memo(
       () => pendingPath?.split('/').pop()?.replace(/-/g, ' '),
       [pendingPath]
     );
-    const docsRouteSlug = location.pathname.startsWith('/docs')
-      ? location.pathname.replace(/^\/docs\/?/, '')
+    const navigationTree = activeCollection.tree;
+    const routePrefix =
+      String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+    const docsRouteSlug = location.pathname.startsWith(routePrefix)
+      ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
       : '';
-    const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
+    const routeContext = useMemo(
+      () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
+      [activeCollection, docsRouteSlug]
+    );
 
     const [isMobile, setIsMobile] = useState(() => {
       if (typeof window === 'undefined') {
@@ -194,7 +209,7 @@ const DocumentationPage = React.memo(
         }
 
         navigate(
-          buildCanonicalDocsPath(item.path, {
+          buildCanonicalCollectionPath(activeCollection, item.path, {
             version: routeContext.activeVersion,
             locale: routeContext.activeLocale,
           })
@@ -204,7 +219,7 @@ const DocumentationPage = React.memo(
           setSidebarVisible(false);
         }
       },
-      [isMobile, navigate, routeContext.activeLocale, routeContext.activeVersion]
+      [activeCollection, isMobile, navigate, routeContext.activeLocale, routeContext.activeVersion]
     );
 
     const toggleSidebar = useCallback(() => {
@@ -270,7 +285,7 @@ const DocumentationPage = React.memo(
       >
         <AnimatePresence>
           {isMobile && sidebarVisible && (
-            <motion.button
+            <MotionButton
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -286,7 +301,7 @@ const DocumentationPage = React.memo(
 
         <AnimatePresence initial={false}>
           {sidebarVisible && (
-            <motion.aside
+            <MotionAside
               initial={
                 isMobile
                   ? sidebarAnimationVariants.mobile.initial
@@ -378,20 +393,24 @@ const DocumentationPage = React.memo(
                 </button>
 
                 <div className="mt-3 space-y-2">
-                  <DocsVariantSelector docPath={path} />
-                  <LanguageSwitcher docPath={path} />
+                  <DocsVariantSelector docPath={path} collection={activeCollection} />
+                  <LanguageSwitcher docPath={path} collection={activeCollection} />
                 </div>
               </div>
 
               <div className="min-h-0 flex-1 overflow-y-auto pt-1 scrollbar-hide">
                 <SidebarNav
-                  items={documentationTree}
+                  items={navigationTree}
                   onSelect={handleSelectFile}
                   onPrefetch={(targetPath) =>
-                    prefetchDocument(targetPath, {
-                      version: routeContext.activeVersion,
-                      locale: routeContext.activeLocale,
-                    })
+                    prefetchDocument(
+                      targetPath,
+                      {
+                        version: routeContext.activeVersion,
+                        locale: routeContext.activeLocale,
+                      },
+                      activeCollection.id
+                    )
                   }
                   currentPath={path}
                   defaultOpenAll={true}
@@ -405,7 +424,7 @@ const DocumentationPage = React.memo(
                 <button
                   onClick={() =>
                     navigate(
-                      buildCanonicalDocsPath('llms', {
+                      buildCanonicalCollectionPath(activeCollection, 'llms', {
                         version: routeContext.activeVersion,
                         locale: routeContext.activeLocale,
                       })
@@ -446,7 +465,7 @@ const DocumentationPage = React.memo(
                   <SettingsMenu placement="top" />
                 </div>
               </div>
-            </motion.aside>
+            </MotionAside>
           )}
         </AnimatePresence>
 
@@ -465,7 +484,7 @@ const DocumentationPage = React.memo(
                 <Icon icon="mingcute:menu-line" className="h-5 w-5" />
               </button>
             ) : (
-              <motion.button
+              <MotionButton
                 onClick={toggleSidebar}
                 className={`fixed z-30 rounded-lg p-3 shadow-lg ${getMobileTogglePositionClasses(uiConfig.mobileTogglePosition)}`}
                 aria-label="Show documentation tree"
@@ -474,7 +493,7 @@ const DocumentationPage = React.memo(
                 {...buttonAnimationConfig}
               >
                 <Icon icon="mingcute:menu-line" className="h-5 w-5" />
-              </motion.button>
+              </MotionButton>
             ))}
 
           <div className="flex h-full w-full gap-6 overflow-hidden">
@@ -504,6 +523,7 @@ const DocumentationPage = React.memo(
                   trailingContent={trailingContent}
                   sourcePath={sourcePath}
                   contentFormat={contentFormat}
+                  collection={activeCollection}
                 />
               )}
             </div>
@@ -545,7 +565,7 @@ const DocumentationPage = React.memo(
             <div className="relative min-h-0 flex-1">
               <AnimatePresence initial={false}>
                 {rightSidebarVisible ? (
-                  <motion.div
+                  <MotionDiv
                     key="interactive-map"
                     initial="hidden"
                     animate="visible"
@@ -576,9 +596,9 @@ const DocumentationPage = React.memo(
                         />
                       </React.Suspense>
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 ) : (
-                  <motion.div
+                  <MotionDiv
                     key="table-of-contents"
                     initial="hidden"
                     animate="visible"
@@ -590,7 +610,7 @@ const DocumentationPage = React.memo(
                     <div className="min-h-0 flex-1">
                       <TableOfContents content={content} />
                     </div>
-                  </motion.div>
+                  </MotionDiv>
                 )}
               </AnimatePresence>
             </div>

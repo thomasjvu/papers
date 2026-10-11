@@ -30,6 +30,12 @@ export const AGENT_ARTIFACTS = Object.freeze([
     title: 'Typed documentation collection manifest',
   },
   {
+    id: 'collections',
+    path: '/collections.json',
+    contentType: 'application/json',
+    title: 'Documentation collection directory',
+  },
+  {
     id: 'references',
     path: '/docs-references.json',
     contentType: 'application/json',
@@ -207,14 +213,36 @@ export function getHomeMetadataDefaults() {
   };
 }
 
-export function getAgentArtifactLinks(siteUrl = '') {
-  return AGENT_ARTIFACTS.map((artifact) => ({
+export function getAgentArtifactLinks(siteUrl = '', options = {}) {
+  const collectionArtifacts = (options.collections || []).flatMap((collection) => {
+    const namespace = collection?.artifactNamespace || collection?.id;
+    if (!namespace || namespace === 'docs') {
+      return [];
+    }
+
+    return [
+      {
+        id: `${namespace}-collection`,
+        path: `/${namespace}-collection.json`,
+        contentType: 'application/json',
+        title: `${collection.label || namespace} collection manifest`,
+      },
+      {
+        id: `${namespace}-references`,
+        path: `/${namespace}-references.json`,
+        contentType: 'application/json',
+        title: `${collection.label || namespace} reference graph and backlinks`,
+      },
+    ];
+  });
+
+  return [...AGENT_ARTIFACTS, ...collectionArtifacts].map((artifact) => ({
     ...artifact,
     href: buildAbsoluteUrl(artifact.path, siteUrl),
   }));
 }
 
-export function createAgentDiscoveryManifest({ siteName, siteUrl, description } = {}) {
+export function createAgentDiscoveryManifest({ siteName, siteUrl, description, collections } = {}) {
   const defaults = getHomeMetadataDefaults();
 
   return {
@@ -222,7 +250,7 @@ export function createAgentDiscoveryManifest({ siteName, siteUrl, description } 
     kind: 'documentation-agent-index',
     name: siteName || defaults.siteName,
     description: description || defaults.siteDescription,
-    artifacts: getAgentArtifactLinks(siteUrl),
+    artifacts: getAgentArtifactLinks(siteUrl, { collections }),
   };
 }
 

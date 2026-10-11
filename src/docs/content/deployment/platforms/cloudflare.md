@@ -6,7 +6,7 @@ Use these values in Cloudflare Pages:
 
 - Build command: `npm run build`
 - Build output directory: `dist`
-- Node version: `20` or newer
+- Node version: `24` or newer
 
 ## CLI Deploy
 

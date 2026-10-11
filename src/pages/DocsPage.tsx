@@ -1,19 +1,25 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
+import { domAnimation, LazyMotion } from 'framer-motion';
 
 import DocumentationPage from '../components/docs/DocumentationPage';
 import NotFoundPage from './NotFoundPage';
 import { getDocument, getDocumentBacklinks, resolveDocumentPath } from '../lib/content';
+import { getContentCollection } from '../data/collections';
 import { createLogger } from '../utils/logger';
 import { applySeoMetadata } from '../utils/seo';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
+import {
+  buildCanonicalCollectionPath,
+  parseCollectionRoutePath,
+} from '../../shared/docsRouting.js';
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
 import DocumentBacklinks from '../components/docs/DocumentBacklinks';
 
 const logger = createLogger('DocsPage');
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
-export default function DocsPage() {
+export default function DocsPage({ collectionId = 'docs' }: { collectionId?: string }) {
+  const collection = useMemo(() => getContentCollection(collectionId), [collectionId]);
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,15 +35,21 @@ export default function DocsPage() {
   const [backlinks, setBacklinks] = useState<Awaited<ReturnType<typeof getDocumentBacklinks>>>([]);
 
   const slug = params['*'] || '';
-  const routeContext = useMemo(() => parseDocsRoutePath(slug), [slug]);
-  const docPath = useMemo(() => resolveDocumentPath(routeContext.docPath), [routeContext.docPath]);
+  const routeContext = useMemo(
+    () => parseCollectionRoutePath(collection, slug),
+    [collection, slug]
+  );
+  const docPath = useMemo(
+    () => resolveDocumentPath(routeContext.docPath, collection.tree),
+    [collection.tree, routeContext.docPath]
+  );
   const canonicalPath = useMemo(
     () =>
-      buildCanonicalDocsPath(docPath, {
+      buildCanonicalCollectionPath(collection, docPath, {
         version: routeContext.activeVersion,
         locale: routeContext.activeLocale,
       }),
-    [docPath, routeContext.activeLocale, routeContext.activeVersion]
+    [collection, docPath, routeContext.activeLocale, routeContext.activeVersion]
   );
 
   useEffect(() => {
@@ -57,11 +69,15 @@ export default function DocsPage() {
     setBacklinks([]);
 
     void Promise.all([
-      getDocument(docPath, {
-        version: routeContext.activeVersion,
-        locale: routeContext.activeLocale,
-      }),
-      getDocumentBacklinks(docPath),
+      getDocument(
+        docPath,
+        {
+          version: routeContext.activeVersion,
+          locale: routeContext.activeLocale,
+        },
+        collection.id
+      ),
+      getDocumentBacklinks(docPath, collection.id),
     ])
       .then(([doc, nextBacklinks]) => {
         if (!active) {
@@ -108,7 +124,7 @@ export default function DocsPage() {
     return () => {
       active = false;
     };
-  }, [docPath, routeContext.activeLocale, routeContext.activeVersion]);
+  }, [collection.id, docPath, routeContext.activeLocale, routeContext.activeVersion]);
 
   useEffect(() => {
     if (!docTitle) {
@@ -144,14 +160,17 @@ export default function DocsPage() {
   }
 
   return (
-    <DocumentationPage
-      initialContent={content}
-      currentPath={currentDocPath || docPath}
-      sourcePath={docSourcePath}
-      contentFormat={docContentFormat}
-      trailingContent={<DocumentBacklinks backlinks={backlinks} />}
-      isLoading={loading}
-      pendingPath={docPath}
-    />
+    <LazyMotion features={domAnimation}>
+      <DocumentationPage
+        initialContent={content}
+        currentPath={currentDocPath || docPath}
+        sourcePath={docSourcePath}
+        contentFormat={docContentFormat}
+        trailingContent={<DocumentBacklinks backlinks={backlinks} />}
+        isLoading={loading}
+        pendingPath={docPath}
+        collection={collection}
+      />
+    </LazyMotion>
   );
 }

@@ -11,7 +11,7 @@
   "type": "module",
   "scripts": {
     "dev": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:docs && npm run generate:seo -- --mode development && vite",
-    "build": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:llms && npm run generate:openapi && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind && npm run write:build-manifest",
+    "build": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind && npm run write:build-manifest",
     "generate:design-book": "node scripts/generate-design-book.mjs",
     "resolve:theme": "node scripts/resolve-theme.mjs",
     "papers:theme": "node scripts/papers-theme.mjs",
@@ -22,7 +22,7 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,mdx}\"",
     "type-check": "tsc --noEmit",
     "test": "node --import ./test/register-ts-node.mjs ./test/run-tests.mjs",
-    "release:check": "npm run docs:check && npm run check:docs-tree && npm run check:security-policy && npm run check:assets && npm run check:runtime-audit && npm run release:artifact-check && npm run release:preview-check",
+    "release:check": "npm run docs:check && npm run check:docs-tree && npm run check:security-policy && npm run check:assets && npm run check:runtime-audit && npm run package:check && npm run release:artifact-check && npm run release:preview-check",
     "deploy": "npx wrangler pages deploy dist",
     "deploy:create": "npx wrangler pages project create papers-docs --production-branch main",
     "prepare": "husky",
@@ -38,7 +38,9 @@
     "sync:generated": "node scripts/sync-generated-docs.mjs",
     "sync:docs-tree": "node scripts/sync-documentation-tree.mjs",
     "create": "node packages/create-papers/index.mjs",
-    "publish:create-papers": "npm publish --prefix packages/create-papers",
+    "publish:create-papers": "npm publish --prefix packages/create-papers --provenance --access public",
+    "package:check": "node scripts/check-create-papers-package.mjs",
+    "create:smoke": "node scripts/create-papers-smoke.mjs",
     "check:docs-tree": "node scripts/sync-documentation-tree.mjs --check",
     "check:security-policy": "node scripts/check-security-policy.mjs",
     "check:assets": "node scripts/check-assets.mjs",
@@ -48,10 +50,10 @@
     "release:preview-check": "node scripts/preview-smoke.mjs",
     "postdeploy:smoke": "node scripts/postdeploy-smoke.mjs",
     "browser:check": "npm run build && playwright test",
-    "lighthouse:check": "lhci autorun"
+    "lighthouse:check": "node scripts/lighthouse-check.mjs"
   },
   "engines": {
-    "node": ">=22.0.0"
+    "node": ">=24.0.0"
   },
   "dependencies": {
     "@iconify-json/mingcute": "^1.2.3",
@@ -79,10 +81,9 @@
     "@commitlint/cli": "^19.8.1",
     "@commitlint/config-conventional": "^19.8.1",
     "@eslint/js": "^9.18.0",
-    "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.62.1",
     "@types/jsdom": "^21.1.7",
-    "@types/node": "^20",
+    "@types/node": "^24.0.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-syntax-highlighter": "^15.5.13",
@@ -95,6 +96,7 @@
     "globals": "^15.14.0",
     "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lighthouse": "^13.4.1",
     "lint-staged": "^16.1.2",
     "pagefind": "^1.4.0",
     "postcss": "^8.5.26",

@@ -1,4 +1,4 @@
-import { existsSync, readdirSync, readFileSync } from 'fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'fs';
 import { join } from 'path';
 
 import { documentationTree, openapiConfig } from '../shared/documentation-config.js';
@@ -64,6 +64,27 @@ function ensureRouteHtml(routePath) {
   return readText(filePath);
 }
 
+function getOpenApiRouteHtmlPaths(openapiArtifacts) {
+  const routeHtmlPaths = new Set();
+
+  for (const spec of openapiConfig.specs) {
+    const overviewRoutePath = buildOpenApiRoutePath(
+      openapiConfig,
+      spec.id === openapiConfig.defaultSpecId ? null : spec.id
+    );
+    routeHtmlPaths.add(routeHtmlPath(overviewRoutePath, distDir));
+
+    const artifact = openapiArtifacts?.specs?.find((candidate) => candidate.id === spec.id);
+    for (const route of [...(artifact?.operations || []), ...(artifact?.schemas || [])]) {
+      if (route.routePath) {
+        routeHtmlPaths.add(routeHtmlPath(route.routePath, distDir));
+      }
+    }
+  }
+
+  return routeHtmlPaths;
+}
+
 function main() {
   assertValidOpenApiConfig(openapiConfig);
   const manifest = assertBuildManifest(distDir, { expectedBuildMode: 'production' });
@@ -92,17 +113,35 @@ function main() {
   }
   const assetFiles = readdirSync(join(distDir, 'assets'));
   const openApiPageAsset = assetFiles.find((fileName) => /^OpenApiPage-[^/]+\.js$/.test(fileName));
+  const openApiReferenceAsset = assetFiles.find((fileName) =>
+    /^OpenApiReference-[^/]+\.js$/.test(fileName)
+  );
   const scalarAsset = assetFiles.find((fileName) => /^esm-[^/]+\.js$/.test(fileName));
   assert(
-    openApiPageAsset && scalarAsset,
-    'Missing the route-lazy OpenAPI or standalone Scalar chunk.'
+    openApiPageAsset && openApiReferenceAsset && scalarAsset,
+    'Missing the route-lazy OpenAPI, OpenAPI reference, or standalone Scalar chunk.'
   );
+  assert(
+    statSync(join(distDir, 'openapi-artifacts.json')).size <= 1_000_000,
+    'Generated OpenAPI artifact exceeds the 1 MB release budget.'
+  );
+  assert(
+    statSync(join(distDir, 'assets', scalarAsset)).size <= 3_000_000,
+    'Standalone Scalar route asset exceeds the 3 MB release budget.'
+  );
+  const openapiArtifacts = JSON.parse(readText(distOpenApiArtifactsPath));
+  const openApiRouteHtmlPaths = getOpenApiRouteHtmlPaths(openapiArtifacts);
   const canonicalUrl = (path) => buildAbsoluteUrl(path, manifest.siteUrl || '');
   const agentDiscoveryHref = canonicalUrl(AGENT_DISCOVERY_PATH);
   const openApiPageSource = readText(join(distDir, 'assets', openApiPageAsset));
+  const openApiReferenceSource = readText(join(distDir, 'assets', openApiReferenceAsset));
   assert(
-    openApiPageSource.includes(scalarAsset),
-    'OpenAPI route does not reference the standalone Scalar chunk.'
+    openApiPageSource.includes(openApiReferenceAsset),
+    'OpenAPI route does not reference its route-lazy reference chunk.'
+  );
+  assert(
+    openApiReferenceSource.includes(scalarAsset),
+    'Route-lazy OpenAPI reference does not reference the standalone Scalar chunk.'
   );
 
   const indexHtml = ensureRouteHtml('/');
@@ -134,6 +173,20 @@ function main() {
   for (const htmlPath of collectHtmlFiles(distDir)) {
     const html = readText(htmlPath);
     assert(
+      !html.includes(openApiReferenceAsset),
+      `${htmlPath} eagerly references the route-lazy OpenAPI reference asset ${openApiReferenceAsset}.`
+    );
+    assert(
+      !html.includes(scalarAsset),
+      `${htmlPath} eagerly references the standalone Scalar asset ${scalarAsset}.`
+    );
+    if (!openApiRouteHtmlPaths.has(htmlPath)) {
+      assert(
+        !html.includes(openApiPageAsset),
+        `${htmlPath} eagerly references the OpenAPI page asset ${openApiPageAsset}.`
+      );
+    }
+    assert(
       countOccurrences(html, '<link rel="canonical"') === 1,
       `${htmlPath} must contain exactly one canonical link.`
     );
@@ -163,7 +216,6 @@ function main() {
   const docsIndex = JSON.parse(readText(distDocsIndexPath));
   const docsCollection = JSON.parse(readText(distDocsCollectionPath));
   const docsReferences = JSON.parse(readText(distDocsReferencesPath));
-  const openapiArtifacts = JSON.parse(readText(distOpenApiArtifactsPath));
   const agentManifest = JSON.parse(readText(distAgentManifestPath));
   assert(
     docsCollection.schemaVersion === 1,
@@ -178,6 +230,10 @@ function main() {
   assert(
     openapiArtifacts.schemaVersion === 1,
     'OpenAPI artifact manifest has an invalid schema version.'
+  );
+  assert(
+    openapiArtifacts.contractVersion === 2,
+    'OpenAPI artifact manifest has an invalid contract version.'
   );
   assert(Array.isArray(openapiArtifacts.specs), 'OpenAPI artifact manifest is missing specs.');
   assert(
@@ -254,6 +310,25 @@ function main() {
         existsSync(join(distDir, normalizeLocalOpenApiPath(spec.url).replace(/^\/+/, ''))),
         `Missing OpenAPI asset: ${spec.url}`
       );
+    }
+
+    const artifact = openapiArtifacts.specs.find((candidate) => candidate.id === spec.id);
+    assert(artifact, `Missing OpenAPI artifact for spec ${spec.id}.`);
+    for (const route of [
+      ...(artifact.operations || []).map((operation) => operation.routePath),
+      ...(artifact.schemas || []).map((model) => model.routePath),
+    ]) {
+      const routeHtml = ensureRouteHtml(route);
+      assert(
+        routeHtml.includes(`<link rel="canonical" href="${canonicalUrl(route)}" />`),
+        `Canonical tag mismatch for generated OpenAPI route ${route}.`
+      );
+      if (manifest.siteUrl) {
+        assert(
+          readText(join(distDir, 'sitemap.xml')).includes(canonicalUrl(route)),
+          `Generated OpenAPI route is missing from the sitemap: ${route}`
+        );
+      }
     }
   }
 

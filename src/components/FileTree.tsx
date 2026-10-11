@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { div as MotionDiv } from 'framer-motion/m';
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
 
 import { useTheme } from '../providers/useTheme';
@@ -98,7 +99,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
 
         <AnimatePresence>
           {isDirectory && item.expanded && item.children && (
-            <motion.div
+            <MotionDiv
               className="file-tree-children"
               initial={{
                 height: 0,
@@ -128,7 +129,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
                   currentPath={currentPath}
                 />
               ))}
-            </motion.div>
+            </MotionDiv>
           )}
         </AnimatePresence>
       </div>

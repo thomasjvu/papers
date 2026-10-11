@@ -1,4 +1,9 @@
-import { motion } from 'framer-motion';
+import {
+  circle as MotionCircle,
+  g as MotionG,
+  rect as MotionRect,
+  text as MotionText,
+} from 'framer-motion/m';
 import React from 'react';
 
 import { useTheme } from '../../providers/useTheme';
@@ -58,7 +63,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
     const switchLabelFontSize = isSidebarView ? 'var(--text-2xs)' : 'var(--text-xs)';
 
     return (
-      <motion.g
+      <MotionG
         className="node-group cursor-pointer"
         initial={{
           scale: prefersReducedMotion ? 1 : 0,
@@ -87,7 +92,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
         whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
         onClick={() => onNodeClick(node)}
       >
-        <motion.circle
+        <MotionCircle
           cx={node.x}
           cy={node.y}
           r={nodeRadius + 3}
@@ -96,7 +101,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           filter={`url(#${glowFilterId})`}
         />
 
-        <motion.circle
+        <MotionCircle
           cx={node.x}
           cy={node.y}
           r={nodeRadius}
@@ -113,7 +118,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           pointerEvents="none"
         />
 
-        <motion.text
+        <MotionText
           x={node.x}
           y={node.y + nodeRadius + (isSidebarView ? 8 : 12)}
           textAnchor="middle"
@@ -132,7 +137,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
             : node.title.length > 12
               ? `${node.title.slice(0, 12)}...`
               : node.title}
-        </motion.text>
+        </MotionText>
 
         {node.id === activeNodeId && (
           <g transform={`translate(${node.x} ${node.y})`}>
@@ -169,7 +174,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
         )}
 
         {node.id === pendingSwitchNodeId && node.id !== currentPath && (
-          <motion.g
+          <MotionG
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
@@ -178,7 +183,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               delay: prefersReducedMotion ? 0 : 0.4,
             }}
           >
-            <motion.rect
+            <MotionRect
               x={node.x - (isSidebarView ? 18 : 24)}
               y={node.y - nodeRadius - (isSidebarView ? 20 : 28)}
               width={isSidebarView ? 36 : 48}
@@ -196,7 +201,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               }}
             />
 
-            <motion.text
+            <MotionText
               x={node.x}
               y={node.y - nodeRadius - (isSidebarView ? 14 : 19)}
               textAnchor="middle"
@@ -212,10 +217,10 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
               }}
             >
               jump
-            </motion.text>
-          </motion.g>
+            </MotionText>
+          </MotionG>
         )}
-      </motion.g>
+      </MotionG>
     );
   }
 );

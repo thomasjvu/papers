@@ -1,4 +1,6 @@
-import { buildDocsContentPath } from '../../shared/docsRouting.js';
+import { buildCollectionContentPath, buildDocsContentPath } from '../../shared/docsRouting.js';
+import { getCollectionArtifactPaths } from '../../shared/content-collections.js';
+import { getContentCollection } from '../data/collections';
 import {
   DEFAULT_DOCUMENT_PATH,
   documentationTree,
@@ -55,24 +57,27 @@ interface DocumentReferenceGraphResponse {
   backlinks?: Record<string, DocumentBacklink[]>;
 }
 
-let cachedContent: DocsIndexResponse | null = null;
-let cachedReferenceGraph: DocumentReferenceGraphResponse | null = null;
+const cachedContent = new Map<string, DocsIndexResponse>();
+const cachedReferenceGraphs = new Map<string, DocumentReferenceGraphResponse>();
 const cachedDocuments = new Map<string, Document | null>();
 const pendingDocuments = new Map<string, Promise<Document | null>>();
 
-export async function loadDocsContent(): Promise<DocsIndexResponse> {
-  if (cachedContent) {
-    return cachedContent;
+export async function loadCollectionContent(collectionId = 'docs'): Promise<DocsIndexResponse> {
+  const collection = getContentCollection(collectionId);
+  const cached = cachedContent.get(collection.id);
+  if (cached) {
+    return cached;
   }
 
   try {
-    const response = await fetch('/docs-index.json');
+    const artifactPaths = getCollectionArtifactPaths(collection);
+    const response = await fetch(artifactPaths.index);
     if (!response.ok) {
       throw new Error(`Failed to load docs index: ${response.status}`);
     }
 
     const docsIndex = (await response.json()) as DocsIndexResponse;
-    cachedContent = docsIndex;
+    cachedContent.set(collection.id, docsIndex);
     return docsIndex;
   } catch (error) {
     logger.error('Error loading documentation index:', error);
@@ -85,13 +90,21 @@ export async function loadDocsContent(): Promise<DocsIndexResponse> {
   }
 }
 
-async function loadDocumentReferenceGraph(): Promise<DocumentReferenceGraphResponse | null> {
-  if (cachedReferenceGraph) {
-    return cachedReferenceGraph;
+export async function loadDocsContent(): Promise<DocsIndexResponse> {
+  return loadCollectionContent('docs');
+}
+
+async function loadDocumentReferenceGraph(
+  collectionId = 'docs'
+): Promise<DocumentReferenceGraphResponse | null> {
+  const cached = cachedReferenceGraphs.get(collectionId);
+  if (cached) {
+    return cached;
   }
 
   try {
-    const response = await fetch('/docs-references.json');
+    const collection = getContentCollection(collectionId);
+    const response = await fetch(getCollectionArtifactPaths(collection).references);
     if (!response.ok) {
       return null;
     }
@@ -101,45 +114,64 @@ async function loadDocumentReferenceGraph(): Promise<DocumentReferenceGraphRespo
       return null;
     }
 
-    cachedReferenceGraph = graph;
+    cachedReferenceGraphs.set(collectionId, graph);
     return graph;
   } catch {
     return null;
   }
 }
 
-export async function getDocumentBacklinks(path: string): Promise<DocumentBacklink[]> {
-  const graph = await loadDocumentReferenceGraph();
+export async function getDocumentBacklinks(
+  path: string,
+  collectionId = 'docs'
+): Promise<DocumentBacklink[]> {
+  const graph = await loadDocumentReferenceGraph(collectionId);
   return graph?.backlinks?.[path] || [];
 }
 
-function getDocumentAssetKey(path: string, options: DocumentVariantOptions = {}): string {
-  return buildDocsContentPath(path, {
-    version: options.version,
-    locale: options.locale,
-  });
+function getDocumentAssetKey(
+  path: string,
+  options: DocumentVariantOptions = {},
+  collectionId = 'docs'
+): string {
+  const collection = getContentCollection(collectionId);
+  return collectionId === 'docs'
+    ? buildDocsContentPath(path, {
+        version: options.version,
+        locale: options.locale,
+      })
+    : buildCollectionContentPath(collection, path, {
+        version: options.version,
+        locale: options.locale,
+      });
 }
 
-function getDocumentAssetUrl(path: string, options: DocumentVariantOptions = {}): string {
-  const encodedPath = getDocumentAssetKey(path, options)
+function getDocumentAssetUrl(
+  path: string,
+  options: DocumentVariantOptions = {},
+  collectionId = 'docs'
+): string {
+  const collection = getContentCollection(collectionId);
+  const encodedPath = getDocumentAssetKey(path, options, collectionId)
     .split('/')
     .map((segment) => encodeURIComponent(segment))
     .join('/');
 
-  return `/docs-content/${encodedPath}.json`;
+  return `${getCollectionArtifactPaths(collection).content}/${encodedPath}.json`;
 }
 
 async function fetchDocument(
   path: string,
-  options: DocumentVariantOptions = {}
+  options: DocumentVariantOptions = {},
+  collectionId = 'docs'
 ): Promise<Document | null> {
-  const docsIndex = await loadDocsContent();
+  const docsIndex = await loadCollectionContent(collectionId);
 
   if (!docsIndex.paths.includes(path)) {
     return null;
   }
 
-  const response = await fetch(getDocumentAssetUrl(path, options));
+  const response = await fetch(getDocumentAssetUrl(path, options, collectionId));
   if (!response.ok) {
     if (response.status === 404) {
       return null;
@@ -168,12 +200,16 @@ async function fetchDocument(
   };
 }
 
-export function prefetchDocument(path: string, options: DocumentVariantOptions = {}): void {
+export function prefetchDocument(
+  path: string,
+  options: DocumentVariantOptions = {},
+  collectionId = 'docs'
+): void {
   if (typeof document === 'undefined') {
     return;
   }
 
-  const href = getDocumentAssetUrl(path, options);
+  const href = getDocumentAssetUrl(path, options, collectionId);
   const existing = document.head.querySelector(`link[data-prefetch-doc="${href}"]`);
   if (existing) {
     return;
@@ -190,9 +226,10 @@ export function prefetchDocument(path: string, options: DocumentVariantOptions =
 
 export async function getDocument(
   path: string,
-  options: DocumentVariantOptions = {}
+  options: DocumentVariantOptions = {},
+  collectionId = 'docs'
 ): Promise<Document | null> {
-  const cacheKey = getDocumentAssetKey(path, options);
+  const cacheKey = `${collectionId}:${getDocumentAssetKey(path, options, collectionId)}`;
 
   if (cachedDocuments.has(cacheKey)) {
     return cachedDocuments.get(cacheKey) ?? null;
@@ -203,7 +240,7 @@ export async function getDocument(
     return existingRequest;
   }
 
-  const request = fetchDocument(path, options)
+  const request = fetchDocument(path, options, collectionId)
     .then((document) => {
       cachedDocuments.set(cacheKey, document);
       pendingDocuments.delete(cacheKey);
@@ -220,18 +257,18 @@ export async function getDocument(
 }
 
 export function clearContentCache(): void {
-  cachedContent = null;
-  cachedReferenceGraph = null;
+  cachedContent.clear();
+  cachedReferenceGraphs.clear();
   cachedDocuments.clear();
   pendingDocuments.clear();
 }
 
-export function resolveDocumentPath(slug: string | undefined): string {
+export function resolveDocumentPath(slug: string | undefined, items = documentationTree): string {
   if (!slug) {
     return DEFAULT_DOCUMENT_PATH;
   }
 
-  const directoryDefault = findDirectoryDefaultPath(slug, documentationTree);
+  const directoryDefault = findDirectoryDefaultPath(slug, items);
   if (directoryDefault) {
     return directoryDefault;
   }

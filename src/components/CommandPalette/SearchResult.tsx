@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion';
+import { button as MotionButton } from 'framer-motion/m';
 import React from 'react';
 
 export interface SearchResultType {
@@ -31,7 +31,7 @@ function getShortcutLabel(shortcut: string): string {
 const SearchResult: React.FC<SearchResultProps> = React.memo(
   ({ result, index, isSelected, onSelect, onMouseEnter }) => {
     return (
-      <motion.button
+      <MotionButton
         key={result.path}
         onClick={() => onSelect(result, index)}
         onMouseEnter={() => onMouseEnter(index)}
@@ -89,7 +89,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
             </span>
           )}
         </div>
-      </motion.button>
+      </MotionButton>
     );
   }
 );

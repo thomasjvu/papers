@@ -1,8 +1,11 @@
 import { architectureTests } from './architecture.test.ts';
+import { routePreloadTests } from './route-preloads.test.ts';
+
+const testCases = [...architectureTests, ...routePreloadTests];
 
 let failures = 0;
 
-for (const testCase of architectureTests) {
+for (const testCase of testCases) {
   try {
     await testCase.run();
     console.log(`PASS ${testCase.name}`);
@@ -18,4 +21,4 @@ if (failures > 0) {
   process.exit(1);
 }
 
-console.log(`\n${architectureTests.length} test(s) passed.`);
+console.log(`\n${testCases.length} test(s) passed.`);

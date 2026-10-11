@@ -2,39 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Mona Sans font - primary font for body text */
-@font-face {
-  font-family: 'Mona Sans';
-  src:
-    url('/fonts/Mona-Sans.woff') format('woff'),
-    url('/fonts/Mona-Sans.ttf') format('truetype');
-  font-weight: 100 900; /* Variable font weight */
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Import Hubot Sans font - for headings and UI elements */
-@font-face {
-  font-family: 'Hubot Sans';
-  src:
-    url('/fonts/Hubot-Sans.woff') format('woff'),
-    url('/fonts/Hubot-Sans.ttf') format('truetype');
-  font-weight: 100 900; /* Variable font weight */
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Import DM Serif fonts for serif text */
-@font-face {
-  font-family: 'DM Serif Display';
-  src:
-    url('/fonts/DMSerifDisplay-Regular.woff') format('woff'),
-    url('/fonts/DMSerifDisplay-Regular.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-}
-
 html {
   font-size: 90%;
 }

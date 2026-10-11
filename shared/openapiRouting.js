@@ -40,3 +40,52 @@ export function buildOpenApiRoutePath(config = {}, specId) {
 
   return `${basePath}/${encodeURIComponent(String(specId))}`;
 }
+
+function slugifySegment(value, fallback = 'item') {
+  const normalized = String(value || '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 72);
+
+  return normalized || fallback;
+}
+
+export function createOpenApiRouteSuffix(value) {
+  let hash = 2166136261;
+  for (const character of String(value || '')) {
+    hash ^= character.codePointAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return (hash >>> 0).toString(36).slice(0, 8);
+}
+
+/**
+ * Build the stable route used by generated operation artifacts. The optional
+ * suffix is reserved for deterministic collision resolution by the generator.
+ */
+export function buildOpenApiOperationRoutePath(config = {}, specId, operation = {}, suffix = '') {
+  const basePath = buildOpenApiRoutePath(config, specId);
+  const tag = slugifySegment(operation.routeTag || operation.tags?.[0], 'untagged');
+  const pathKey = slugifySegment(`${operation.method || 'operation'}-${operation.path || 'root'}`);
+  const operationKey = slugifySegment(
+    operation.id ||
+      operation.operationId ||
+      `${operation.method || 'operation'}-${operation.path || 'root'}`,
+    'operation'
+  );
+  const collisionSuffix = suffix ? `-${slugifySegment(suffix, 'variant')}` : '';
+
+  return `${basePath}/operations/${tag}/${pathKey}/${operationKey}${collisionSuffix}`;
+}
+
+export function buildOpenApiModelRoutePath(config = {}, specId, model = {}, suffix = '') {
+  const basePath = buildOpenApiRoutePath(config, specId);
+  const modelKey = slugifySegment(model.name, 'model');
+  const collisionSuffix = suffix ? `-${slugifySegment(suffix, 'variant')}` : '';
+
+  return `${basePath}/models/${modelKey}${collisionSuffix}`;
+}

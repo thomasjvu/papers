@@ -22,7 +22,7 @@ export default defineConfig({
         if (!fonts) {
           return html;
         }
-        return html.replace('</head>', `${fonts}\n  </head>`);
+        return html.replace('<head>', `<head>\n${fonts}`);
       },
     },
   ],

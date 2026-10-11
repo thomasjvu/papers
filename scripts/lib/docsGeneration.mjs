@@ -1,6 +1,11 @@
 import { readFile } from 'fs/promises';
 
-import { buildDocsContentPath, getDocsVariantContexts } from '../../shared/docsRouting.js';
+import {
+  buildCollectionContentPath,
+  buildDocsContentPath,
+  getCollectionRoutingOptions,
+  getDocsVariantContexts,
+} from '../../shared/docsRouting.js';
 import {
   createDocumentArtifact,
   createDocsArtifacts,
@@ -34,7 +39,7 @@ async function loadMarkdownContent(
   if (!fileInfo) {
     throw new Error(
       `Document "${documentKey}" source not found for "${docPath}" ` +
-        `(expected src/docs/content/${docPath}.md or .mdx).`
+      `(expected ${options.contentDir || 'src/docs/content'}/${docPath}.md or .mdx).`
     );
   }
 
@@ -58,7 +63,10 @@ async function loadMarkdownContent(
 }
 
 export async function buildVariantDocuments(docPaths, options = {}) {
-  const contexts = getDocsVariantContexts(options);
+  const routingOptions = options.collection
+    ? getCollectionRoutingOptions(options.collection, options)
+    : options;
+  const contexts = getDocsVariantContexts(routingOptions);
   const documents = {};
   const defaultDocsByPath = {};
   const defaultSourcePathsByPath = {};
@@ -72,17 +80,30 @@ export async function buildVariantDocuments(docPaths, options = {}) {
       const contentRoot = frameworkDocPaths.has(docPath)
         ? options.frameworkContentRoot
         : options.contentRoot;
+      const contentDir = frameworkDocPaths.has(docPath)
+        ? options.frameworkContentDir || options.contentDir
+        : options.contentDir;
       const fileInfo = resolveDocFileInfo(docPath, {
+        ...routingOptions,
         ...options,
         version: context.version,
         locale: context.locale,
         contentRoot,
+        contentDir,
       });
-      const documentKey = buildDocsContentPath(docPath, {
-        ...options,
-        version: context.version,
-        locale: context.locale,
-      });
+      const documentKey = options.collection
+        ? buildCollectionContentPath(options.collection, docPath, {
+            ...routingOptions,
+            ...options,
+            version: context.version,
+            locale: context.locale,
+          })
+        : buildDocsContentPath(docPath, {
+            ...routingOptions,
+            ...options,
+            version: context.version,
+            locale: context.locale,
+          });
       const rawContent = await loadMarkdownContent(docPath, documentKey, options, fileInfo);
 
       if (Object.hasOwn(documents, documentKey)) {
@@ -94,11 +115,18 @@ export async function buildVariantDocuments(docPaths, options = {}) {
           createDocumentArtifact(docPath, rawContent, fileInfo.sourcePath, {
             version: context.version,
             locale: context.locale,
-            versionConfig: options.versionConfig,
-            i18nConfig: options.i18nConfig,
+            versionConfig: routingOptions.versionConfig,
+            i18nConfig: routingOptions.i18nConfig,
             frontmatterSchema: options.frontmatterSchema,
+            schemaAdapter: options.schemaAdapter,
+            collectionId: options.collection?.id,
+            collection: options.collection,
+            routePrefix: options.collection?.routePrefix,
+            schemaVersion: options.collection?.schemaVersion,
           })
-        );
+        , {
+          components: options.mdxComponents,
+        });
       } catch (error) {
         const lineSuffix = error.lineNumber ? `:${error.lineNumber}` : '';
         throw new Error(
@@ -129,12 +157,19 @@ export async function createGeneratedDocsArtifacts(options = {}) {
   const frameworkDocPaths = options.frameworkDocPaths || [];
   const generatedAt = options.generatedAt || new Date().toISOString();
   const previousIndex = options.previousIndex || null;
-  const docPaths = [...collectDocumentPaths(documentationTree), ...frameworkDocPaths];
+  const docPaths = Array.from(
+    new Set([...collectDocumentPaths(documentationTree), ...frameworkDocPaths])
+  ).sort();
   await assertValidDocumentationContent({
     ...options,
     documentationTree,
     frameworkDocPaths,
     frontmatterSchema: options.frontmatterSchema,
+    schemaAdapter: options.schemaAdapter,
+    collection: options.collection,
+    mdxComponents: options.mdxComponents,
+    routeCollections: options.routeCollections,
+    contentDir: options.contentDir,
   });
   const { documents, defaultDocsByPath, defaultSourcePathsByPath } = await buildVariantDocuments(
     docPaths,

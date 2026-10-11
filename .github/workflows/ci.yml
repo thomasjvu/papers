@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [22]
+        node-version: [24]
 
     steps:
       - name: Checkout code
@@ -49,19 +49,19 @@ jobs:
           VITE_SITE_URL: ${{ vars.PAPERS_DEPLOY_HOST }}
 
       - name: Run release smoke checks
-        if: matrix.node-version == 22
+        if: matrix.node-version == 24
         run: npm run release:check
 
       - name: Run runtime security audit
-        if: matrix.node-version == 22
+        if: matrix.node-version == 24
         run: npm run check:runtime-audit
 
       - name: Check asset ownership and budgets
-        if: matrix.node-version == 22
+        if: matrix.node-version == 24
         run: npm run check:assets
 
       - name: Upload build artifacts
-        if: matrix.node-version == 22
+        if: matrix.node-version == 24
         uses: actions/upload-artifact@v4
         with:
           name: build-output-node-${{ matrix.node-version }}
@@ -80,24 +80,32 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
-        run: npm run build
+      - name: Download validated production build
+        uses: actions/download-artifact@v4
+        with:
+          name: build-output-node-24
+          path: dist
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Lighthouse CI
-        uses: treosh/lighthouse-ci-action@v11
+      - name: Run Lighthouse gate
+        run: npm run lighthouse:check
+
+      - name: Upload private Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
         with:
-          configPath: ./lighthouserc.cjs
-          uploadArtifacts: true
-          temporaryPublicStorage: true
+          name: lighthouse-results
+          path: .lighthouseci/
+          if-no-files-found: ignore
+          retention-days: 7
 
   browser:
     runs-on: ubuntu-latest
@@ -110,7 +118,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
 
       - name: Install dependencies
@@ -119,7 +127,7 @@ jobs:
       - name: Download production build
         uses: actions/download-artifact@v4
         with:
-          name: build-output-node-22
+          name: build-output-node-24
           path: dist
 
       - name: Install Chromium

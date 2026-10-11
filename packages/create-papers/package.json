@@ -1,23 +1,33 @@
 {
   "name": "create-papers",
   "version": "0.1.0",
-  "description": "Scaffold a new papers documentation site.",
+  "description": "Create a reproducible static documentation site with papers.",
   "license": "MIT",
   "type": "module",
   "bin": {
-    "create-papers": "./index.mjs"
+    "create-papers": "index.mjs"
+  },
+  "exports": {
+    ".": "./index.mjs"
   },
   "files": [
-    "index.mjs"
+    "index.mjs",
+    "README.md",
+    "LICENSE",
+    "template-manifest.json"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=24.0.0"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thomasjvu/papers.git",
     "directory": "packages/create-papers"
   },
+  "bugs": {
+    "url": "https://github.com/thomasjvu/papers/issues"
+  },
+  "homepage": "https://github.com/thomasjvu/papers#readme",
   "keywords": [
     "papers",
     "documentation",
@@ -25,6 +35,10 @@
     "vite",
     "react"
   ],
+  "scripts": {
+    "prepack": "node ./write-manifest.mjs --write",
+    "postpack": "node ./write-manifest.mjs --clean"
+  },
   "publishConfig": {
     "access": "public"
   }

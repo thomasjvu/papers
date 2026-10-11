@@ -1,5 +1,6 @@
 import { Icon } from '@iconify/react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
+import { div as MotionDiv, span as MotionSpan } from 'framer-motion/m';
 import { Link } from 'react-router-dom';
 import React from 'react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
@@ -213,7 +214,7 @@ export default function Navigation({
         <div className="flex items-center relative">
           <AnimatePresence>
             {hoveredItem === item.label ? (
-              <motion.span
+              <MotionSpan
                 className="bracket-left"
                 style={{ left: '-1.5rem' }}
                 key="bracket-left"
@@ -223,7 +224,7 @@ export default function Navigation({
                 exit="exit"
               >
                 [
-              </motion.span>
+              </MotionSpan>
             ) : null}
           </AnimatePresence>
 
@@ -231,7 +232,7 @@ export default function Navigation({
 
           <AnimatePresence>
             {hoveredItem === item.label ? (
-              <motion.span
+              <MotionSpan
                 className="bracket-right"
                 style={{ right: '-1.5rem' }}
                 key="bracket-right"
@@ -241,7 +242,7 @@ export default function Navigation({
                 exit="exit"
               >
                 ]
-              </motion.span>
+              </MotionSpan>
             ) : null}
           </AnimatePresence>
         </div>
@@ -333,7 +334,7 @@ export default function Navigation({
 
       <AnimatePresence>
         {mobileMenuOpen && (
-          <motion.div
+          <MotionDiv
             initial="hidden"
             animate="visible"
             exit="exit"
@@ -444,7 +445,7 @@ export default function Navigation({
                 </div>
               </div>
             </nav>
-          </motion.div>
+          </MotionDiv>
         )}
       </AnimatePresence>
     </header>

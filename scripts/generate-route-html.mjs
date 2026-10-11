@@ -1,8 +1,9 @@
 import { existsSync, readFileSync } from 'fs';
-import { mkdir, writeFile } from 'fs/promises';
+import { mkdir, readdir, writeFile } from 'fs/promises';
 import { dirname, join } from 'path';
 
 import { contentCollections } from '../shared/content-collections.js';
+import { homepageConfig } from '../shared/documentation-config.js';
 import {
   AGENT_DISCOVERY_PATH,
   buildAbsoluteUrl,
@@ -16,6 +17,7 @@ import {
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
+import { planHomepagePreloads, planRoutePreloads } from './lib/routePreloads.mjs';
 import { createAllCollectionSeoRouteEntries } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
@@ -142,6 +144,14 @@ function stripNonCriticalPreloads(html) {
     .replace(/^\s*<link rel="stylesheet" crossorigin href="[^\n]*vendor-openapi-[^\n]*>\s*$/gm, '');
 }
 
+function appendRoutePreloads(html, preloads) {
+  if (!preloads) {
+    return html;
+  }
+
+  return html.replace('</head>', `    ${preloads}\n  </head>`);
+}
+
 async function writeRouteHtml(routePath, html) {
   // Prefer `path.html` over `path/index.html`. Routes whose last segment is
   // literally `index` (e.g. /docs/en/index) break under Cloudflare assets
@@ -166,6 +176,13 @@ async function generateRouteHtml() {
     process.exit(1);
   }
 
+  const openapiArtifactsPath = join(publicDir, 'openapi-artifacts.json');
+  if (!existsSync(openapiArtifactsPath)) {
+    console.error('Generated OpenAPI artifacts are missing. Run generate:openapi first.');
+    process.exit(1);
+  }
+  const openapiArtifacts = JSON.parse(readFileSync(openapiArtifactsPath, 'utf8'));
+
   const mode = resolveEnvMode('production');
   const viteEnv = loadViteEnv(rootDir, mode);
   const defaults = getHomeMetadataDefaults();
@@ -180,22 +197,44 @@ async function generateRouteHtml() {
       siteName,
       siteSubtitle,
       siteDescription,
+      openapiArtifacts,
     }
   );
+  const assetsDir = join(distDir, 'assets');
+  const builtAssetFiles = existsSync(assetsDir) ? await readdir(assetsDir) : [];
   const templateHtml = stripNonCriticalPreloads(readFileSync(indexHtmlPath, 'utf8'));
+  const homepagePreloads =
+    homepageConfig.enabled ? planHomepagePreloads({ artwork: homepageConfig.hero?.artwork }) : '';
   const agentLinks = [
     {
       href: buildAbsoluteUrl(AGENT_DISCOVERY_PATH, siteUrl) || AGENT_DISCOVERY_PATH,
       contentType: 'application/json',
       title: 'Documentation agent index',
     },
-    ...getAgentArtifactLinks(siteUrl).map((link) => ({
+    ...getAgentArtifactLinks(siteUrl, { collections: contentCollections }).map((link) => ({
       href: link.href,
       contentType: link.contentType,
       title: link.title,
     })),
   ];
-  await writeFile(indexHtmlPath, `${templateHtml.trimEnd()}\n`);
+  const homepageHtml = appendRoutePreloads(
+    applyMetadataToHtml(templateHtml, {
+      title: `${siteName} | ${siteSubtitle}`,
+      description: siteDescription,
+      canonicalUrl: buildAbsoluteUrl('/', siteUrl) || '/',
+      url: buildAbsoluteUrl('/', siteUrl) || '/',
+      imageUrl: buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH, siteUrl) || DEFAULT_OG_IMAGE_PATH,
+      twitterImageUrl:
+        buildAbsoluteUrl(DEFAULT_TWITTER_IMAGE_PATH, siteUrl) || DEFAULT_TWITTER_IMAGE_PATH,
+      robots: 'index, follow',
+      type: 'website',
+      siteName,
+      routePath: '/',
+      agentLinks,
+    }),
+    homepagePreloads
+  );
+  await writeFile(indexHtmlPath, `${homepageHtml.trimEnd()}\n`);
 
   for (const entry of routeEntries) {
     const canonicalUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;
@@ -217,8 +256,17 @@ async function generateRouteHtml() {
       routePath: entry.routePath,
       agentLinks,
     });
+    const routePreloads =
+      entry.routePath === '/'
+        ? homepagePreloads
+        : planRoutePreloads({
+            routeEntry: entry,
+            collections: contentCollections,
+            assetFiles: builtAssetFiles,
+            documentKey: entry.documentKey,
+          });
 
-    await writeRouteHtml(entry.routePath, html);
+    await writeRouteHtml(entry.routePath, appendRoutePreloads(html, routePreloads));
   }
 
   console.log(`Generated ${routeEntries.length} route HTML files with SEO metadata.`);

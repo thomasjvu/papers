@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { execFileSync } from 'node:child_process';
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { JSDOM } from 'jsdom';
 
 import { buildPaddedViewBox } from '../src/utils/mermaidLayout.ts';
+import { generateDocsContent } from '../scripts/generate-docs.mjs';
 import {
   createDocsArtifacts,
   enrichDocumentArtifact,
@@ -15,7 +17,7 @@ import {
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
 import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
-import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
+import { compileMdxToHtml, validateMdxComponentsInSource } from '../scripts/lib/mdxCompile.mjs';
 import {
   addFileToTree,
   replaceDocumentationTreeExport,
@@ -29,6 +31,8 @@ import {
   createSeoRouteEntries,
   createSitemapXml,
 } from '../scripts/lib/seoArtifacts.mjs';
+import { createContentSchemaAdapter } from '../shared/contentSchema.js';
+import { validateContentCollections } from '../shared/content-collections.js';
 import { createAgentDiscoveryManifest, createSeoStructuredData } from '../shared/seo.js';
 import { computeInputFingerprint, createBuildIdentity } from '../scripts/lib/buildIdentity.mjs';
 import { combineSearchResults } from '../src/components/CommandPalette/searchUtils.ts';
@@ -51,6 +55,8 @@ import { isPapersTemplateRoot, shouldUseLocalTemplate } from '../packages/create
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { createDocumentReferenceGraph } from '../scripts/lib/referenceGraph.mjs';
 import { createOpenApiArtifacts } from '../scripts/lib/openapiArtifacts.mjs';
+import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
+import { normalizePagefindUrl } from '../src/hooks/usePagefind.ts';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -260,6 +266,286 @@ export const architectureTests: ArchitectureTestCase[] = [
         references: [],
         links: [],
       });
+    },
+  },
+  {
+    name: 'generateDocsContent isolates artifacts for multiple collections',
+    run: async () => {
+      const tempRoot = await mkdtemp(join(tmpdir(), 'papers-collections-'));
+      const publicDir = join(tempRoot, 'public');
+
+      try {
+        await mkdir(join(tempRoot, 'content', 'alpha', 'guide'), { recursive: true });
+        await mkdir(join(tempRoot, 'content', 'beta', 'reference'), { recursive: true });
+        await writeFile(
+          join(tempRoot, 'content', 'alpha', 'guide', 'intro.md'),
+          '# Alpha intro\n\nAlpha content.'
+        );
+        await writeFile(
+          join(tempRoot, 'content', 'beta', 'reference', 'start.md'),
+          '# Beta start\n\nBeta content.'
+        );
+
+        const disabledVariants = {
+          versionConfig: {
+            enabled: false,
+            current: '1.0',
+            versions: ['1.0'],
+            labels: {},
+          },
+          i18nConfig: {
+            enabled: false,
+            defaultLocale: 'en',
+            locales: ['en'],
+            labels: {},
+          },
+        };
+        const collections = [
+          {
+            id: 'alpha',
+            label: 'Alpha',
+            routePrefix: '/alpha',
+            contentDir: 'content/alpha',
+            artifactNamespace: 'alpha',
+            schemaVersion: 1,
+            schemaAdapter: createContentSchemaAdapter(),
+            tree: [
+              {
+                type: 'directory' as const,
+                name: 'Guide',
+                path: 'guide',
+                children: [
+                  {
+                    type: 'file' as const,
+                    name: 'Intro.md',
+                    path: 'guide/intro',
+                  },
+                ],
+              },
+            ],
+            frameworkDocPaths: [],
+            variants: disabledVariants,
+            mdxComponents: ['Callout'],
+          },
+          {
+            id: 'beta',
+            label: 'Beta',
+            routePrefix: '/beta',
+            contentDir: 'content/beta',
+            artifactNamespace: 'beta',
+            schemaVersion: 1,
+            schemaAdapter: createContentSchemaAdapter(),
+            tree: [
+              {
+                type: 'directory' as const,
+                name: 'Reference',
+                path: 'reference',
+                children: [
+                  {
+                    type: 'file' as const,
+                    name: 'Start.md',
+                    path: 'reference/start',
+                  },
+                ],
+              },
+            ],
+            frameworkDocPaths: [],
+            variants: disabledVariants,
+            mdxComponents: ['Callout'],
+          },
+        ];
+
+        await generateDocsContent({ rootDir: tempRoot, publicDir, collections });
+
+        const artifactPaths = [
+          'alpha-index.json',
+          'beta-index.json',
+          'alpha-collection.json',
+          'beta-collection.json',
+          'collections.json',
+          'alpha-content/guide/intro.json',
+          'beta-content/reference/start.json',
+        ];
+        await Promise.all(
+          artifactPaths.map((artifactPath) => readFile(join(publicDir, artifactPath)))
+        );
+
+        const alphaDocument = JSON.parse(
+          await readFile(join(publicDir, 'alpha-content', 'guide', 'intro.json'), 'utf8')
+        );
+        const betaDocument = JSON.parse(
+          await readFile(join(publicDir, 'beta-content', 'reference', 'start.json'), 'utf8')
+        );
+        assert.equal(alphaDocument.sourcePath, 'content/alpha/guide/intro.md');
+        assert.equal(betaDocument.sourcePath, 'content/beta/reference/start.md');
+      } finally {
+        await rm(tempRoot, { recursive: true, force: true });
+      }
+    },
+  },
+  {
+    name: 'validateMdxComponentsInSource reports unsupported components and props',
+    run: () => {
+      assert.throws(
+        () => validateMdxComponentsInSource('<Unknown>body</Unknown>', { components: ['Callout'] }),
+        /MDX:1:1: unsupported component/
+      );
+      assert.throws(
+        () =>
+          validateMdxComponentsInSource('<Callout bad="x">body</Callout>', {
+            components: ['Callout'],
+          }),
+        /unsupported prop "bad"/
+      );
+    },
+  },
+  {
+    name: 'Pagefind records cover every collection and variant without source paths',
+    run: () => {
+      const variants = {
+        versionConfig: {
+          enabled: true,
+          current: 'v2',
+          versions: ['v1', 'v2'],
+          labels: {},
+        },
+        i18nConfig: {
+          enabled: true,
+          defaultLocale: 'en',
+          locales: ['en', 'fr'],
+          labels: {},
+        },
+      };
+      const disabledVariants = {
+        versionConfig: {
+          enabled: false,
+          current: '1.0',
+          versions: ['1.0'],
+          labels: {},
+        },
+        i18nConfig: {
+          enabled: false,
+          defaultLocale: 'en',
+          locales: ['en'],
+          labels: {},
+        },
+      };
+      const collections = validateContentCollections([
+        {
+          id: 'alpha',
+          label: 'Alpha Guides',
+          routePrefix: '/alpha',
+          contentDir: 'content/alpha',
+          artifactNamespace: 'alpha',
+          schemaVersion: 1,
+          schemaAdapter: createContentSchemaAdapter(),
+          tree: [{ type: 'file', name: 'Intro.md', path: 'guide/intro' }],
+          frameworkDocPaths: [],
+          variants,
+          mdxComponents: ['Callout'],
+        },
+        {
+          id: 'beta',
+          label: 'Beta Reference',
+          routePrefix: '/beta',
+          contentDir: 'content/beta',
+          artifactNamespace: 'beta',
+          schemaVersion: 1,
+          schemaAdapter: createContentSchemaAdapter(),
+          tree: [{ type: 'file', name: 'Start.md', path: 'reference/start' }],
+          frameworkDocPaths: [],
+          variants: disabledVariants,
+          mdxComponents: ['Callout'],
+        },
+      ]);
+      const alphaDocuments = {};
+      for (const version of variants.versionConfig.versions) {
+        for (const locale of variants.i18nConfig.locales) {
+          alphaDocuments[`${version}/${locale}/guide/intro`] = {
+            title: `Alpha ${version} ${locale}`,
+            description: 'Alpha description',
+            content: '# Alpha guide\n\nAlpha content.',
+            sourcePath: 'content/alpha/guide/intro.md',
+          };
+        }
+      }
+
+      const records = createPagefindRecords({
+        collections,
+        artifactsByCollectionId: {
+          alpha: {
+            index: { paths: ['guide/intro'], titles: { 'guide/intro': 'Alpha guide' } },
+            documents: alphaDocuments,
+          },
+          beta: {
+            index: { paths: ['reference/start'], titles: { 'reference/start': 'Beta start' } },
+            documents: {
+              'reference/start': {
+                title: 'Beta start',
+                description: 'Beta description',
+                content: '# Beta reference\n\nBeta content.',
+                sourcePath: 'content/beta/reference/start.md',
+              },
+            },
+          },
+        },
+        openapiArtifacts: {
+          specs: [
+            {
+              operations: [
+                {
+                  method: 'GET',
+                  path: '/users',
+                  summary: 'List users',
+                  routePath: '/docs/api-reference/openapi/operations/get-users',
+                  parameters: [],
+                  responses: [],
+                  codeSamples: { curl: 'curl https://example.com/users' },
+                },
+              ],
+              schemas: [
+                {
+                  name: 'User',
+                  routePath: '/docs/api-reference/openapi/models/user',
+                  description: 'A user.',
+                  typescript: 'type User = { id: string };',
+                  properties: [{ name: 'id', type: 'string' }],
+                },
+              ],
+            },
+          ],
+        },
+      });
+
+      const documentationRecords = records.filter((record) => record.meta.kind === 'documentation');
+      assert.deepEqual(
+        documentationRecords.map((record) => record.url),
+        [
+          '/alpha/v1/en/guide/intro',
+          '/alpha/v1/fr/guide/intro',
+          '/alpha/v2/en/guide/intro',
+          '/alpha/v2/fr/guide/intro',
+          '/beta/reference/start',
+        ]
+      );
+      assert.equal(documentationRecords[0].meta.collection, 'alpha');
+      assert.equal(documentationRecords[0].meta.locale, 'en');
+      assert.equal(documentationRecords[0].meta.version, 'v1');
+      assert.match(documentationRecords[0].content, /Alpha Guides/);
+      assert.doesNotMatch(documentationRecords[0].content, /content\/alpha/);
+      assert.equal(records.filter((record) => record.meta.kind === 'openapi-operation').length, 1);
+      assert.equal(records.filter((record) => record.meta.kind === 'openapi-model').length, 1);
+
+      assert.equal(
+        normalizePagefindUrl('/alpha/v2/fr/guide/intro', collections),
+        '/alpha/v2/fr/guide/intro'
+      );
+      assert.equal(
+        normalizePagefindUrl('/search-pages/alpha_v2_fr_guide_intro.html', collections),
+        '/alpha/v2/fr/guide/intro'
+      );
+      assert.equal(normalizePagefindUrl('/search-pages/llms.html', collections), '/llms.txt');
+      assert.equal(normalizePagefindUrl('/search-pages/skill.html', collections), '/skill.md');
     },
   },
   {
@@ -949,14 +1235,36 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
-    name: 'initial shell defers command palette and serves compressed base fonts',
+    name: 'initial shell defers optional motion and serves theme-owned base fonts',
     run: async () => {
       const commandPaletteProviderSource = await readFile(
         new URL('../src/providers/CommandPaletteProvider.tsx', import.meta.url),
         'utf8'
       );
+      const appSource = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
+      const docsPageSource = await readFile(
+        new URL('../src/pages/DocsPage.tsx', import.meta.url),
+        'utf8'
+      );
+      const commandPaletteSource = await readFile(
+        new URL('../src/components/CommandPalette/OptimizedCommandPalette.tsx', import.meta.url),
+        'utf8'
+      );
+      const docsShellSources = await Promise.all(
+        [
+          '../src/components/ContentRenderer.tsx',
+          '../src/components/FileTree.tsx',
+          '../src/components/MarkdownRenderer.tsx',
+          '../src/components/Navigation.tsx',
+          '../src/components/docs/DocumentationPage.tsx',
+        ].map((path) => readFile(new URL(path, import.meta.url), 'utf8'))
+      );
       const globalStylesSource = await readFile(
         new URL('../src/globals.css', import.meta.url),
+        'utf8'
+      );
+      const defaultFontSource = await readFile(
+        new URL('../themes/default/fonts.css', import.meta.url),
         'utf8'
       );
 
@@ -965,8 +1273,16 @@ export const architectureTests: ArchitectureTestCase[] = [
         /lazy\(\(\) => import\('\.\.\/components\/CommandPalette\/OptimizedCommandPalette'\)\)/
       );
       assert.match(commandPaletteProviderSource, /isOpen \?/);
-      assert.match(globalStylesSource, /Mona-Sans\.woff/);
-      assert.match(globalStylesSource, /Hubot-Sans\.woff/);
+      assert.doesNotMatch(appSource, /framer-motion/);
+      assert.match(docsPageSource, /<LazyMotion features=\{domAnimation\}>/);
+      assert.match(commandPaletteSource, /<LazyMotion features=\{domAnimation\}>/);
+      for (const source of docsShellSources) {
+        assert.match(source, /framer-motion\/m/);
+        assert.doesNotMatch(source, /m as motion.*from ['"]framer-motion['"]/);
+      }
+      assert.doesNotMatch(globalStylesSource, /@font-face/);
+      assert.match(defaultFontSource, /Mona-Sans\.woff/);
+      assert.match(defaultFontSource, /Hubot-Sans\.woff/);
     },
   },
   {
@@ -1474,6 +1790,71 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(agentsSource, /PAPERS_DEPLOY_HOST/);
       assert.match(agentsSource, /FRAMEWORK\.md/);
       assert.match(agentsSource, /RELEASING\.md/);
+    },
+  },
+  {
+    name: 'create-papers help and version are offline and deterministic',
+    run: () => {
+      const cliPath = join(process.cwd(), 'packages/create-papers/index.mjs');
+      const env = {
+        ...process.env,
+        PAPERS_TEMPLATE_ROOT: '/tmp/papers-create-template-does-not-exist',
+      };
+      const help = execFileSync(process.execPath, [cliPath, '--help'], {
+        encoding: 'utf8',
+        env,
+      });
+      const version = execFileSync(process.execPath, [cliPath, '--version'], {
+        encoding: 'utf8',
+        env,
+      });
+
+      assert.match(help, /Usage: npm create papers/);
+      assert.match(version, /^create-papers 0\.1\.0$/m);
+    },
+  },
+  {
+    name: 'create-papers preserves non-empty targets and supports offline fixtures',
+    run: async () => {
+      const tempDir = await mkdtemp(join(tmpdir(), 'papers-create-cli-'));
+      const fixtureRoot = join(process.cwd(), 'test/fixtures/create-papers-template');
+      const cliPath = join(process.cwd(), 'packages/create-papers/index.mjs');
+      const env = { ...process.env, PAPERS_TEMPLATE_ROOT: fixtureRoot };
+      const targetDir = join(tempDir, 'target');
+
+      try {
+        await mkdir(targetDir);
+        const sentinelPath = join(targetDir, 'sentinel.txt');
+        await writeFile(sentinelPath, 'keep me');
+
+        let failure;
+        try {
+          execFileSync(process.execPath, [cliPath, targetDir, '--no-install'], {
+            encoding: 'utf8',
+            env,
+          });
+        } catch (error) {
+          failure = error;
+        }
+        assert(failure, 'a non-empty target should fail');
+        assert.match(failure.stderr.toString(), /Target directory is not empty/);
+        assert.equal(await readFile(sentinelPath, 'utf8'), 'keep me');
+
+        const cleanTarget = join(tempDir, 'clean-target');
+        execFileSync(process.execPath, [cliPath, cleanTarget, '--no-install'], {
+          encoding: 'utf8',
+          env,
+        });
+        assert.equal(
+          await readFile(join(cleanTarget, 'package.json'), 'utf8').then((value) =>
+            value.includes('papers-create-fixture')
+          ),
+          true
+        );
+        assert.equal((await readdir(cleanTarget)).includes('plans'), false);
+      } finally {
+        await rm(tempDir, { recursive: true, force: true });
+      }
     },
   },
   {

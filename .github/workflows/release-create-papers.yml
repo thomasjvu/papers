@@ -1,0 +1,112 @@
+name: Release create-papers
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: create-papers-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    env:
+      RELEASE_TAG: ${{ github.ref_type == 'tag' && github.ref_name || '' }}
+
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run framework tests
+        run: npm test
+
+      - name: Run lint and type checks
+        run: |
+          npm run lint
+          npm run format:check
+          npm run type-check
+
+      - name: Build framework
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Run release and package checks
+        run: npm run release:check
+
+      - name: Run packed clean-consumer smoke
+        run: npm run create:smoke
+
+  publish:
+    if: github.ref_type == 'tag'
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+    steps:
+      - name: Checkout release ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+
+      - name: Setup Node.js for npm provenance
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+
+      - name: Install package tooling
+        run: npm ci
+
+      - name: Verify tag and publish with provenance
+        run: |
+          VERSION=$(node -p "require('./packages/create-papers/package.json').version")
+          test "$GITHUB_REF_NAME" = "v$VERSION"
+          npm publish --prefix packages/create-papers --provenance --access public
+
+      - name: Probe exact public package version
+        id: package
+        run: |
+          VERSION=$(node -p "require('./packages/create-papers/package.json').version")
+          PUBLISHED_VERSION=$(npm view "create-papers@$VERSION" version)
+          test "$PUBLISHED_VERSION" = "$VERSION"
+          TARBALL_URL=$(npm view "create-papers@$VERSION" dist.tarball)
+          test -n "$TARBALL_URL"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tarball=$TARBALL_URL" >> "$GITHUB_OUTPUT"
+
+      - name: Record package tarball in the GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
+          PACKAGE_TARBALL: ${{ steps.package.outputs.tarball }}
+        run: |
+          NOTES_FILE=$(mktemp)
+          printf '%s\n\n' "create-papers@$PACKAGE_VERSION was published with npm provenance." > "$NOTES_FILE"
+          printf 'Package tarball: %s\n' "$PACKAGE_TARBALL" >> "$NOTES_FILE"
+          if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
+            gh release edit "$GITHUB_REF_NAME" --notes-file "$NOTES_FILE"
+          else
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$NOTES_FILE"
+          fi

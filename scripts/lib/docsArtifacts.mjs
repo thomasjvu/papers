@@ -1,5 +1,12 @@
-import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
-import { documentFrontmatterSchema } from '../../shared/contentSchema.js';
+import {
+  buildCanonicalCollectionPath,
+  buildCanonicalDocsPath,
+} from '../../shared/docsRouting.js';
+import {
+  documentFrontmatterSchema,
+  getContentSchemaFields,
+  getContentSchemaVersion,
+} from '../../shared/contentSchema.js';
 import { extractDescriptionFromMarkdown } from '../../shared/seo.js';
 import { compileMdxToHtml, isMdxSourcePath } from './mdxCompile.mjs';
 
@@ -197,6 +204,7 @@ function parseFrontmatterValue(key, rawValue, lineNumber, schema) {
 }
 
 export function parseFrontmatter(content, schema = documentFrontmatterSchema) {
+  const schemaFields = getContentSchemaFields(schema);
   const normalized = stripUtf8Bom(content);
   const startsWithFrontmatter = /^---\r?\n/.test(normalized);
 
@@ -234,9 +242,9 @@ export function parseFrontmatter(content, schema = documentFrontmatterSchema) {
     }
 
     const [, key, rawValue = ''] = match;
-    if (!Object.hasOwn(schema, key)) {
+    if (!Object.hasOwn(schemaFields, key)) {
       throw getFrontmatterError(
-        `unsupported key "${key}"; supported keys are ${Object.keys(schema).join(', ')}.`,
+        `unsupported key "${key}"; supported keys are ${Object.keys(schemaFields).join(', ')}.`,
         index + 1
       );
     }
@@ -245,7 +253,7 @@ export function parseFrontmatter(content, schema = documentFrontmatterSchema) {
       throw getFrontmatterError(`duplicate key "${key}".`, index + 1);
     }
 
-    frontmatter[key] = parseFrontmatterValue(key, rawValue, index + 1, schema[key]);
+    frontmatter[key] = parseFrontmatterValue(key, rawValue, index + 1, schemaFields[key]);
   }
 
   return {
@@ -424,16 +432,27 @@ function createDocumentMetadata({
   locale,
   versionConfig,
   i18nConfig,
+  collectionId,
+  collection,
+  routePrefix,
+  schemaAdapter,
 }) {
   const metadata = {
     title,
     description: description || '',
-    canonicalPath: buildCanonicalDocsPath(docPath, {
-      version,
-      locale,
-      versionConfig,
-      i18nConfig,
-    }),
+    canonicalPath: collection
+      ? buildCanonicalCollectionPath(collection, docPath, {
+          version,
+          locale,
+          versionConfig,
+          i18nConfig,
+        })
+      : buildCanonicalDocsPath(docPath, {
+          version,
+          locale,
+          versionConfig,
+          i18nConfig,
+        }),
     contentFormat,
   };
 
@@ -445,6 +464,15 @@ function createDocumentMetadata({
   }
   if (locale) {
     metadata.locale = locale;
+  }
+  if (collectionId) {
+    metadata.collection = collectionId;
+  }
+  if (routePrefix) {
+    metadata.routePrefix = routePrefix;
+  }
+  if (schemaAdapter) {
+    metadata.schemaVersion = getContentSchemaVersion(schemaAdapter);
   }
 
   return metadata;
@@ -461,8 +489,8 @@ export function extractTopLevelTitle(docPath, content, schema = documentFrontmat
 }
 
 export function createDocumentArtifact(docPath, rawContent, sourcePath, options = {}) {
-  const frontmatterSchema = options.frontmatterSchema || documentFrontmatterSchema;
-  const { body, frontmatter } = parseFrontmatter(rawContent, frontmatterSchema);
+  const schemaAdapter = options.schemaAdapter || options.frontmatterSchema || documentFrontmatterSchema;
+  const { body, frontmatter } = parseFrontmatter(rawContent, schemaAdapter);
   const content = stripUtf8Bom(body);
   const description = frontmatter.description || extractDescriptionFromMarkdown(content);
   const title = frontmatter.title || getTitleFromBody(docPath, content);
@@ -475,13 +503,17 @@ export function createDocumentArtifact(docPath, rawContent, sourcePath, options 
     frontmatter,
     content,
     contentFormat,
-    toc: createDocumentToc(rawContent, frontmatterSchema),
+    toc: createDocumentToc(rawContent, schemaAdapter),
     metadata: createDocumentMetadata({
       docPath,
       title,
       description,
       contentFormat,
       sourcePath,
+      schemaAdapter:
+        options.schemaAdapter || options.frontmatterSchema || options.collection
+          ? schemaAdapter
+          : null,
       ...options,
     }),
     references: extractDocumentReferences(rawContent),
@@ -494,12 +526,12 @@ export function createDocumentArtifact(docPath, rawContent, sourcePath, options 
   };
 }
 
-export async function enrichDocumentArtifact(document) {
+export async function enrichDocumentArtifact(document, options = {}) {
   if (!document?.sourcePath || !isMdxSourcePath(document.sourcePath)) {
     return document;
   }
 
-  const html = await compileMdxToHtml(document.content);
+  const html = await compileMdxToHtml(document.content, options);
 
   return {
     ...document,

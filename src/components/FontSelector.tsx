@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { motion } from 'framer-motion';
+import { button as MotionButton } from 'framer-motion/m';
 import React, { useCallback, useMemo } from 'react';
 
 import { useTheme } from '../providers/useTheme';
@@ -79,7 +79,7 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
           </span>
         </button>
       ) : (
-        <motion.button
+        <MotionButton
           onClick={handleFontCycle}
           className="flex items-center gap-2 rounded-full p-2"
           style={buttonStyle}
@@ -92,7 +92,7 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
           <span className="text-2xs" style={{ fontFamily: currentFontStyle }}>
             {buttonLabel}
           </span>
-        </motion.button>
+        </MotionButton>
       )}
     </div>
   );
