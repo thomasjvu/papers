@@ -244,4 +244,15 @@ export const authoringFeatureTests: TestCase[] = [
       assert.match(html, /<pre><code class="language-js">plain\n<\/code><\/pre>/);
     },
   },
+  {
+    name: 'MDX single-line <Callout> renders as a block callout, not a nested div',
+    run: async () => {
+      const html = await compileMdxToHtml('<Callout type="warning">Legacy</Callout>');
+      assert.doesNotMatch(html, /<p><div>/);
+      assert.match(html, /^<div class="admonition admonition-warning papers-callout/);
+      assert.match(html, /admonition-content">Legacy<\/div>/);
+      const inline = await compileMdxToHtml('Text with <Callout>x</Callout> inside.');
+      assert.match(inline, /^<p>Text with/);
+    },
+  },
 ];
