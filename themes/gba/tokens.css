@@ -21,8 +21,8 @@ body {
   --border-color: #8bac0f;
   --border-soft: #306230;
   --border-unified: #8bac0f;
-  --text-color: #9bbc0f;
-  --text-secondary: #8bac0f;
+  --papers-text-color: #9bbc0f;
+  --papers-text-secondary: #8bac0f;
   --muted-color: #8bac0f;
   --mono-font: 'Geist Pixel Square', monospace;
   --brand-font: 'Geist Pixel Square', monospace;
@@ -86,12 +86,12 @@ body {
   --highlight-bg: #9bbc0f;
   --highlight-text: #0f380f;
   --highlight-border: #8bac0f;
-  --radius-sm: 0px;
-  --radius-md: 0px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
-  --shadow-sm: none;
-  --shadow-md: none;
-  --shadow-lg: none;
-  --shadow-focus: 0 0 0 2px rgba(155, 188, 15, 0.45);
+  --papers-radius-sm: 0px;
+  --papers-radius-md: 0px;
+  --papers-radius-lg: 0px;
+  --papers-radius-xl: 0px;
+  --papers-shadow-sm: none;
+  --papers-shadow-md: none;
+  --papers-shadow-lg: none;
+  --papers-shadow-focus: 0 0 0 2px rgba(155, 188, 15, 0.45);
 }

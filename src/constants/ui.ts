@@ -72,7 +72,7 @@ export const KEYBOARD_KEYS = {
 } as const;
 
 export const UI_CLASSES = {
-  focusRing: 'focus:outline-none',
+  focusRing: 'focus:outline-hidden',
   transition: 'transition-all duration-200 ease-in-out',
   disabled: 'opacity-50 cursor-not-allowed pointer-events-none',
   link: 'text-primary hover:underline',

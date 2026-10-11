@@ -11,8 +11,8 @@
     "manifest": "/docs-collection.json",
     "references": "/docs-references.json"
   },
-  "generated": "2026-10-11T02:03:59.433Z",
-  "count": 28,
+  "generated": "2026-10-11T03:01:11.353Z",
+  "count": 30,
   "schema": {
     "title": {
       "type": "string"
@@ -180,6 +180,18 @@
           "name": "Math And Diagrams.md",
           "path": "developer-guides/math-and-diagrams",
           "tags": ["math", "katex", "mermaid", "diagrams"]
+        },
+        {
+          "type": "file",
+          "name": "Math In MDX.md",
+          "path": "developer-guides/math-in-mdx",
+          "tags": ["math", "katex", "mdx"]
+        },
+        {
+          "type": "file",
+          "name": "Tailwind Integration.md",
+          "path": "developer-guides/tailwind-integration",
+          "tags": ["tailwind", "css", "layers", "theming"]
         },
         {
           "type": "file",
@@ -537,6 +549,43 @@
         "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/math-and-diagrams.md"
+    },
+    {
+      "path": "developer-guides/math-in-mdx",
+      "title": "Math In MDX",
+      "description": "KaTeX math in .mdx pages, alongside MDX shortcodes.",
+      "frontmatter": {
+        "title": "Math In MDX",
+        "description": "KaTeX math in .mdx pages, alongside MDX shortcodes."
+      },
+      "metadata": {
+        "title": "Math In MDX",
+        "description": "KaTeX math in .mdx pages, alongside MDX shortcodes.",
+        "canonicalPath": "/docs/developer-guides/math-in-mdx",
+        "contentFormat": "html",
+        "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx"
+    },
+    {
+      "path": "developer-guides/tailwind-integration",
+      "title": "Tailwind Integration",
+      "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Tailwind Integration",
+        "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...",
+        "canonicalPath": "/docs/developer-guides/tailwind-integration",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/tailwind-integration.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/tailwind-integration.md"
     },
     {
       "path": "developer-guides/themes",

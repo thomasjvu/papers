@@ -39,7 +39,7 @@ async function loadMarkdownContent(
   if (!fileInfo) {
     throw new Error(
       `Document "${documentKey}" source not found for "${docPath}" ` +
-      `(expected ${options.contentDir || 'src/docs/content'}/${docPath}.md or .mdx).`
+        `(expected ${options.contentDir || 'src/docs/content'}/${docPath}.md or .mdx).`
     );
   }
 
@@ -54,9 +54,7 @@ async function loadMarkdownContent(
   }
 
   if (!content.trim()) {
-    throw new Error(
-      `Source "${fileInfo.sourcePath}" for document "${documentKey}" is empty.`
-    );
+    throw new Error(`Source "${fileInfo.sourcePath}" for document "${documentKey}" is empty.`);
   }
 
   return content;
@@ -123,10 +121,11 @@ export async function buildVariantDocuments(docPaths, options = {}) {
             collection: options.collection,
             routePrefix: options.collection?.routePrefix,
             schemaVersion: options.collection?.schemaVersion,
-          })
-        , {
-          components: options.mdxComponents,
-        });
+          }),
+          {
+            components: options.mdxComponents,
+          }
+        );
       } catch (error) {
         const lineSuffix = error.lineNumber ? `:${error.lineNumber}` : '';
         throw new Error(

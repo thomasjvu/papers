@@ -917,6 +917,62 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'compileMdxToHtml emits KaTeX placeholders for MDX math and keeps prices as text',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        [
+          'Inline $\\frac{a}{b}$ costs $5 or $10.',
+          '',
+          '$$',
+          '\\int_0^1 x\\,dx',
+          '$$',
+          '',
+          '```math',
+          'a < b',
+          '```',
+        ].join('\n')
+      );
+      assert.match(
+        html,
+        new RegExp(
+          `<span class="math-inline" data-math-tex="${encodeURIComponent('\\frac{a}{b}')}" data-math-display="false">`
+        )
+      );
+      assert.match(html, /costs \$5 or \$10\./);
+      assert.match(
+        html,
+        new RegExp(
+          `data-math-tex="${encodeURIComponent('\\int_0^1 x\\,dx')}" data-math-display="true"`
+        )
+      );
+      assert.match(html, /data-math-tex="a%20%3C%20b"/);
+    },
+  },
+  {
+    name: 'Papers CSS tokens stay out of Tailwind 4 theme namespaces',
+    run: async () => {
+      const files = [
+        'src/globals.css',
+        ...['default', 'gba', 'lorelei', 'rx-78'].map((id) => `themes/${id}/tokens.css`),
+      ];
+      const clashing =
+        /(?<![\w-])--(?:text|leading|radius|shadow|color|spacing|font|breakpoint|container)-[\w-]+\s*:/g;
+      for (const file of files) {
+        const css = await readFile(join(process.cwd(), file), 'utf8');
+        const outsideTheme = css.replace(/@theme\s*\{[\s\S]*?\n\}/g, '');
+        assert.deepEqual(
+          outsideTheme.match(clashing) ?? [],
+          [],
+          `${file} defines Tailwind-namespaced tokens`
+        );
+      }
+      const globals = await readFile(join(process.cwd(), 'src/globals.css'), 'utf8');
+      assert.match(globals, /@layer theme, base, components, papers-base, utilities, papers;/);
+      assert.doesNotMatch(globals, /@tailwind /);
+      assert.doesNotMatch(globals, /@media[^{]*\d+px/);
+    },
+  },
+  {
     name: 'chartHasMath detects KaTeX labels in Mermaid charts',
     run: async () => {
       const { chartHasMath } = await import('../src/utils/sanitizeMermaidSvg.ts');

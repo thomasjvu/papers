@@ -88,7 +88,7 @@ const ContentRenderer = memo(function ContentRenderer({
                     border: '1px solid var(--border-unified)',
                   }}
                 >
-                  <span className="text-xl font-bold" style={{ color: 'var(--text-color)' }}>
+                  <span className="text-xl font-bold" style={{ color: 'var(--papers-text-color)' }}>
                     Documentation
                   </span>
                 </div>
@@ -157,7 +157,10 @@ const ContentRenderer = memo(function ContentRenderer({
                     <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
                       Previous
                     </div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
+                    <div
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--papers-text-color)' }}
+                    >
                       {prevPage.title}
                     </div>
                   </button>
@@ -176,7 +179,10 @@ const ContentRenderer = memo(function ContentRenderer({
                     <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
                       Next
                     </div>
-                    <div className="text-sm font-medium" style={{ color: 'var(--text-color)' }}>
+                    <div
+                      className="text-sm font-medium"
+                      style={{ color: 'var(--papers-text-color)' }}
+                    >
                       {nextPage.title}
                     </div>
                   </button>

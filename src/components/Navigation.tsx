@@ -202,7 +202,7 @@ export default function Navigation({
         to={item.href}
         className={`transition-colors nav-link ${isMobile ? 'py-2 px-4' : ''} relative`}
         style={{
-          color: 'var(--text-color)',
+          color: 'var(--papers-text-color)',
           fontFamily: 'var(--mono-font)',
           ...(isMobile ? {} : { letterSpacing: '-0.02em' }),
         }}
@@ -260,7 +260,7 @@ export default function Navigation({
         <Link
           to="/"
           className="logo-link flex items-center gap-3"
-          style={{ color: 'var(--text-color)' }}
+          style={{ color: 'var(--papers-text-color)' }}
           tabIndex={0}
         >
           <DocsLogoMark />
@@ -303,7 +303,7 @@ export default function Navigation({
           >
             <Icon icon="mingcute:search-ai-line" className="w-4 h-4" />
             <kbd
-              className="hidden lg:inline-block px-1.5 py-0.5 text-xs border rounded"
+              className="hidden lg:inline-block px-1.5 py-0.5 text-xs border rounded-sm"
               style={{ borderColor: 'var(--border-color)' }}
             >
               {shortcutLabel}
@@ -317,7 +317,7 @@ export default function Navigation({
           <div className="flex md:hidden items-center">
             <button
               onClick={handleMobileMenuToggle}
-              style={{ color: 'var(--text-color)' }}
+              style={{ color: 'var(--papers-text-color)' }}
               aria-label="Toggle mobile menu"
               aria-expanded={mobileMenuOpen}
               tabIndex={0}
@@ -362,7 +362,7 @@ export default function Navigation({
                 className="mt-2 flex w-full items-center justify-between rounded-lg border px-4 py-3 text-sm"
                 style={{
                   borderColor: 'var(--border-color)',
-                  color: 'var(--text-color)',
+                  color: 'var(--papers-text-color)',
                   fontFamily: 'var(--mono-font)',
                 }}
               >
@@ -371,7 +371,7 @@ export default function Navigation({
                   Preferences
                 </span>
                 <kbd
-                  className="rounded border px-1.5 py-0.5 text-2xs"
+                  className="rounded-sm border px-1.5 py-0.5 text-2xs"
                   style={{ borderColor: 'var(--border-color)' }}
                 >
                   {shortcutLabel}
@@ -391,7 +391,7 @@ export default function Navigation({
                     }}
                     className="flex items-center gap-2 py-2 w-full hover:text-primary-color transition-colors text-sm"
                     style={{
-                      color: 'var(--text-color)',
+                      color: 'var(--papers-text-color)',
                       fontFamily: 'var(--mono-font)',
                     }}
                   >
@@ -402,7 +402,7 @@ export default function Navigation({
                     onClick={handleSidebarToggle}
                     className="flex items-center gap-2 py-2 w-full hover:text-primary-color transition-colors text-sm"
                     style={{
-                      color: 'var(--text-color)',
+                      color: 'var(--papers-text-color)',
                       fontFamily: 'var(--mono-font)',
                     }}
                   >

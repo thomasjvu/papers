@@ -8,8 +8,8 @@
   --border-color: #111111;
   --border-soft: #ececec;
   --border-unified: #d4d4d8;
-  --text-color: #111111;
-  --text-secondary: #27272a;
+  --papers-text-color: #111111;
+  --papers-text-secondary: #27272a;
   --muted-color: #71717a;
   --mono-font:
     'SF Mono', 'SFMono-Regular', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
@@ -79,10 +79,10 @@
   --highlight-bg: #fef08a;
   --highlight-text: #111111;
   --highlight-border: #facc15;
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  --papers-radius-sm: 4px;
+  --papers-radius-md: 6px;
+  --papers-radius-lg: 8px;
+  --papers-radius-xl: 12px;
 }
 
 .dark {
@@ -95,8 +95,8 @@
   --border-color: #52525b;
   --border-soft: #1a1a1a;
   --border-unified: #27272a;
-  --text-color: #fafafa;
-  --text-secondary: #e4e4e7;
+  --papers-text-color: #fafafa;
+  --papers-text-secondary: #e4e4e7;
   --muted-color: #a1a1aa;
   --icon-color: #fafafa;
   --primary-color-rgb: 245, 245, 245;

@@ -67,7 +67,7 @@ async function renderMermaidChart(
     themeVariables: {
       background: readThemeColor('--background-color', '#0f380f'),
       primaryColor: readThemeColor('--card-color', '#1a4d1a'),
-      primaryTextColor: readThemeColor('--text-color', '#9bbc0f'),
+      primaryTextColor: readThemeColor('--papers-text-color', '#9bbc0f'),
       primaryBorderColor: readThemeColor('--border-unified', '#8bac0f'),
       lineColor: readThemeColor('--muted-color', '#8bac0f'),
       secondaryColor: readThemeColor('--surface-muted', '#306230'),

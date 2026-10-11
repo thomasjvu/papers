@@ -302,8 +302,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
       return (
         <div className={`${styles.codeBlockContainer} ${className}`}>
           <div className="animate-pulse">
-            <div className="ui-skeleton-strong mb-2 h-4 rounded"></div>
-            <div className="ui-skeleton h-32 rounded"></div>
+            <div className="ui-skeleton-strong mb-2 h-4 rounded-sm"></div>
+            <div className="ui-skeleton h-32 rounded-sm"></div>
           </div>
         </div>
       );

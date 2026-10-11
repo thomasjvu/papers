@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T02:03:59.433Z",
+  "generated": "2026-10-11T03:01:11.353Z",
   "collection": "docs",
   "nodes": [
     {
@@ -92,6 +92,18 @@
       "href": "/docs/developer-guides/math-and-diagrams",
       "title": "Math And Diagrams",
       "description": "Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math."
+    },
+    {
+      "path": "developer-guides/math-in-mdx",
+      "href": "/docs/developer-guides/math-in-mdx",
+      "title": "Math In MDX",
+      "description": "KaTeX math in .mdx pages, alongside MDX shortcodes."
+    },
+    {
+      "path": "developer-guides/tailwind-integration",
+      "href": "/docs/developer-guides/tailwind-integration",
+      "title": "Tailwind Integration",
+      "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers..."
     },
     {
       "path": "developer-guides/themes",
@@ -405,6 +417,8 @@
     ],
     "developer-guides/icon-customization": [],
     "developer-guides/math-and-diagrams": [],
+    "developer-guides/math-in-mdx": [],
+    "developer-guides/tailwind-integration": [],
     "developer-guides/themes": [
       {
         "source": "developer-guides/ui-configuration",

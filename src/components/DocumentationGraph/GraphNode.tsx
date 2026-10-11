@@ -59,8 +59,8 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
     const nodeColor = getNodeColor(node);
     const nodeRadius = getNodeRadius(node);
     const activeNodeId = focusedNodeId || currentPath;
-    const labelFontSize = isSidebarView ? '0.75rem' : 'var(--text-2xs)';
-    const switchLabelFontSize = isSidebarView ? 'var(--text-2xs)' : 'var(--text-xs)';
+    const labelFontSize = isSidebarView ? '0.75rem' : 'var(--papers-text-2xs)';
+    const switchLabelFontSize = isSidebarView ? 'var(--papers-text-2xs)' : 'var(--papers-text-xs)';
 
     return (
       <MotionG

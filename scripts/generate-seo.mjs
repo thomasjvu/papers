@@ -24,7 +24,9 @@ async function generateSeoArtifacts() {
     process.exit(1);
   }
 
-  const openapiArtifacts = JSON.parse(await readFile(join(publicDir, 'openapi-artifacts.json'), 'utf8'));
+  const openapiArtifacts = JSON.parse(
+    await readFile(join(publicDir, 'openapi-artifacts.json'), 'utf8')
+  );
 
   const mode = resolveEnvMode('production');
   const viteEnv = loadViteEnv(rootDir, mode);
@@ -56,7 +58,10 @@ async function generateSeoArtifacts() {
 
   await writeFile(join(publicDir, 'robots.txt'), `${createRobotsTxt(siteUrl)}\n`);
   await writeFile(join(publicDir, 'sitemap.xml'), `${createSitemapXml(routeEntries, siteUrl)}\n`);
-  await writeFile(join(publicDir, socialImages.ogImagePath.replace(/^\//, '')), `${socialImages.ogImageContent}\n`);
+  await writeFile(
+    join(publicDir, socialImages.ogImagePath.replace(/^\//, '')),
+    `${socialImages.ogImageContent}\n`
+  );
   await writeFile(
     join(publicDir, socialImages.twitterImagePath.replace(/^\//, '')),
     `${socialImages.twitterImageContent}\n`

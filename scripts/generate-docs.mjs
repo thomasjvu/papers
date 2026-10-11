@@ -3,11 +3,21 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { contentCollections, getCollectionArtifactPaths, getCollectionFrontmatterSchema, getCollectionSchemaAdapter, getCollectionVariants, validateContentCollections } from '../shared/content-collections.js';
+import {
+  contentCollections,
+  getCollectionArtifactPaths,
+  getCollectionFrontmatterSchema,
+  getCollectionSchemaAdapter,
+  getCollectionVariants,
+  validateContentCollections,
+} from '../shared/content-collections.js';
 import { frameworkDocPaths, openapiConfig } from '../shared/documentation-config.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
-import { createContentCollectionManifest, createContentCollectionsManifest } from './lib/contentCollectionManifest.mjs';
+import {
+  createContentCollectionManifest,
+  createContentCollectionsManifest,
+} from './lib/contentCollectionManifest.mjs';
 import { createDocumentReferenceGraph } from './lib/referenceGraph.mjs';
 import { serializePrettierJson } from './lib/formatArtifact.mjs';
 import {
@@ -61,7 +71,12 @@ function getCollectionOpenApiConfig(collection) {
       };
 }
 
-export function createCollectionGenerationOptions({ collection, rootDir, publicDir, routeCollections }) {
+export function createCollectionGenerationOptions({
+  collection,
+  rootDir,
+  publicDir,
+  routeCollections,
+}) {
   const variants = getCollectionVariants(collection);
   const frameworkPaths = getCollectionFrameworkDocPaths(collection);
 
@@ -139,7 +154,9 @@ export async function generateDocsContent({
     }
   }
 
-  console.log(`Generating documentation content for ${validatedCollections.length} collection(s)...`);
+  console.log(
+    `Generating documentation content for ${validatedCollections.length} collection(s)...`
+  );
 
   for (const collection of validatedCollections) {
     const artifactPaths = getCollectionArtifactPaths(collection);

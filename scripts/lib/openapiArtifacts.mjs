@@ -77,14 +77,24 @@ function resolveReference(value, context, pointer) {
   };
 }
 
-function collectReferences(value, context, pointer = '/', references = new Set(), seen = new Set()) {
+function collectReferences(
+  value,
+  context,
+  pointer = '/',
+  references = new Set(),
+  seen = new Set()
+) {
   if (value === null || value === undefined || typeof value !== 'object') {
     return references;
   }
 
   if (isRecord(value) && typeof value.$ref === 'string') {
     if (!value.$ref.startsWith('#/')) {
-      fail(context.specUrl, pointer, `external or unsupported $ref "${value.$ref}" is not allowed.`);
+      fail(
+        context.specUrl,
+        pointer,
+        `external or unsupported $ref "${value.$ref}" is not allowed.`
+      );
     }
     references.add(value.$ref);
     return references;
@@ -96,7 +106,9 @@ function collectReferences(value, context, pointer = '/', references = new Set()
   seen.add(value);
 
   if (Array.isArray(value)) {
-    value.forEach((item, index) => collectReferences(item, context, pointerJoin(pointer, index), references, seen));
+    value.forEach((item, index) =>
+      collectReferences(item, context, pointerJoin(pointer, index), references, seen)
+    );
   } else {
     Object.entries(value).forEach(([key, child]) =>
       collectReferences(child, context, pointerJoin(pointer, key), references, seen)
@@ -161,13 +173,19 @@ function normalizeSchema(schema, context, pointer = '/', state = { depth: 0, nod
   const nullable = normalizeNullable(schemaValue);
   const base = {
     ...(nullable ? { nullable: true } : {}),
-    ...(typeof schemaValue.description === 'string' ? { description: schemaValue.description } : {}),
+    ...(typeof schemaValue.description === 'string'
+      ? { description: schemaValue.description }
+      : {}),
     ...(Object.hasOwn(schemaValue, 'default') ? { default: cloneJson(schemaValue.default) } : {}),
   };
 
   for (const unsupportedKey of ['not', 'if', 'then', 'else', 'dependentSchemas']) {
     if (Object.hasOwn(schemaValue, unsupportedKey)) {
-      fail(context.specUrl, pointerJoin(pointer, unsupportedKey), `schema keyword "${unsupportedKey}" is unsupported.`);
+      fail(
+        context.specUrl,
+        pointerJoin(pointer, unsupportedKey),
+        `schema keyword "${unsupportedKey}" is unsupported.`
+      );
     }
   }
 
@@ -212,7 +230,11 @@ function normalizeSchema(schema, context, pointer = '/', state = { depth: 0, nod
     };
   }
 
-  if (schemaValue.type === 'object' || isRecord(schemaValue.properties) || Object.hasOwn(schemaValue, 'additionalProperties')) {
+  if (
+    schemaValue.type === 'object' ||
+    isRecord(schemaValue.properties) ||
+    Object.hasOwn(schemaValue, 'additionalProperties')
+  ) {
     const required = new Set(Array.isArray(schemaValue.required) ? schemaValue.required : []);
     const properties = Object.entries(schemaValue.properties || {})
       .sort(([left], [right]) => left.localeCompare(right))
@@ -220,10 +242,15 @@ function normalizeSchema(schema, context, pointer = '/', state = { depth: 0, nod
         name,
         required: required.has(name),
         ...(typeof property?.description === 'string' ? { description: property.description } : {}),
-        schema: normalizeSchema(property, context, pointerJoin(pointerJoin(pointer, 'properties'), name), {
-          depth: state.depth + 1,
-          nodes: state.nodes,
-        }),
+        schema: normalizeSchema(
+          property,
+          context,
+          pointerJoin(pointerJoin(pointer, 'properties'), name),
+          {
+            depth: state.depth + 1,
+            nodes: state.nodes,
+          }
+        ),
       }));
     const additionalProperties = schemaValue.additionalProperties;
 
@@ -231,10 +258,17 @@ function normalizeSchema(schema, context, pointer = '/', state = { depth: 0, nod
       kind: 'object',
       properties,
       ...(isRecord(additionalProperties)
-        ? { additionalProperties: normalizeSchema(additionalProperties, context, pointerJoin(pointer, 'additionalProperties'), {
-            depth: state.depth + 1,
-            nodes: state.nodes,
-          }) }
+        ? {
+            additionalProperties: normalizeSchema(
+              additionalProperties,
+              context,
+              pointerJoin(pointer, 'additionalProperties'),
+              {
+                depth: state.depth + 1,
+                nodes: state.nodes,
+              }
+            ),
+          }
         : typeof additionalProperties === 'boolean'
           ? { additionalProperties }
           : {}),
@@ -296,7 +330,9 @@ function normalizeExamples(mediaType, context, pointer) {
       name,
       ...(typeof example.summary === 'string' ? { summary: example.summary } : {}),
       ...(Object.hasOwn(example, 'value') ? { value: cloneJson(example.value) } : {}),
-      ...(typeof example.externalValue === 'string' ? { externalValue: example.externalValue } : {}),
+      ...(typeof example.externalValue === 'string'
+        ? { externalValue: example.externalValue }
+        : {}),
     });
   }
 
@@ -315,10 +351,18 @@ function normalizeContent(content, context, pointer) {
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([mediaType, media]) => {
       if (!isRecord(media)) {
-        fail(context.specUrl, pointerJoin(pointer, mediaType), 'media type definition must be an object.');
+        fail(
+          context.specUrl,
+          pointerJoin(pointer, mediaType),
+          'media type definition must be an object.'
+        );
       }
 
-      const schemaNode = normalizeSchema(media.schema, context, pointerJoin(pointerJoin(pointer, mediaType), 'schema'));
+      const schemaNode = normalizeSchema(
+        media.schema,
+        context,
+        pointerJoin(pointerJoin(pointer, mediaType), 'schema')
+      );
       return {
         mediaType,
         schema: schemaType(schemaNode),
@@ -336,10 +380,18 @@ function normalizeParameter(parameter, context, pointer) {
 
   const value = resolved.value;
   if (typeof value.name !== 'string' || !value.name.trim()) {
-    fail(context.specUrl, pointerJoin(pointer, 'name'), 'parameter name must be a non-empty string.');
+    fail(
+      context.specUrl,
+      pointerJoin(pointer, 'name'),
+      'parameter name must be a non-empty string.'
+    );
   }
   if (typeof value.in !== 'string' || !value.in.trim()) {
-    fail(context.specUrl, pointerJoin(pointer, 'in'), 'parameter location must be a non-empty string.');
+    fail(
+      context.specUrl,
+      pointerJoin(pointer, 'in'),
+      'parameter location must be a non-empty string.'
+    );
   }
 
   const schemaNode = normalizeSchema(value.schema, context, pointerJoin(pointer, 'schema'));
@@ -365,7 +417,9 @@ function normalizeRequestBody(requestBody, context, pointer) {
 
   return {
     required: Boolean(resolved.value.required),
-    ...(typeof resolved.value.description === 'string' ? { description: resolved.value.description } : {}),
+    ...(typeof resolved.value.description === 'string'
+      ? { description: resolved.value.description }
+      : {}),
     content: normalizeContent(resolved.value.content, context, pointerJoin(pointer, 'content')),
     ...(resolved.reference ? { ref: resolved.reference } : {}),
   };
@@ -420,21 +474,38 @@ function normalizeServers(servers, context, pointer) {
   });
 }
 
-function normalizeOperation(path, method, operationDefinition, pathItem, context, pointer, specServers, specSecurity) {
+function normalizeOperation(
+  path,
+  method,
+  operationDefinition,
+  pathItem,
+  context,
+  pointer,
+  specServers,
+  specSecurity
+) {
   const resolvedOperation = resolveReference(operationDefinition, context, pointer);
   if (!isRecord(resolvedOperation.value)) {
     fail(context.specUrl, pointer, 'operation must be an object or an internal $ref.');
   }
   const value = resolvedOperation.value;
   if (!isRecord(value.responses)) {
-    fail(context.specUrl, pointerJoin(pointer, 'responses'), 'operation must contain a responses object.');
+    fail(
+      context.specUrl,
+      pointerJoin(pointer, 'responses'),
+      'operation must contain a responses object.'
+    );
   }
 
   const pathParameters = Array.isArray(pathItem.parameters) ? pathItem.parameters : [];
   const operationParameters = Array.isArray(value.parameters) ? value.parameters : [];
   const parameterMap = new Map();
   for (const [index, parameter] of [...pathParameters, ...operationParameters].entries()) {
-    const normalized = normalizeParameter(parameter, context, pointerJoin(pointer, `parameters/${index}`));
+    const normalized = normalizeParameter(
+      parameter,
+      context,
+      pointerJoin(pointer, `parameters/${index}`)
+    );
     parameterMap.set(`${normalized.in}:${normalized.name}`, normalized);
   }
 
@@ -442,11 +513,20 @@ function normalizeOperation(path, method, operationDefinition, pathItem, context
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([status, response]) => ({
       status,
-      ...normalizeResponse(response, context, pointerJoin(pointerJoin(pointer, 'responses'), status)),
+      ...normalizeResponse(
+        response,
+        context,
+        pointerJoin(pointerJoin(pointer, 'responses'), status)
+      ),
     }));
 
-  const operationId = typeof value.operationId === 'string' && value.operationId.trim() ? value.operationId.trim() : null;
-  const tags = Array.isArray(value.tags) ? value.tags.filter((tag) => typeof tag === 'string' && tag.trim()) : [];
+  const operationId =
+    typeof value.operationId === 'string' && value.operationId.trim()
+      ? value.operationId.trim()
+      : null;
+  const tags = Array.isArray(value.tags)
+    ? value.tags.filter((tag) => typeof tag === 'string' && tag.trim())
+    : [];
   const source = {
     path,
     method: method.toUpperCase(),
@@ -464,9 +544,17 @@ function normalizeOperation(path, method, operationDefinition, pathItem, context
     parameters: Array.from(parameterMap.values()).sort(
       (left, right) => left.in.localeCompare(right.in) || left.name.localeCompare(right.name)
     ),
-    requestBody: normalizeRequestBody(value.requestBody, context, pointerJoin(pointer, 'requestBody')),
+    requestBody: normalizeRequestBody(
+      value.requestBody,
+      context,
+      pointerJoin(pointer, 'requestBody')
+    ),
     responses,
-    servers: normalizeServers(value.servers ?? specServers, context, pointerJoin(pointer, 'servers')),
+    servers: normalizeServers(
+      value.servers ?? specServers,
+      context,
+      pointerJoin(pointer, 'servers')
+    ),
     security: cloneJson(value.security ?? specSecurity ?? []),
     source,
     componentRefs: Array.from(collectReferences(value, context, pointer)).sort(),
@@ -482,7 +570,9 @@ function normalizeOperations(paths, context, specServers, specSecurity) {
   }
 
   const operations = [];
-  for (const [path, pathItem] of Object.entries(paths).sort(([left], [right]) => left.localeCompare(right))) {
+  for (const [path, pathItem] of Object.entries(paths).sort(([left], [right]) =>
+    left.localeCompare(right)
+  )) {
     const pathPointer = pointerJoin('/paths', path);
     if (!path.startsWith('/')) {
       fail(context.specUrl, pathPointer, 'path keys must start with /.');
@@ -521,7 +611,8 @@ function normalizeOperations(paths, context, specServers, specSecurity) {
 
 function normalizeSchemas(schemas, context) {
   if (schemas === undefined || schemas === null) return [];
-  if (!isRecord(schemas)) fail(context.specUrl, '/components/schemas', 'schemas must be an object.');
+  if (!isRecord(schemas))
+    fail(context.specUrl, '/components/schemas', 'schemas must be an object.');
 
   return Object.entries(schemas)
     .sort(([left], [right]) => left.localeCompare(right))
@@ -533,7 +624,10 @@ function normalizeSchemas(schemas, context) {
         name,
         type: schemaType(schemaNode),
         ...(typeof schema?.description === 'string' ? { description: schema.description } : {}),
-        required: properties.filter((property) => property.required).map((property) => property.name).sort(),
+        required: properties
+          .filter((property) => property.required)
+          .map((property) => property.name)
+          .sort(),
         properties: properties.map((property) => ({
           name: property.name,
           type: schemaType(property.schema),
@@ -579,18 +673,31 @@ function schemaToTypeScript(node) {
       const optional = property.required ? '' : '?';
       return `${tsPropertyName(property.name)}${optional}: ${schemaToTypeScript(property.schema)};`;
     });
-    const additional = node.additionalProperties && typeof node.additionalProperties === 'object'
-      ? `[key: string]: ${schemaToTypeScript(node.additionalProperties)};`
-      : node.additionalProperties === true
-        ? '[key: string]: unknown;'
-        : '';
+    const additional =
+      node.additionalProperties && typeof node.additionalProperties === 'object'
+        ? `[key: string]: ${schemaToTypeScript(node.additionalProperties)};`
+        : node.additionalProperties === true
+          ? '[key: string]: unknown;'
+          : '';
     return nullableType(`{ ${[...members, additional].filter(Boolean).join(' ')} }`, node);
   }
   if (Array.isArray(node.enum)) {
-    return nullableType(node.enum.map((value) => JSON.stringify(value)).join(' | ') || 'unknown', node);
+    return nullableType(
+      node.enum.map((value) => JSON.stringify(value)).join(' | ') || 'unknown',
+      node
+    );
   }
 
-  const primitive = node.type === 'integer' || node.type === 'number' ? 'number' : node.type === 'boolean' ? 'boolean' : node.type === 'string' ? 'string' : node.type === 'null' ? 'null' : 'unknown';
+  const primitive =
+    node.type === 'integer' || node.type === 'number'
+      ? 'number'
+      : node.type === 'boolean'
+        ? 'boolean'
+        : node.type === 'string'
+          ? 'string'
+          : node.type === 'null'
+            ? 'null'
+            : 'unknown';
   return nullableType(primitive, node);
 }
 
@@ -599,10 +706,16 @@ function renderTypeScriptDefinition(model) {
   if (model.schemaNode?.kind === 'object') {
     const lines = [`export interface ${name} {`];
     for (const property of model.schemaNode.properties || []) {
-      if (property.description) lines.push(`  /** ${property.description.replace(/\*\//g, '* /')} */`);
-      lines.push(`  ${tsPropertyName(property.name)}${property.required ? '' : '?'}: ${schemaToTypeScript(property.schema)};`);
+      if (property.description)
+        lines.push(`  /** ${property.description.replace(/\*\//g, '* /')} */`);
+      lines.push(
+        `  ${tsPropertyName(property.name)}${property.required ? '' : '?'}: ${schemaToTypeScript(property.schema)};`
+      );
     }
-    if (model.schemaNode.additionalProperties && typeof model.schemaNode.additionalProperties === 'object') {
+    if (
+      model.schemaNode.additionalProperties &&
+      typeof model.schemaNode.additionalProperties === 'object'
+    ) {
       lines.push(`  [key: string]: ${schemaToTypeScript(model.schemaNode.additionalProperties)};`);
     } else if (model.schemaNode.additionalProperties === true) {
       lines.push('  [key: string]: unknown;');
@@ -617,11 +730,14 @@ function renderTypeScriptDefinition(model) {
 function explicitExample(parameter) {
   if (Object.hasOwn(parameter, 'example')) return parameter.example;
   if (isRecord(parameter.examples)) {
-    const example = Object.values(parameter.examples).find((entry) => isRecord(entry) && Object.hasOwn(entry, 'value'));
+    const example = Object.values(parameter.examples).find(
+      (entry) => isRecord(entry) && Object.hasOwn(entry, 'value')
+    );
     if (example) return example.value;
   }
   if (Object.hasOwn(parameter.schemaNode || {}, 'default')) return parameter.schemaNode.default;
-  if (Array.isArray(parameter.schemaNode?.enum) && parameter.schemaNode.enum.length > 0) return parameter.schemaNode.enum[0];
+  if (Array.isArray(parameter.schemaNode?.enum) && parameter.schemaNode.enum.length > 0)
+    return parameter.schemaNode.enum[0];
   return undefined;
 }
 
@@ -642,7 +758,9 @@ function replacePathParameters(path, parameters, notes) {
     const parameter = parameters.find((item) => item.in === 'path' && item.name === name);
     const value = parameter ? explicitExample(parameter) : undefined;
     if (value === undefined) {
-      notes.push(`Path parameter ${name} has no declared example; replace the placeholder before sending.`);
+      notes.push(
+        `Path parameter ${name} has no declared example; replace the placeholder before sending.`
+      );
       return `{${name}}`;
     }
     return encodeURIComponent(String(value));
@@ -659,14 +777,18 @@ function createCodeSamples(operation) {
   for (const parameter of operation.parameters) {
     const value = explicitExample(parameter);
     if (parameter.in === 'query') {
-      if (value !== undefined) query.push(`${encodeURIComponent(parameter.name)}=${encodeURIComponent(String(value))}`);
+      if (value !== undefined)
+        query.push(`${encodeURIComponent(parameter.name)}=${encodeURIComponent(String(value))}`);
       else if (parameter.required) {
-        query.push(`${encodeURIComponent(parameter.name)}=%3C${encodeURIComponent(parameter.name)}%3E`);
+        query.push(
+          `${encodeURIComponent(parameter.name)}=%3C${encodeURIComponent(parameter.name)}%3E`
+        );
         notes.push(`Query parameter ${parameter.name} is required but has no declared example.`);
       }
     } else if (parameter.in === 'header') {
       headers[parameter.name] = value === undefined ? `<${parameter.name}>` : String(value);
-      if (value === undefined) notes.push(`Header parameter ${parameter.name} has no declared example.`);
+      if (value === undefined)
+        notes.push(`Header parameter ${parameter.name} has no declared example.`);
     }
   }
 
@@ -675,24 +797,35 @@ function createCodeSamples(operation) {
   const contentType = body?.mediaType || operation.requestBody?.content?.[0]?.mediaType;
   if (contentType) headers['content-type'] = contentType;
   if (operation.security?.length) {
-    notes.push('Authentication is required by the contract and is intentionally omitted from generated examples.');
+    notes.push(
+      'Authentication is required by the contract and is intentionally omitted from generated examples.'
+    );
   }
   if (operation.requestBody?.required && !body) {
-    notes.push('The request body is required but has no declared example; add a valid body before sending.');
+    notes.push(
+      'The request body is required but has no declared example; add a valid body before sending.'
+    );
   }
 
   const curl = [`curl --request ${operation.method}`, `  --url ${shellQuote(url)}`];
-  for (const [name, value] of Object.entries(headers)) curl.push(`  --header ${shellQuote(`${name}: ${value}`)}`);
+  for (const [name, value] of Object.entries(headers))
+    curl.push(`  --header ${shellQuote(`${name}: ${value}`)}`);
   if (body) curl.push(`  --data ${shellQuote(JSON.stringify(body.value))}`);
 
   const fetchOptions = [`  method: ${JSON.stringify(operation.method)}`];
-  if (Object.keys(headers).length) fetchOptions.push(`  headers: ${JSON.stringify(headers, null, 2).replace(/\n/g, '\n  ')}`);
-  if (body) fetchOptions.push(`  body: JSON.stringify(${JSON.stringify(body.value, null, 2).replace(/\n/g, '\n  ')})`);
+  if (Object.keys(headers).length)
+    fetchOptions.push(`  headers: ${JSON.stringify(headers, null, 2).replace(/\n/g, '\n  ')}`);
+  if (body)
+    fetchOptions.push(
+      `  body: JSON.stringify(${JSON.stringify(body.value, null, 2).replace(/\n/g, '\n  ')})`
+    );
   const javascript = `const response = await fetch(${JSON.stringify(url)}, {\n${fetchOptions.join(',\n')}\n});`;
 
   const pythonArgs = [`    method=${JSON.stringify(operation.method)}`];
-  if (Object.keys(headers).length) pythonArgs.push(`    headers=${JSON.stringify(headers, null, 2).replace(/\n/g, '\n    ')}`);
-  if (body) pythonArgs.push(`    json=${JSON.stringify(body.value, null, 2).replace(/\n/g, '\n    ')}`);
+  if (Object.keys(headers).length)
+    pythonArgs.push(`    headers=${JSON.stringify(headers, null, 2).replace(/\n/g, '\n    ')}`);
+  if (body)
+    pythonArgs.push(`    json=${JSON.stringify(body.value, null, 2).replace(/\n/g, '\n    ')}`);
   const python = `import requests\n\nresponse = requests.request(\n    ${JSON.stringify(url)},\n${pythonArgs.join(',\n')}\n)`;
 
   return {
@@ -745,8 +878,10 @@ function createParsedSpec(spec, document, config) {
     fail(spec.url, '/openapi', 'only OpenAPI 3.x documents are supported.');
   }
   if (!isRecord(document.info)) fail(spec.url, '/info', 'document must contain an info object.');
-  if (typeof document.info.title !== 'string' || !document.info.title.trim()) fail(spec.url, '/info/title', 'info.title must be a non-empty string.');
-  if (typeof document.info.version !== 'string' || !document.info.version.trim()) fail(spec.url, '/info/version', 'info.version must be a non-empty string.');
+  if (typeof document.info.title !== 'string' || !document.info.title.trim())
+    fail(spec.url, '/info/title', 'info.title must be a non-empty string.');
+  if (typeof document.info.version !== 'string' || !document.info.version.trim())
+    fail(spec.url, '/info/version', 'info.version must be a non-empty string.');
   if (!isRecord(document.paths)) fail(spec.url, '/paths', 'document must contain a paths object.');
 
   const servers = normalizeServers(document.servers, context, '/servers');
@@ -758,12 +893,14 @@ function createParsedSpec(spec, document, config) {
   }));
   const componentRefs = Array.from(collectReferences(document.paths, context, '/paths')).sort();
   const securitySchemes = isRecord(document.components?.securitySchemes)
-    ? Object.entries(document.components.securitySchemes).sort(([left], [right]) => left.localeCompare(right)).map(([name, value]) => ({
-        name,
-        ...(typeof value?.type === 'string' ? { type: value.type } : {}),
-        ...(typeof value?.scheme === 'string' ? { scheme: value.scheme } : {}),
-        ...(typeof value?.in === 'string' ? { in: value.in } : {}),
-      }))
+    ? Object.entries(document.components.securitySchemes)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([name, value]) => ({
+          name,
+          ...(typeof value?.type === 'string' ? { type: value.type } : {}),
+          ...(typeof value?.scheme === 'string' ? { scheme: value.scheme } : {}),
+          ...(typeof value?.in === 'string' ? { in: value.in } : {}),
+        }))
     : [];
 
   const specRecord = {
@@ -774,10 +911,12 @@ function createParsedSpec(spec, document, config) {
     security,
     securitySchemes,
     tags: Array.isArray(document.tags)
-      ? document.tags.filter((tag) => typeof tag?.name === 'string').map((tag) => ({
-          name: tag.name,
-          ...(typeof tag.description === 'string' ? { description: tag.description } : {}),
-        }))
+      ? document.tags
+          .filter((tag) => typeof tag?.name === 'string')
+          .map((tag) => ({
+            name: tag.name,
+            ...(typeof tag.description === 'string' ? { description: tag.description } : {}),
+          }))
       : [],
     operations,
     schemas,
@@ -789,12 +928,18 @@ function createParsedSpec(spec, document, config) {
     },
   };
 
-  const typescript = schemas.map((model) => model.typescript).filter(Boolean).join('\n\n');
-  return assignRoutes({
-    ...specRecord,
-    routePath: buildOpenApiRoutePath(config, spec.id === config.defaultSpecId ? null : spec.id),
-    typescript,
-  }, config);
+  const typescript = schemas
+    .map((model) => model.typescript)
+    .filter(Boolean)
+    .join('\n\n');
+  return assignRoutes(
+    {
+      ...specRecord,
+      routePath: buildOpenApiRoutePath(config, spec.id === config.defaultSpecId ? null : spec.id),
+      typescript,
+    },
+    config
+  );
 }
 
 export function createOpenApiRouteEntries(
@@ -804,7 +949,9 @@ export function createOpenApiRouteEntries(
 ) {
   const entries = [];
   for (const spec of artifacts?.specs || []) {
-    const specRoute = spec.routePath || buildOpenApiRoutePath(config, spec.id === config.defaultSpecId ? null : spec.id);
+    const specRoute =
+      spec.routePath ||
+      buildOpenApiRoutePath(config, spec.id === config.defaultSpecId ? null : spec.id);
     entries.push({
       routePath: specRoute,
       canonicalPath: specRoute,
@@ -821,7 +968,8 @@ export function createOpenApiRouteEntries(
         routePath: operation.routePath,
         canonicalPath: operation.canonicalPath || operation.routePath,
         title: `${operation.summary || `${operation.method} ${operation.path}`} | ${siteName}`,
-        description: operation.description || operation.summary || `${operation.method} ${operation.path}`,
+        description:
+          operation.description || operation.summary || `${operation.method} ${operation.path}`,
         type: 'article',
         includeInSitemap: true,
         noIndex: false,

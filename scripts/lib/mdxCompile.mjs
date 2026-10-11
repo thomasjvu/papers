@@ -1,5 +1,6 @@
 import { unified } from 'unified';
 import remarkGfm from 'remark-gfm';
+import remarkMath from 'remark-math';
 import remarkMdx from 'remark-mdx';
 import remarkParse from 'remark-parse';
 import remarkRehype from 'remark-rehype';
@@ -13,11 +14,12 @@ const sanitizeSchema = {
   attributes: {
     ...defaultSchema.attributes,
     code: [...(defaultSchema.attributes?.code || []), ['className']],
-    span: [...(defaultSchema.attributes?.span || []), ['className']],
     div: [
       ...(defaultSchema.attributes?.div || []),
-      ['className', /^papers-(callout|tabs|card|character-note)/],
+      ['className', /^(papers-(callout|tabs|card|character-note)|formula|math-display)/],
       'dataCallout',
+      'dataMathTex',
+      'dataMathDisplay',
       'role',
     ],
     img: [
@@ -32,6 +34,13 @@ const sanitizeSchema = {
     ],
     details: [...(defaultSchema.attributes?.details || []), ['className', /^papers-tabs/], 'open'],
     summary: [...(defaultSchema.attributes?.summary || []), ['className', /^papers-tabs/]],
+    // Math placeholders, typeset client-side by KaTeX (see src/utils/renderMath.ts).
+    span: [
+      ...(defaultSchema.attributes?.span || []),
+      ['className'],
+      'dataMathTex',
+      'dataMathDisplay',
+    ],
     p: [
       ...(defaultSchema.attributes?.p || []),
       ['className', /^papers-(callout|card|character-note)/],
@@ -72,6 +81,67 @@ function stripCalloutMarker(node, markerPattern) {
   }
 }
 
+/**
+ * Turns remark-math nodes ($...$, $$...$$) and ```math / ```formula fences into the
+ * same placeholders the Markdown pipeline emits, so both render through KaTeX.
+ */
+export function remarkMathPlaceholders() {
+  const toPlaceholder = (node, tex, displayMode) => {
+    const text = { type: 'text', value: tex };
+    node.type = displayMode ? 'mathPlaceholderBlock' : 'mathPlaceholderInline';
+    node.children = displayMode
+      ? [
+          {
+            type: 'paragraph',
+            children: [text],
+            data: { hName: 'div', hProperties: { className: 'formula__body' } },
+          },
+        ]
+      : [text];
+    node.data = {
+      hName: displayMode ? 'div' : 'span',
+      hProperties: {
+        className: displayMode ? 'formula math-display' : 'math-inline',
+        dataMathTex: encodeURIComponent(tex),
+        dataMathDisplay: String(displayMode),
+      },
+    };
+  };
+  // Same rule as the Markdown pipeline: no whitespace just inside the delimiters and no
+  // digit right after the closing $, so "costs $5 or $10" stays plain text.
+  const isProseDollars = (node, source) => {
+    if (/^\s|\s$/.test(node.value)) return true;
+    const end = node.position?.end?.offset;
+    return typeof end === 'number' && /\d/.test(source.charAt(end));
+  };
+  let source = '';
+  const visit = (node) => {
+    if (node.type === 'inlineMath') {
+      if (isProseDollars(node, source)) {
+        node.type = 'text';
+        node.value = `$${node.value}$`;
+        delete node.data;
+        return;
+      }
+      toPlaceholder(node, node.value, false);
+      return;
+    }
+    if (node.type === 'math') {
+      toPlaceholder(node, node.value, true);
+      return;
+    }
+    if (node.type === 'code' && (node.lang === 'math' || node.lang === 'formula')) {
+      toPlaceholder(node, node.value.trim(), true);
+      return;
+    }
+    node.children?.forEach(visit);
+  };
+  return (tree, file) => {
+    source = String(file?.value ?? '');
+    visit(tree);
+  };
+}
+
 function remarkCallouts() {
   return (tree) => {
     const children = tree.children || [];
@@ -103,7 +173,7 @@ function remarkCallouts() {
 }
 
 export function validateMdxComponentsInSource(source, options = {}) {
-  const processor = unified().use(remarkParse).use(remarkMdx);
+  const processor = unified().use(remarkParse).use(remarkMath).use(remarkMdx);
   const tree = processor.parse(source);
   validateMdxComponents(tree, options);
   return tree;
@@ -113,7 +183,9 @@ export async function compileMdxToHtml(source, options = {}) {
   const file = await unified()
     .use(remarkParse)
     .use(remarkGfm)
+    .use(remarkMath)
     .use(remarkMdx)
+    .use(remarkMathPlaceholders)
     .use(remarkCallouts)
     .use(remarkMdxShortcodes, options)
     .use(remarkRehype, { allowDangerousHtml: false })

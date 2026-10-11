@@ -30,6 +30,8 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 
 - [Code Examples](/docs/developer-guides/code-examples): This page shows the main authoring patterns supported by the current runtime.
 - [Math And Diagrams](/docs/developer-guides/math-and-diagrams): Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.
+- [Math In MDX](/docs/developer-guides/math-in-mdx): KaTeX math in .mdx pages, alongside MDX shortcodes.
+- [Tailwind Integration](/docs/developer-guides/tailwind-integration): Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...
 - [Best Practices](/docs/developer-guides/best-practices): Treat shared/documentation-config.js as the source of truth for navigation.
 - [Design System](/docs/developer-guides/design-system): The current visual system is intentionally minimal: monochrome, high-contrast, and token-driven.
 - [UI Configuration](/docs/developer-guides/ui-configuration): The docs shell is mostly configured through a few focused files.

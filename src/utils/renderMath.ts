@@ -7,7 +7,7 @@ let katexPromise: Promise<KatexModule> | null = null;
 /** Lazily loads KaTeX (and its stylesheet) only on pages that contain math. */
 export function loadKatex(): Promise<KatexModule> {
   if (!katexPromise) {
-    katexPromise = Promise.all([import('katex'), import('katex/dist/katex.min.css')]).then(
+    katexPromise = Promise.all([import('katex'), import('../styles-katex.css')]).then(
       ([module]) => module.default
     );
     katexPromise.catch(() => {
@@ -42,4 +42,40 @@ export function renderTexToHtml(katex: KatexModule, tex: string, displayMode: bo
   }
   const purifier = typeof DOMPurify.sanitize === 'function' ? DOMPurify : DOMPurify(window);
   return purifier.sanitize(html, MATH_SANITIZE_CONFIG);
+}
+
+/**
+ * Replaces `[data-math-tex]` placeholders inside static HTML (MDX output) with KaTeX
+ * output. The TeX source stays visible until KaTeX loads or if it fails.
+ */
+export async function hydrateMathPlaceholders(
+  root: ParentNode,
+  isCancelled: () => boolean = () => false
+): Promise<number> {
+  const placeholders = Array.from(
+    root.querySelectorAll<HTMLElement>('[data-math-tex]:not([data-math-rendered="true"])')
+  );
+  if (placeholders.length === 0) {
+    return 0;
+  }
+  const katex = await loadKatex();
+  if (isCancelled()) {
+    return 0;
+  }
+  for (const element of placeholders) {
+    let tex: string;
+    try {
+      tex = decodeURIComponent(element.dataset.mathTex || '');
+    } catch {
+      continue;
+    }
+    const displayMode = element.dataset.mathDisplay === 'true';
+    const html = renderTexToHtml(katex, tex, displayMode);
+    const target = displayMode
+      ? (element.querySelector<HTMLElement>('.formula__body') ?? element)
+      : element;
+    target.innerHTML = html;
+    element.dataset.mathRendered = 'true';
+  }
+  return placeholders.length;
 }

@@ -78,12 +78,12 @@ const ALLOWED_ATTR = [
 
 const PREVIEW_BASE_STYLES = `
   :host {
-    color: var(--text-color);
+    color: var(--papers-text-color);
     font-family: var(--body-font);
   }
 
   .preview-root {
-    color: var(--text-color);
+    color: var(--papers-text-color);
     font-family: var(--body-font);
     line-height: 1.5;
   }

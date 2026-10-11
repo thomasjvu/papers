@@ -55,11 +55,11 @@ function ContentSummary({ content }: { content: OpenApiContent[] }) {
       {content.map((item) => (
         <div
           key={item.mediaType}
-          className="rounded border px-3 py-2"
+          className="rounded-sm border px-3 py-2"
           style={{ borderColor: 'var(--border-unified)' }}
         >
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <code style={{ color: 'var(--text-color)' }}>{item.mediaType}</code>
+            <code style={{ color: 'var(--papers-text-color)' }}>{item.mediaType}</code>
             <span style={{ color: 'var(--muted-color)' }}>{schemaLabel(item.schemaNode)}</span>
           </div>
           {item.examples.length > 0 && (
@@ -68,7 +68,7 @@ function ContentSummary({ content }: { content: OpenApiContent[] }) {
                 <div key={example.name}>
                   <span>{example.summary || example.name}</span>
                   {Object.prototype.hasOwnProperty.call(example, 'value') && (
-                    <pre className="mt-1 overflow-x-auto rounded bg-black/10 p-2">
+                    <pre className="mt-1 overflow-x-auto rounded-sm bg-black/10 p-2">
                       {valueLabel(example.value)}
                     </pre>
                   )}
@@ -89,7 +89,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
   return (
     <button
       type="button"
-      className="rounded border px-2 py-1 text-2xs transition-opacity hover:opacity-80"
+      className="rounded-sm border px-2 py-1 text-2xs transition-opacity hover:opacity-80"
       style={{ borderColor: 'var(--border-unified)', color: 'var(--muted-color)' }}
       onClick={() => {
         const clipboard = navigator.clipboard;
@@ -109,12 +109,12 @@ function CodeSample({ label, value }: { label: string; value: string }) {
         className="flex items-center justify-between gap-2 border-b px-3 py-2"
         style={{ borderColor: 'var(--border-unified)' }}
       >
-        <h3 className="text-xs font-semibold" style={{ color: 'var(--text-color)' }}>
+        <h3 className="text-xs font-semibold" style={{ color: 'var(--papers-text-color)' }}>
           {label}
         </h3>
         <CopyButton value={value} label={label} />
       </div>
-      <pre className="overflow-x-auto p-3 text-2xs" style={{ color: 'var(--text-color)' }}>
+      <pre className="overflow-x-auto p-3 text-2xs" style={{ color: 'var(--papers-text-color)' }}>
         <code>{value}</code>
       </pre>
     </div>
@@ -142,7 +142,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
         <div>
           <div className="mb-2 flex flex-wrap items-center gap-2">
             <span
-              className="rounded px-2 py-1 text-2xs font-bold"
+              className="rounded-sm px-2 py-1 text-2xs font-bold"
               style={{
                 color: 'var(--primary-color)',
                 backgroundColor: 'var(--card-color)',
@@ -151,14 +151,14 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
             >
               {operation.method}
             </span>
-            <code className="text-sm" style={{ color: 'var(--text-color)' }}>
+            <code className="text-sm" style={{ color: 'var(--papers-text-color)' }}>
               {operation.path}
             </code>
           </div>
           <h1
             id="openapi-operation-title"
             className="text-2xl font-semibold"
-            style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+            style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
           >
             {operation.summary || operation.operationId || `${operation.method} ${operation.path}`}
           </h1>
@@ -173,7 +173,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
         </div>
         <Link
           to={overviewPath}
-          className="rounded border px-3 py-2 text-xs hover:opacity-80"
+          className="rounded-sm border px-3 py-2 text-xs hover:opacity-80"
           style={{ borderColor: 'var(--border-unified)', color: 'var(--muted-color)' }}
         >
           Open interactive viewer
@@ -192,7 +192,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
             <h2
               id="openapi-parameters-heading"
               className="mb-3 text-sm font-semibold"
-              style={{ color: 'var(--text-color)' }}
+              style={{ color: 'var(--papers-text-color)' }}
             >
               Parameters
             </h2>
@@ -214,7 +214,10 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
                     <tr
                       key={`${parameter.in}:${parameter.name}`}
                       className="border-t"
-                      style={{ borderColor: 'var(--border-unified)', color: 'var(--text-color)' }}
+                      style={{
+                        borderColor: 'var(--border-unified)',
+                        color: 'var(--papers-text-color)',
+                      }}
                     >
                       <td className="px-3 py-2">
                         <code>{parameter.name}</code>
@@ -242,7 +245,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
             <h2
               id="openapi-request-heading"
               className="mb-3 text-sm font-semibold"
-              style={{ color: 'var(--text-color)' }}
+              style={{ color: 'var(--papers-text-color)' }}
             >
               Request body
             </h2>
@@ -259,7 +262,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
           <h2
             id="openapi-responses-heading"
             className="mb-3 text-sm font-semibold"
-            style={{ color: 'var(--text-color)' }}
+            style={{ color: 'var(--papers-text-color)' }}
           >
             Responses
           </h2>
@@ -274,7 +277,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
                   <code className="text-sm font-semibold" style={{ color: 'var(--primary-color)' }}>
                     {response.status}
                   </code>
-                  <span className="text-sm" style={{ color: 'var(--text-color)' }}>
+                  <span className="text-sm" style={{ color: 'var(--papers-text-color)' }}>
                     {response.description || 'Response'}
                   </span>
                 </div>
@@ -291,7 +294,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
             <h2
               id="openapi-notes-heading"
               className="mb-3 text-sm font-semibold"
-              style={{ color: 'var(--text-color)' }}
+              style={{ color: 'var(--papers-text-color)' }}
             >
               Usage notes
             </h2>
@@ -310,7 +313,7 @@ export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiO
           <h2
             id="openapi-code-heading"
             className="mb-3 text-sm font-semibold"
-            style={{ color: 'var(--text-color)' }}
+            style={{ color: 'var(--papers-text-color)' }}
           >
             Examples
           </h2>
@@ -345,7 +348,7 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
       <h1
         id="openapi-model-title"
         className="text-2xl font-semibold"
-        style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+        style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
       >
         {model.name}
       </h1>
@@ -358,7 +361,7 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
         <h2
           id="openapi-model-definition-heading"
           className="mb-3 text-sm font-semibold"
-          style={{ color: 'var(--text-color)' }}
+          style={{ color: 'var(--papers-text-color)' }}
         >
           TypeScript definition
         </h2>
@@ -369,7 +372,7 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
           <h2
             id="openapi-model-properties-heading"
             className="mb-3 text-sm font-semibold"
-            style={{ color: 'var(--text-color)' }}
+            style={{ color: 'var(--papers-text-color)' }}
           >
             Properties
           </h2>
@@ -390,7 +393,10 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
                   <tr
                     key={property.name}
                     className="border-t"
-                    style={{ borderColor: 'var(--border-unified)', color: 'var(--text-color)' }}
+                    style={{
+                      borderColor: 'var(--border-unified)',
+                      color: 'var(--papers-text-color)',
+                    }}
                   >
                     <td className="px-3 py-2">
                       <code>{property.name}</code>

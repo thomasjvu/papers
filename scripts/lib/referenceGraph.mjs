@@ -1,9 +1,6 @@
 import { posix } from 'node:path';
 
-import {
-  buildCanonicalCollectionPath,
-  buildCanonicalDocsPath,
-} from '../../shared/docsRouting.js';
+import { buildCanonicalCollectionPath, buildCanonicalDocsPath } from '../../shared/docsRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { extractDocumentLinks } from './docsArtifacts.mjs';
 
@@ -11,11 +8,7 @@ function splitTargetSuffix(target) {
   const hashIndex = target.indexOf('#');
   const queryIndex = target.indexOf('?');
   const splitIndex =
-    hashIndex === -1
-      ? queryIndex
-      : queryIndex === -1
-        ? hashIndex
-        : Math.min(hashIndex, queryIndex);
+    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
 
   if (splitIndex === -1) {
     return { pathname: target, suffix: '' };
@@ -29,7 +22,10 @@ function splitTargetSuffix(target) {
 
 function normalizeDocumentPath(value) {
   const normalized = posix.normalize(String(value || '').replaceAll('\\', '/'));
-  return normalized.replace(/^\.\//, '').replace(/^\/+|\/+$/g, '').replace(/\.(?:md|mdx)$/i, '');
+  return normalized
+    .replace(/^\.\//, '')
+    .replace(/^\/+|\/+$/g, '')
+    .replace(/\.(?:md|mdx)$/i, '');
 }
 
 function getAnchor(suffix) {
@@ -96,7 +92,8 @@ export function createDocumentReferenceGraph({
 }) {
   const documentPaths = (paths || Object.keys(documents || {})).filter((path) => documents?.[path]);
   const pathSet = new Set(documentPaths);
-  const defaultDocumentPath = getDefaultDocumentPath(documentationTree || []) || documentPaths[0] || '';
+  const defaultDocumentPath =
+    getDefaultDocumentPath(documentationTree || []) || documentPaths[0] || '';
   const routePrefix = String(collection?.routePrefix || '/docs').replace(/^\/+|\/+$/g, '');
   const aliases = buildRouteAliases(documentationTree || [], defaultDocumentPath, routePrefix);
   const buildCanonicalPath = collection

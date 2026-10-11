@@ -70,7 +70,7 @@ export default function LanguageSwitcher({
           style={{
             borderColor: 'var(--border-unified)',
             backgroundColor: 'var(--card-color)',
-            color: 'var(--text-color)',
+            color: 'var(--papers-text-color)',
             fontFamily: 'var(--mono-font)',
           }}
           aria-label="Language"

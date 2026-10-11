@@ -97,6 +97,20 @@ test('KaTeX math and Mermaid diagrams with math labels render', async ({ page })
   await assertNoRuntimeErrors(errors);
 });
 
+test('KaTeX math renders in MDX pages', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/math-in-mdx', { waitUntil: 'networkidle' });
+  await expect(page.locator('.math-inline[data-math-rendered="true"] .katex')).toHaveCount(1, {
+    timeout: 15_000,
+  });
+  await expect(page.locator('.math-display[data-math-rendered="true"] .katex-display')).toHaveCount(
+    2
+  );
+  await expect(page.getByText('Prices like $5 or $10')).toBeVisible();
+  await expect(page.locator('.papers-callout')).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
 test('OpenAPI default and alternate specs use distinct routes', async ({ page }) => {
   const errors = collectRuntimeErrors(page);
   const scalarRequests = [];

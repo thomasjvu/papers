@@ -1,0 +1,53 @@
+{
+  "path": "developer-guides/tailwind-integration",
+  "title": "Tailwind Integration",
+  "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...",
+  "frontmatter": {},
+  "content": "# Tailwind Integration\n\nPapers is built with Tailwind CSS 4 (`@tailwindcss/vite`). This page explains the CSS\ncontract so a downstream Tailwind 4 site can embed or restyle Papers without clashes.\n\n## Cascade Layers\n\n`src/globals.css` declares the layer order once:\n\n```css\n@layer theme, base, components, papers-base, utilities, papers;\n```\n\n| Layer         | Contents                                                        |\n| ------------- | --------------------------------------------------------------- |\n| `theme`       | Tailwind theme variables                                        |\n| `base`        | Tailwind preflight                                              |\n| `components`  | Tailwind components, KaTeX styles                               |\n| `papers-base` | Papers element defaults (`html`, `body`, `a`, `button`, `code`) |\n| `utilities`   | Tailwind utilities                                              |\n| `papers`      | Papers components, CSS modules and theme tokens                 |\n\nA utility class beats Papers' element defaults, and Papers' component classes beat\nutilities (the same result as Tailwind 3). To override Papers from a consumer site:\n\n- write **unlayered** CSS, which beats every layer, or\n- declare a later layer: `@layer papers, site;` and put your rules in `@layer site`, or\n- use an important utility on a single element: `class=\"p-8!\"`.\n\n## Design Tokens\n\nPapers' tokens never use Tailwind 4's theme namespaces. Type, radius, shadow and\nline-height tokens are prefixed:\n\n| Papers token              | Purpose                     |\n| ------------------------- | --------------------------- |\n| `--papers-text-sm` ...    | Type scale (`2xs` to `5xl`) |\n| `--papers-text-color`     | Body text color             |\n| `--papers-text-secondary` | Secondary text color        |\n| `--papers-leading-*`      | Line heights                |\n| `--papers-radius-*`       | Border radii                |\n| `--papers-shadow-*`       | Shadows                     |\n\nSo a site's `@theme { --text-sm: ...; --radius-lg: ...; --shadow-md: ... }` does not\nchange Papers, and `--text-*: initial` or `--color-*: initial` resets do not remove Papers\ntokens. Other tokens (`--primary-color`, `--surface-color`, `--space-*`, `--code-*`) are\nalready outside Tailwind's namespaces.\n\n> [!WARNING]\n> Custom themes written before this change must rename `--text-*`, `--leading-*`,\n> `--radius-*` and `--shadow-*` tokens to the `--papers-` prefixed names.\n\n## Breakpoints\n\nPapers uses Tailwind 4's default rem breakpoints (`sm` 40rem, `md` 48rem, `lg` 64rem,\n`xl` 80rem, `2xl` 96rem), and its own media queries use the same rem values with range\nsyntax (for example `@media (width < 48rem)`). In media queries `rem` is always the\nbrowser default (16px), so breakpoints stay at 640, 768, 1024, 1280 and 1536px even\nthough Papers sets `html { font-size: 90% }`.\n\nDo not mix units: Tailwind 4 sorts breakpoints and requires every `--breakpoint-*` to\nuse the same unit. If your site customizes breakpoints, keep them in `rem`.\n\nBecause property `rem` values _do_ scale with the root font size, Papers uses\n`.papers-container` (px max-widths) instead of Tailwind's `container`.\n\n## Embedding In A Tailwind 4 Site\n\n```css\n/* app.css */\n@layer theme, base, components, papers-base, utilities, papers, site;\n@import 'tailwindcss';\n@source '../node_modules/papers/src';\n\n@layer site {\n  :root {\n    --primary-color: #0a7cff;\n  }\n}\n```\n\nDeclare the layer order before any import so both stylesheets agree on it. Point\n`@source` at the Papers sources so Tailwind generates the utilities Papers uses.\n\n## Math And KaTeX\n\nKaTeX CSS is imported into the `components` layer, so Papers' math styles apply on top.\nIf your site pins KaTeX with npm `overrides`, Papers accepts `^0.16.47 || ^0.18.10`.\n",
+  "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "tailwind-integration",
+      "text": "Tailwind Integration"
+    },
+    {
+      "depth": 2,
+      "id": "cascade-layers",
+      "text": "Cascade Layers"
+    },
+    {
+      "depth": 2,
+      "id": "design-tokens",
+      "text": "Design Tokens"
+    },
+    {
+      "depth": 2,
+      "id": "breakpoints",
+      "text": "Breakpoints"
+    },
+    {
+      "depth": 2,
+      "id": "embedding-in-a-tailwind-4-site",
+      "text": "Embedding In A Tailwind 4 Site"
+    },
+    {
+      "depth": 2,
+      "id": "math-and-katex",
+      "text": "Math And KaTeX"
+    }
+  ],
+  "metadata": {
+    "title": "Tailwind Integration",
+    "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...",
+    "canonicalPath": "/docs/developer-guides/tailwind-integration",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/developer-guides/tailwind-integration.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
+  },
+  "references": [],
+  "links": [],
+  "sourcePath": "src/docs/content/developer-guides/tailwind-integration.md"
+}

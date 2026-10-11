@@ -106,7 +106,7 @@ export default function MindmapExpandModal({
                 <div>
                   <p
                     className="text-sm font-semibold"
-                    style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+                    style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--mono-font)' }}
                   >
                     Interactive map
                   </p>
@@ -116,7 +116,7 @@ export default function MindmapExpandModal({
                   onClick={onClose}
                   className="ui-control-ghost rounded-md p-2"
                   aria-label="Close expanded mindmap"
-                  style={{ color: 'var(--text-color)' }}
+                  style={{ color: 'var(--papers-text-color)' }}
                 >
                   <Icon icon="mingcute:close-line" className="h-5 w-5" />
                 </button>

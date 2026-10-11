@@ -167,7 +167,7 @@ export default function OpenApiPage() {
             <div className="min-w-0">
               <p
                 className="truncate text-sm font-bold"
-                style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+                style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
               >
                 API Reference
               </p>
@@ -221,7 +221,7 @@ export default function OpenApiPage() {
               <Suspense
                 fallback={
                   <div
-                    className="flex min-h-[30rem] items-center justify-center text-sm"
+                    className="flex min-h-120 items-center justify-center text-sm"
                     style={{ color: 'var(--muted-color)' }}
                   >
                     Loading interactive viewer…
@@ -247,7 +247,7 @@ export default function OpenApiPage() {
                     <h2
                       id="openapi-reference-gate-heading"
                       className="text-sm font-semibold"
-                      style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+                      style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
                     >
                       Interactive API explorer
                     </h2>

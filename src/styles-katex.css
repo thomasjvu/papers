@@ -1,0 +1,2 @@
+/* KaTeX styles, layered below Papers so Papers' math overrides apply. */
+@import 'katex/dist/katex.min.css' layer(components);

@@ -22,8 +22,6 @@ const ROOT_INPUT_FILES = [
   'index.html',
   'package-lock.json',
   'package.json',
-  'postcss.config.js',
-  'tailwind.config.js',
   'tsconfig.json',
   'vercel.json',
   'vite.config.ts',

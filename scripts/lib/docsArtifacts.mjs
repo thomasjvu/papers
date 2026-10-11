@@ -1,7 +1,4 @@
-import {
-  buildCanonicalCollectionPath,
-  buildCanonicalDocsPath,
-} from '../../shared/docsRouting.js';
+import { buildCanonicalCollectionPath, buildCanonicalDocsPath } from '../../shared/docsRouting.js';
 import {
   documentFrontmatterSchema,
   getContentSchemaFields,
@@ -134,9 +131,8 @@ function splitArrayValues(value, lineNumber, key) {
       throw getFrontmatterError(`${key} cannot contain an empty item.`, lineNumber);
     }
 
-    const parsed = item.startsWith('"') || item.startsWith("'")
-      ? parseQuotedScalar(item, lineNumber)
-      : item;
+    const parsed =
+      item.startsWith('"') || item.startsWith("'") ? parseQuotedScalar(item, lineNumber) : item;
 
     if (!parsed || /^(?:true|false|null|~|[-+]?\d+(?:\.\d+)?)$/i.test(parsed)) {
       throw getFrontmatterError(`${key} must contain only string values.`, lineNumber);
@@ -222,7 +218,10 @@ export function parseFrontmatter(content, schema = documentFrontmatterSchema) {
     throw getFrontmatterError('frontmatter is missing its closing --- delimiter.', lines.length);
   }
 
-  const body = lines.slice(closingIndex + 1).join('\n').replace(/^\r?\n/, '');
+  const body = lines
+    .slice(closingIndex + 1)
+    .join('\n')
+    .replace(/^\r?\n/, '');
   const frontmatter = {};
 
   for (let index = 1; index < closingIndex; index += 1) {
@@ -489,7 +488,8 @@ export function extractTopLevelTitle(docPath, content, schema = documentFrontmat
 }
 
 export function createDocumentArtifact(docPath, rawContent, sourcePath, options = {}) {
-  const schemaAdapter = options.schemaAdapter || options.frontmatterSchema || documentFrontmatterSchema;
+  const schemaAdapter =
+    options.schemaAdapter || options.frontmatterSchema || documentFrontmatterSchema;
   const { body, frontmatter } = parseFrontmatter(rawContent, schemaAdapter);
   const content = stripUtf8Bom(body);
   const description = frontmatter.description || extractDescriptionFromMarkdown(content);
@@ -595,7 +595,11 @@ export function createDocsArtifacts(
   };
 }
 
-export function stabilizeIndexGeneration(previousIndex, nextIndex, fallbackGeneratedAt = new Date().toISOString()) {
+export function stabilizeIndexGeneration(
+  previousIndex,
+  nextIndex,
+  fallbackGeneratedAt = new Date().toISOString()
+) {
   const comparablePrevious = normalizeIndex(previousIndex);
   const comparableNext = normalizeIndex(nextIndex);
 

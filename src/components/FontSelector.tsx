@@ -32,7 +32,7 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
 
   const buttonStyle = useMemo(
     () => ({
-      color: 'var(--text-color)',
+      color: 'var(--papers-text-color)',
     }),
     []
   );

@@ -337,7 +337,7 @@ export default function OptimizedDocumentationGraph({
           type="text"
           placeholder={isSidebarView ? 'Search docs...' : 'Search documents...'}
           onChange={handleSearchChange}
-          className={`w-full rounded-lg border outline-none transition-colors ${
+          className={`w-full rounded-lg border outline-hidden transition-colors ${
             isSidebarView ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'
           }`}
           style={{
