@@ -2,12 +2,28 @@
 
 ## Unreleased
 
+### Changed (breaking for custom themes)
+
+- Tailwind CSS 3 → 4 via `@tailwindcss/vite` (`tailwind.config.js`, `postcss.config.js` and `autoprefixer` removed; config moved to `@theme` in `src/globals.css`)
+- Papers tokens that collided with Tailwind 4 namespaces are prefixed: `--text-*` → `--papers-text-*` (incl. `--papers-text-color`, `--papers-text-secondary`), `--leading-*`, `--radius-*`, `--shadow-*` → `--papers-*`. Custom themes must rename these tokens
+- explicit cascade layers `theme, base, components, papers-base, utilities, papers`; theme tokens, CSS modules and KaTeX CSS are layered, so unlayered consumer CSS overrides Papers
+- media queries use rem range syntax matching Tailwind 4 breakpoints; homepage uses `.papers-container` (px max-widths) instead of `container`
+
 ### Fixed
 
 - theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
+- Mermaid diagrams rendered as empty boxes: the SVG sanitizer's `ALLOWED_URI_REGEXP` stripped all geometry and `<foreignObject>` labels; diagrams now keep shapes, edges and HTML labels with theme-token colors
+- `check:runtime-audit` passes: Tailwind 3's glob dependencies (braces, micromatch, chokidar, fast-glob) are gone and vue / source-map-js / dompurify were updated within range
+- unknown `VITE_PAPERS_THEME` values (e.g. `pq2`) now fail with the env source, a "did you mean" hint, the available themes and the fix command
 
 ### Added
 
+- KaTeX math: inline `$...$`, display `$$...$$`, and typeset ` ```math ` fences (KaTeX lazy-loads only on pages with math)
+- Mermaid labels with KaTeX math (`$$...$$`) rendered as native MathML; verified with KaTeX 0.16.47 and 0.18.10 overrides
+- `developer-guides/math-and-diagrams` example page with unit and Playwright coverage
+- math in `.mdx` pages (`remark-math`), with a `developer-guides/math-in-mdx` example page
+- `developer-guides/tailwind-integration` guide for downstream Tailwind 4 sites
+- `npm run visual:check` / `visual:update`: per-theme Playwright screenshot comparison
 - reproducible `create-papers` package metadata with an immutable template commit manifest
 - packed-package clean-consumer smoke coverage that scaffolds, installs, builds, and checks a direct docs route offline
 - contributor and security policies plus a trusted provenance-enabled package release workflow

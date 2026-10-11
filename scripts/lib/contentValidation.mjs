@@ -20,11 +20,7 @@ import {
 } from '../../shared/docsRouting.js';
 import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
-import {
-  createDocumentToc,
-  extractDocumentLinks,
-  parseFrontmatter,
-} from './docsArtifacts.mjs';
+import { createDocumentToc, extractDocumentLinks, parseFrontmatter } from './docsArtifacts.mjs';
 import { validateMdxComponentsInSource } from './mdxCompile.mjs';
 
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx']);
@@ -47,11 +43,7 @@ function splitTargetSuffix(target) {
   const hashIndex = target.indexOf('#');
   const queryIndex = target.indexOf('?');
   const splitIndex =
-    hashIndex === -1
-      ? queryIndex
-      : queryIndex === -1
-        ? hashIndex
-        : Math.min(hashIndex, queryIndex);
+    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
 
   if (splitIndex === -1) {
     return { pathname: target, suffix: '' };
@@ -312,7 +304,10 @@ function checkAnchor(
   }
 
   const resolvedRecord = findSourceRecord(targetRecord.documentPath, sourceRecords);
-  if (!resolvedRecord || !getHeadingIds(resolvedRecord.content, frontmatterSchema).has(decodedAnchor)) {
+  if (
+    !resolvedRecord ||
+    !getHeadingIds(resolvedRecord.content, frontmatterSchema).has(decodedAnchor)
+  ) {
     issues.push(`${sourcePath}:${line}: unresolved heading anchor "#${decodedAnchor}"`);
   }
 }
@@ -325,10 +320,7 @@ function isWithinDirectory(directory, candidate) {
 function checkLocalAsset(targetPath, sourceRecord, publicDir, contentRoot) {
   const candidates = targetPath.startsWith('/')
     ? [join(publicDir, targetPath.replace(/^\/+/, ''))]
-    : [
-        join(sourceRecord.sourceDirectory, targetPath),
-        join(publicDir, targetPath),
-      ];
+    : [join(sourceRecord.sourceDirectory, targetPath), join(publicDir, targetPath)];
 
   return candidates.some((candidate) => {
     const resolvedCandidate = resolve(candidate);
@@ -371,15 +363,7 @@ function validateLink({
   const { pathname, suffix } = splitTargetSuffix(target);
 
   if (!pathname && suffix.startsWith('#')) {
-    checkAnchor(
-      sourceRecord,
-      suffix,
-      sourceRecords,
-      issues,
-      sourcePath,
-      line,
-      frontmatterSchema
-    );
+    checkAnchor(sourceRecord, suffix, sourceRecords, issues, sourcePath, line, frontmatterSchema);
     return;
   }
 
@@ -531,7 +515,12 @@ async function readSourceRecords(
   return records;
 }
 
-function validateExactSourceForPath(contentRoot, documentPath, issues, label = 'documentationTree') {
+function validateExactSourceForPath(
+  contentRoot,
+  documentPath,
+  issues,
+  label = 'documentationTree'
+) {
   const basePath = join(contentRoot, documentPath);
   const candidates = [`${basePath}.md`, `${basePath}.mdx`].filter((path) => existsSync(path));
 
@@ -586,7 +575,9 @@ function validateGeneratedDocumentKeys(
           });
       const existing = keys.get(key);
       if (existing && existing !== documentPath) {
-        issues.push(`Duplicate generated document key "${key}" for "${existing}" and "${documentPath}".`);
+        issues.push(
+          `Duplicate generated document key "${key}" for "${existing}" and "${documentPath}".`
+        );
       } else {
         keys.set(key, documentPath);
       }
@@ -644,7 +635,10 @@ export async function validateDocumentationContent(options = {}) {
   const documentPathSet = new Set([...treeDocumentPaths, ...frameworkDocPaths]);
 
   for (const file of publishedFiles) {
-    if (!frameworkDocPaths.has(file.documentPath) && !new Set(treeDocumentPaths).has(file.documentPath)) {
+    if (
+      !frameworkDocPaths.has(file.documentPath) &&
+      !new Set(treeDocumentPaths).has(file.documentPath)
+    ) {
       issues.push(
         `Published source "${toSourcePath(rootDir, file.absolutePath)}" is not represented in documentationTree.`
       );
@@ -678,13 +672,7 @@ export async function validateDocumentationContent(options = {}) {
     issues.push(featureIssue);
   }
 
-  validateGeneratedDocumentKeys(
-    treeDocumentPaths,
-    versionConfig,
-    i18nConfig,
-    issues,
-    collection
-  );
+  validateGeneratedDocumentKeys(treeDocumentPaths, versionConfig, i18nConfig, issues, collection);
 
   const routeDocumentPaths = Array.from(documentPathSet);
   const routeModel = createRouteModel({

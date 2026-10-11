@@ -42,7 +42,7 @@ export default function NotFoundPage() {
           style={{
             backgroundColor: 'var(--card-color)',
             borderColor: 'var(--border-unified)',
-            boxShadow: 'var(--shadow-lg)',
+            boxShadow: 'var(--papers-shadow-lg)',
           }}
         >
           <div
@@ -58,7 +58,7 @@ export default function NotFoundPage() {
 
           <h1
             className="text-3xl md:text-4xl font-bold mb-4"
-            style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+            style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
           >
             That page does not exist.
           </h1>
@@ -77,7 +77,7 @@ export default function NotFoundPage() {
               borderColor: 'var(--border-unified)',
               backgroundColor: 'var(--hover-color)',
               fontFamily: 'var(--mono-font)',
-              color: 'var(--text-secondary)',
+              color: 'var(--papers-text-secondary)',
             }}
           >
             {missingPath}
@@ -103,7 +103,7 @@ export default function NotFoundPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
               style={{
                 borderColor: 'var(--border-unified)',
-                color: 'var(--text-color)',
+                color: 'var(--papers-text-color)',
                 fontFamily: 'var(--mono-font)',
               }}
             >
@@ -116,7 +116,7 @@ export default function NotFoundPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
               style={{
                 borderColor: 'var(--border-unified)',
-                color: 'var(--text-color)',
+                color: 'var(--papers-text-color)',
                 fontFamily: 'var(--mono-font)',
               }}
             >
@@ -129,7 +129,7 @@ export default function NotFoundPage() {
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
               style={{
                 borderColor: 'var(--border-unified)',
-                color: 'var(--text-color)',
+                color: 'var(--papers-text-color)',
                 fontFamily: 'var(--mono-font)',
               }}
             >
@@ -146,7 +146,7 @@ export default function NotFoundPage() {
                 backgroundColor: 'rgba(var(--primary-color-rgb), 0.05)',
               }}
             >
-              <div className="font-semibold mb-2" style={{ color: 'var(--text-color)' }}>
+              <div className="font-semibold mb-2" style={{ color: 'var(--papers-text-color)' }}>
                 If this happened on a direct page load in production
               </div>
               <p className="mb-3" style={{ color: 'var(--muted-color)' }}>

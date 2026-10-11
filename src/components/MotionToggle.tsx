@@ -48,7 +48,7 @@ const MotionToggle = React.memo(({ className = '' }: MotionToggleProps): React.R
   // Memoized style object
   const buttonStyle = useMemo(
     () => ({
-      color: 'var(--text-color)',
+      color: 'var(--papers-text-color)',
     }),
     []
   );

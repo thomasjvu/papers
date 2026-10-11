@@ -20,7 +20,7 @@ export default function SiteAttribution({
   const copyright = getCopyrightLine();
 
   return (
-    <div className={`flex-shrink-0 ${className}`.trim()}>
+    <div className={`shrink-0 ${className}`.trim()}>
       {social.length > 0 && (
         <div
           className={`mb-2 flex items-center gap-2.5 ${
@@ -68,7 +68,7 @@ export default function SiteAttribution({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="transition-opacity hover:opacity-80"
-                style={{ color: 'var(--text-color)' }}
+                style={{ color: 'var(--papers-text-color)' }}
               >
                 {attribution.text}
               </a>

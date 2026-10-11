@@ -61,6 +61,82 @@ export function createCodeBlockSnippets(language: string, code: string): CodeBlo
   });
 }
 
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/**
+ * Emits a sanitizer-friendly placeholder for TeX. The readable TeX source is kept as
+ * text so the page is meaningful before (or without) KaTeX, and the renderer swaps in
+ * typeset output client-side.
+ */
+export function renderMathPlaceholder(tex: string, displayMode: boolean): string {
+  const tag = displayMode ? 'div' : 'span';
+  const className = displayMode ? 'formula math-display' : 'math-inline';
+  const encoded = encodeURIComponent(tex);
+  const body = displayMode
+    ? `<div class="formula__body">${escapeHtml(tex)}</div>`
+    : escapeHtml(tex);
+  return `<${tag} class="${className}" data-math-tex="${encoded}" data-math-display="${displayMode}">${body}</${tag}>`;
+}
+
+const BLOCK_MATH_PATTERN = /^ {0,3}\$\$[ \t]*\n([\s\S]+?)\n {0,3}\$\$[ \t]*(?:\n+|$)/;
+const SINGLE_LINE_BLOCK_MATH_PATTERN = /^ {0,3}\$\$([^\n$]+?)\$\$[ \t]*(?:\n+|$)/;
+// Inline: $...$ with no whitespace just inside the delimiters and no digit right after the
+// closing $, so prices like "$5 and $10" stay plain text. \$ escapes a literal dollar.
+const INLINE_MATH_PATTERN = /^\$(?!\s)((?:\\.|[^\\$\n])+?)(?<!\s)\$(?!\d)/;
+const INLINE_DISPLAY_MATH_PATTERN = /^\$\$(?!\s)((?:\\.|[^\\$])+?)\$\$/;
+
+const mathExtensions = [
+  {
+    name: 'blockMath',
+    level: 'block' as const,
+    start(src: string) {
+      return src.match(/^ {0,3}\$\$/m)?.index;
+    },
+    tokenizer(src: string) {
+      const match = BLOCK_MATH_PATTERN.exec(src) ?? SINGLE_LINE_BLOCK_MATH_PATTERN.exec(src);
+      if (!match) {
+        return undefined;
+      }
+      return { type: 'blockMath', raw: match[0], text: match[1].trim() };
+    },
+    renderer(token: Tokens.Generic) {
+      return renderMathPlaceholder(String(token.text), true);
+    },
+  },
+  {
+    name: 'inlineMath',
+    level: 'inline' as const,
+    start(src: string) {
+      return src.indexOf('$');
+    },
+    tokenizer(src: string) {
+      const displayMatch = INLINE_DISPLAY_MATH_PATTERN.exec(src);
+      if (displayMatch) {
+        return {
+          type: 'inlineMath',
+          raw: displayMatch[0],
+          text: displayMatch[1].trim(),
+          display: true,
+        };
+      }
+      const match = INLINE_MATH_PATTERN.exec(src);
+      if (!match) {
+        return undefined;
+      }
+      return { type: 'inlineMath', raw: match[0], text: match[1], display: false };
+    },
+    renderer(token: Tokens.Generic) {
+      return renderMathPlaceholder(String(token.text), Boolean(token.display));
+    },
+  },
+];
+
 function createRenderer(
   codeBlocksData: Map<string, CodeBlockData[]>,
   mermaidBlocksData: Map<string, MermaidBlockData>,
@@ -78,15 +154,9 @@ function createRenderer(
       return `<div data-mermaid-id="${blockId}" class="mermaid-placeholder"></div>`;
     }
 
-    // Display math — plain readable formulas (no KaTeX). Use ```math fences.
+    // Display math: ```math / ```formula fences render with KaTeX on the client.
     if (language === 'math' || language === 'formula') {
-      const escaped = code
-        .trim()
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/\n/g, '<br />');
-      return `<div class="formula" role="math"><div class="formula__body">${escaped}</div></div>`;
+      return renderMathPlaceholder(code.trim(), true);
     }
 
     if (language === 'ColorPalette') {
@@ -131,6 +201,7 @@ export async function buildMarkdownRenderState(
       renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
     }
   );
+  markdownProcessor.use({ extensions: mathExtensions });
 
   const html = await markdownProcessor.parse(stripMarkdownBom(content));
 

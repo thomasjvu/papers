@@ -71,7 +71,7 @@ description: Short summary used for metadata, previews, and generated artifacts.
   padding: 0.75rem 1rem;
   border: 1px solid var(--border-unified);
   background: var(--card-color);
-  color: var(--text-color);
+  color: var(--papers-text-color);
 }
 ```
 ````

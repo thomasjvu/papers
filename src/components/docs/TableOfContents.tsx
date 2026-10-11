@@ -126,7 +126,7 @@ const TableOfContents = React.memo(({ content }: TableOfContentsProps) => {
               style={{
                 fontFamily: 'var(--mono-font)',
                 paddingLeft: `${(heading.level - 1) * 12}px`,
-                fontSize: heading.level === 1 ? 'var(--text-xs)' : 'var(--text-2xs)',
+                fontSize: heading.level === 1 ? 'var(--papers-text-xs)' : 'var(--papers-text-2xs)',
                 color: isActive ? 'var(--toc-text-hover-color)' : 'var(--toc-text-color)',
                 opacity: isActive ? 1 : 0.58,
                 fontWeight: isActive ? 600 : 500,

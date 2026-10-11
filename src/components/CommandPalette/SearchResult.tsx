@@ -38,7 +38,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
         className="relative flex w-full items-center gap-3 px-4 py-2.5 text-left transition-all"
         style={{
           backgroundColor: isSelected ? 'rgba(var(--primary-color-rgb), 0.1)' : 'transparent',
-          color: 'var(--text-color)',
+          color: 'var(--papers-text-color)',
         }}
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -46,18 +46,21 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
       >
         <span className="text-lg leading-none">{result.icon}</span>
         <div className="min-w-0 flex-1">
-          <div className="text-sm font-medium leading-snug" style={{ color: 'var(--text-color)' }}>
+          <div
+            className="text-sm font-medium leading-snug"
+            style={{ color: 'var(--papers-text-color)' }}
+          >
             {result.title}
           </div>
         </div>
         <div className="flex items-center gap-2">
           {result.shortcut && (
             <kbd
-              className="rounded border px-1.5 py-0.5 text-2xs font-mono"
+              className="rounded-sm border px-1.5 py-0.5 text-2xs font-mono"
               style={{
                 borderColor: isSelected ? 'var(--primary-color)' : 'var(--border-color)',
                 backgroundColor: isSelected ? 'var(--primary-color)' : 'var(--hover-color)',
-                color: isSelected ? 'var(--selection-text-color)' : 'var(--text-color)',
+                color: isSelected ? 'var(--selection-text-color)' : 'var(--papers-text-color)',
               }}
             >
               {getShortcutLabel(result.shortcut)}
@@ -65,7 +68,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           )}
           {result.type === 'action' && (
             <span
-              className="rounded px-2 py-1 text-2xs"
+              className="rounded-sm px-2 py-1 text-2xs"
               style={{
                 backgroundColor: 'var(--primary-color)',
                 color: 'var(--selection-text-color)',
@@ -77,7 +80,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           )}
           {result.type === 'faq' && (
             <span
-              className="rounded border px-2 py-1 text-2xs"
+              className="rounded-sm border px-2 py-1 text-2xs"
               style={{
                 backgroundColor: 'var(--hover-color)',
                 borderColor: 'var(--border-unified)',

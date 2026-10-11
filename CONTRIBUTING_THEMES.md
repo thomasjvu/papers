@@ -63,7 +63,7 @@ Example (`themes/gba/theme.json`):
 
 ## Token guidelines
 
-- Override papers CSS variables in `tokens.css` (`--background-color`, `--text-color`, `--radius-*`, fonts, etc.).
+- Override papers CSS variables in `tokens.css` (`--background-color`, `--papers-text-color`, `--radius-*`, fonts, etc.).
 - Keep structural spacing and typography scale in `src/globals.css` unless your theme needs different rhythm.
 - Register the theme in `themes/registry.json`.
 - If you introduce a new icon set, add the `@iconify-json/<set>` dependency and set `iconSet` in `theme.json`.

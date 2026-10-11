@@ -4,7 +4,10 @@ import { isAbsolute, join, relative, resolve, sep } from 'node:path';
 export function resolveMonorepoRoot(startDir = process.cwd()) {
   let current = resolve(startDir);
   while (true) {
-    if (existsSync(join(current, 'package.json')) && existsSync(join(current, 'shared', 'documentation-config.js'))) {
+    if (
+      existsSync(join(current, 'package.json')) &&
+      existsSync(join(current, 'shared', 'documentation-config.js'))
+    ) {
       return current;
     }
     const parent = resolve(current, '..');

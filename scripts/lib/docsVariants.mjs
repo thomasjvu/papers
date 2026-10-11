@@ -30,28 +30,16 @@ export function createVariantSourceCandidates(docPath, options = {}) {
 
   if (version && locale) {
     candidateBases.push(
-      join(
-        contentDir,
-        'variants',
-        'versions',
-        version,
-        'locales',
-        locale,
-        normalizedDocPath
-      )
+      join(contentDir, 'variants', 'versions', version, 'locales', locale, normalizedDocPath)
     );
   }
 
   if (version) {
-    candidateBases.push(
-      join(contentDir, 'variants', 'versions', version, normalizedDocPath)
-    );
+    candidateBases.push(join(contentDir, 'variants', 'versions', version, normalizedDocPath));
   }
 
   if (locale) {
-    candidateBases.push(
-      join(contentDir, 'variants', 'locales', locale, normalizedDocPath)
-    );
+    candidateBases.push(join(contentDir, 'variants', 'locales', locale, normalizedDocPath));
   }
 
   candidateBases.push(join(contentDir, normalizedDocPath));
@@ -61,9 +49,7 @@ export function createVariantSourceCandidates(docPath, options = {}) {
       const relativePath = `${candidateBase}${extension}`;
 
       const filePath = resolve(rootDir, relativePath);
-      const sourcePath = createSourcePath(
-        relative(rootDir, filePath).replaceAll(sep, '/')
-      );
+      const sourcePath = createSourcePath(relative(rootDir, filePath).replaceAll(sep, '/'));
 
       return { filePath, sourcePath };
     })
@@ -81,12 +67,14 @@ export function resolveDocFileInfo(docPath, options = {}) {
 }
 
 export function getDefaultDocsVariantContext(options = {}) {
-  return getDocsVariantContexts(options).find((context) => context.isDefault) || {
-    version: null,
-    locale: null,
-    key: '',
-    isDefault: true,
-  };
+  return (
+    getDocsVariantContexts(options).find((context) => context.isDefault) || {
+      version: null,
+      locale: null,
+      key: '',
+      isDefault: true,
+    }
+  );
 }
 
 export function getGeneratedDocumentKeys(docPaths, options = {}) {

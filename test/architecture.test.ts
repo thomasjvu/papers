@@ -843,6 +843,144 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'buildMarkdownRenderState emits math placeholders for inline, display and fenced math',
+    run: async () => {
+      const markdown = [
+        'Euler: $e^{i\\pi} + 1 = 0$ and costs $5 and $10.',
+        '',
+        '$$',
+        '\\int_0^1 x\\,dx',
+        '$$',
+        '',
+        '```math',
+        'a < b',
+        '```',
+      ].join('\n');
+
+      const result = await buildMarkdownRenderState(markdown, {
+        createId: createDeterministicIdGenerator(),
+      });
+
+      assert.match(
+        result.html,
+        new RegExp(
+          `<span class="math-inline" data-math-tex="${encodeURIComponent('e^{i\\pi} + 1 = 0')}" data-math-display="false">`
+        )
+      );
+      assert.match(result.html, /costs \$5 and \$10\./);
+      assert.match(
+        result.html,
+        new RegExp(
+          `data-math-tex="${encodeURIComponent('\\int_0^1 x\\,dx')}" data-math-display="true"`
+        )
+      );
+      assert.match(result.html, /data-math-tex="a%20%3C%20b"/);
+      assert.match(result.html, /a &lt; b/);
+      assert.equal(result.codeBlocks.size, 0);
+    },
+  },
+  {
+    name: 'installed katex renders TeX safely with the Papers options (mermaid-compatible)',
+    run: async () => {
+      const katexModule = await import('katex');
+      const katex = (katexModule as { default?: typeof katexModule }).default ?? katexModule;
+      const { KATEX_RENDER_OPTIONS } = await import('../src/utils/renderMath.ts');
+      const html = katex.renderToString('\\frac{a}{b}', {
+        ...KATEX_RENDER_OPTIONS,
+        displayMode: true,
+      });
+      assert.match(html, /class="katex-display"/);
+      assert.match(html, /<math/);
+      const untrusted = katex.renderToString(
+        '\\href{javascript:alert(1)}{x}',
+        KATEX_RENDER_OPTIONS
+      );
+      assert.doesNotMatch(untrusted, /href="/);
+      const broken = katex.renderToString('\\frac{', KATEX_RENDER_OPTIONS);
+      assert.match(broken, /katex-error/);
+    },
+  },
+  {
+    name: 'unknown VITE_PAPERS_THEME fails with a clear, actionable error',
+    run: async () => {
+      const { resolveThemeId, suggestThemeId } = await import('../scripts/lib/themeRegistry.mjs');
+      assert.equal(resolveThemeId('default'), 'default');
+      assert.throws(
+        () => resolveThemeId('pq2'),
+        (error: Error) =>
+          /Unknown papers theme "pq2"/.test(error.message) &&
+          /VITE_PAPERS_THEME/.test(error.message) &&
+          /Available themes: .*default/.test(error.message)
+      );
+      assert.equal(suggestThemeId('defualt', ['default', 'gba']), 'default');
+      assert.equal(suggestThemeId('pq2', ['default', 'lorelei']), null);
+    },
+  },
+  {
+    name: 'compileMdxToHtml emits KaTeX placeholders for MDX math and keeps prices as text',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        [
+          'Inline $\\frac{a}{b}$ costs $5 or $10.',
+          '',
+          '$$',
+          '\\int_0^1 x\\,dx',
+          '$$',
+          '',
+          '```math',
+          'a < b',
+          '```',
+        ].join('\n')
+      );
+      assert.match(
+        html,
+        new RegExp(
+          `<span class="math-inline" data-math-tex="${encodeURIComponent('\\frac{a}{b}')}" data-math-display="false">`
+        )
+      );
+      assert.match(html, /costs \$5 or \$10\./);
+      assert.match(
+        html,
+        new RegExp(
+          `data-math-tex="${encodeURIComponent('\\int_0^1 x\\,dx')}" data-math-display="true"`
+        )
+      );
+      assert.match(html, /data-math-tex="a%20%3C%20b"/);
+    },
+  },
+  {
+    name: 'Papers CSS tokens stay out of Tailwind 4 theme namespaces',
+    run: async () => {
+      const files = [
+        'src/globals.css',
+        ...['default', 'gba', 'lorelei', 'rx-78'].map((id) => `themes/${id}/tokens.css`),
+      ];
+      const clashing =
+        /(?<![\w-])--(?:text|leading|radius|shadow|color|spacing|font|breakpoint|container)-[\w-]+\s*:/g;
+      for (const file of files) {
+        const css = await readFile(join(process.cwd(), file), 'utf8');
+        const outsideTheme = css.replace(/@theme\s*\{[\s\S]*?\n\}/g, '');
+        assert.deepEqual(
+          outsideTheme.match(clashing) ?? [],
+          [],
+          `${file} defines Tailwind-namespaced tokens`
+        );
+      }
+      const globals = await readFile(join(process.cwd(), 'src/globals.css'), 'utf8');
+      assert.match(globals, /@layer theme, base, components, papers-base, utilities, papers;/);
+      assert.doesNotMatch(globals, /@tailwind /);
+      assert.doesNotMatch(globals, /@media[^{]*\d+px/);
+    },
+  },
+  {
+    name: 'chartHasMath detects KaTeX labels in Mermaid charts',
+    run: async () => {
+      const { chartHasMath } = await import('../src/utils/sanitizeMermaidSvg.ts');
+      assert.equal(chartHasMath('flowchart LR\n  A["$$x^2$$"] --> B'), true);
+      assert.equal(chartHasMath('flowchart LR\n  A[costs $5] --> B'), false);
+    },
+  },
+  {
     name: 'compileMdxToHtml renders callouts and enrichDocumentArtifact marks html output',
     run: async () => {
       const html = await compileMdxToHtml('# MDX title\n\n> [!WARNING]\n> Sensitive example\n');
@@ -1652,7 +1790,25 @@ export const architectureTests: ArchitectureTestCase[] = [
         const sanitized = sanitizeMermaidSvg(
           '<svg onload="alert(1)"><script>alert(1)</script><foreignObject>bad</foreignObject><a href="javascript:alert(1)">link</a></svg>'
         );
-        assert.doesNotMatch(sanitized, /onload|script|foreignObject|javascript:/i);
+        assert.doesNotMatch(sanitized, /onload|script|javascript:/i);
+
+        // Geometry and text must survive (regression: a restrictive ALLOWED_URI_REGEXP
+        // previously stripped every non-URI attribute, leaving empty diagrams).
+        const geometry = sanitizeMermaidSvg(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10"><g transform="translate(1,2)"><path d="M0 0L5 5" marker-end="url(#arrow)"/><rect x="1" y="2" width="3" height="4"/><text x="1" y="2">Label</text><use href="#arrow"/><use href="https://evil.test/x.svg#a"/></g></svg>'
+        );
+        assert.match(geometry, /d="M0 0L5 5"/);
+        assert.match(geometry, /transform="translate\(1,2\)"/);
+        assert.match(geometry, /width="3"/);
+        assert.match(geometry, />Label<\/text>/);
+        assert.doesNotMatch(geometry, /evil\.test/);
+
+        const mathLabel = sanitizeMermaidSvg(
+          '<svg xmlns="http://www.w3.org/2000/svg"><foreignObject width="10" height="10"><div xmlns="http://www.w3.org/1999/xhtml"><span class="nodeLabel"><math xmlns="http://www.w3.org/1998/Math/MathML"><mi>x</mi></math></span><img src="x" onerror="alert(1)"/><a href="javascript:alert(1)">x</a></div></foreignObject></svg>'
+        );
+        assert.match(mathLabel, /<foreignObject/);
+        assert.match(mathLabel, /<math/);
+        assert.doesNotMatch(mathLabel, /onerror|javascript:|src=/i);
       } finally {
         if (previousWindow === undefined) {
           delete runtime.window;

@@ -208,9 +208,9 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                         defaultValue={query}
                         onChange={(event) => handleInputChange(event.target.value)}
                         placeholder="Search documentation or type a command..."
-                        className="w-full px-3 py-2 rounded-md outline-none text-base"
+                        className="w-full px-3 py-2 rounded-md outline-hidden text-base"
                         style={{
-                          color: 'var(--text-color)',
+                          color: 'var(--papers-text-color)',
                           fontFamily: 'var(--mono-font)',
                           backgroundColor: 'transparent',
                           border: '1px solid transparent',
@@ -253,7 +253,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                     >
                       <div className="flex items-start gap-3">
                         <div
-                          className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0"
+                          className="w-8 h-8 rounded-md flex items-center justify-center shrink-0"
                           style={{
                             backgroundColor: 'var(--primary-color)',
                             color: 'var(--selection-text-color)',
@@ -270,13 +270,13 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                           </div>
                           <div
                             className="text-sm font-semibold"
-                            style={{ color: 'var(--text-color)' }}
+                            style={{ color: 'var(--papers-text-color)' }}
                           >
                             {activeFaq.title}
                           </div>
                           <p
                             className="mt-2 text-sm leading-6"
-                            style={{ color: 'var(--text-secondary)' }}
+                            style={{ color: 'var(--papers-text-secondary)' }}
                           >
                             {activeFaq.answer}
                           </p>
@@ -288,7 +288,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                   <div
                     className="px-4 py-2 border-t flex items-center justify-between"
                     style={{
-                      fontSize: 'var(--text-2xs)',
+                      fontSize: 'var(--papers-text-2xs)',
                       borderColor: 'var(--border-color)',
                       color: 'var(--muted-color)',
                     }}
@@ -296,13 +296,13 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                     <div className="flex items-center gap-4 flex-wrap">
                       <span>
                         <kbd
-                          className="px-1.5 py-0.5 rounded border"
+                          className="px-1.5 py-0.5 rounded-sm border"
                           style={{ borderColor: 'var(--border-color)' }}
                         >
                           up
                         </kbd>
                         <kbd
-                          className="px-1.5 py-0.5 rounded border ml-1"
+                          className="px-1.5 py-0.5 rounded-sm border ml-1"
                           style={{ borderColor: 'var(--border-color)' }}
                         >
                           down
@@ -311,7 +311,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                       </span>
                       <span>
                         <kbd
-                          className="px-1.5 py-0.5 rounded border"
+                          className="px-1.5 py-0.5 rounded-sm border"
                           style={{ borderColor: 'var(--border-color)' }}
                         >
                           enter
@@ -320,7 +320,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                       </span>
                       <span>
                         <kbd
-                          className="px-1.5 py-0.5 rounded border"
+                          className="px-1.5 py-0.5 rounded-sm border"
                           style={{ borderColor: 'var(--border-color)' }}
                         >
                           esc

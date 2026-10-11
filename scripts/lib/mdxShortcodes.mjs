@@ -1,8 +1,5 @@
 import { characterNoteAvatars } from '../../shared/character-note-config.js';
-import {
-  MDX_COMPONENT_REGISTRY,
-  normalizeMdxComponentNames,
-} from '../../shared/mdxComponents.js';
+import { MDX_COMPONENT_REGISTRY, normalizeMdxComponentNames } from '../../shared/mdxComponents.js';
 
 const CALLOUT_TONES = new Set(['note', 'tip', 'warning', 'important']);
 const CHARACTER_NOTE_TYPES = new Set(['info', 'warning', 'alert', 'success', 'tip']);

@@ -3,7 +3,8 @@ import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from
 
 import { normalizeMermaidDiagram, waitForDiagramFonts } from '../utils/mermaidLayout';
 import { createLogger } from '../utils/logger';
-import { sanitizeMermaidSvg } from '../utils/sanitizeMermaidSvg';
+import { chartHasMath, sanitizeMermaidSvg } from '../utils/sanitizeMermaidSvg';
+import { loadKatex } from '../utils/renderMath';
 
 const logger = createLogger('MermaidDiagram');
 
@@ -25,16 +26,28 @@ async function renderMermaidChart(
 ): Promise<string> {
   await waitForDiagramFonts();
 
-  const mermaid = (await import('mermaid')).default;
+  const hasMath = chartHasMath(chart);
+  const [mermaidModule] = await Promise.all([
+    import('mermaid'),
+    // Mermaid bundles KaTeX for $$...$$ labels but not its stylesheet.
+    hasMath ? loadKatex() : Promise.resolve(null),
+  ]);
+  const mermaid = mermaidModule.default;
   const isInline = mode === 'inline';
 
   mermaid.initialize({
     startOnLoad: false,
     securityLevel: 'strict',
     theme: 'base',
+    // Native MathML output (all evergreen browsers); avoids the legacy HTML fallback.
+    legacyMathML: false,
+    forceLegacyMathML: false,
+    // Mermaid 11's flowchart-v2 renders labels as HTML in <foreignObject> regardless,
+    // so keep HTML labels on consistently; sanitizeMermaidSvg allows them safely.
+    htmlLabels: true,
     flowchart: {
       useMaxWidth: isInline,
-      htmlLabels: false,
+      htmlLabels: true,
       curve: 'basis',
       // padding = space inside node around label
       padding: isInline ? 22 : 28,
@@ -54,7 +67,7 @@ async function renderMermaidChart(
     themeVariables: {
       background: readThemeColor('--background-color', '#0f380f'),
       primaryColor: readThemeColor('--card-color', '#1a4d1a'),
-      primaryTextColor: readThemeColor('--text-color', '#9bbc0f'),
+      primaryTextColor: readThemeColor('--papers-text-color', '#9bbc0f'),
       primaryBorderColor: readThemeColor('--border-unified', '#8bac0f'),
       lineColor: readThemeColor('--muted-color', '#8bac0f'),
       secondaryColor: readThemeColor('--surface-muted', '#306230'),

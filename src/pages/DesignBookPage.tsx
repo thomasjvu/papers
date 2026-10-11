@@ -68,7 +68,7 @@ export default function DesignBookPage() {
     return (
       <div
         className="min-h-screen flex items-center justify-center p-8"
-        style={{ color: 'var(--text-color)' }}
+        style={{ color: 'var(--papers-text-color)' }}
       >
         <p>
           Design book is disabled. Set `designBookConfig.enabled` in shared/documentation-config.js.
@@ -105,13 +105,13 @@ export default function DesignBookPage() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         className="design-book-page min-h-screen"
-        style={{ backgroundColor: 'var(--background-color)', color: 'var(--text-color)' }}
+        style={{ backgroundColor: 'var(--background-color)', color: 'var(--papers-text-color)' }}
       >
         <header
           className="design-book-hero border-b px-6 py-10 md:px-10 md:py-14"
           style={{ borderColor: 'var(--border-unified)' }}
         >
-          <div className="mx-auto flex max-w-[var(--design-book-max-width,72rem)] flex-col gap-6">
+          <div className="mx-auto flex max-w-(--design-book-max-width,72rem) flex-col gap-6">
             <div className="flex flex-wrap items-center justify-between gap-4">
               <Link
                 to="/"
@@ -145,7 +145,7 @@ export default function DesignBookPage() {
                 {book.description ? (
                   <p
                     className="mt-4 max-w-2xl text-base md:text-lg"
-                    style={{ color: 'var(--text-secondary)' }}
+                    style={{ color: 'var(--papers-text-secondary)' }}
                   >
                     {book.description}
                   </p>
@@ -185,7 +185,7 @@ export default function DesignBookPage() {
           </div>
         </header>
 
-        <main className="mx-auto max-w-[var(--design-book-max-width,72rem)] px-6 py-10 md:px-10 md:py-14">
+        <main className="mx-auto max-w-(--design-book-max-width,72rem) px-6 py-10 md:px-10 md:py-14">
           {book.tokens.colors.length > 0 ? (
             <section className="mb-14">
               <h2 className="design-book-section-title mb-2 text-2xl">Color palette</h2>
@@ -222,7 +222,10 @@ export default function DesignBookPage() {
                     </div>
                     <pre
                       className="mt-4 overflow-x-auto rounded-lg p-3 text-xs"
-                      style={{ background: 'var(--code-bg)', color: 'var(--text-secondary)' }}
+                      style={{
+                        background: 'var(--code-bg)',
+                        color: 'var(--papers-text-secondary)',
+                      }}
                     >
                       {JSON.stringify(style, null, 2)}
                     </pre>

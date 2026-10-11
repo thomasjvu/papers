@@ -48,13 +48,13 @@ export default function OpenApiOverview({ artifact }: OpenApiOverviewProps) {
             <h1
               id="openapi-overview-heading"
               className="truncate text-lg font-semibold"
-              style={{ color: 'var(--text-color)', fontFamily: 'var(--title-font)' }}
+              style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--title-font)' }}
             >
               {artifact.title || artifact.label}
             </h1>
             {artifact.version && (
               <span
-                className="rounded border px-2 py-0.5 text-2xs"
+                className="rounded-sm border px-2 py-0.5 text-2xs"
                 style={{
                   borderColor: 'var(--border-unified)',
                   color: 'var(--muted-color)',
@@ -100,13 +100,13 @@ export default function OpenApiOverview({ artifact }: OpenApiOverviewProps) {
                 >
                   {operation.method}
                 </span>
-                <code className="truncate text-xs" style={{ color: 'var(--text-color)' }}>
+                <code className="truncate text-xs" style={{ color: 'var(--papers-text-color)' }}>
                   {operation.path}
                 </code>
               </div>
               <h2
                 className="mt-1 truncate text-2xs font-medium"
-                style={{ color: 'var(--text-color)' }}
+                style={{ color: 'var(--papers-text-color)' }}
               >
                 {operation.summary || operation.operationId || 'Untitled operation'}
               </h2>

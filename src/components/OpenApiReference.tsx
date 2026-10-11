@@ -13,7 +13,7 @@ const scalarCustomCss = `
     --scalar-background-1: var(--background-color, #0f380f);
     --scalar-background-2: var(--card-color, #1a4d1a);
     --scalar-background-3: var(--surface-color, #1a4d1a);
-    --scalar-color-1: var(--text-color, #9bbc0f);
+    --scalar-color-1: var(--papers-text-color, #9bbc0f);
     --scalar-color-2: var(--muted-color, #8bac0f);
     --scalar-color-accent: var(--primary-color, #9bbc0f);
     --scalar-border-color: var(--border-unified, #8bac0f);

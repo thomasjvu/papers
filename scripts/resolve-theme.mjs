@@ -20,10 +20,11 @@ const appDir = resolveAppDir(packageDir);
 const viteEnv = loadViteEnv(appDir, resolveEnvMode());
 
 const { id, manifest, themeDir } = loadThemeManifest(viteEnv.VITE_PAPERS_THEME);
-const themeImports = [`@import '../themes/${id}/tokens.css';`];
+// Theme files join the `papers` cascade layer declared in src/globals.css.
+const themeImports = [`@import '../themes/${id}/tokens.css' layer(papers);`];
 
 if (manifest.fontCss) {
-  themeImports.push(`@import '../themes/${id}/${manifest.fontCss}';`);
+  themeImports.push(`@import '../themes/${id}/${manifest.fontCss}' layer(papers);`);
 }
 
 const themeActivePath = path.join(packageDir, 'src', 'theme-active.css');
@@ -97,11 +98,7 @@ const themeAssetManifest = {
   baseFontFiles: BASE_FONT_FILES,
   generatedFontFiles: generatedFontFiles.sort(),
 };
-writeFileSync(
-  themeAssetManifestPath,
-  `${JSON.stringify(themeAssetManifest, null, 2)}\n`,
-  'utf8'
-);
+writeFileSync(themeAssetManifestPath, `${JSON.stringify(themeAssetManifest, null, 2)}\n`, 'utf8');
 
 const fontSnippets = (manifest.fonts || [])
   .map((font) => {

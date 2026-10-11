@@ -203,8 +203,9 @@ async function generateRouteHtml() {
   const assetsDir = join(distDir, 'assets');
   const builtAssetFiles = existsSync(assetsDir) ? await readdir(assetsDir) : [];
   const templateHtml = stripNonCriticalPreloads(readFileSync(indexHtmlPath, 'utf8'));
-  const homepagePreloads =
-    homepageConfig.enabled ? planHomepagePreloads({ artwork: homepageConfig.hero?.artwork }) : '';
+  const homepagePreloads = homepageConfig.enabled
+    ? planHomepagePreloads({ artwork: homepageConfig.hero?.artwork })
+    : '';
   const agentLinks = [
     {
       href: buildAbsoluteUrl(AGENT_DISCOVERY_PATH, siteUrl) || AGENT_DISCOVERY_PATH,

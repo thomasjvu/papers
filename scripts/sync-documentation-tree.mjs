@@ -2,10 +2,7 @@ import { existsSync, readFileSync, readdirSync, statSync, writeFileSync } from '
 import { join } from 'node:path';
 
 import { documentationTree } from '../shared/documentation-config.js';
-import {
-  addFileToTree,
-  replaceDocumentationTreeExport,
-} from './lib/documentationTreeWriter.mjs';
+import { addFileToTree, replaceDocumentationTreeExport } from './lib/documentationTreeWriter.mjs';
 
 const contentRoot = join(process.cwd(), 'src/docs/content');
 const configPath = join(process.cwd(), 'shared/documentation-config.js');
@@ -95,7 +92,9 @@ if (mode === 'write' && missingFromTree.length > 0) {
   const updated = replaceDocumentationTreeExport(source, tree);
   writeFileSync(configPath, updated, 'utf8');
 
-  console.log(`Added ${missingFromTree.length} entr${missingFromTree.length === 1 ? 'y' : 'ies'} to documentationTree:`);
+  console.log(
+    `Added ${missingFromTree.length} entr${missingFromTree.length === 1 ? 'y' : 'ies'} to documentationTree:`
+  );
   for (const path of missingFromTree) {
     console.log(`  + ${path}`);
   }

@@ -4,7 +4,10 @@ import {
   getContentSchemaFields,
   getContentSchemaVersion,
 } from '../../shared/contentSchema.js';
-import { getCollectionArtifactPaths, getCollectionVariants } from '../../shared/content-collections.js';
+import {
+  getCollectionArtifactPaths,
+  getCollectionVariants,
+} from '../../shared/content-collections.js';
 
 /**
  * Build a stable, typed collection manifest for tooling and runtime consumers.
@@ -28,7 +31,9 @@ export function createContentCollectionManifest({ collection, index, documents }
   return {
     contractVersion: 1,
     schemaVersion:
-      collection?.schemaVersion || getContentSchemaVersion(collection?.schemaAdapter) || DOCUMENT_FRONTMATTER_SCHEMA_VERSION,
+      collection?.schemaVersion ||
+      getContentSchemaVersion(collection?.schemaAdapter) ||
+      DOCUMENT_FRONTMATTER_SCHEMA_VERSION,
     collection: collection?.id || 'docs',
     label: collection?.label || 'Documentation',
     routePrefix: collection?.routePrefix || '/docs',
@@ -36,7 +41,9 @@ export function createContentCollectionManifest({ collection, index, documents }
     artifacts: getCollectionArtifactPaths(collection),
     generated: index?.generated || null,
     count: entries.length,
-    schema: getContentSchemaFields(collection?.schemaAdapter || collection?.frontmatterSchema || documentFrontmatterSchema),
+    schema: getContentSchemaFields(
+      collection?.schemaAdapter || collection?.frontmatterSchema || documentFrontmatterSchema
+    ),
     variants: getCollectionVariants(collection),
     navigation: collection?.tree || [],
     entries,
@@ -47,11 +54,12 @@ export function createContentCollectionsManifest({ collections, manifests }) {
   return {
     contractVersion: 1,
     schemaVersion: 1,
-    generated: collections
-      .map((collection) => manifests?.[collection.id]?.generated || null)
-      .filter(Boolean)
-      .sort()
-      .at(-1) || null,
+    generated:
+      collections
+        .map((collection) => manifests?.[collection.id]?.generated || null)
+        .filter(Boolean)
+        .sort()
+        .at(-1) || null,
     collections: collections.map((collection) => ({
       id: collection.id,
       label: collection.label,

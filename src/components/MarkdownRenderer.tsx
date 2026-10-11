@@ -16,6 +16,8 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
+import MathFormula from './MathFormula';
+import { hydrateMathPlaceholders } from '../utils/renderMath';
 const MermaidDiagram = lazy(() => import('./MermaidDiagram'));
 
 const componentLogger = createLogger('MarkdownRenderer');
@@ -34,12 +36,26 @@ const HTML_RENDERER_SANITIZE_CONFIG = {
 };
 
 export function HtmlRenderer({ html }: HtmlRendererProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const sanitizedHtml = useMemo(
     () => DOMPurify.sanitize(html, HTML_RENDERER_SANITIZE_CONFIG),
     [html]
   );
 
-  return <div dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
+  // Typeset math placeholders emitted by the MDX pipeline (scripts/lib/mdxCompile.mjs).
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) {
+      return undefined;
+    }
+    let cancelled = false;
+    void hydrateMathPlaceholders(container, () => cancelled);
+    return () => {
+      cancelled = true;
+    };
+  }, [sanitizedHtml]);
+
+  return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
 }
 
 interface ProcessedMarkdownData {
@@ -175,7 +191,7 @@ function showCopyToast(message: string): void {
     opacity: 0;
     transition: opacity 0.3s ease;
     font-family: var(--mono-font);
-    font-size: var(--text-xs);
+    font-size: var(--papers-text-xs);
     pointer-events: none;
   `;
 
@@ -295,6 +311,22 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       >
         <MermaidDiagram chart={block.chart} />
       </Suspense>
+    );
+  }
+
+  if ((tagName === 'div' || tagName === 'span') && element.hasAttribute('data-math-tex')) {
+    let tex = '';
+    try {
+      tex = decodeURIComponent(element.getAttribute('data-math-tex') || '');
+    } catch {
+      tex = element.textContent || '';
+    }
+    return (
+      <MathFormula
+        key={key}
+        tex={tex}
+        displayMode={element.getAttribute('data-math-display') === 'true'}
+      />
     );
   }
 
@@ -657,11 +689,11 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
     return (
       <MotionDiv initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
         <div className="animate-pulse space-y-4">
-          <div className="ui-skeleton-strong h-8 w-3/4 rounded"></div>
-          <div className="ui-skeleton h-4 w-full rounded"></div>
-          <div className="ui-skeleton h-4 w-5/6 rounded"></div>
-          <div className="ui-skeleton h-32 rounded"></div>
-          <div className="ui-skeleton h-4 w-4/5 rounded"></div>
+          <div className="ui-skeleton-strong h-8 w-3/4 rounded-sm"></div>
+          <div className="ui-skeleton h-4 w-full rounded-sm"></div>
+          <div className="ui-skeleton h-4 w-5/6 rounded-sm"></div>
+          <div className="ui-skeleton h-32 rounded-sm"></div>
+          <div className="ui-skeleton h-4 w-4/5 rounded-sm"></div>
         </div>
       </MotionDiv>
     );

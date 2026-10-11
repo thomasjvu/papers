@@ -1,4 +1,8 @@
-import { documentationTree, homepageConfig, openapiConfig } from '../../shared/documentation-config.js';
+import {
+  documentationTree,
+  homepageConfig,
+  openapiConfig,
+} from '../../shared/documentation-config.js';
 import {
   buildAbsoluteUrl,
   DEFAULT_OG_IMAGE_PATH,
@@ -114,7 +118,13 @@ function getDocumentForRoute(docPath, routePath, documentsByPath, options) {
   return documentsByPath[defaultVariantKey] || documentsByPath[docPath] || null;
 }
 
-function registerDocsRouteVariants(registerRoute, slugPath, canonicalDocPath, documentsByPath, options) {
+function registerDocsRouteVariants(
+  registerRoute,
+  slugPath,
+  canonicalDocPath,
+  documentsByPath,
+  options
+) {
   const routePaths = options.collection
     ? buildCollectionRouteVariants(options.collection, slugPath, {
         versionConfig: options.versionConfig,
@@ -190,8 +200,7 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   }
 
   const navigationTree = options.documentationTree || documentationTree;
-  const defaultDocPath =
-    options.defaultDocumentPath || getDefaultDocumentPath(navigationTree);
+  const defaultDocPath = options.defaultDocumentPath || getDefaultDocumentPath(navigationTree);
   if (defaultDocPath) {
     registerDocsRouteVariants(registerRoute, '', defaultDocPath, documentsByPath, {
       ...routeOptions,
@@ -235,7 +244,11 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   return entries;
 }
 
-export function createAllCollectionSeoRouteEntries(collections, artifactsByCollectionId, options = {}) {
+export function createAllCollectionSeoRouteEntries(
+  collections,
+  artifactsByCollectionId,
+  options = {}
+) {
   const routeMap = new Map();
   const entries = [];
   const primaryCollection =
@@ -261,9 +274,7 @@ export function createAllCollectionSeoRouteEntries(collections, artifactsByColle
     entries.push(...collectionEntries);
   }
 
-  const primaryArtifacts = primaryCollection
-    ? artifactsByCollectionId[primaryCollection.id]
-    : null;
+  const primaryArtifacts = primaryCollection ? artifactsByCollectionId[primaryCollection.id] : null;
   const hostedDocumentAliases = ['llms', 'skill'];
 
   for (const docPath of hostedDocumentAliases) {
@@ -363,16 +374,10 @@ export function createSocialCardSvg({ title, description, siteName, label }) {
   const safeDescription = descriptionLines.length > 0 ? descriptionLines : [siteName];
 
   const titleMarkup = safeTitle
-    .map(
-      (line, index) =>
-        `<tspan x="88" dy="${index === 0 ? 0 : 58}">${escapeXml(line)}</tspan>`
-    )
+    .map((line, index) => `<tspan x="88" dy="${index === 0 ? 0 : 58}">${escapeXml(line)}</tspan>`)
     .join('');
   const descriptionMarkup = safeDescription
-    .map(
-      (line, index) =>
-        `<tspan x="88" dy="${index === 0 ? 0 : 34}">${escapeXml(line)}</tspan>`
-    )
+    .map((line, index) => `<tspan x="88" dy="${index === 0 ? 0 : 34}">${escapeXml(line)}</tspan>`)
     .join('');
 
   return [

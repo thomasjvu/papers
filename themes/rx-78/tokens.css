@@ -23,8 +23,8 @@
   --border-color: var(--rx-line-strong);
   --border-soft: var(--rx-line);
   --border-unified: var(--rx-line);
-  --text-color: var(--rx-ink);
-  --text-secondary: #27272a;
+  --papers-text-color: var(--rx-ink);
+  --papers-text-secondary: #27272a;
   --muted-color: var(--rx-steel);
   --mono-font: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
   --brand-font: 'Oxanium', 'Sora', sans-serif;
@@ -119,10 +119,10 @@
   --highlight-bg: var(--rx-yellow);
   --highlight-text: var(--rx-ink);
   --highlight-border: color-mix(in srgb, var(--rx-yellow) 70%, var(--rx-red));
-  --radius-sm: 6px;
-  --radius-md: 6px;
-  --radius-lg: 0px;
-  --radius-xl: 0px;
+  --papers-radius-sm: 6px;
+  --papers-radius-md: 6px;
+  --papers-radius-lg: 0px;
+  --papers-radius-xl: 0px;
 }
 
 .dark {
@@ -143,8 +143,8 @@
   --border-color: var(--rx-line-strong);
   --border-soft: var(--rx-line);
   --border-unified: var(--rx-line);
-  --text-color: #f1f4fb;
-  --text-secondary: #d4d8e4;
+  --papers-text-color: #f1f4fb;
+  --papers-text-secondary: #d4d8e4;
   --muted-color: #9aa3b8;
   --icon-color: #5a82dc;
   --primary-color-rgb: 90, 130, 220;
@@ -227,7 +227,7 @@
   --table-header-inline-code-text: var(--rx-white);
   --table-header-inline-code-border: rgba(255, 255, 255, 0.28);
   --table-cell-bg: var(--card-color);
-  --table-cell-text: var(--text-color);
+  --table-cell-text: var(--papers-text-color);
   --table-row-alt-bg: rgba(90, 130, 220, 0.1);
   --table-border-color: var(--rx-line-strong);
   --table-wrap-border: 1px solid var(--rx-line-strong);

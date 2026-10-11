@@ -40,15 +40,15 @@ export function HeroSection({ hero }: HeroSectionProps) {
         />
       </div>
 
-      <div className="container mx-auto px-6">
+      <div className="papers-container mx-auto px-6">
         <div className="text-center max-w-4xl mx-auto">
           <h1
             className="mb-6 font-bold"
             style={{
               fontFamily:
                 brandingConfig.heroFont === 'brand' ? 'var(--brand-font)' : 'var(--title-font)',
-              color: 'var(--text-color)',
-              fontSize: 'clamp(var(--text-4xl), 7vw, 5.75rem)',
+              color: 'var(--papers-text-color)',
+              fontSize: 'clamp(var(--papers-text-4xl), 7vw, 5.75rem)',
               letterSpacing: '-0.04em',
               lineHeight: 0.92,
             }}
@@ -61,7 +61,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
             style={{
               fontFamily: 'var(--mono-font)',
               color: 'var(--primary-color)',
-              fontSize: 'clamp(var(--text-lg), 2vw, var(--text-2xl))',
+              fontSize: 'clamp(var(--papers-text-lg), 2vw, var(--papers-text-2xl))',
             }}
           >
             {hero.subtitle}
@@ -71,8 +71,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
             className="mb-10 max-w-2xl mx-auto"
             style={{
               color: 'var(--muted-color)',
-              fontSize: 'clamp(var(--text-base), 1.5vw, var(--text-lg))',
-              lineHeight: 'var(--leading-loose)',
+              fontSize: 'clamp(var(--papers-text-base), 1.5vw, var(--papers-text-lg))',
+              lineHeight: 'var(--papers-leading-loose)',
             }}
           >
             {hero.description}
@@ -86,7 +86,7 @@ export function HeroSection({ hero }: HeroSectionProps) {
                 backgroundColor: 'var(--primary-color)',
                 color: 'var(--selection-text-color)',
                 fontFamily: 'var(--mono-font)',
-                fontSize: 'var(--text-base)',
+                fontSize: 'var(--papers-text-base)',
               }}
             >
               {hero.cta.primary.text}
@@ -98,9 +98,9 @@ export function HeroSection({ hero }: HeroSectionProps) {
               className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-lg font-semibold border transition-all hover:scale-105"
               style={{
                 borderColor: 'var(--border-unified)',
-                color: 'var(--text-color)',
+                color: 'var(--papers-text-color)',
                 fontFamily: 'var(--mono-font)',
-                fontSize: 'var(--text-base)',
+                fontSize: 'var(--papers-text-base)',
               }}
             >
               <Icon icon="mingcute:book-2-line" width="20" />
@@ -132,8 +132,8 @@ export function HeroSection({ hero }: HeroSectionProps) {
                   style={{
                     color: 'var(--muted-color)',
                     fontFamily: 'var(--mono-font)',
-                    fontSize: 'var(--text-xs)',
-                    lineHeight: 'var(--leading-relaxed)',
+                    fontSize: 'var(--papers-text-xs)',
+                    lineHeight: 'var(--papers-leading-relaxed)',
                   }}
                 >
                   {hero.artwork.caption}

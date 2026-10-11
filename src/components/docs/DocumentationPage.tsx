@@ -253,7 +253,7 @@ const DocumentationPage = React.memo(
       () => ({
         backgroundColor: 'var(--card-color)',
         border: '1px solid var(--border-unified)',
-        color: 'var(--text-color)',
+        color: 'var(--papers-text-color)',
       }),
       []
     );
@@ -262,7 +262,7 @@ const DocumentationPage = React.memo(
       () => ({
         backgroundColor: 'var(--card-color)',
         borderColor: 'var(--border-unified)',
-        color: 'var(--text-color)',
+        color: 'var(--papers-text-color)',
         fontFamily: 'var(--mono-font)',
       }),
       []
@@ -328,7 +328,7 @@ const DocumentationPage = React.memo(
                   <Link
                     to="/"
                     className="group inline-flex min-w-0 items-center gap-3"
-                    style={{ color: 'var(--text-color)' }}
+                    style={{ color: 'var(--papers-text-color)' }}
                   >
                     {brandingConfig.logo?.src ? (
                       <img
@@ -341,7 +341,7 @@ const DocumentationPage = React.memo(
                       <span
                         className="inline-flex h-9 w-9 shrink-0 items-center justify-center text-sm font-black"
                         style={{
-                          color: 'var(--text-color)',
+                          color: 'var(--papers-text-color)',
                           fontFamily: 'var(--mono-font)',
                         }}
                       >
@@ -351,7 +351,7 @@ const DocumentationPage = React.memo(
                     <span
                       className="min-w-0 truncate font-black uppercase tracking-[0.12em]"
                       style={{
-                        color: 'var(--text-color)',
+                        color: 'var(--papers-text-color)',
                         fontFamily: 'var(--mono-font)',
                         fontSize: 'clamp(1.15rem, 1.8vw, 1.45rem)',
                         lineHeight: 1,
@@ -366,7 +366,7 @@ const DocumentationPage = React.memo(
                       onClick={toggleSidebar}
                       className="rounded-full p-2 transition-opacity hover:opacity-70 md:hidden"
                       aria-label="Close sidebar"
-                      style={{ color: 'var(--text-color)' }}
+                      style={{ color: 'var(--papers-text-color)' }}
                       type="button"
                     >
                       <Icon icon="mingcute:close-line" className="h-5 w-5" />
@@ -385,7 +385,7 @@ const DocumentationPage = React.memo(
                     <span className="truncate">Search docs</span>
                   </span>
                   <kbd
-                    className="hidden rounded border px-1.5 py-0.5 text-xs md:inline-block"
+                    className="hidden rounded-sm border px-1.5 py-0.5 text-xs md:inline-block"
                     style={{ borderColor: 'var(--border-unified)', color: 'var(--muted-color)' }}
                   >
                     {shortcutLabel}
@@ -457,7 +457,7 @@ const DocumentationPage = React.memo(
                     </p>
                     <p
                       className="text-sm"
-                      style={{ color: 'var(--text-color)', fontFamily: 'var(--mono-font)' }}
+                      style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--mono-font)' }}
                     >
                       Theme and motion
                     </p>
@@ -615,7 +615,7 @@ const DocumentationPage = React.memo(
               </AnimatePresence>
             </div>
 
-            <div className="flex-shrink-0 pt-3">
+            <div className="shrink-0 pt-3">
               <SiteAttribution className="pb-3" density="compact" />
             </div>
           </div>

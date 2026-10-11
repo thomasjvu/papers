@@ -42,7 +42,7 @@ export default function DocumentBacklinks({ backlinks }: DocumentBacklinksProps)
             <Link
               to={backlink.href}
               className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
-              style={{ color: 'var(--text-color)' }}
+              style={{ color: 'var(--papers-text-color)' }}
             >
               <span>{backlink.source}</span>
               <span

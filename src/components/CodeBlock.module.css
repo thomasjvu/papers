@@ -1,212 +1,215 @@
-/* Theme-driven code block chrome — shape tokens live on each theme's tokens.css */
-.codeBlockContainer {
-  margin: 1.5rem 0;
-  border-radius: var(--code-block-radius, 12px);
-  clip-path: var(--code-block-clip-path, none);
-  overflow: hidden;
-  background-color: var(--code-bg);
-  border: var(--code-block-border-width, 1px) solid var(--code-border-color);
-  box-shadow: var(--code-block-shadow, none);
-  transition: border-color 0.3s ease;
-}
-
-.codeBlockContainer:hover {
-  border-color: rgba(var(--primary-color-rgb), 0.18);
-}
-
-.codeBlockTitle {
-  padding: 1rem 1.5rem 0;
-}
-
-.codeBlockTitle h4 {
-  margin: 0;
-}
-
-.codeBlockTabs {
-  display: flex;
-  padding: 0 1.5rem;
-  margin-top: 1rem;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-}
-
-.codeBlockTab {
-  padding: 0.4375rem 0.875rem;
-  border: 1px solid var(--code-border-color);
-  border-radius: var(--code-block-radius, 6px);
-  font-family: var(--mono-font);
-  font-size: var(--code-label-size);
-  font-weight: 500;
-  color: var(--code-muted-color);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  background: transparent;
-  outline: none;
-}
-
-.codeBlockTab:hover {
-  background-color: var(--code-header-bg);
-  color: var(--code-text-color);
-}
-
-.codeBlockTab:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-.codeBlockWrapper {
-  position: relative;
-}
-
-.codeBlockHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1.25rem 0;
-  background-color: var(--code-bg);
-  border-bottom: none;
-}
-
-.codeBlockLanguage {
-  font-family: var(--mono-font);
-  font-size: var(--code-label-size);
-  font-weight: 600;
-  color: var(--code-muted-color);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-
-.codeBlockCopyBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0;
-  padding: 0.375rem;
-  min-width: 1.75rem;
-  min-height: 1.75rem;
-  border: none;
-  border-radius: var(--code-block-radius, 6px);
-  background-color: transparent;
-  color: var(--code-copy-text, var(--code-text-color));
-  font-family: var(--mono-font);
-  font-size: var(--code-label-size);
-  line-height: 1;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  outline: none;
-}
-
-.codeBlockCopyBtn:hover {
-  background-color: transparent;
-  border-color: transparent;
-  color: var(--code-copy-text, var(--code-text-color));
-  opacity: 0.72;
-}
-
-.codeBlockCopyBtn:focus {
-  outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
-}
-
-.codeBlockCopyLabel {
-  font-family: var(--mono-font);
-  font-size: var(--code-label-size);
-  letter-spacing: 0.02em;
-}
-
-.codeBlockContent {
-  margin: 0;
-  padding: 0;
-  min-height: calc(
-    var(--code-block-min-lines, 0) * var(--code-line-height) * var(--code-font-size) + 1.5rem
-  );
-  background-color: var(--code-bg);
-  font-family: var(--mono-font) !important;
-  font-size: var(--code-font-size);
-  line-height: var(--code-line-height);
-  overflow-x: auto;
-  white-space: pre-wrap;
-  word-break: normal;
-  overflow-wrap: break-word;
-  color: var(--code-text-color);
-  border: none;
-  box-shadow: none;
-}
-
-.codeBlockContent pre,
-.codeBlockContent code {
-  white-space: pre-wrap !important;
-  word-break: normal;
-  overflow-wrap: break-word;
-}
-
-.codeBlockContent code {
-  font-family: inherit !important;
-  font-size: inherit !important;
-  color: inherit !important;
-  background: none !important;
-  padding: 0 !important;
-  border-radius: 0 !important;
-}
-
-.codeBlockTabActive {
-  background-color: var(--code-active-bg);
-  color: var(--code-active-text);
-  border-color: var(--code-active-bg);
-}
-
-.codeBlockContentHidden {
-  display: none;
-}
-
-.codeBlockContentActive {
-  display: block;
-}
-
-@media (max-width: 640px) {
+/* Joins the `papers` cascade layer declared in src/globals.css. */
+@layer papers {
+  /* Theme-driven code block chrome — shape tokens live on each theme's tokens.css */
   .codeBlockContainer {
     margin: 1.5rem 0;
+    border-radius: var(--code-block-radius, 12px);
+    clip-path: var(--code-block-clip-path, none);
+    overflow: hidden;
+    background-color: var(--code-bg);
+    border: var(--code-block-border-width, 1px) solid var(--code-border-color);
+    box-shadow: var(--code-block-shadow, none);
+    transition: border-color 0.3s ease;
+  }
+
+  .codeBlockContainer:hover {
+    border-color: rgba(var(--primary-color-rgb), 0.18);
   }
 
   .codeBlockTitle {
-    padding: 0.75rem 1rem 0;
+    padding: 1rem 1.5rem 0;
+  }
+
+  .codeBlockTitle h4 {
+    margin: 0;
   }
 
   .codeBlockTabs {
-    padding: 0 1rem;
-    gap: 0.25rem;
+    display: flex;
+    padding: 0 1.5rem;
+    margin-top: 1rem;
+    gap: 0.5rem;
+    flex-wrap: wrap;
   }
 
   .codeBlockTab {
-    padding: 0.375rem 0.75rem;
+    padding: 0.4375rem 0.875rem;
+    border: 1px solid var(--code-border-color);
+    border-radius: var(--code-block-radius, 6px);
+    font-family: var(--mono-font);
     font-size: var(--code-label-size);
+    font-weight: 500;
+    color: var(--code-muted-color);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: transparent;
+    outline: none;
+  }
+
+  .codeBlockTab:hover {
+    background-color: var(--code-header-bg);
+    color: var(--code-text-color);
+  }
+
+  .codeBlockTab:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .codeBlockWrapper {
+    position: relative;
   }
 
   .codeBlockHeader {
-    padding: 0.5rem 1rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.25rem 0;
+    background-color: var(--code-bg);
+    border-bottom: none;
   }
 
   .codeBlockLanguage {
+    font-family: var(--mono-font);
     font-size: var(--code-label-size);
+    font-weight: 600;
+    color: var(--code-muted-color);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
 
   .codeBlockCopyBtn {
-    padding: 0.25rem 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 0.375rem;
+    min-width: 1.75rem;
+    min-height: 1.75rem;
+    border: none;
+    border-radius: var(--code-block-radius, 6px);
+    background-color: transparent;
+    color: var(--code-copy-text, var(--code-text-color));
+    font-family: var(--mono-font);
     font-size: var(--code-label-size);
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    outline: none;
+  }
+
+  .codeBlockCopyBtn:hover {
+    background-color: transparent;
+    border-color: transparent;
+    color: var(--code-copy-text, var(--code-text-color));
+    opacity: 0.72;
+  }
+
+  .codeBlockCopyBtn:focus {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  .codeBlockCopyLabel {
+    font-family: var(--mono-font);
+    font-size: var(--code-label-size);
+    letter-spacing: 0.02em;
   }
 
   .codeBlockContent {
-    padding: 1rem;
+    margin: 0;
+    padding: 0;
+    min-height: calc(
+      var(--code-block-min-lines, 0) * var(--code-line-height) * var(--code-font-size) + 1.5rem
+    );
+    background-color: var(--code-bg);
+    font-family: var(--mono-font) !important;
     font-size: var(--code-font-size);
+    line-height: var(--code-line-height);
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: normal;
+    overflow-wrap: break-word;
+    color: var(--code-text-color);
+    border: none;
+    box-shadow: none;
   }
-}
 
-.reduceMotion .codeBlockContainer {
-  transition: none;
-}
+  .codeBlockContent pre,
+  .codeBlockContent code {
+    white-space: pre-wrap !important;
+    word-break: normal;
+    overflow-wrap: break-word;
+  }
 
-.reduceMotion .codeBlockContainer:hover {
-  border-color: var(--code-border-color);
+  .codeBlockContent code {
+    font-family: inherit !important;
+    font-size: inherit !important;
+    color: inherit !important;
+    background: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+  }
+
+  .codeBlockTabActive {
+    background-color: var(--code-active-bg);
+    color: var(--code-active-text);
+    border-color: var(--code-active-bg);
+  }
+
+  .codeBlockContentHidden {
+    display: none;
+  }
+
+  .codeBlockContentActive {
+    display: block;
+  }
+
+  @media (max-width: 640px) {
+    .codeBlockContainer {
+      margin: 1.5rem 0;
+    }
+
+    .codeBlockTitle {
+      padding: 0.75rem 1rem 0;
+    }
+
+    .codeBlockTabs {
+      padding: 0 1rem;
+      gap: 0.25rem;
+    }
+
+    .codeBlockTab {
+      padding: 0.375rem 0.75rem;
+      font-size: var(--code-label-size);
+    }
+
+    .codeBlockHeader {
+      padding: 0.5rem 1rem;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .codeBlockLanguage {
+      font-size: var(--code-label-size);
+    }
+
+    .codeBlockCopyBtn {
+      padding: 0.25rem 0.5rem;
+      font-size: var(--code-label-size);
+    }
+
+    .codeBlockContent {
+      padding: 1rem;
+      font-size: var(--code-font-size);
+    }
+  }
+
+  .reduceMotion .codeBlockContainer {
+    transition: none;
+  }
+
+  .reduceMotion .codeBlockContainer:hover {
+    border-color: var(--code-border-color);
+  }
 }

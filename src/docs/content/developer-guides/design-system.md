@@ -94,7 +94,7 @@ For most UI work, start with:
 
 - `--background-color`
 - `--card-color`
-- `--text-color`
+- `--papers-text-color`
 - `--muted-color`
 - `--border-unified`
 - `--control-bg`

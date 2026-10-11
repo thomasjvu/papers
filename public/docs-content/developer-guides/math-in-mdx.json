@@ -1,0 +1,41 @@
+{
+  "path": "developer-guides/math-in-mdx",
+  "title": "Math In MDX",
+  "description": "KaTeX math in .mdx pages, alongside MDX shortcodes.",
+  "frontmatter": {
+    "title": "Math In MDX",
+    "description": "KaTeX math in .mdx pages, alongside MDX shortcodes."
+  },
+  "content": "<h1>Math In MDX</h1>\n<p><code>.mdx</code> pages support the same math syntax as Markdown pages, typeset by KaTeX.</p>\n<h2>Inline</h2>\n<p>The quadratic formula is <span class=\"math-inline\" data-math-tex=\"x%20%3D%20%5Cfrac%7B-b%20%5Cpm%20%5Csqrt%7Bb%5E2%20-%204ac%7D%7D%7B2a%7D\" data-math-display=\"false\">x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}</span>. Prices like $5 or $10\nstay plain text.</p>\n<h2>Display</h2>\n<div class=\"formula math-display\" data-math-tex=\"%5Cnabla%20%5Ccdot%20%5Cmathbf%7BE%7D%20%3D%20%5Cfrac%7B%5Crho%7D%7B%5Cvarepsilon_0%7D\" data-math-display=\"true\"><div class=\"formula__body\">\\nabla \\cdot \\mathbf{E} = \\frac{\\rho}{\\varepsilon_0}</div></div>\n<div class=\"formula math-display\" data-math-tex=\"f(x)%20%3D%20%5Csum_%7Bn%3D0%7D%5E%7B%5Cinfty%7D%20%5Cfrac%7Bf%5E%7B(n)%7D(a)%7D%7Bn!%7D(x%20-%20a)%5En\" data-math-display=\"true\"><div class=\"formula__body\">f(x) = \\sum_{n=0}^{\\infty} \\frac{f^{(n)}(a)}{n!}(x - a)^n</div></div>\n<div class=\"papers-callout papers-callout--note\" data-callout=\"note\">\n<p>Math works next to MDX shortcodes such as callouts and <code>&#x3C;CharacterNote></code>.</p>\n</div>",
+  "contentFormat": "html",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "math-in-mdx",
+      "text": "Math In MDX"
+    },
+    {
+      "depth": 2,
+      "id": "inline",
+      "text": "Inline"
+    },
+    {
+      "depth": 2,
+      "id": "display",
+      "text": "Display"
+    }
+  ],
+  "metadata": {
+    "title": "Math In MDX",
+    "description": "KaTeX math in .mdx pages, alongside MDX shortcodes.",
+    "canonicalPath": "/docs/developer-guides/math-in-mdx",
+    "contentFormat": "html",
+    "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
+  },
+  "references": [],
+  "links": [],
+  "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx"
+}

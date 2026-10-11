@@ -28,7 +28,7 @@ const SettingsMenu = React.memo(({ className = '' }: SettingsMenuProps) => {
 
   const buttonStyle = useMemo(
     () => ({
-      color: 'var(--text-color)',
+      color: 'var(--papers-text-color)',
     }),
     []
   );

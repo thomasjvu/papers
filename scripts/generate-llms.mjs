@@ -11,10 +11,7 @@ import {
 import { homepageConfig } from '../shared/documentation-config.js';
 import { createAgentDiscoveryManifest } from '../shared/seo.js';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
-import {
-  createHostedSkillArtifact,
-  createAllLlmsArtifacts,
-} from './lib/llmsArtifacts.mjs';
+import { createHostedSkillArtifact, createAllLlmsArtifacts } from './lib/llmsArtifacts.mjs';
 import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
 
 const rootDir = process.cwd();
@@ -57,7 +54,8 @@ async function main() {
     fs.writeFileSync(path.join(publicDir, 'llms-full.txt'), llmsArtifacts.llmsFullTxt, 'utf8');
     console.log('Generated llms-full.txt');
 
-    const primaryCollection = collections.find((collection) => collection.id === 'docs') || collections[0];
+    const primaryCollection =
+      collections.find((collection) => collection.id === 'docs') || collections[0];
     const skillRoot = primaryCollection
       ? resolveCollectionContentRoot(primaryCollection, rootDir)
       : path.join(rootDir, 'src', 'docs', 'content');

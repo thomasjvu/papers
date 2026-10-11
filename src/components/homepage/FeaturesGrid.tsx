@@ -13,14 +13,14 @@ interface FeaturesGridProps {
 export function FeaturesGrid({ features }: FeaturesGridProps) {
   return (
     <section className="py-20">
-      <div className="container mx-auto px-6">
+      <div className="papers-container mx-auto px-6">
         <div className="text-center mb-16">
           <h2
             className="font-bold mb-4"
             style={{
               fontFamily: 'var(--title-font)',
-              color: 'var(--text-color)',
-              fontSize: 'clamp(var(--text-2xl), 4vw, var(--text-4xl))',
+              color: 'var(--papers-text-color)',
+              fontSize: 'clamp(var(--papers-text-2xl), 4vw, var(--papers-text-4xl))',
               letterSpacing: '-0.03em',
             }}
           >
@@ -30,8 +30,8 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
             className="max-w-2xl mx-auto"
             style={{
               color: 'var(--muted-color)',
-              fontSize: 'var(--text-lg)',
-              lineHeight: 'var(--leading-loose)',
+              fontSize: 'var(--papers-text-lg)',
+              lineHeight: 'var(--papers-leading-loose)',
             }}
           >
             Built with modern tools and best practices for the best developer experience.
@@ -65,8 +65,8 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
                 className="font-semibold mb-2"
                 style={{
                   fontFamily: 'var(--title-font)',
-                  color: 'var(--text-color)',
-                  fontSize: 'var(--text-lg)',
+                  color: 'var(--papers-text-color)',
+                  fontSize: 'var(--papers-text-lg)',
                 }}
               >
                 {feature.title}
@@ -74,8 +74,8 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
               <p
                 style={{
                   color: 'var(--muted-color)',
-                  fontSize: 'var(--text-base)',
-                  lineHeight: 'var(--leading-relaxed)',
+                  fontSize: 'var(--papers-text-base)',
+                  lineHeight: 'var(--papers-leading-relaxed)',
                 }}
               >
                 {feature.description}

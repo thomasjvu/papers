@@ -1,9 +1,6 @@
 import fs from 'fs';
 
-import {
-  buildCanonicalCollectionPath,
-  buildCanonicalDocsPath,
-} from '../../shared/docsRouting.js';
+import { buildCanonicalCollectionPath, buildCanonicalDocsPath } from '../../shared/docsRouting.js';
 import { extractDescriptionFromMarkdown, buildAbsoluteUrl } from '../../shared/seo.js';
 import { parseFrontmatter } from './docsArtifacts.mjs';
 import { getDefaultDocsVariantContext, resolveDocFileInfo } from './docsVariants.mjs';

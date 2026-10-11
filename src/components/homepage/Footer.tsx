@@ -16,7 +16,7 @@ interface FooterProps {
 export function Footer({ footer }: FooterProps) {
   return (
     <footer className="py-8 border-t" style={{ borderColor: 'var(--border-unified)' }}>
-      <div className="container mx-auto px-6">
+      <div className="papers-container mx-auto px-6">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <span

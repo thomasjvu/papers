@@ -1,6 +1,7 @@
 ﻿import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 
@@ -14,6 +15,7 @@ function readThemeFontSnippet(): string {
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     react(),
     {
       name: 'papers-theme-fonts',

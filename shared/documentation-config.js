@@ -333,6 +333,24 @@ export const documentationTree = [
       },
       {
         type: 'file',
+        name: 'Math And Diagrams.md',
+        path: 'developer-guides/math-and-diagrams',
+        tags: ['math', 'katex', 'mermaid', 'diagrams'],
+      },
+      {
+        type: 'file',
+        name: 'Math In MDX.md',
+        path: 'developer-guides/math-in-mdx',
+        tags: ['math', 'katex', 'mdx'],
+      },
+      {
+        type: 'file',
+        name: 'Tailwind Integration.md',
+        path: 'developer-guides/tailwind-integration',
+        tags: ['tailwind', 'css', 'layers', 'theming'],
+      },
+      {
+        type: 'file',
         name: 'Best Practices.md',
         path: 'developer-guides/best-practices',
         tags: ['best-practices', 'development', 'guide'],

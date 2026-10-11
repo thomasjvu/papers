@@ -61,7 +61,10 @@ function extractVercelHeaders(config) {
   assert(Array.isArray(config.headers), 'vercel.json must define a headers array.');
 
   return config.headers.flatMap((entry, index) => {
-    assert(entry && Array.isArray(entry.headers), 'vercel.json headers entry ' + index + ' is invalid.');
+    assert(
+      entry && Array.isArray(entry.headers),
+      'vercel.json headers entry ' + index + ' is invalid.'
+    );
     return entry.headers.map((header, headerIndex) => {
       assert(
         header && typeof header.key === 'string' && typeof header.value === 'string',
@@ -104,8 +107,7 @@ function validateCsp(policy, label) {
   const expectedNames = Object.keys(REQUIRED_CSP_SOURCES);
 
   assert(
-    directives.size === expectedNames.length &&
-      expectedNames.every((name) => directives.has(name)),
+    directives.size === expectedNames.length && expectedNames.every((name) => directives.has(name)),
     label + ' has an unexpected or missing CSP directive.'
   );
 
@@ -161,7 +163,10 @@ function validateCloudflarePolicy() {
   const headers = extractCloudflareHeaders(text);
   const policies = extractCloudflarePolicies(text);
 
-  assert(policies.length === 1, 'public/_headers must contain exactly one Content-Security-Policy.');
+  assert(
+    policies.length === 1,
+    'public/_headers must contain exactly one Content-Security-Policy.'
+  );
   const policy = validateCsp(policies[0], 'Cloudflare CSP');
   validateHeaders(headers, 'public/_headers');
   return policy;
@@ -206,8 +211,14 @@ function main() {
   const fixturePath = process.argv[2];
   if (fixturePath) {
     const resolvedFixturePath = resolve(rootDir, fixturePath);
-    assert(existsSync(resolvedFixturePath), 'Security policy fixture ' + resolvedFixturePath + ' does not exist.');
-    assert(statSync(resolvedFixturePath).isFile(), 'Security policy fixture ' + resolvedFixturePath + ' is not a file.');
+    assert(
+      existsSync(resolvedFixturePath),
+      'Security policy fixture ' + resolvedFixturePath + ' does not exist.'
+    );
+    assert(
+      statSync(resolvedFixturePath).isFile(),
+      'Security policy fixture ' + resolvedFixturePath + ' is not a file.'
+    );
     checkInsecureFixture(resolvedFixturePath);
   }
 

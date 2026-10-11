@@ -8,10 +8,7 @@ import {
   getCollectionVariants,
   validateContentCollections,
 } from '../shared/content-collections.js';
-import {
-  homepageConfig,
-  openapiConfig,
-} from '../shared/documentation-config.js';
+import { homepageConfig, openapiConfig } from '../shared/documentation-config.js';
 import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
 import { buildCollectionContentPath, buildDocsContentPath } from '../shared/docsRouting.js';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
@@ -104,7 +101,11 @@ async function main() {
     existsSync(openapiArtifactsPath),
     'Missing public/openapi-artifacts.json. Run `npm run generate:openapi`.'
   );
-  const openapiArtifacts = await createOpenApiArtifacts({ rootDir, publicDir, config: openapiConfig });
+  const openapiArtifacts = await createOpenApiArtifacts({
+    rootDir,
+    publicDir,
+    config: openapiConfig,
+  });
   const expectedOpenapiArtifacts = await serializePrettierJson(openapiArtifacts);
   assert(
     readFileText(openapiArtifactsPath) === expectedOpenapiArtifacts,
@@ -132,10 +133,7 @@ async function main() {
     const manifestPath = resolvePublicArtifactPath(artifactPaths.manifest);
     const referencesPath = resolvePublicArtifactPath(artifactPaths.references);
 
-    assert(
-      existsSync(indexPath),
-      `Missing ${artifactPaths.index}. Run \`npm run generate:docs\`.`
-    );
+    assert(existsSync(indexPath), `Missing ${artifactPaths.index}. Run \`npm run generate:docs\`.`);
     assert(
       existsSync(contentDir),
       `Missing ${artifactPaths.content}/. Run \`npm run generate:docs\`.`
@@ -178,7 +176,7 @@ async function main() {
       `${artifactPaths.index} is out of date. Run \`npm run generate:docs\`.`
     );
     assert(
-      readFileText(manifestPath) === await serializePrettierJson(collectionManifest),
+      readFileText(manifestPath) === (await serializePrettierJson(collectionManifest)),
       `${artifactPaths.manifest} is out of date. Run \`npm run generate:docs\`.`
     );
     assert(
@@ -226,13 +224,12 @@ async function main() {
   );
   assert(
     readFileText(collectionsManifestPath) ===
-      (await serializePrettierJson(
-        createContentCollectionsManifest({ collections, manifests })
-      )),
+      (await serializePrettierJson(createContentCollectionsManifest({ collections, manifests }))),
     'public/collections.json is out of date. Run `npm run generate:docs`.'
   );
 
-  const primaryCollection = collections.find((collection) => collection.id === 'docs') || collections[0];
+  const primaryCollection =
+    collections.find((collection) => collection.id === 'docs') || collections[0];
   assert(primaryCollection, 'At least one content collection must be configured.');
 
   const hostedSkillPath = join(publicDir, 'skill.md');
@@ -292,17 +289,13 @@ async function main() {
     'public/llms-full.txt is out of date. Run `npm run generate:llms`.'
   );
 
-  const routeEntries = createAllCollectionSeoRouteEntries(
+  const routeEntries = createAllCollectionSeoRouteEntries(collections, artifactsByCollectionId, {
+    siteName,
+    siteSubtitle,
+    siteDescription,
+    openapiArtifacts,
     collections,
-    artifactsByCollectionId,
-    {
-      siteName,
-      siteSubtitle,
-      siteDescription,
-      openapiArtifacts,
-      collections,
-    }
-  );
+  });
   const socialImages = createDefaultSocialImageManifest({
     siteName,
     siteSubtitle,

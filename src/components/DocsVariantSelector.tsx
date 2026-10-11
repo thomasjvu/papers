@@ -63,7 +63,7 @@ export default function DocsVariantSelector({ docPath, collection }: DocsVariant
           style={{
             backgroundColor: 'var(--card-color)',
             borderColor: 'var(--border-unified)',
-            color: 'var(--text-color)',
+            color: 'var(--papers-text-color)',
             fontFamily: 'var(--mono-font)',
           }}
         >
