@@ -1,7 +1,8 @@
 import { architectureTests } from './architecture.test.ts';
 import { routePreloadTests } from './route-preloads.test.ts';
+import { authoringFeatureTests } from './authoring-features.test.ts';
 
-const testCases = [...architectureTests, ...routePreloadTests];
+const testCases = [...architectureTests, ...routePreloadTests, ...authoringFeatureTests];
 
 let failures = 0;
 

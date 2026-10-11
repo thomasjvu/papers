@@ -78,6 +78,40 @@
     letter-spacing: 0.08em;
   }
 
+  .codeBlockFilename {
+    margin-right: auto;
+    padding-right: 1rem;
+    font-family: var(--mono-font);
+    font-size: var(--code-label-size);
+    color: var(--code-text-color);
+    overflow-wrap: anywhere;
+  }
+
+  .codeBlockFilename + .codeBlockLanguage {
+    margin-right: 0.75rem;
+  }
+
+  .codeLine {
+    margin: 0 -1.25rem;
+    padding: 0 1.25rem;
+    border-left: 3px solid transparent;
+  }
+
+  .codeLineHighlighted {
+    background-color: rgba(var(--primary-color-rgb), 0.12);
+    border-left-color: var(--primary-color);
+  }
+
+  .codeLineAdded {
+    background-color: rgba(34, 160, 90, 0.14);
+    border-left-color: rgb(34, 160, 90);
+  }
+
+  .codeLineRemoved {
+    background-color: rgba(214, 60, 60, 0.14);
+    border-left-color: rgb(214, 60, 60);
+  }
+
   .codeBlockCopyBtn {
     display: flex;
     align-items: center;

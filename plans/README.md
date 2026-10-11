@@ -34,6 +34,7 @@ verification gate, and update the status row below when complete.
 | 021  | Ship smaller font assets without changing the visual system            | P1       | M      | 020           | BLOCKED — no reproducible licensed WOFF2 path             |
 | 022  | Reduce initial docs JavaScript without losing interaction polish       | P1       | M      | 020           | BLOCKED — shell exit timing needs broader runtime scope   |
 | 023  | Use a progressive motion runtime for the docs shell                    | P1       | M      | 022           | TODO                                                      |
+| 024  | Close authoring gaps against mainstream docs templates                 | P1       | M      | none          | IN PROGRESS — callouts and code meta done; gaps ranked    |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED (with one-line
 reason)` | `REJECTED (with one-line rationale)`.

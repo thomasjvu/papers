@@ -1,0 +1,61 @@
+---
+title: Callouts And Code In MDX
+description: Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages.
+---
+
+# Callouts And Code In MDX
+
+`.mdx` pages support the same callout and code fence syntax as
+[Markdown pages](/docs/developer-guides/callouts-and-code). They are compiled
+to sanitized static HTML at build time.
+
+## Callouts
+
+Write `:::type Title` on the first line and `:::` on the last line. The five
+types are `note`, `tip`, `info`, `warning`, and `danger`. In MDX, use a
+plain-text title.
+
+:::note
+MDX callouts hold **Markdown** and code.
+:::
+
+:::warning Breaking change
+`generate:docs` now validates frontmatter.
+:::
+
+::::info Outer
+Give the outer fence more colons to nest callouts.
+
+:::tip Inner
+Inner callout.
+:::
+::::
+
+The `<Callout>` shortcode renders the same callout. `type` accepts `note`,
+`tip`, `info`, `warning`, `danger`, `important`, or `caution`. Put the
+shortcode on its own lines.
+
+<Callout type="danger" title="Shortcode form">
+  Never commit deployment credentials.
+</Callout>
+
+## GitHub Alerts
+
+> [!TIP]
+> GitHub alert syntax also works in MDX.
+
+## Code Fence Metadata
+
+```bash title="setup.sh" {2}
+npm ci
+npm run generate:docs
+npm run dev
+```
+
+```diff title="package.json"
+-    "build": "vite build"
++    "build": "npm run generate:docs && vite build"
+```
+
+Code blocks in MDX pages are static HTML. They have no copy button or syntax
+colors. Use a `.md` page when you need those.

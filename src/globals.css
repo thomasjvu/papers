@@ -2001,6 +2001,118 @@
     content: none !important;
   }
 
+  /* Admonitions: :::note / :::tip / :::info / :::warning / :::danger and GitHub alerts */
+  .admonition {
+    --admonition-accent: var(--primary-color);
+    margin: var(--space-6) 0;
+    padding: var(--space-3) var(--space-4);
+    border: 1px solid var(--border-unified);
+    border-left: 4px solid var(--admonition-accent);
+    border-radius: var(--radius-md, 8px);
+    background-color: color-mix(in srgb, var(--admonition-accent) 7%, transparent);
+  }
+
+  .admonition-tip {
+    --admonition-accent: #15803d;
+  }
+
+  .admonition-info {
+    --admonition-accent: #1d4ed8;
+  }
+
+  .admonition-warning {
+    --admonition-accent: #92400e;
+  }
+
+  .admonition-danger {
+    --admonition-accent: #b91c1c;
+  }
+
+  .dark .admonition-tip {
+    --admonition-accent: #4ade80;
+  }
+
+  .dark .admonition-info {
+    --admonition-accent: #60a5fa;
+  }
+
+  .dark .admonition-warning {
+    --admonition-accent: #fbbf24;
+  }
+
+  .dark .admonition-danger {
+    --admonition-accent: #f87171;
+  }
+
+  .doc-content .admonition-title,
+  .admonition-title {
+    margin: 0 0 var(--space-2);
+    font-family: var(--mono-font);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--admonition-accent);
+  }
+
+  .admonition-content > :first-child {
+    margin-top: 0;
+  }
+
+  .admonition-content > :last-child {
+    margin-bottom: 0;
+  }
+
+  /* MDX callouts carry both class families; the admonition palette wins. */
+  .doc-content .admonition.papers-callout {
+    border-left-color: var(--admonition-accent);
+    background-color: color-mix(in srgb, var(--admonition-accent) 7%, transparent);
+  }
+
+  /* MDX code fences with title / {lines} / diff metadata */
+  .doc-content .papers-code {
+    margin: var(--space-6) 0;
+    border: 1px solid var(--code-border-color, var(--border-unified));
+    border-radius: var(--code-block-radius, 12px);
+    background-color: var(--code-bg);
+    overflow: hidden;
+  }
+
+  .doc-content .papers-code__title {
+    padding: 0.75rem 1.25rem 0;
+    font-family: var(--mono-font);
+    font-size: var(--code-label-size, 0.75rem);
+    color: var(--code-text-color);
+  }
+
+  .doc-content .papers-code pre {
+    margin: 0;
+    padding: 1.25rem 0;
+    background: transparent;
+    overflow-x: auto;
+  }
+
+  .doc-content .papers-code__line {
+    display: block;
+    padding: 0 1.25rem;
+    border-left: 3px solid transparent;
+  }
+
+  .doc-content .papers-code__line--highlighted {
+    background-color: rgba(var(--primary-color-rgb), 0.12);
+    border-left-color: var(--primary-color);
+  }
+
+  .doc-content .papers-code__line--added {
+    background-color: rgba(34, 160, 90, 0.14);
+    border-left-color: rgb(34, 160, 90);
+  }
+
+  .doc-content .papers-code__line--removed {
+    background-color: rgba(214, 60, 60, 0.14);
+    border-left-color: rgb(214, 60, 60);
+  }
+
   /* Epigraph / pull-quote: large open mark with text wrapping beside it */
   .markdown-blockquote {
     position: relative;
