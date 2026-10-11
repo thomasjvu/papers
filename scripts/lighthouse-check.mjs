@@ -61,6 +61,9 @@ function startPreview() {
     cwd,
     env: { ...process.env, BROWSER: 'none' },
     stdio: ['ignore', 'pipe', 'pipe'],
+    // Own process group so stopPreview can kill npm *and* the vite server it spawns;
+    // otherwise the orphaned server keeps the pipes open and the gate never exits.
+    detached: process.platform !== 'win32',
   });
   let logs = '';
   const capture = (chunk) => {
@@ -77,7 +80,11 @@ async function runLighthouseCli(url, base, browserPath) {
   const cliPath = resolve(cwd, 'node_modules/lighthouse/cli/index.js');
   const outputPath = resolve(outputDirectory, base);
   const args = [cliPath, url, '--output=json', '--output=html', `--output-path=${outputPath}`];
-  if (process.getuid?.() === 0) args.push('--chrome-flags=--no-sandbox');
+  // Ubuntu 23.10+ runners disable unprivileged user namespaces, so Chrome's sandbox
+  // cannot start in CI ("No usable sandbox!"); root never has one either.
+  const needsNoSandbox =
+    process.getuid?.() === 0 || (process.platform === 'linux' && Boolean(process.env.CI));
+  args.push(`--chrome-flags=--headless=new${needsNoSandbox ? ' --no-sandbox' : ''}`);
 
   const child = spawn(command, args, {
     cwd,
@@ -105,16 +112,28 @@ async function runLighthouseCli(url, base, browserPath) {
   return { htmlPath, jsonPath, lhr };
 }
 
+function killTree(child, signal) {
+  try {
+    if (process.platform !== 'win32' && child.pid) {
+      process.kill(-child.pid, signal);
+      return;
+    }
+  } catch {
+    // fall through to killing the direct child
+  }
+  child.kill(signal);
+}
+
 async function stopPreview(child) {
   if (!child || (child.exitCode !== null && child.signalCode !== null)) return;
 
   if (child.exitCode === null && child.signalCode === null) {
-    child.kill('SIGTERM');
+    killTree(child, 'SIGTERM');
     await Promise.race([once(child, 'exit'), delay(5_000)]);
   }
 
   if (child.exitCode === null && child.signalCode === null) {
-    child.kill('SIGKILL');
+    killTree(child, 'SIGKILL');
     await Promise.race([once(child, 'exit'), delay(5_000)]);
   }
 }
@@ -216,7 +235,12 @@ async function run() {
   }
 }
 
-run().catch((error) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+run()
+  .catch((error) => {
+    console.error(error instanceof Error ? error.message : error);
+    process.exitCode = 1;
+  })
+  .finally(() => {
+    // Never leave CI hanging on a stray handle once the gate has a result.
+    setTimeout(() => process.exit(process.exitCode ?? 0), 1_000).unref();
+  });
