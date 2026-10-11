@@ -345,6 +345,12 @@ export const documentationTree = [
       },
       {
         type: 'file',
+        name: 'Steps And Cards.md',
+        path: 'developer-guides/steps-and-cards',
+        tags: ['steps', 'cards', 'components', 'layout'],
+      },
+      {
+        type: 'file',
         name: 'Math And Diagrams.md',
         path: 'developer-guides/math-and-diagrams',
         tags: ['math', 'katex', 'mermaid', 'diagrams'],

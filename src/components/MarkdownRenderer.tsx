@@ -55,7 +55,7 @@ function readMermaidChart(element: Element): string | null {
  * callouts and tabs), Mermaid placeholders, and `<Tabs>` become components; every
  * other subtree stays static HTML so math hydration can still typeset it.
  */
-export function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
+function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
   if (node.nodeType === Node.TEXT_NODE) {
     return node.textContent;
   }

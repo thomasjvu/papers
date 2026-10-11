@@ -20,8 +20,16 @@ export const MDX_COMPONENT_REGISTRY = Object.freeze({
     output: 'sanitized details panel',
   }),
   Card: Object.freeze({
-    allowedProps: Object.freeze(['title']),
+    allowedProps: Object.freeze(['title', 'href']),
     output: 'sanitized card div',
+  }),
+  CardGrid: Object.freeze({
+    allowedProps: Object.freeze([]),
+    output: 'sanitized card grid div',
+  }),
+  Steps: Object.freeze({
+    allowedProps: Object.freeze([]),
+    output: 'sanitized numbered steps div',
   }),
   CharacterNote: Object.freeze({
     allowedProps: Object.freeze(['type', 'title']),

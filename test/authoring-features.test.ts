@@ -14,7 +14,7 @@ import { resolveTabIndex } from '../src/lib/tabSync.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
 import { createWordPattern, markWords, type HighlighterNode } from '../src/utils/codeWords.ts';
-import { parseCodeFenceMeta, parseDiffLanguage } from '../shared/codeFence.js';
+import { parseCodeFenceMeta, parseDiffLanguage, sanitizeCardHref } from '../shared/codeFence.js';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -413,6 +413,49 @@ export const authoringFeatureTests: TestCase[] = [
         '<Tabs group="no spaces!">\n  <Tab label="a">x</Tab>\n</Tabs>'
       );
       assert.doesNotMatch(invalid, /data-tabs-group/);
+    },
+  },
+  {
+    name: ':::steps and :::cards render numbered steps and safe link cards',
+    run: async () => {
+      const steps = await render(':::steps\n1. One\n2. Two\n:::');
+      assert.match(steps.html, /^<div class="papers-steps"><ol>\s*<li>One<\/li>/);
+      const cards = await render(
+        ':::cards\n::card [Go](/docs/x)\nBody\n::card [Bad](javascript:alert(1))\nB\n::card Plain\nC\n:::'
+      );
+      assert.match(cards.html, /^<div class="papers-card-grid">/);
+      assert.match(
+        cards.html,
+        /<p class="papers-card__title papers-card__title--link"><a href="\/docs\/x">Go<\/a><\/p><p>Body<\/p>/
+      );
+      assert.match(cards.html, /<p class="papers-card__title">Bad<\/p>/);
+      assert.doesNotMatch(cards.html, /javascript:/);
+      assert.match(cards.html, /<p class="papers-card__title">Plain<\/p>/);
+    },
+  },
+  {
+    name: 'sanitizeCardHref only allows site paths and https URLs',
+    run: () => {
+      assert.equal(sanitizeCardHref('/docs/a#b'), '/docs/a#b');
+      assert.equal(sanitizeCardHref('https://example.com/x'), 'https://example.com/x');
+      for (const bad of ['//evil.com', 'javascript:alert(1)', 'http://x', 'data:text/html,x', '']) {
+        assert.equal(sanitizeCardHref(bad), null, bad);
+      }
+    },
+  },
+  {
+    name: 'MDX <Steps>, <CardGrid>, and <Card href> render sanitized markup',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        '<Steps>\n\n1. One\n\n</Steps>\n\n<CardGrid>\n  <Card title="Go" href="/docs/x">Body</Card>\n  <Card title="Bad" href="javascript:alert(1)">B</Card>\n</CardGrid>'
+      );
+      assert.match(html, /<div class="papers-steps"><ol>/);
+      assert.match(
+        html,
+        /<div class="papers-card-grid"><div class="papers-card"><p class="papers-card__title papers-card__title--link"><a href="\/docs\/x">Go<\/a><\/p>/
+      );
+      assert.match(html, /<p class="papers-card__title">Bad<\/p>/);
+      assert.doesNotMatch(html, /javascript:/);
     },
   },
 ];

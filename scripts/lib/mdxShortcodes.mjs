@@ -1,3 +1,4 @@
+import { sanitizeCardHref } from '../../shared/codeFence.js';
 import { createAdmonitionNode, defaultAdmonitionTitle, toAdmonitionType } from './mdxAuthoring.mjs';
 import { characterNoteAvatars } from '../../shared/character-note-config.js';
 import { MDX_COMPONENT_REGISTRY, normalizeMdxComponentNames } from '../../shared/mdxComponents.js';
@@ -255,18 +256,20 @@ function transformCharacterNote(node) {
 
 function transformCard(node) {
   const title = readJsxAttribute(node.attributes, 'title');
+  const href = sanitizeCardHref(readJsxAttribute(node.attributes, 'href'));
   const children = [...normalizeChildren(node.children)];
 
   if (title) {
+    const titleText = { type: 'text', value: title };
     children.unshift({
       type: 'paragraph',
       data: {
         hName: 'p',
         hProperties: {
-          className: 'papers-card__title',
+          className: href ? 'papers-card__title papers-card__title--link' : 'papers-card__title',
         },
       },
-      children: [{ type: 'text', value: title }],
+      children: href ? [{ type: 'link', url: href, children: [titleText] }] : [titleText],
     });
   }
 
@@ -277,6 +280,16 @@ function transformCard(node) {
     },
     children
   );
+}
+
+function transformCardGrid(node) {
+  return createElement('div', { className: 'papers-card-grid' }, [
+    ...normalizeChildren(node.children),
+  ]);
+}
+
+function transformSteps(node) {
+  return createElement('div', { className: 'papers-steps' }, [...normalizeChildren(node.children)]);
 }
 
 function transformShortcode(node) {
@@ -297,6 +310,10 @@ function transformShortcode(node) {
       return transformTab(node);
     case 'Card':
       return transformCard(node);
+    case 'CardGrid':
+      return transformCardGrid(node);
+    case 'Steps':
+      return transformSteps(node);
     case 'CharacterNote':
       return transformCharacterNote(node);
     default:
@@ -318,7 +335,7 @@ function visitChildren(node, visitor) {
   });
 }
 
-const BLOCK_SHORTCODES = new Set(['Callout', 'Tabs', 'Card', 'CharacterNote']);
+const BLOCK_SHORTCODES = new Set(['Callout', 'Tabs', 'Card', 'CardGrid', 'Steps', 'CharacterNote']);
 
 /**
  * `<Callout>text</Callout>` written on one line parses as a text element inside a
@@ -330,25 +347,29 @@ export function hoistInlineBlockShortcodes(node) {
     return;
   }
 
-  node.children = node.children.map((child) => {
+  node.children = node.children.flatMap((child) => {
     if (child.type === 'paragraph') {
       const meaningful = child.children.filter(
         (leaf) => !(leaf.type === 'text' && leaf.value.trim() === '')
       );
-      const [only] = meaningful;
+      // A paragraph holding only block shortcodes (e.g. several <Card>s on
+      // adjacent lines) becomes those blocks.
       if (
-        meaningful.length === 1 &&
-        only.type === 'mdxJsxTextElement' &&
-        BLOCK_SHORTCODES.has(only.name)
+        meaningful.length > 0 &&
+        meaningful.every(
+          (leaf) => leaf.type === 'mdxJsxTextElement' && BLOCK_SHORTCODES.has(leaf.name)
+        )
       ) {
-        const hoisted = { ...only, type: 'mdxJsxFlowElement' };
-        hoistInlineBlockShortcodes(hoisted);
-        return hoisted;
+        return meaningful.map((leaf) => {
+          const hoisted = { ...leaf, type: 'mdxJsxFlowElement' };
+          hoistInlineBlockShortcodes(hoisted);
+          return hoisted;
+        });
       }
-      return child;
+      return [child];
     }
     hoistInlineBlockShortcodes(child);
-    return child;
+    return [child];
   });
 }
 

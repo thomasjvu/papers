@@ -1,0 +1,65 @@
+{
+  "path": "developer-guides/steps-and-cards",
+  "title": "Steps And Cards",
+  "description": "Numbered steps and link cards for guides and landing pages.",
+  "frontmatter": {
+    "description": "Numbered steps and link cards for guides and landing pages."
+  },
+  "content": "# Steps And Cards\n\nUse steps for procedures that readers follow in order, and cards to point\nreaders to other pages.\n\n## Steps\n\nWrap an ordered list in `:::steps`. Each list item becomes a numbered step.\n\n```md\n:::steps\n\n1. Install the dependencies.\n2. Start the dev server.\n3. Open the local URL.\n   :::\n```\n\n:::steps\n\n1. Install the dependencies.\n\n   ```bash\n   npm install\n   ```\n\n2. Start the dev server.\n\n   ```bash\n   npm run dev\n   ```\n\n3. Open the URL that the dev server prints.\n\n:::\n\n## Cards\n\nPut cards in `:::cards`. Start each card with a `::card Title` line. To link\nthe card, write the title as a Markdown link. Links must be site paths that\nstart with `/` or `https://` URLs. Other links are dropped and the title shows\nas plain text.\n\n```md\n:::cards\n::card [Callouts and code](/docs/developer-guides/callouts-and-code)\nAdmonitions, code titles, and diffs.\n::card [MDX authoring](/docs/developer-guides/callouts-in-mdx)\nThe same features in `.mdx` pages.\n:::\n```\n\n:::cards\n::card [Callouts and code](/docs/developer-guides/callouts-and-code)\nAdmonitions, code titles, and diffs.\n::card [MDX authoring](/docs/developer-guides/callouts-in-mdx)\nThe same features in `.mdx` pages.\n:::\n\n## In MDX\n\nMDX pages use `<Steps>`, `<CardGrid>`, and `<Card title href>`:\n\n```mdx\n<Steps>\n\n1. Install the dependencies.\n2. Start the dev server.\n\n</Steps>\n\n<CardGrid>\n  <Card title=\"Callouts and code\" href=\"/docs/developer-guides/callouts-and-code\">\n    Admonitions, code titles, and diffs.\n  </Card>\n</CardGrid>\n```\n",
+  "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "steps-and-cards",
+      "text": "Steps And Cards"
+    },
+    {
+      "depth": 2,
+      "id": "steps",
+      "text": "Steps"
+    },
+    {
+      "depth": 2,
+      "id": "cards",
+      "text": "Cards"
+    },
+    {
+      "depth": 2,
+      "id": "in-mdx",
+      "text": "In MDX"
+    }
+  ],
+  "metadata": {
+    "title": "Steps And Cards",
+    "description": "Numbered steps and link cards for guides and landing pages.",
+    "canonicalPath": "/docs/developer-guides/steps-and-cards",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
+  },
+  "references": [
+    {
+      "target": "/docs/developer-guides/callouts-and-code",
+      "line": 58
+    },
+    {
+      "target": "/docs/developer-guides/callouts-in-mdx",
+      "line": 60
+    }
+  ],
+  "links": [
+    {
+      "target": "/docs/developer-guides/callouts-and-code",
+      "line": 58,
+      "type": "internal"
+    },
+    {
+      "target": "/docs/developer-guides/callouts-in-mdx",
+      "line": 60,
+      "type": "internal"
+    }
+  ],
+  "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md"
+}

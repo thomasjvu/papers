@@ -20,4 +20,5 @@ declare module '*/shared/codeFence.js' {
     syntaxLanguage: string;
   };
   export function getDiffLineKind(line: string, isDiff: boolean): CodeLineKind;
+  export function sanitizeCardHref(href: string | undefined): string | null;
 }

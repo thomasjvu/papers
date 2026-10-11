@@ -84,3 +84,14 @@ export function getDiffLineKind(line, isDiff) {
   if (line.startsWith('-') && !line.startsWith('---')) return 'removed';
   return null;
 }
+
+/**
+ * Card links accept site-relative paths (`/docs/...`) and https URLs only.
+ * Anything else (protocol-relative, javascript:, data:) is dropped.
+ */
+export function sanitizeCardHref(href) {
+  const value = String(href || '').trim();
+  if (/^\/(?!\/)[^\s"'<>]*$/.test(value)) return value;
+  if (/^https:\/\/[^\s"'<>]+$/i.test(value)) return value;
+  return null;
+}

@@ -11,8 +11,8 @@
     "manifest": "/docs-collection.json",
     "references": "/docs-references.json"
   },
-  "generated": "2026-10-11T13:11:16.429Z",
-  "count": 32,
+  "generated": "2026-10-11T15:47:41.245Z",
+  "count": 33,
   "schema": {
     "title": {
       "type": "string"
@@ -189,6 +189,12 @@
           "name": "Callouts And Code In MDX.md",
           "path": "developer-guides/callouts-in-mdx",
           "tags": ["callouts", "admonitions", "code", "mdx"]
+        },
+        {
+          "type": "file",
+          "name": "Steps And Cards.md",
+          "path": "developer-guides/steps-and-cards",
+          "tags": ["steps", "cards", "components", "layout"]
         },
         {
           "type": "file",
@@ -623,6 +629,25 @@
         "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx"
+    },
+    {
+      "path": "developer-guides/steps-and-cards",
+      "title": "Steps And Cards",
+      "description": "Numbered steps and link cards for guides and landing pages.",
+      "frontmatter": {
+        "description": "Numbered steps and link cards for guides and landing pages."
+      },
+      "metadata": {
+        "title": "Steps And Cards",
+        "description": "Numbered steps and link cards for guides and landing pages.",
+        "canonicalPath": "/docs/developer-guides/steps-and-cards",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md"
     },
     {
       "path": "developer-guides/tailwind-integration",

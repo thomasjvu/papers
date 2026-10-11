@@ -25,7 +25,7 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.div || []),
       [
         'className',
-        /^(papers-(callout|tabs|card|character-note|code)|admonition|formula|math-display|mermaid-placeholder)/,
+        /^(papers-(callout|tabs|card|character-note|code|steps)|admonition|formula|math-display|mermaid-placeholder)/,
       ],
       'ariaLabel',
       'dataCodeLanguage',
@@ -70,7 +70,10 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.p || []),
       ['className', /^(papers-(callout|card|character-note)|admonition-title)/],
     ],
-    a: [...(defaultSchema.attributes?.a || []), ['target', 'rel']],
+    a: [
+      ...(defaultSchema.attributes?.a || []),
+      ['target', 'rel'],
+    ],
   },
   tagNames: [...(defaultSchema.tagNames || []), 'details', 'summary'],
 };

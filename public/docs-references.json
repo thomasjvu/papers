@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T13:11:16.429Z",
+  "generated": "2026-10-11T15:47:41.245Z",
   "collection": "docs",
   "nodes": [
     {
@@ -110,6 +110,12 @@
       "href": "/docs/developer-guides/math-in-mdx",
       "title": "Math And Diagrams In MDX",
       "description": "KaTeX math and Mermaid diagrams in .mdx pages, alongside MDX shortcodes."
+    },
+    {
+      "path": "developer-guides/steps-and-cards",
+      "href": "/docs/developer-guides/steps-and-cards",
+      "title": "Steps And Cards",
+      "description": "Numbered steps and link cards for guides and landing pages."
     },
     {
       "path": "developer-guides/tailwind-integration",
@@ -244,6 +250,30 @@
       "target": "developer-guides/callouts-and-code",
       "href": "/docs/developer-guides/callouts-and-code",
       "line": 9
+    },
+    {
+      "source": "developer-guides/callouts-in-mdx",
+      "target": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "line": 97
+    },
+    {
+      "source": "developer-guides/callouts-in-mdx",
+      "target": "developer-guides/steps-and-cards",
+      "href": "/docs/developer-guides/steps-and-cards",
+      "line": 94
+    },
+    {
+      "source": "developer-guides/steps-and-cards",
+      "target": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "line": 58
+    },
+    {
+      "source": "developer-guides/steps-and-cards",
+      "target": "developer-guides/callouts-in-mdx",
+      "href": "/docs/developer-guides/callouts-in-mdx",
+      "line": 60
     },
     {
       "source": "developer-guides/ui-configuration",
@@ -423,9 +453,25 @@
         "source": "developer-guides/callouts-in-mdx",
         "href": "/docs/developer-guides/callouts-in-mdx",
         "line": 9
+      },
+      {
+        "source": "developer-guides/callouts-in-mdx",
+        "href": "/docs/developer-guides/callouts-in-mdx",
+        "line": 97
+      },
+      {
+        "source": "developer-guides/steps-and-cards",
+        "href": "/docs/developer-guides/steps-and-cards",
+        "line": 58
       }
     ],
-    "developer-guides/callouts-in-mdx": [],
+    "developer-guides/callouts-in-mdx": [
+      {
+        "source": "developer-guides/steps-and-cards",
+        "href": "/docs/developer-guides/steps-and-cards",
+        "line": 60
+      }
+    ],
     "developer-guides/character-notes": [],
     "developer-guides/code-examples": [
       {
@@ -444,6 +490,13 @@
     "developer-guides/icon-customization": [],
     "developer-guides/math-and-diagrams": [],
     "developer-guides/math-in-mdx": [],
+    "developer-guides/steps-and-cards": [
+      {
+        "source": "developer-guides/callouts-in-mdx",
+        "href": "/docs/developer-guides/callouts-in-mdx",
+        "line": 94
+      }
+    ],
     "developer-guides/tailwind-integration": [],
     "developer-guides/themes": [
       {

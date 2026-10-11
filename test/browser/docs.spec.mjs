@@ -438,3 +438,20 @@ test('MDX nested code blocks are interactive and MDX tabs sync with Markdown tab
   ).toHaveAttribute('aria-selected', 'true');
   await assertNoRuntimeErrors(errors);
 });
+
+test('steps and cards render in Markdown and MDX', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/steps-and-cards', { waitUntil: 'networkidle' });
+  await expect(page.locator('.papers-steps > ol > li')).toHaveCount(3);
+  await expect(
+    page.locator('.papers-steps').getByRole('button', { name: 'Copy to clipboard' })
+  ).toHaveCount(2);
+  const card = page.locator('.papers-card-grid .papers-card').first();
+  await card.getByRole('link', { name: 'Callouts and code' }).click();
+  await expect(page).toHaveURL(/\/docs\/developer-guides\/callouts-and-code$/);
+
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  await expect(page.locator('.papers-steps > ol > li')).toHaveCount(2);
+  await expect(page.locator('.papers-card-grid .papers-card')).toHaveCount(2);
+  await assertNoRuntimeErrors(errors);
+});
