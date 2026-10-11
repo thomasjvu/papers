@@ -12,7 +12,7 @@ export const MDX_COMPONENT_REGISTRY = Object.freeze({
     output: 'sanitized callout div',
   }),
   Tabs: Object.freeze({
-    allowedProps: Object.freeze([]),
+    allowedProps: Object.freeze(['group']),
     output: 'sanitized details group',
   }),
   Tab: Object.freeze({

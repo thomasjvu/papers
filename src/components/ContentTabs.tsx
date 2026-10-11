@@ -5,13 +5,21 @@ import { readSyncedTab, resolveTabIndex, subscribeSyncedTab, writeSyncedTab } fr
 type ContentTabsProps = {
   group: string | null;
   panels: Array<{ label: string; content: React.ReactNode }>;
+  /** Extra classes so MDX `<Tabs>` keep their `papers-tabs` hooks. */
+  className?: string;
+  panelClassName?: string;
 };
 
 /**
  * Accessible content tabs for `:::tabs` blocks. With a group key, the selected
  * label is persisted and shared by every tab set using that key.
  */
-export default function ContentTabs({ group, panels }: ContentTabsProps) {
+export default function ContentTabs({
+  group,
+  panels,
+  className = '',
+  panelClassName = '',
+}: ContentTabsProps) {
   const labels = panels.map((panel) => panel.label);
   const labelsKey = labels.join('\u0000');
   const baseId = useId();
@@ -61,7 +69,7 @@ export default function ContentTabs({ group, panels }: ContentTabsProps) {
   };
 
   return (
-    <div className="md-tabs" data-tabs-group={group ?? undefined}>
+    <div className={`md-tabs ${className}`.trim()} data-tabs-group={group ?? undefined}>
       <div className="md-tabs__list" role="tablist">
         {panels.map((panel, index) => (
           <button
@@ -88,7 +96,7 @@ export default function ContentTabs({ group, panels }: ContentTabsProps) {
           key={panel.label}
           id={`${baseId}-panel-${index}`}
           role="tabpanel"
-          className="md-tabs__panel"
+          className={`md-tabs__panel ${panelClassName}`.trim()}
           aria-labelledby={`${baseId}-tab-${index}`}
           hidden={active !== index}
           tabIndex={0}

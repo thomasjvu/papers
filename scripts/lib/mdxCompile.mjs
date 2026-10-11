@@ -31,6 +31,7 @@ const sanitizeSchema = {
       'dataCodeLanguage',
       'dataCodeTitle',
       'dataHighlightWords',
+      'dataTabsGroup',
       'dataLineNumbers',
       'dataCallout',
       'dataMermaidChart',

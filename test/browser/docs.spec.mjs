@@ -414,3 +414,27 @@ test('code blocks support word highlights, diff colours, and a line-number toggl
   );
   await assertNoRuntimeErrors(errors);
 });
+
+test('MDX nested code blocks are interactive and MDX tabs sync with Markdown tabs', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  const callout = page.getByRole('note', { name: 'Install command' });
+  await expect(callout.locator('[data-code-title]', { hasText: 'install.sh' })).toBeVisible();
+  await expect(callout.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
+
+  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]');
+  await tabs.getByRole('tab', { name: 'pnpm', exact: true }).click();
+  await expect(tabs.getByRole('tabpanel')).toContainText('pnpm dev');
+  await expect(tabs.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
+
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  await expect(
+    page
+      .locator('.md-tabs[data-tabs-group="pkg"]')
+      .first()
+      .getByRole('tab', { name: 'pnpm', exact: true })
+  ).toHaveAttribute('aria-selected', 'true');
+  await assertNoRuntimeErrors(errors);
+});

@@ -45,6 +45,42 @@ shortcode on its own lines.
   Never commit deployment credentials.
 </Callout>
 
+## Code Inside Callouts And Tabs
+
+Code blocks inside callouts and `<Tabs>` get the same copy button and syntax
+colours as top-level blocks.
+
+:::tip Install command
+
+```bash title="install.sh"
+npm install papers
+```
+
+:::
+
+## Synced Tabs
+
+Give `<Tabs>` a `group` key to keep tab sets in sync. Markdown pages use the
+same keys (`:::tabs pkg`), so a choice made on one page carries over to the
+other.
+
+<Tabs group="pkg">
+  <Tab label="npm">
+
+```bash
+npm run dev
+```
+
+  </Tab>
+  <Tab label="pnpm">
+
+```bash
+pnpm dev
+```
+
+  </Tab>
+</Tabs>
+
 ## GitHub Alerts
 
 > [!TIP]

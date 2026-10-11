@@ -402,4 +402,17 @@ export const authoringFeatureTests: TestCase[] = [
       assert.match(diffTs, /data-line-kind="added"/);
     },
   },
+  {
+    name: 'MDX <Tabs group> emits a validated sync key',
+    run: async () => {
+      const grouped = await compileMdxToHtml(
+        '<Tabs group="Pkg">\n  <Tab label="a">x</Tab>\n</Tabs>'
+      );
+      assert.match(grouped, /<div class="papers-tabs" data-tabs-group="pkg">/);
+      const invalid = await compileMdxToHtml(
+        '<Tabs group="no spaces!">\n  <Tab label="a">x</Tab>\n</Tabs>'
+      );
+      assert.doesNotMatch(invalid, /data-tabs-group/);
+    },
+  },
 ];

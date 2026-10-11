@@ -186,10 +186,13 @@ function transformTabs(node) {
   const tabNodes = collectTabNodes(node.children);
   const panels = tabNodes.map((tab) => transformTab(tab));
 
+  const group = (readJsxAttribute(node.attributes, 'group') || '').trim().toLowerCase();
   return createElement(
     'div',
     {
       className: 'papers-tabs',
+      // Same key format as Markdown `:::tabs <group>`; invalid keys are dropped.
+      ...(/^[a-z0-9][a-z0-9_-]{0,39}$/.test(group) ? { dataTabsGroup: group } : {}),
     },
     panels
   );
