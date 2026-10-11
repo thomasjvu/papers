@@ -16,8 +16,12 @@ const sanitizeSchema = {
     code: [...(defaultSchema.attributes?.code || []), ['className']],
     div: [
       ...(defaultSchema.attributes?.div || []),
-      ['className', /^(papers-(callout|tabs|card|character-note)|formula|math-display)/],
+      [
+        'className',
+        /^(papers-(callout|tabs|card|character-note)|formula|math-display|mermaid-placeholder)/,
+      ],
       'dataCallout',
+      'dataMermaidChart',
       'dataMathTex',
       'dataMathDisplay',
       'role',
@@ -128,6 +132,26 @@ export function remarkMathPlaceholders() {
     }
     if (node.type === 'math') {
       toPlaceholder(node, node.value, true);
+      return;
+    }
+    if (node.type === 'code' && node.lang === 'mermaid') {
+      // Placeholder for the client Mermaid renderer; the source stays readable as text.
+      const chart = node.value.trim();
+      node.type = 'mermaidPlaceholder';
+      node.children = [
+        {
+          type: 'text',
+          value: chart,
+          data: { hName: 'pre', hChildren: [{ type: 'text', value: chart }] },
+        },
+      ];
+      node.data = {
+        hName: 'div',
+        hProperties: {
+          className: 'mermaid-placeholder',
+          dataMermaidChart: encodeURIComponent(chart),
+        },
+      };
       return;
     }
     if (node.type === 'code' && (node.lang === 'math' || node.lang === 'formula')) {
