@@ -305,7 +305,19 @@ test('MDX code blocks get the copy button and syntax highlighting', async ({ pag
   const setup = page.locator('[data-code-title]', { hasText: 'setup.sh' });
   await expect(setup).toBeVisible();
   await expect(page.getByRole('button', { name: 'Copy to clipboard' }).first()).toBeVisible();
-  await expect(page.locator('[class*="codeLineHighlighted"]')).toContainText('npm run generate:docs');
+  await expect(page.locator('[class*="codeLineHighlighted"]')).toContainText(
+    'npm run generate:docs'
+  );
   await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('doc pages show a build-time last-updated date', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  const updated = page.locator('.doc-page-updated');
+  await expect(updated).toContainText('Last updated');
+  const iso = await updated.locator('time').getAttribute('datetime');
+  expect(Number.isNaN(Date.parse(iso))).toBe(false);
   await assertNoRuntimeErrors(errors);
 });

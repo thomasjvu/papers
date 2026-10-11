@@ -1286,6 +1286,14 @@
   }
 
   /* Edit / issue / source — in-flow under prev/next (not absolute, not hidden on mobile) */
+  .doc-page-updated {
+    margin: 0.75rem 0 0;
+    text-align: center;
+    font-family: var(--mono-font);
+    font-size: 0.75rem;
+    color: var(--muted-color);
+  }
+
   .doc-page-footer {
     position: static;
     width: 100%;

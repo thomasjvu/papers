@@ -44,6 +44,9 @@
     },
     "sidebar": {
       "type": "boolean"
+    },
+    "lastUpdated": {
+      "type": "string"
     }
   },
   "variants": {

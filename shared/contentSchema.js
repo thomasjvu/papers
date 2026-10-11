@@ -24,6 +24,8 @@ export const documentFrontmatterSchema = Object.freeze({
   toc: { type: 'boolean' },
   full: { type: 'boolean' },
   sidebar: { type: 'boolean' },
+  // ISO 8601 date that overrides the git-derived "Last updated" time.
+  lastUpdated: { type: 'string' },
 });
 
 export const DOCUMENT_FRONTMATTER_SCHEMA_VERSION = 1;

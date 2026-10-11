@@ -11,6 +11,7 @@ import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
 import { prefetchDocument } from '../lib/content';
 
 import DocPageFooter from './DocPageFooter';
+import LastUpdated from './LastUpdated';
 import MarkdownRenderer, { HtmlRenderer } from './MarkdownRenderer';
 
 type ContentRendererProps = {
@@ -191,6 +192,7 @@ const ContentRenderer = memo(function ContentRenderer({
             </nav>
 
             {/* Row 2: edit / issue / source (GitHub) — in flow, not absolute-positioned */}
+            <LastUpdated />
             <DocPageFooter path={path} sourcePath={sourcePath} />
           </MotionDiv>
         </div>
