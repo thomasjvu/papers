@@ -46,8 +46,15 @@ const sanitizeSchema = {
       'loading',
       'decoding',
     ],
-    details: [...(defaultSchema.attributes?.details || []), ['className', /^papers-tabs/], 'open'],
-    summary: [...(defaultSchema.attributes?.summary || []), ['className', /^papers-tabs/]],
+    details: [
+      ...(defaultSchema.attributes?.details || []),
+      ['className', /^(papers-tabs|admonition)/],
+      'open',
+    ],
+    summary: [
+      ...(defaultSchema.attributes?.summary || []),
+      ['className', /^(papers-tabs|admonition-title)/],
+    ],
     // Math placeholders, typeset client-side by KaTeX (see src/utils/renderMath.ts).
     span: [
       ...(defaultSchema.attributes?.span || []),

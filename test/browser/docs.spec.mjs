@@ -370,3 +370,15 @@ test('doc routes ship a per-page social preview image', async ({ page, request }
     /\/images\/og\/docs\/getting-started\/introduction\.svg$/
   );
 });
+
+test('collapsible callouts open from the keyboard', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  const details = page.locator('details.admonition-details').first();
+  await expect(details).not.toHaveAttribute('open', '');
+  await expect(details.locator('.admonition-content')).toBeHidden();
+  await details.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(details.locator('.admonition-content')).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});

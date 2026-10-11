@@ -65,6 +65,21 @@ Inner text.
 :::
 ::::
 
+### Collapsible Callouts
+
+`:::details Title` renders a callout that starts closed. Readers open it by
+clicking the title or pressing Enter or Space on it.
+
+```md
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+```
+
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+
 ## GitHub-Style Alerts
 
 The GitHub alert syntax renders the same way, so READMEs and docs can share

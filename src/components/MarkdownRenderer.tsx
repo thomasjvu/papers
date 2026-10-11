@@ -160,7 +160,7 @@ interface RenderContext {
   navigate: (href: string) => void;
 }
 
-const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'readonly', 'selected']);
+const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'open', 'readonly', 'selected']);
 const EXTERNAL_PROTOCOL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
 const HEADING_TAG_PATTERN = /^h[1-6]$/;

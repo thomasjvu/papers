@@ -133,6 +133,8 @@ export const processMarkdown = async (
         'span',
         'i',
         'button',
+        'details',
+        'summary',
       ],
       ALLOWED_ATTR: [
         'href',
@@ -158,6 +160,7 @@ export const processMarkdown = async (
         'tabindex',
         'aria-label',
         'role',
+        'open',
         'data-tabs-group',
         'data-tab-label',
         'width',

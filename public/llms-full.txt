@@ -1126,6 +1126,21 @@ Inner text.
 :::
 ::::
 
+### Collapsible Callouts
+
+`:::details Title` renders a callout that starts closed. Readers open it by
+clicking the title or pressing Enter or Space on it.
+
+```md
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+```
+
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+
 ## GitHub-Style Alerts
 
 The GitHub alert syntax renders the same way, so READMEs and docs can share
@@ -1299,6 +1314,12 @@ Give the outer fence more colons to nest callouts.
 Inner callout.
 :::
 ::::
+
+`:::details Title` makes a collapsible callout that starts closed.
+
+:::details Show more
+Collapsible callouts work in MDX too.
+:::
 
 The `<Callout>` shortcode renders the same callout. `type` accepts `note`,
 `tip`, `info`, `warning`, `danger`, `important`, or `caution`. Put the

@@ -2020,6 +2020,25 @@
     background-color: color-mix(in srgb, var(--admonition-accent) 7%, transparent);
   }
 
+  .admonition-details {
+    --admonition-accent: var(--muted-color);
+  }
+
+  .admonition-details > summary.admonition-title {
+    margin: 0;
+    cursor: pointer;
+    list-style-position: inside;
+  }
+
+  .admonition-details[open] > summary.admonition-title {
+    margin-bottom: var(--space-2);
+  }
+
+  .admonition-details > summary.admonition-title:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
   .admonition-tip {
     --admonition-accent: #15803d;
   }

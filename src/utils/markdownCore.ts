@@ -151,7 +151,7 @@ const mathExtensions = [
   },
 ];
 
-export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger'] as const;
+export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger', 'details'] as const;
 export type AdmonitionType = (typeof ADMONITION_TYPES)[number];
 
 const ADMONITION_DEFAULT_TITLES: Record<AdmonitionType, string> = {
@@ -160,6 +160,7 @@ const ADMONITION_DEFAULT_TITLES: Record<AdmonitionType, string> = {
   info: 'Info',
   warning: 'Warning',
   danger: 'Danger',
+  details: 'Details',
 };
 
 // GitHub-style alerts map onto the same five visual types.
@@ -173,7 +174,7 @@ const GITHUB_ALERT_TYPES: Record<string, { type: AdmonitionType; title: string }
 
 // `:::type Optional title` ... `:::`. Use more colons on the outer fence to nest.
 const ADMONITION_PATTERN =
-  /^ {0,3}(:{3,})[ \t]*(note|tip|info|warning|danger)\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+  /^ {0,3}(:{3,})[ \t]*(note|tip|info|warning|danger|details)\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
 const GITHUB_ALERT_PATTERN =
   /^ {0,3}>[ \t]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*\n((?: {0,3}>[^\n]*(?:\n|$))*)/i;
 
@@ -189,6 +190,10 @@ function renderAdmonition(
 ): string {
   const { admonitionType, title, tokens } = token as AdmonitionToken;
   const body = this.parser.parse(tokens);
+  if (admonitionType === 'details') {
+    // Collapsible callout: native <details>, closed by default, keyboard accessible.
+    return `<details class="admonition admonition-details"><summary class="admonition-title">${escapeHtml(title)}</summary><div class="admonition-content">${body}</div></details>\n`;
+  }
   return `<div class="admonition admonition-${admonitionType}" role="note" aria-label="${escapeHtml(title)}"><p class="admonition-title">${escapeHtml(title)}</p><div class="admonition-content">${body}</div></div>\n`;
 }
 
@@ -197,7 +202,7 @@ const admonitionExtensions = [
     name: 'admonition',
     level: 'block' as const,
     start(src: string) {
-      return src.match(/^ {0,3}:{3,}[ \t]*(?:note|tip|info|warning|danger)\b/im)?.index;
+      return src.match(/^ {0,3}:{3,}[ \t]*(?:note|tip|info|warning|danger|details)\b/im)?.index;
     },
     tokenizer(
       this: {

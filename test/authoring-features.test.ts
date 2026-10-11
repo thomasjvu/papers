@@ -309,4 +309,22 @@ export const authoringFeatureTests: TestCase[] = [
       assert.equal(resolveTabIndex(['npm', 'pnpm'], null), 0);
     },
   },
+  {
+    name: ':::details renders a closed native disclosure in Markdown and MDX',
+    run: async () => {
+      const { html } = await render(':::details Show more\nHidden **text**.\n:::');
+      assert.match(
+        html,
+        /^<details class="admonition admonition-details"><summary class="admonition-title">Show more<\/summary><div class="admonition-content"><p>Hidden <strong>text<\/strong>/
+      );
+      assert.doesNotMatch(html, / open/);
+      const fallback = await render(':::details\nx\n:::');
+      assert.match(fallback.html, /<summary class="admonition-title">Details<\/summary>/);
+      const mdx = await compileMdxToHtml(':::details Show more\nHidden.\n:::');
+      assert.match(
+        mdx,
+        /^<details class="admonition admonition-details"><summary class="admonition-title">Show more<\/summary>/
+      );
+    },
+  },
 ];
