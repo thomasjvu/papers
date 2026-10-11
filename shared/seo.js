@@ -3,6 +3,22 @@ import { documentationTree, homepageConfig } from './documentation-config.js';
 export const DEFAULT_OG_IMAGE_PATH = '/images/og-image.svg';
 export const DEFAULT_TWITTER_IMAGE_PATH = '/images/twitter-card.svg';
 export const AGENT_DISCOVERY_PATH = '/agents.json';
+export const PAGE_SOCIAL_IMAGE_DIR = '/images/og';
+
+/**
+ * Per-page social card path for a canonical route, e.g.
+ * `/docs/getting-started/introduction` -> `/images/og/docs/getting-started/introduction.svg`.
+ * The cards are generated into dist/ at build time by generate-route-html.
+ * Unsafe or empty routes fall back to the site-wide card.
+ */
+export function socialImagePathForRoute(canonicalPath) {
+  if (typeof canonicalPath !== 'string') return DEFAULT_OG_IMAGE_PATH;
+  const trimmed = canonicalPath.replace(/\/+$/, '');
+  if (!trimmed || !/^(\/[A-Za-z0-9._-]+)+$/.test(trimmed) || trimmed.split('/').includes('..')) {
+    return DEFAULT_OG_IMAGE_PATH;
+  }
+  return `${PAGE_SOCIAL_IMAGE_DIR}${trimmed}.svg`;
+}
 
 export const AGENT_ARTIFACTS = Object.freeze([
   {

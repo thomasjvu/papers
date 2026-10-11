@@ -5,6 +5,7 @@ import {
   gitLastCommitDate,
   normalizeLastUpdated,
 } from '../scripts/lib/lastUpdated.mjs';
+import { DEFAULT_OG_IMAGE_PATH, socialImagePathForRoute } from '../shared/seo.js';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -57,6 +58,22 @@ export const docsParityTests: TestCase[] = [
       const tracked = gitLastCommitDate(process.cwd(), 'package.json');
       assert.ok(tracked && !Number.isNaN(Date.parse(tracked)), String(tracked));
       assert.equal(gitLastCommitDate(process.cwd(), 'does/not/exist.md'), null);
+    },
+  },
+  {
+    name: 'socialImagePathForRoute maps routes to per-page cards and rejects unsafe paths',
+    run: () => {
+      assert.equal(
+        socialImagePathForRoute('/docs/getting-started/introduction'),
+        '/images/og/docs/getting-started/introduction.svg'
+      );
+      assert.equal(socialImagePathForRoute('/docs/a/'), '/images/og/docs/a.svg');
+      assert.equal(socialImagePathForRoute('/'), DEFAULT_OG_IMAGE_PATH);
+      assert.equal(socialImagePathForRoute(''), DEFAULT_OG_IMAGE_PATH);
+      assert.equal(socialImagePathForRoute(undefined), DEFAULT_OG_IMAGE_PATH);
+      assert.equal(socialImagePathForRoute('/docs/../etc'), DEFAULT_OG_IMAGE_PATH);
+      assert.equal(socialImagePathForRoute('/docs/a b'), DEFAULT_OG_IMAGE_PATH);
+      assert.equal(socialImagePathForRoute('https://x.test/docs'), DEFAULT_OG_IMAGE_PATH);
     },
   },
 ];

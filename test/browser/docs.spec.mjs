@@ -354,3 +354,19 @@ test('grouped content tabs sync across the page and persist after reload', async
   );
   await assertNoRuntimeErrors(errors);
 });
+
+test('doc routes ship a per-page social preview image', async ({ page, request }) => {
+  const response = await request.get('/docs/getting-started/introduction');
+  const html = await response.text();
+  const match = html.match(/property="og:image"\s+content="([^"]+)"/);
+  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.svg$/);
+  const image = await request.get(new URL(match[1], 'http://localhost').pathname);
+  expect(image.ok()).toBe(true);
+  expect(await image.text()).toContain('Introduction');
+
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
+    'content',
+    /\/images\/og\/docs\/getting-started\/introduction\.svg$/
+  );
+});

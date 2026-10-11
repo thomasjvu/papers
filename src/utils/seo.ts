@@ -8,6 +8,7 @@ import {
   getAgentArtifactLinks,
   normalizeSiteUrl,
   serializeJsonLd,
+  socialImagePathForRoute,
 } from '../../shared/seo.js';
 
 type SeoMetadataInput = {
@@ -108,9 +109,15 @@ export function applySeoMetadata({
   const canonicalTarget = canonicalPath || path;
   const canonicalUrl = buildAbsoluteUrl(canonicalTarget, siteUrl) || canonicalTarget;
   const pageUrl = buildAbsoluteUrl(canonicalTarget, siteUrl) || canonicalTarget;
-  const imageUrl = buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH, siteUrl) || DEFAULT_OG_IMAGE_PATH;
-  const twitterImageUrl =
-    buildAbsoluteUrl(DEFAULT_TWITTER_IMAGE_PATH, siteUrl) || DEFAULT_TWITTER_IMAGE_PATH;
+  // Production builds write a card per article route (scripts/generate-route-html.mjs).
+  const pageImagePath =
+    import.meta.env.PROD && type === 'article' && !noIndex
+      ? socialImagePathForRoute(canonicalTarget)
+      : DEFAULT_OG_IMAGE_PATH;
+  const usePageImage = pageImagePath !== DEFAULT_OG_IMAGE_PATH;
+  const imageUrl = buildAbsoluteUrl(pageImagePath, siteUrl) || pageImagePath;
+  const twitterImagePath = usePageImage ? pageImagePath : DEFAULT_TWITTER_IMAGE_PATH;
+  const twitterImageUrl = buildAbsoluteUrl(twitterImagePath, siteUrl) || twitterImagePath;
   const robotsValue = noIndex ? 'noindex, nofollow' : 'index, follow';
 
   document.title = title;

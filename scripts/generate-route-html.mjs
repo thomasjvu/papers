@@ -13,12 +13,13 @@ import {
   getAgentArtifactLinks,
   getHomeMetadataDefaults,
   serializeJsonLd,
+  socialImagePathForRoute,
 } from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 import { planHomepagePreloads, planRoutePreloads } from './lib/routePreloads.mjs';
-import { createAllCollectionSeoRouteEntries } from './lib/seoArtifacts.mjs';
+import { createAllCollectionSeoRouteEntries, createSocialCardSvg } from './lib/seoArtifacts.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -237,12 +238,37 @@ async function generateRouteHtml() {
   );
   await writeFile(indexHtmlPath, `${homepageHtml.trimEnd()}\n`);
 
+  const writtenSocialImages = new Set();
   for (const entry of routeEntries) {
     const canonicalUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;
     const pageUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;
-    const imageUrl = buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH, siteUrl) || DEFAULT_OG_IMAGE_PATH;
-    const twitterImageUrl =
-      buildAbsoluteUrl(DEFAULT_TWITTER_IMAGE_PATH, siteUrl) || DEFAULT_TWITTER_IMAGE_PATH;
+    let imagePath = DEFAULT_OG_IMAGE_PATH;
+    let twitterImagePath = DEFAULT_TWITTER_IMAGE_PATH;
+    const pageImagePath =
+      entry.type === 'article' ? socialImagePathForRoute(entry.canonicalPath) : null;
+    if (pageImagePath && pageImagePath !== DEFAULT_OG_IMAGE_PATH) {
+      if (!writtenSocialImages.has(pageImagePath)) {
+        const imageFile = join(distDir, pageImagePath.replace(/^\//, ''));
+        await mkdir(dirname(imageFile), { recursive: true });
+        await writeFile(
+          imageFile,
+          `${createSocialCardSvg({
+            title: String(entry.title || siteName).replace(
+              new RegExp(`\\s*\\|\\s*${escapeRegExp(String(siteName))}$`),
+              ''
+            ),
+            description: entry.description || siteDescription,
+            siteName,
+            label: siteName,
+          })}\n`
+        );
+        writtenSocialImages.add(pageImagePath);
+      }
+      imagePath = pageImagePath;
+      twitterImagePath = pageImagePath;
+    }
+    const imageUrl = buildAbsoluteUrl(imagePath, siteUrl) || imagePath;
+    const twitterImageUrl = buildAbsoluteUrl(twitterImagePath, siteUrl) || twitterImagePath;
 
     const html = applyMetadataToHtml(templateHtml, {
       title: entry.title,
@@ -270,7 +296,9 @@ async function generateRouteHtml() {
     await writeRouteHtml(entry.routePath, appendRoutePreloads(html, routePreloads));
   }
 
-  console.log(`Generated ${routeEntries.length} route HTML files with SEO metadata.`);
+  console.log(
+    `Generated ${routeEntries.length} route HTML files with SEO metadata and ${writtenSocialImages.size} page social image(s).`
+  );
 }
 
 generateRouteHtml().catch((error) => {
