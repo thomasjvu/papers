@@ -10,6 +10,7 @@ import {
   type MermaidBlockData,
 } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
+import { readHtmlCodeBlock } from '../utils/htmlCodeBlocks';
 import { resolveDocumentPath } from '../lib/content';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
@@ -35,14 +36,22 @@ const HTML_RENDERER_SANITIZE_CONFIG = {
   USE_PROFILES: { html: true },
 };
 
-type HtmlSegment = { kind: 'html'; html: string } | { kind: 'mermaid'; chart: string };
+type HtmlSegment =
+  | { kind: 'html'; html: string }
+  | { kind: 'mermaid'; chart: string }
+  | { kind: 'code'; snippet: CodeBlockData };
 
 /**
  * Splits sanitized MDX HTML at top-level Mermaid placeholders so diagrams can be
  * rendered by <MermaidDiagram> while the rest stays static HTML.
  */
 export function splitHtmlSegments(html: string): HtmlSegment[] {
-  if (typeof document === 'undefined' || !html.includes('data-mermaid-chart')) {
+  if (
+    typeof document === 'undefined' ||
+    (!html.includes('data-mermaid-chart') &&
+      !html.includes('<pre') &&
+      !html.includes('papers-code'))
+  ) {
     return [{ kind: 'html', html }];
   }
   const template = document.createElement('template');
@@ -51,6 +60,13 @@ export function splitHtmlSegments(html: string): HtmlSegment[] {
   let buffer = '';
   for (const node of Array.from(template.content.childNodes)) {
     const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : null;
+    const codeSnippet = element ? readHtmlCodeBlock(element) : null;
+    if (codeSnippet) {
+      if (buffer) segments.push({ kind: 'html', html: buffer });
+      buffer = '';
+      segments.push({ kind: 'code', snippet: codeSnippet });
+      continue;
+    }
     const encoded = element?.getAttribute('data-mermaid-chart');
     if (encoded) {
       let chart: string | null = null;
@@ -100,7 +116,14 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
   return (
     <div ref={containerRef}>
       {segments.map((segment, index) =>
-        segment.kind === 'mermaid' ? (
+        segment.kind === 'code' ? (
+          <CodeBlock
+            key={`code-${index}`}
+            snippets={[segment.snippet]}
+            showLineNumbers={true}
+            className="my-6"
+          />
+        ) : segment.kind === 'mermaid' ? (
           <Suspense
             key={`mermaid-${index}`}
             fallback={

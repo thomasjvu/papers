@@ -294,8 +294,18 @@ test('MDX pages render callouts and code fence metadata', async ({ page }) => {
   await expect(page.locator('.admonition-info .admonition-tip')).toHaveCount(1);
   await expect(page.locator('.admonition-tip', { hasText: 'GitHub alert' })).toBeVisible();
   await expect(page.locator('[data-code-title]', { hasText: 'setup.sh' })).toBeVisible();
-  await expect(page.locator('.papers-code__line--highlighted')).toHaveText('npm run generate:docs');
   await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
   await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('MDX code blocks get the copy button and syntax highlighting', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  const setup = page.locator('[data-code-title]', { hasText: 'setup.sh' });
+  await expect(setup).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Copy to clipboard' }).first()).toBeVisible();
+  await expect(page.locator('[class*="codeLineHighlighted"]')).toContainText('npm run generate:docs');
+  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
   await assertNoRuntimeErrors(errors);
 });

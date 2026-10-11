@@ -10,6 +10,7 @@ import {
   parseHighlightLines,
 } from '../src/utils/markdownCore.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
+import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -253,6 +254,25 @@ export const authoringFeatureTests: TestCase[] = [
       assert.match(html, /admonition-content">Legacy<\/div>/);
       const inline = await compileMdxToHtml('Text with <Callout>x</Callout> inside.');
       assert.match(inline, /^<p>Text with/);
+    },
+  },
+  {
+    name: 'readHtmlCodeBlock lifts compiled MDX code into CodeBlock snippets',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        '```ts\nconst a = 1;\n```\n\n```bash title="setup.sh" {2}\nnpm ci\nnpm run build\n```\n\n```diff\n-a\n+b\n```\n\nText.'
+      );
+      const { document } = new JSDOM(`<body>${html}</body>`).window;
+      const blocks = Array.from(document.body.children)
+        .map((element) => readHtmlCodeBlock(element))
+        .filter(Boolean);
+      assert.deepEqual(blocks, [
+        { language: 'ts', code: 'const a = 1;' },
+        { language: 'bash', code: 'npm ci\nnpm run build', title: 'setup.sh', highlightLines: [2] },
+        { language: 'diff', code: '-a\n+b' },
+      ]);
+      const paragraph = document.querySelector('p');
+      assert.equal(paragraph && readHtmlCodeBlock(paragraph), null);
     },
   },
 ];
