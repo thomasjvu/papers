@@ -16,6 +16,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
+import ContentTabs from './ContentTabs';
 import LiveExample from './LiveExample';
 import MathFormula from './MathFormula';
 import { hydrateMathPlaceholders } from '../utils/renderMath';
@@ -350,6 +351,21 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
 
   const element = node as Element;
   const tagName = element.tagName.toLowerCase();
+
+  if (tagName === 'div' && element.classList.contains('md-tabs')) {
+    const panels = Array.from(element.children)
+      .filter((child) => child.classList.contains('md-tabs__panel'))
+      .map((panel, index) => ({
+        label: panel.getAttribute('data-tab-label') || `Tab ${index + 1}`,
+        content: renderNodes(panel.childNodes, `${key}-panel-${index}`, context),
+      }));
+    if (panels.length === 0) {
+      return null;
+    }
+    return (
+      <ContentTabs key={key} group={element.getAttribute('data-tabs-group')} panels={panels} />
+    );
+  }
 
   if (tagName === 'div' && element.hasAttribute('data-codeblock-id')) {
     const blockId = element.getAttribute('data-codeblock-id');

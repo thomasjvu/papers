@@ -8,7 +8,9 @@ import {
   getDiffLineKind,
   parseCodeFenceInfo,
   parseHighlightLines,
+  splitTabPanels,
 } from '../src/utils/markdownCore.ts';
+import { resolveTabIndex } from '../src/lib/tabSync.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
 
@@ -273,6 +275,38 @@ export const authoringFeatureTests: TestCase[] = [
       ]);
       const paragraph = document.querySelector('p');
       assert.equal(paragraph && readHtmlCodeBlock(paragraph), null);
+    },
+  },
+  {
+    name: 'markdown :::tabs render labelled panels with an optional group key',
+    run: async () => {
+      const { html, codeBlocks } = await render(
+        ':::tabs pkg\n::tab npm\n```bash\nnpm i\n```\n::tab pnpm\nUse **pnpm**.\n:::'
+      );
+      assert.match(html, /<div class="md-tabs" data-tabs-group="pkg">/);
+      assert.match(html, /<div class="md-tabs__panel" data-tab-label="npm"><div data-codeblock-id/);
+      assert.match(html, /data-tab-label="pnpm"><p>Use <strong>pnpm<\/strong>/);
+      assert.equal(codeBlocks.size, 1);
+      const ungrouped = await render(':::tabs\n::tab A\none\n::tab B\ntwo\n:::');
+      assert.match(ungrouped.html, /<div class="md-tabs"><div/);
+      const badGroup = await render(':::tabs "><x\n::tab A\none\n:::');
+      assert.doesNotMatch(badGroup.html, /data-tabs-group/);
+      const escaped = await render(':::tabs\n::tab <b>"x"</b>\none\n:::');
+      assert.match(escaped.html, /data-tab-label="&lt;b&gt;&quot;x&quot;&lt;\/b&gt;"/);
+      const empty = await render(':::tabs\nno markers\n:::');
+      assert.doesNotMatch(empty.html, /md-tabs/);
+    },
+  },
+  {
+    name: 'splitTabPanels and resolveTabIndex handle markers and stale choices',
+    run: () => {
+      assert.deepEqual(splitTabPanels('intro\n::tab A\none\n::tab B\ntwo'), [
+        { label: 'A', content: 'one\n' },
+        { label: 'B', content: 'two' },
+      ]);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], 'pnpm'), 1);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], 'yarn'), 0);
+      assert.equal(resolveTabIndex(['npm', 'pnpm'], null), 0);
     },
   },
 ];

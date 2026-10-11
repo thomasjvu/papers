@@ -250,6 +250,70 @@ const admonitionExtensions = [
   },
 ];
 
+// `:::tabs [group]` ... `::tab Label` ... `:::` — content tabs. Tabs that share a
+// group key stay in sync across the page and site (see ContentTabs.tsx).
+const TABS_PATTERN =
+  /^ {0,3}(:{3,})[ \t]*tabs\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+const TAB_MARKER_PATTERN = /^ {0,3}::tab[ \t]+([^\n]+)$/gm;
+const TAB_GROUP_PATTERN = /^[a-z0-9][a-z0-9_-]{0,39}$/i;
+
+type TabsToken = Tokens.Generic & {
+  group: string | null;
+  panels: Array<{ label: string; tokens: Tokens.Generic[] }>;
+};
+
+/** Split a tabs body into labelled panels. Text before the first `::tab` is ignored. */
+export function splitTabPanels(body: string): Array<{ label: string; content: string }> {
+  const markers = Array.from(body.matchAll(TAB_MARKER_PATTERN));
+  return markers.map((marker, index) => {
+    const start = (marker.index ?? 0) + marker[0].length;
+    const end =
+      index + 1 < markers.length ? (markers[index + 1].index ?? body.length) : body.length;
+    return { label: marker[1].trim(), content: body.slice(start, end).replace(/^\n/, '') };
+  });
+}
+
+const tabsExtension = {
+  name: 'contentTabs',
+  level: 'block' as const,
+  start(src: string) {
+    return src.match(/^ {0,3}:{3,}[ \t]*tabs\b/im)?.index;
+  },
+  tokenizer(
+    this: { lexer: { blockTokens: (src: string, tokens?: Tokens.Generic[]) => Tokens.Generic[] } },
+    src: string
+  ) {
+    const match = TABS_PATTERN.exec(src);
+    if (!match) return undefined;
+    const panels = splitTabPanels(match[3]);
+    if (panels.length === 0) return undefined;
+    const groupCandidate = match[2].trim();
+    return {
+      type: 'contentTabs',
+      raw: match[0],
+      group: TAB_GROUP_PATTERN.test(groupCandidate) ? groupCandidate.toLowerCase() : null,
+      panels: panels.map((panel) => ({
+        label: panel.label,
+        tokens: this.lexer.blockTokens(panel.content, []),
+      })),
+    };
+  },
+  renderer(
+    this: { parser: { parse: (tokens: Tokens.Generic[]) => string } },
+    token: Tokens.Generic
+  ) {
+    const { group, panels } = token as TabsToken;
+    const groupAttr = group ? ` data-tabs-group="${escapeHtml(group)}"` : '';
+    const body = panels
+      .map(
+        (panel) =>
+          `<div class="md-tabs__panel" data-tab-label="${escapeHtml(panel.label)}">${this.parser.parse(panel.tokens)}</div>`
+      )
+      .join('');
+    return `<div class="md-tabs"${groupAttr}>${body}</div>\n`;
+  },
+};
+
 function createRenderer(
   codeBlocksData: Map<string, CodeBlockData[]>,
   mermaidBlocksData: Map<string, MermaidBlockData>,
@@ -322,7 +386,9 @@ export async function buildMarkdownRenderState(
       renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
     }
   );
-  markdownProcessor.use({ extensions: [...admonitionExtensions, ...mathExtensions] });
+  markdownProcessor.use({
+    extensions: [tabsExtension, ...admonitionExtensions, ...mathExtensions],
+  });
 
   const html = await markdownProcessor.parse(stripMarkdownBom(content));
 

@@ -143,3 +143,57 @@ not depend on color alone.
 
 Every code block keeps its copy button. The copy button copies the code
 exactly as written, including diff markers.
+
+## Content Tabs
+
+Wrap tabs in `:::tabs` and start each tab with a `::tab Label` line. Tabs can
+hold any Markdown, including code blocks.
+
+Add a group key after `tabs` to keep tab sets in sync. Choosing a tab in one
+set switches every set with the same key on the page. The choice is saved in
+the browser, so other pages open on the same tab.
+
+````md
+:::tabs pkg
+::tab npm
+
+```bash
+npm install papers
+```
+
+::tab pnpm
+
+```bash
+pnpm add papers
+```
+
+:::
+````
+
+:::tabs pkg
+::tab npm
+
+```bash
+npm install papers
+```
+
+::tab pnpm
+
+```bash
+pnpm add papers
+```
+
+:::
+
+This second set uses the same `pkg` key, so it follows the first one:
+
+:::tabs pkg
+::tab npm
+Run `npm run dev` to start the dev server.
+::tab pnpm
+Run `pnpm dev` to start the dev server.
+:::
+
+Tabs without a group key switch on their own. If a panel contains a callout,
+give the tabs fence more colons than the callout, for example `::::tabs`.
+Tabs cannot be nested.

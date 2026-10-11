@@ -321,3 +321,36 @@ test('doc pages show a build-time last-updated date', async ({ page }) => {
   expect(Number.isNaN(Date.parse(iso))).toBe(false);
   await assertNoRuntimeErrors(errors);
 });
+
+test('grouped content tabs sync across the page and persist after reload', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  const sets = page.locator('.md-tabs[data-tabs-group="pkg"]');
+  await expect(sets).toHaveCount(2);
+  await expect(sets.nth(1).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+
+  await sets.nth(0).getByRole('tab', { name: 'pnpm', exact: true }).click();
+  await expect(sets.nth(1).getByRole('tab', { name: 'pnpm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await expect(sets.nth(1).getByRole('tabpanel')).toContainText('pnpm dev');
+
+  await sets.nth(1).getByRole('tab', { name: 'pnpm', exact: true }).focus();
+  await page.keyboard.press('ArrowLeft');
+  await expect(sets.nth(0).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await page.keyboard.press('ArrowRight');
+
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(sets.nth(0).getByRole('tab', { name: 'pnpm', exact: true })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
+  await assertNoRuntimeErrors(errors);
+});
