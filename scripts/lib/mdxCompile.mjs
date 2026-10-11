@@ -8,6 +8,13 @@ import rehypeSanitize, { defaultSchema } from 'rehype-sanitize';
 import rehypeStringify from 'rehype-stringify';
 
 import { remarkMdxShortcodes, validateMdxComponents } from './mdxShortcodes.mjs';
+import {
+  createAdmonitionNode,
+  defaultAdmonitionTitle,
+  remarkAdmonitionDirectives,
+  remarkCodeMeta,
+  toAdmonitionType,
+} from './mdxAuthoring.mjs';
 
 const sanitizeSchema = {
   ...defaultSchema,
@@ -18,8 +25,11 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.div || []),
       [
         'className',
-        /^(papers-(callout|tabs|card|character-note)|formula|math-display|mermaid-placeholder)/,
+        /^(papers-(callout|tabs|card|character-note|code)|admonition|formula|math-display|mermaid-placeholder)/,
       ],
+      'ariaLabel',
+      'dataCodeLanguage',
+      'dataCodeTitle',
       'dataCallout',
       'dataMermaidChart',
       'dataMathTex',
@@ -44,10 +54,11 @@ const sanitizeSchema = {
       ['className'],
       'dataMathTex',
       'dataMathDisplay',
+      'dataLineKind',
     ],
     p: [
       ...(defaultSchema.attributes?.p || []),
-      ['className', /^papers-(callout|card|character-note)/],
+      ['className', /^(papers-(callout|card|character-note)|admonition-title)/],
     ],
     a: [...(defaultSchema.attributes?.a || []), ['target', 'rel']],
   },
@@ -166,34 +177,43 @@ export function remarkMathPlaceholders() {
   };
 }
 
+const GITHUB_ALERT_PATTERN = /^\s*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/i;
+
+/** GitHub alerts (`> [!NOTE]`) render with the shared admonition markup. */
 function remarkCallouts() {
-  return (tree) => {
-    const children = tree.children || [];
-
-    for (const node of children) {
+  const visit = (parent) => {
+    if (!Array.isArray(parent.children)) return;
+    parent.children = parent.children.map((node) => {
       if (node.type !== 'blockquote') {
-        continue;
+        visit(node);
+        return node;
       }
-
-      const value = collectText(node);
-      const match = value.match(/\[!(NOTE|TIP|WARNING|IMPORTANT)\]/i);
-
+      const match = collectText(node).match(GITHUB_ALERT_PATTERN);
       if (!match) {
-        continue;
+        visit(node);
+        return node;
       }
-
       const tone = match[1].toLowerCase();
-      stripCalloutMarker(node, /^\[!(NOTE|TIP|WARNING|IMPORTANT)\]\s*/i);
-
-      node.data = {
-        hName: 'div',
-        hProperties: {
-          className: `papers-callout papers-callout--${tone}`,
-          dataCallout: tone,
-        },
-      };
-    }
+      stripCalloutMarker(node, /^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]\s*/i);
+      const children = node.children.filter(
+        (child) =>
+          !(
+            child.type === 'paragraph' &&
+            child.children.every((leaf) => leaf.type === 'text' && leaf.value.trim() === '')
+          )
+      );
+      visit({ children });
+      const admonition = createAdmonitionNode(
+        toAdmonitionType(tone),
+        defaultAdmonitionTitle(tone),
+        children,
+        `papers-callout papers-callout--${tone}`
+      );
+      admonition.data.hProperties.dataCallout = tone;
+      return admonition;
+    });
   };
+  return (tree) => visit(tree);
 }
 
 export function validateMdxComponentsInSource(source, options = {}) {
@@ -211,6 +231,8 @@ export async function compileMdxToHtml(source, options = {}) {
     .use(remarkMdx)
     .use(remarkMathPlaceholders)
     .use(remarkCallouts)
+    .use(remarkAdmonitionDirectives)
+    .use(remarkCodeMeta)
     .use(remarkMdxShortcodes, options)
     .use(remarkRehype, { allowDangerousHtml: false })
     .use(rehypeSanitize, sanitizeSchema)

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T04:37:01.406Z",
+  "generated": "2026-10-11T13:11:16.429Z",
   "collection": "docs",
   "nodes": [
     {
@@ -62,6 +62,18 @@
       "href": "/docs/developer-guides/best-practices",
       "title": "Best Practices",
       "description": "Treat shared/documentation-config.js as the source of truth for navigation."
+    },
+    {
+      "path": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "title": "Callouts And Code Blocks",
+      "description": "Callouts (admonitions), GitHub-style alerts, code block titles, line highlighting, and diffs."
+    },
+    {
+      "path": "developer-guides/callouts-in-mdx",
+      "href": "/docs/developer-guides/callouts-in-mdx",
+      "title": "Callouts And Code In MDX",
+      "description": "Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages."
     },
     {
       "path": "developer-guides/character-notes",
@@ -226,6 +238,12 @@
       "target": "deployment/platforms/vercel",
       "href": "/docs/deployment/platforms/vercel",
       "line": 46
+    },
+    {
+      "source": "developer-guides/callouts-in-mdx",
+      "target": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "line": 9
     },
     {
       "source": "developer-guides/ui-configuration",
@@ -400,6 +418,14 @@
     ],
     "deployment/production-setup": [],
     "developer-guides/best-practices": [],
+    "developer-guides/callouts-and-code": [
+      {
+        "source": "developer-guides/callouts-in-mdx",
+        "href": "/docs/developer-guides/callouts-in-mdx",
+        "line": 9
+      }
+    ],
+    "developer-guides/callouts-in-mdx": [],
     "developer-guides/character-notes": [],
     "developer-guides/code-examples": [
       {

@@ -1,7 +1,8 @@
+import { createAdmonitionNode, defaultAdmonitionTitle, toAdmonitionType } from './mdxAuthoring.mjs';
 import { characterNoteAvatars } from '../../shared/character-note-config.js';
 import { MDX_COMPONENT_REGISTRY, normalizeMdxComponentNames } from '../../shared/mdxComponents.js';
 
-const CALLOUT_TONES = new Set(['note', 'tip', 'warning', 'important']);
+const CALLOUT_TONES = new Set(['note', 'tip', 'info', 'warning', 'danger', 'important', 'caution']);
 const CHARACTER_NOTE_TYPES = new Set(['info', 'warning', 'alert', 'success', 'tip']);
 
 function readJsxAttribute(attributes, name) {
@@ -122,31 +123,18 @@ function createVoidElement(tagName, properties) {
 
 function transformCallout(node) {
   const tone = (readJsxAttribute(node.attributes, 'type') || 'note').toLowerCase();
-  const title = readJsxAttribute(node.attributes, 'title');
   const safeTone = CALLOUT_TONES.has(tone) ? tone : 'note';
-  const children = [...normalizeChildren(node.children)];
-
-  if (title) {
-    children.unshift({
-      type: 'paragraph',
-      data: {
-        hName: 'p',
-        hProperties: {
-          className: 'papers-callout__title',
-        },
-      },
-      children: [{ type: 'text', value: title }],
-    });
-  }
-
-  return createElement(
-    'div',
-    {
-      className: `papers-callout papers-callout--${safeTone}`,
-      dataCallout: safeTone,
-    },
-    children
+  const title = readJsxAttribute(node.attributes, 'title') || defaultAdmonitionTitle(safeTone);
+  const admonition = createAdmonitionNode(
+    toAdmonitionType(safeTone),
+    title,
+    [...normalizeChildren(node.children)],
+    `papers-callout papers-callout--${safeTone}`
   );
+  admonition.data.hProperties.dataCallout = safeTone;
+  // Keep the legacy title hook so existing theme CSS still applies.
+  admonition.children[0].data.hProperties.className = 'admonition-title papers-callout__title';
+  return admonition;
 }
 
 function transformTab(node) {

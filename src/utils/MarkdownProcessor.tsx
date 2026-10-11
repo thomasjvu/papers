@@ -157,6 +157,7 @@ export const processMarkdown = async (
         'data-url',
         'tabindex',
         'aria-label',
+        'role',
         'width',
         'height',
         'target',

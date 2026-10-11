@@ -11,8 +11,8 @@
     "manifest": "/docs-collection.json",
     "references": "/docs-references.json"
   },
-  "generated": "2026-10-11T04:37:01.406Z",
-  "count": 30,
+  "generated": "2026-10-11T13:11:16.429Z",
+  "count": 32,
   "schema": {
     "title": {
       "type": "string"
@@ -174,6 +174,18 @@
           "name": "Code Examples.md",
           "path": "developer-guides/code-examples",
           "tags": ["code", "examples", "development"]
+        },
+        {
+          "type": "file",
+          "name": "Callouts And Code Blocks.md",
+          "path": "developer-guides/callouts-and-code",
+          "tags": ["callouts", "admonitions", "code", "diff", "highlighting"]
+        },
+        {
+          "type": "file",
+          "name": "Callouts And Code In MDX.md",
+          "path": "developer-guides/callouts-in-mdx",
+          "tags": ["callouts", "admonitions", "code", "mdx"]
         },
         {
           "type": "file",
@@ -461,6 +473,45 @@
         "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/best-practices.md"
+    },
+    {
+      "path": "developer-guides/callouts-and-code",
+      "title": "Callouts And Code Blocks",
+      "description": "Callouts (admonitions), GitHub-style alerts, code block titles, line highlighting, and diffs.",
+      "frontmatter": {
+        "description": "Callouts (admonitions), GitHub-style alerts, code block titles, line highlighting, and diffs."
+      },
+      "metadata": {
+        "title": "Callouts And Code Blocks",
+        "description": "Callouts (admonitions), GitHub-style alerts, code block titles, line highlighting, and diffs.",
+        "canonicalPath": "/docs/developer-guides/callouts-and-code",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/callouts-and-code.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/callouts-and-code.md"
+    },
+    {
+      "path": "developer-guides/callouts-in-mdx",
+      "title": "Callouts And Code In MDX",
+      "description": "Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages.",
+      "frontmatter": {
+        "title": "Callouts And Code In MDX",
+        "description": "Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages."
+      },
+      "metadata": {
+        "title": "Callouts And Code In MDX",
+        "description": "Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages.",
+        "canonicalPath": "/docs/developer-guides/callouts-in-mdx",
+        "contentFormat": "html",
+        "sourcePath": "src/docs/content/developer-guides/callouts-in-mdx.mdx",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/callouts-in-mdx.mdx"
     },
     {
       "path": "developer-guides/character-notes",

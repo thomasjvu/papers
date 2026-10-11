@@ -266,3 +266,36 @@ test('theme toggle, mobile shell, and explicit 404 behavior work', async ({ page
   await expect(page.getByRole('heading', { name: 'That page does not exist.' })).toBeVisible();
   await assertNoRuntimeErrors(errors);
 });
+
+test('callouts, GitHub alerts, and code fence metadata render accessibly', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  for (const type of ['note', 'tip', 'info', 'warning', 'danger']) {
+    await expect(page.locator(`.admonition-${type}`).first()).toBeVisible();
+  }
+  await expect(page.getByRole('note', { name: 'Breaking change' })).toBeVisible();
+  await expect(page.getByRole('note', { name: 'Caution' })).toBeVisible();
+  await expect(page.locator('.admonition-info .admonition-tip')).toHaveCount(1);
+
+  await expect(page.locator('[data-code-title]', { hasText: 'src/greet.ts' })).toBeVisible();
+  const highlighted = page.locator('[class*="codeLineHighlighted"]');
+  await expect(highlighted).toHaveCount(3);
+  await expect(highlighted.first()).toContainText('@vitejs/plugin-react');
+  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('MDX pages render callouts and code fence metadata', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('note', { name: 'Breaking change' })).toBeVisible();
+  await expect(page.getByRole('note', { name: 'Shortcode form' })).toBeVisible();
+  await expect(page.locator('.admonition-info .admonition-tip')).toHaveCount(1);
+  await expect(page.locator('.admonition-tip', { hasText: 'GitHub alert' })).toBeVisible();
+  await expect(page.locator('[data-code-title]', { hasText: 'setup.sh' })).toBeVisible();
+  await expect(page.locator('.papers-code__line--highlighted')).toHaveText('npm run generate:docs');
+  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
+  await assertNoRuntimeErrors(errors);
+});

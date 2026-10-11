@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-11T04:37:01.406Z",
+  "generated": "2026-10-11T13:11:16.429Z",
   "paths": [
     "api-reference/content-pipeline",
     "api-reference/openapi",
@@ -11,6 +11,8 @@
     "deployment/platforms/vercel",
     "deployment/production-setup",
     "developer-guides/best-practices",
+    "developer-guides/callouts-and-code",
+    "developer-guides/callouts-in-mdx",
     "developer-guides/character-notes",
     "developer-guides/code-examples",
     "developer-guides/design-system",
@@ -32,7 +34,7 @@
     "user-guide/interactive-map",
     "user-guide/troubleshooting"
   ],
-  "count": 30,
+  "count": 32,
   "titles": {
     "api-reference/content-pipeline": "Content Pipeline",
     "api-reference/openapi": "OpenAPI Explorer",
@@ -44,6 +46,8 @@
     "deployment/platforms/vercel": "Vercel",
     "deployment/production-setup": "Production Setup",
     "developer-guides/best-practices": "Best Practices",
+    "developer-guides/callouts-and-code": "Callouts And Code Blocks",
+    "developer-guides/callouts-in-mdx": "Callouts And Code In MDX",
     "developer-guides/character-notes": "Character Notes",
     "developer-guides/code-examples": "Code Examples",
     "developer-guides/design-system": "Design System",

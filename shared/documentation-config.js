@@ -333,6 +333,18 @@ export const documentationTree = [
       },
       {
         type: 'file',
+        name: 'Callouts And Code Blocks.md',
+        path: 'developer-guides/callouts-and-code',
+        tags: ['callouts', 'admonitions', 'code', 'diff', 'highlighting'],
+      },
+      {
+        type: 'file',
+        name: 'Callouts And Code In MDX.md',
+        path: 'developer-guides/callouts-in-mdx',
+        tags: ['callouts', 'admonitions', 'code', 'mdx'],
+      },
+      {
+        type: 'file',
         name: 'Math And Diagrams.md',
         path: 'developer-guides/math-and-diagrams',
         tags: ['math', 'katex', 'mermaid', 'diagrams'],

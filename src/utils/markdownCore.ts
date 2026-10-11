@@ -2,11 +2,25 @@ import { Marked, Renderer, type Tokens } from 'marked';
 import { markedHighlight } from 'marked-highlight';
 
 import { stripMarkdownBom } from './markdown.ts';
+import {
+  getDiffLineKind,
+  parseCodeFenceInfo,
+  parseHighlightLines,
+  type CodeFenceInfo,
+  type CodeLineKind,
+} from '../../shared/codeFence.js';
+
+export { getDiffLineKind, parseCodeFenceInfo, parseHighlightLines };
+export type { CodeFenceInfo, CodeLineKind };
 
 export interface CodeBlockData {
   language: string;
   code: string;
   label?: string;
+  /** Optional filename/caption from a `title="..."` fence attribute. */
+  title?: string;
+  /** 1-based line numbers to emphasize, from a `{1,3-5}` fence attribute. */
+  highlightLines?: number[];
 }
 
 export interface MermaidBlockData {
@@ -137,6 +151,105 @@ const mathExtensions = [
   },
 ];
 
+export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger'] as const;
+export type AdmonitionType = (typeof ADMONITION_TYPES)[number];
+
+const ADMONITION_DEFAULT_TITLES: Record<AdmonitionType, string> = {
+  note: 'Note',
+  tip: 'Tip',
+  info: 'Info',
+  warning: 'Warning',
+  danger: 'Danger',
+};
+
+// GitHub-style alerts map onto the same five visual types.
+const GITHUB_ALERT_TYPES: Record<string, { type: AdmonitionType; title: string }> = {
+  NOTE: { type: 'note', title: 'Note' },
+  TIP: { type: 'tip', title: 'Tip' },
+  IMPORTANT: { type: 'info', title: 'Important' },
+  WARNING: { type: 'warning', title: 'Warning' },
+  CAUTION: { type: 'danger', title: 'Caution' },
+};
+
+// `:::type Optional title` ... `:::`. Use more colons on the outer fence to nest.
+const ADMONITION_PATTERN =
+  /^ {0,3}(:{3,})[ \t]*(note|tip|info|warning|danger)\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+const GITHUB_ALERT_PATTERN =
+  /^ {0,3}>[ \t]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*\n((?: {0,3}>[^\n]*(?:\n|$))*)/i;
+
+type AdmonitionToken = Tokens.Generic & {
+  admonitionType: AdmonitionType;
+  title: string;
+  tokens: Tokens.Generic[];
+};
+
+function renderAdmonition(
+  this: { parser: { parse: (tokens: Tokens.Generic[]) => string } },
+  token: Tokens.Generic
+): string {
+  const { admonitionType, title, tokens } = token as AdmonitionToken;
+  const body = this.parser.parse(tokens);
+  return `<div class="admonition admonition-${admonitionType}" role="note" aria-label="${escapeHtml(title)}"><p class="admonition-title">${escapeHtml(title)}</p><div class="admonition-content">${body}</div></div>\n`;
+}
+
+const admonitionExtensions = [
+  {
+    name: 'admonition',
+    level: 'block' as const,
+    start(src: string) {
+      return src.match(/^ {0,3}:{3,}[ \t]*(?:note|tip|info|warning|danger)\b/im)?.index;
+    },
+    tokenizer(
+      this: {
+        lexer: { blockTokens: (src: string, tokens?: Tokens.Generic[]) => Tokens.Generic[] };
+      },
+      src: string
+    ) {
+      const match = ADMONITION_PATTERN.exec(src);
+      if (!match) return undefined;
+      const admonitionType = match[2].toLowerCase() as AdmonitionType;
+      const title = match[3].trim() || ADMONITION_DEFAULT_TITLES[admonitionType];
+      return {
+        type: 'admonition',
+        raw: match[0],
+        admonitionType,
+        title,
+        tokens: this.lexer.blockTokens(match[4], []),
+      };
+    },
+    renderer: renderAdmonition,
+  },
+  {
+    name: 'githubAlert',
+    level: 'block' as const,
+    start(src: string) {
+      return src.match(/^ {0,3}>[ \t]*\[!(?:NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/im)?.index;
+    },
+    tokenizer(
+      this: {
+        lexer: { blockTokens: (src: string, tokens?: Tokens.Generic[]) => Tokens.Generic[] };
+      },
+      src: string
+    ) {
+      const match = GITHUB_ALERT_PATTERN.exec(src);
+      if (!match) return undefined;
+      const alert = GITHUB_ALERT_TYPES[match[1].toUpperCase()];
+      const inner = match[2]
+        .split('\n')
+        .map((line) => line.replace(/^ {0,3}>[ \t]?/, ''))
+        .join('\n');
+      return {
+        type: 'githubAlert',
+        raw: match[0],
+        admonitionType: alert.type,
+        title: alert.title,
+        tokens: this.lexer.blockTokens(inner, []),
+      };
+    },
+    renderer: renderAdmonition,
+  },
+];
+
 function createRenderer(
   codeBlocksData: Map<string, CodeBlockData[]>,
   mermaidBlocksData: Map<string, MermaidBlockData>,
@@ -146,7 +259,8 @@ function createRenderer(
 
   renderer.code = (token: Tokens.Code) => {
     const code = token.text || '';
-    const language = token.lang || 'text';
+    const fenceInfo = parseCodeFenceInfo(token.lang || '');
+    const language = fenceInfo.language;
 
     if (language === 'mermaid') {
       const blockId = createId('mermaid');
@@ -176,7 +290,14 @@ function createRenderer(
     }
 
     const blockId = createId('codeblock');
-    codeBlocksData.set(blockId, createCodeBlockSnippets(language, code));
+    const snippets = createCodeBlockSnippets(language, code);
+    if (fenceInfo.title || fenceInfo.highlightLines) {
+      for (const snippet of snippets) {
+        if (fenceInfo.title) snippet.title = fenceInfo.title;
+        if (fenceInfo.highlightLines) snippet.highlightLines = [...fenceInfo.highlightLines];
+      }
+    }
+    codeBlocksData.set(blockId, snippets);
     return `<div data-codeblock-id="${blockId}" class="code-block-placeholder"></div>`;
   };
 
@@ -201,7 +322,7 @@ export async function buildMarkdownRenderState(
       renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
     }
   );
-  markdownProcessor.use({ extensions: mathExtensions });
+  markdownProcessor.use({ extensions: [...admonitionExtensions, ...mathExtensions] });
 
   const html = await markdownProcessor.parse(stripMarkdownBom(content));
 

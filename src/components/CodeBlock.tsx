@@ -9,6 +9,7 @@ import React, {
 
 import { ANIMATION_DURATION } from '../constants/ui';
 import { getLanguageDisplay } from '../utils/languageUtils';
+import { getDiffLineKind } from '../utils/markdownCore';
 
 import styles from './CodeBlock.module.css';
 
@@ -16,6 +17,8 @@ interface CodeSnippet {
   language: string;
   code: string;
   label?: string;
+  title?: string;
+  highlightLines?: number[];
 }
 
 interface CodeBlockProps {
@@ -32,6 +35,11 @@ type SyntaxHighlighterProps = {
   showLineNumbers?: boolean;
   wrapLines?: boolean;
   wrapLongLines?: boolean;
+  lineProps?: (lineNumber: number) => {
+    className?: string;
+    style?: CSSProperties;
+    'data-line-kind'?: string;
+  };
   customStyle?: CSSProperties;
   codeTagProps?: {
     style?: CSSProperties;
@@ -311,15 +319,28 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
 
     const { SyntaxHighlighter } = syntaxModule;
     const normalizedLanguage = normalizeLanguage(currentSnippet.language);
+    const snippetTitle = title ?? currentSnippet.title;
+    const trimmedCode = currentSnippet.code.trim();
+    const isDiff = currentSnippet.language.toLowerCase() === 'diff';
+    const codeLines = trimmedCode.split('\n');
+    const highlighted = new Set(currentSnippet.highlightLines ?? []);
+    // Only wrap lines when a block uses line metadata, so plain blocks render exactly as before.
+    const needsLineProps = isDiff || highlighted.size > 0;
+    const lineProps = (lineNumber: number) => {
+      const classes = [styles.codeLine];
+      const diffKind = getDiffLineKind(codeLines[lineNumber - 1] ?? '', isDiff);
+      if (highlighted.has(lineNumber)) classes.push(styles.codeLineHighlighted);
+      if (diffKind === 'added') classes.push(styles.codeLineAdded);
+      if (diffKind === 'removed') classes.push(styles.codeLineRemoved);
+      return {
+        className: classes.join(' '),
+        style: { display: 'block' },
+        ...(diffKind ? { 'data-line-kind': diffKind } : {}),
+      };
+    };
 
     return (
       <div className={`${styles.codeBlockContainer} ${className}`}>
-        {title && (
-          <div className={styles.codeBlockTitle}>
-            <h4 className="ui-title mb-3">{title}</h4>
-          </div>
-        )}
-
         {snippets.length > 1 && (
           <div className={styles.codeBlockTabs}>
             {snippets.map((snippet, index) => (
@@ -337,6 +358,11 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
 
         <div className={styles.codeBlockWrapper}>
           <div className={styles.codeBlockHeader}>
+            {snippetTitle ? (
+              <span className={styles.codeBlockFilename} data-code-title="">
+                {snippetTitle}
+              </span>
+            ) : null}
             <span className={styles.codeBlockLanguage}>
               {currentSnippet.label || getLanguageDisplay(currentSnippet.language)}
             </span>
@@ -362,6 +388,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
               showLineNumbers={showLineNumbers}
               wrapLines={true}
               wrapLongLines={true}
+              lineProps={needsLineProps ? lineProps : undefined}
               customStyle={{
                 margin: 0,
                 padding: '1.25rem',
@@ -383,7 +410,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
                 },
               }}
             >
-              {currentSnippet.code.trim()}
+              {trimmedCode}
             </SyntaxHighlighter>
           </div>
         </div>
