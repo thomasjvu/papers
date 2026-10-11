@@ -11,8 +11,8 @@
     "manifest": "/docs-collection.json",
     "references": "/docs-references.json"
   },
-  "generated": "2026-08-25T23:17:10.652Z",
-  "count": 27,
+  "generated": "2026-10-11T02:03:59.433Z",
+  "count": 28,
   "schema": {
     "title": {
       "type": "string"
@@ -174,6 +174,12 @@
           "name": "Code Examples.md",
           "path": "developer-guides/code-examples",
           "tags": ["code", "examples", "development"]
+        },
+        {
+          "type": "file",
+          "name": "Math And Diagrams.md",
+          "path": "developer-guides/math-and-diagrams",
+          "tags": ["math", "katex", "mermaid", "diagrams"]
         },
         {
           "type": "file",
@@ -514,6 +520,23 @@
         "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/icon-customization.md"
+    },
+    {
+      "path": "developer-guides/math-and-diagrams",
+      "title": "Math And Diagrams",
+      "description": "Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.",
+      "frontmatter": {},
+      "metadata": {
+        "title": "Math And Diagrams",
+        "description": "Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.",
+        "canonicalPath": "/docs/developer-guides/math-and-diagrams",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/math-and-diagrams.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/math-and-diagrams.md"
     },
     {
       "path": "developer-guides/themes",

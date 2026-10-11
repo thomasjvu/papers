@@ -65,6 +65,35 @@ test('MDX blocks and Mermaid render in the static docs artifact', async ({ page 
   await page.goto('/docs/developer-guides/best-practices', { waitUntil: 'networkidle' });
   await expect(page.locator('.mermaid-block')).toBeVisible({ timeout: 20_000 });
   await expect(page.locator('.mermaid-block svg')).toBeVisible();
+  expect(await page.locator('.mermaid-block svg path[d]').count()).toBeGreaterThan(0);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('KaTeX math and Mermaid diagrams with math labels render', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/math-and-diagrams', { waitUntil: 'networkidle' });
+
+  const inline = page.locator('.math-inline[data-math-rendered="true"]');
+  await expect(inline.first()).toBeVisible({ timeout: 15_000 });
+  await expect(inline).toHaveCount(2);
+  await expect(page.locator('.math-inline .katex math').first()).toBeAttached();
+  // KaTeX layout relies on inline style sizing; it must survive sanitization.
+  expect(await page.locator('.math-display .katex-html [style]').count()).toBeGreaterThan(0);
+  await expect(page.getByText('this costs $5 and that costs $10.')).toBeVisible();
+
+  const display = page.locator('.math-display[data-math-rendered="true"] .katex-display');
+  await expect(display).toHaveCount(2);
+
+  const diagrams = page.locator('.mermaid-block svg');
+  await expect(diagrams).toHaveCount(2, { timeout: 20_000 });
+  await expect(page.locator('.mermaid-block--error')).toHaveCount(0);
+  // Geometry and labels must survive sanitization (regression: diagrams rendered empty).
+  await expect(diagrams.first()).toContainText('Markdown source');
+  expect(await diagrams.first().locator('path[d]').count()).toBeGreaterThan(0);
+  const mathLabels = diagrams.nth(1).locator('foreignObject math');
+  await expect(mathLabels.first()).toBeAttached();
+  expect(await mathLabels.count()).toBeGreaterThanOrEqual(3);
+  await expect(diagrams.nth(1).locator('script, a, [href^="javascript"]')).toHaveCount(0);
   await assertNoRuntimeErrors(errors);
 });
 

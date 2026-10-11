@@ -152,6 +152,8 @@ export const processMarkdown = async (
         'data-colorpalette-id',
         'data-palette',
         'data-mermaid-id',
+        'data-math-tex',
+        'data-math-display',
         'data-url',
         'tabindex',
         'aria-label',

@@ -777,7 +777,7 @@ code {
   color: var(--inline-code-text-color);
 }
 
-/* Math / formula fences (```math / ```formula) — plain readable, no KaTeX */
+/* Math: ```math / ```formula fences and $$...$$ (display), $...$ (inline), typeset by KaTeX */
 .markdown-content .formula,
 .doc-content .formula {
   margin: 1.25rem 0 1.5rem;
@@ -799,6 +799,33 @@ code {
   text-align: center;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.markdown-content .formula .katex-display,
+.doc-content .formula .katex-display {
+  margin: 0;
+}
+
+.markdown-content .formula[data-math-rendered='true'] .formula__body,
+.doc-content .formula[data-math-rendered='true'] .formula__body {
+  font-family: inherit;
+  white-space: normal;
+  letter-spacing: normal;
+}
+
+.markdown-content .math-inline .katex,
+.doc-content .math-inline .katex {
+  font-size: 1.05em;
+}
+
+.markdown-content .math-inline--source,
+.doc-content .math-inline--source {
+  font-family: var(--mono-font);
+}
+
+.mermaid-block foreignObject .katex,
+.mermaid-lightbox foreignObject .katex {
+  font-size: 1em;
 }
 
 .mermaid-block {
@@ -850,6 +877,54 @@ code {
 .mermaid-block__content svg {
   width: 100%;
   max-width: 100%;
+}
+
+/*
+ * Mermaid's generated <style> element is stripped by the SVG sanitizer, so diagram
+ * colors come from theme tokens here instead.
+ */
+:is(.mermaid-block__content, .mermaid-lightbox__content) svg {
+  color: var(--text-color);
+  font-family: var(--mono-font);
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content)
+  :is(.node, .actor, .note, .cluster)
+  :is(rect, circle, ellipse, polygon, path) {
+  fill: var(--card-color);
+  stroke: var(--border-unified);
+  stroke-width: 1px;
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content) .cluster rect {
+  fill: var(--surface-muted);
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content) text,
+:is(.mermaid-block__content, .mermaid-lightbox__content) :is(.nodeLabel, .edgeLabel, .label) {
+  fill: var(--text-color);
+  color: var(--text-color);
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content)
+  :is(.flowchart-link, .edgePath .path, .messageLine0, .messageLine1, .relation, .transition) {
+  fill: none;
+  stroke: var(--muted-color);
+  stroke-width: 1.5px;
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content) :is(marker path, .arrowheadPath, .marker) {
+  fill: var(--muted-color);
+  stroke: var(--muted-color);
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content) :is(.edgeLabel rect, .labelBkg) {
+  fill: var(--surface-muted);
+  background-color: var(--surface-muted);
+}
+
+:is(.mermaid-block__content, .mermaid-lightbox__content) .actor-line {
+  stroke: var(--muted-color);
 }
 
 .mermaid-block__content foreignObject,

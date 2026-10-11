@@ -333,6 +333,12 @@ export const documentationTree = [
       },
       {
         type: 'file',
+        name: 'Math And Diagrams.md',
+        path: 'developer-guides/math-and-diagrams',
+        tags: ['math', 'katex', 'mermaid', 'diagrams'],
+      },
+      {
+        type: 'file',
         name: 'Best Practices.md',
         path: 'developer-guides/best-practices',
         tags: ['best-practices', 'development', 'guide'],

@@ -16,6 +16,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRou
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
 import LiveExample from './LiveExample';
+import MathFormula from './MathFormula';
 const MermaidDiagram = lazy(() => import('./MermaidDiagram'));
 
 const componentLogger = createLogger('MarkdownRenderer');
@@ -295,6 +296,22 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
       >
         <MermaidDiagram chart={block.chart} />
       </Suspense>
+    );
+  }
+
+  if ((tagName === 'div' || tagName === 'span') && element.hasAttribute('data-math-tex')) {
+    let tex = '';
+    try {
+      tex = decodeURIComponent(element.getAttribute('data-math-tex') || '');
+    } catch {
+      tex = element.textContent || '';
+    }
+    return (
+      <MathFormula
+        key={key}
+        tex={tex}
+        displayMode={element.getAttribute('data-math-display') === 'true'}
+      />
     );
   }
 

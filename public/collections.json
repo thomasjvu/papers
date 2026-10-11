@@ -1,7 +1,7 @@
 {
   "contractVersion": 1,
   "schemaVersion": 1,
-  "generated": "2026-08-25T23:17:10.652Z",
+  "generated": "2026-10-11T02:03:59.433Z",
   "collections": [
     {
       "id": "docs",
@@ -15,7 +15,7 @@
         "references": "/docs-references.json"
       },
       "schemaVersion": 1,
-      "count": 27
+      "count": 28
     }
   ]
 }

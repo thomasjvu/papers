@@ -1,0 +1,59 @@
+{
+  "path": "developer-guides/math-and-diagrams",
+  "title": "Math And Diagrams",
+  "description": "Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.",
+  "frontmatter": {},
+  "content": "# Math And Diagrams\n\nPapers typesets TeX with [KaTeX](https://katex.org) and renders Mermaid diagrams, including\ndiagrams whose labels contain math. KaTeX loads only on pages that contain math.\n\n## Inline Math\n\nWrap TeX in single dollars: the identity $e^{i\\pi} + 1 = 0$ links five constants, and\n$\\sum_{k=1}^{n} k = \\frac{n(n+1)}{2}$ sums a series.\n\nPrices stay plain text: this costs $5 and that costs $10. Escape a literal dollar as `\\$`.\n\n## Display Math\n\nUse a `$$` block:\n\n$$\n\\int_{-\\infty}^{\\infty} e^{-x^2}\\,dx = \\sqrt{\\pi}\n$$\n\nOr a fenced `math` block:\n\n```math\n\\mathbf{A} = \\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}, \\qquad \\det \\mathbf{A} = ad - bc\n```\n\n## Mermaid Diagrams\n\n```mermaid\nflowchart LR\n  Source[Markdown source] --> Parse[Parse]\n  Parse --> Render[Render]\n  Render --> Static[Static HTML]\n```\n\n## Mermaid With Math Labels\n\nPut `$$...$$` inside a label. Diagrams with math use HTML labels and native MathML.\n\n```mermaid\nflowchart LR\n  A[\"$$x^2 + y^2 = r^2$$\"] --> B[\"$$\\frac{dy}{dx} = -\\frac{x}{y}$$\"]\n  B --> C[\"$$\\int_0^1 x\\,dx = \\tfrac{1}{2}$$\"]\n```\n\n## Compatibility\n\nPapers depends on `katex` `^0.16.47 || ^0.18.10`. Mermaid 11 also bundles KaTeX for diagram\nlabels, so a project that pins KaTeX with npm `overrides` (for example `\"katex\": \"0.18.10\"`)\ngets the same version for both. TeX is rendered with `trust: false`, so commands such as\n`\\href` and `\\includegraphics` are disabled.\n",
+  "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "math-and-diagrams",
+      "text": "Math And Diagrams"
+    },
+    {
+      "depth": 2,
+      "id": "inline-math",
+      "text": "Inline Math"
+    },
+    {
+      "depth": 2,
+      "id": "display-math",
+      "text": "Display Math"
+    },
+    {
+      "depth": 2,
+      "id": "mermaid-diagrams",
+      "text": "Mermaid Diagrams"
+    },
+    {
+      "depth": 2,
+      "id": "mermaid-with-math-labels",
+      "text": "Mermaid With Math Labels"
+    },
+    {
+      "depth": 2,
+      "id": "compatibility",
+      "text": "Compatibility"
+    }
+  ],
+  "metadata": {
+    "title": "Math And Diagrams",
+    "description": "Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.",
+    "canonicalPath": "/docs/developer-guides/math-and-diagrams",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/developer-guides/math-and-diagrams.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
+  },
+  "references": [],
+  "links": [
+    {
+      "target": "https://katex.org",
+      "line": 3,
+      "type": "external"
+    }
+  ],
+  "sourcePath": "src/docs/content/developer-guides/math-and-diagrams.md"
+}
