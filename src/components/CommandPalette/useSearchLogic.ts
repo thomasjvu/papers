@@ -16,6 +16,7 @@ import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chr
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
+import { buildSearchFilters, parseSearchScope } from '../../lib/searchRanking.ts';
 
 const FAQ_ITEMS = [
   {
@@ -122,19 +123,27 @@ export const useSearchLogic = (query: string) => {
   const { search: pagefindSearch, isAvailable: pagefindAvailable } = usePagefind();
   const [pagefindResults, setPagefindResults] = useState<SearchResultType[]>([]);
   const latestQueryRef = useRef('');
+  const { pathname } = useLocation();
+  const searchVariant = useMemo(() => getCollectionRouteContext(pathname), [pathname]);
 
   useEffect(() => {
     const trimmedQuery = debouncedQuery.trim();
     latestQueryRef.current = trimmedQuery;
+    const scope = parseSearchScope(trimmedQuery);
 
-    if (!pagefindAvailable || !trimmedQuery) {
+    if (!pagefindAvailable || !scope.query) {
       setPagefindResults([]);
       return;
     }
 
     let cancelled = false;
+    const filters = buildSearchFilters({
+      section: scope.section,
+      version: searchVariant.activeVersion,
+      locale: searchVariant.activeLocale,
+    });
 
-    void pagefindSearch(trimmedQuery)
+    void pagefindSearch(scope.query, filters)
       .then((results) => {
         if (cancelled || latestQueryRef.current !== trimmedQuery) {
           return;
@@ -158,7 +167,7 @@ export const useSearchLogic = (query: string) => {
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, pagefindAvailable, pagefindSearch]);
+  }, [debouncedQuery, pagefindAvailable, pagefindSearch, searchVariant]);
 
   const navigate = useNavigate();
   const location = useLocation();

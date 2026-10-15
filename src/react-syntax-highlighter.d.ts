@@ -32,3 +32,14 @@ declare module 'react-syntax-highlighter/dist/esm/languages/prism/*' {
   const language: unknown;
   export default language;
 }
+
+declare module 'react-syntax-highlighter/dist/esm/create-element' {
+  import type { ReactNode } from 'react';
+
+  export default function createElement(props: {
+    node: unknown;
+    stylesheet: Record<string, unknown>;
+    useInlineStyles: boolean;
+    key: string;
+  }): ReactNode;
+}

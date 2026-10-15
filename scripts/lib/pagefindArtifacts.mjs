@@ -66,6 +66,14 @@ function createDocumentationRecord(collection, context, docPath, document, index
       content,
       language: context.locale || 'en',
       meta,
+      // Pagefind filters: the client limits results to the reader's version
+      // and locale and supports `docs:` / `api:` scopes (src/lib/searchRanking.ts).
+      filters: {
+        section: ['docs'],
+        collection: [collection.id],
+        ...(context.version ? { version: [context.version] } : {}),
+        ...(context.locale ? { locale: [context.locale] } : {}),
+      },
     },
   };
 }
@@ -100,6 +108,7 @@ function createOpenApiRecords(openapiArtifacts) {
             title: operation.summary || `${operation.method} ${operation.path}`,
             kind: 'openapi-operation',
           },
+          filters: { section: ['api'] },
         },
       });
     }
@@ -119,6 +128,7 @@ function createOpenApiRecords(openapiArtifacts) {
             .join('\n'),
           language: 'en',
           meta: { title: model.name, kind: 'openapi-model' },
+          filters: { section: ['api'] },
         },
       });
     }

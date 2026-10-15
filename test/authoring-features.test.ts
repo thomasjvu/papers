@@ -13,6 +13,8 @@ import {
 import { resolveTabIndex } from '../src/lib/tabSync.ts';
 import { compileMdxToHtml } from '../scripts/lib/mdxCompile.mjs';
 import { readHtmlCodeBlock } from '../src/utils/htmlCodeBlocks.ts';
+import { createWordPattern, markWords, type HighlighterNode } from '../src/utils/codeWords.ts';
+import { parseCodeFenceMeta, parseDiffLanguage, sanitizeCardHref } from '../shared/codeFence.js';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -307,6 +309,153 @@ export const authoringFeatureTests: TestCase[] = [
       assert.equal(resolveTabIndex(['npm', 'pnpm'], 'pnpm'), 1);
       assert.equal(resolveTabIndex(['npm', 'pnpm'], 'yarn'), 0);
       assert.equal(resolveTabIndex(['npm', 'pnpm'], null), 0);
+    },
+  },
+  {
+    name: ':::details renders a closed native disclosure in Markdown and MDX',
+    run: async () => {
+      const { html } = await render(':::details Show more\nHidden **text**.\n:::');
+      assert.match(
+        html,
+        /^<details class="admonition admonition-details"><summary class="admonition-title">Show more<\/summary><div class="admonition-content"><p>Hidden <strong>text<\/strong>/
+      );
+      assert.doesNotMatch(html, / open/);
+      const fallback = await render(':::details\nx\n:::');
+      assert.match(fallback.html, /<summary class="admonition-title">Details<\/summary>/);
+      const mdx = await compileMdxToHtml(':::details Show more\nHidden.\n:::');
+      assert.match(
+        mdx,
+        /^<details class="admonition admonition-details"><summary class="admonition-title">Show more<\/summary>/
+      );
+    },
+  },
+  {
+    name: 'fence meta reads quoted highlight words and line-number flags',
+    run: () => {
+      assert.deepEqual(parseCodeFenceMeta(' title="a.ts" "apiKey" \'x y\' {2}'), {
+        title: 'a.ts',
+        highlightWords: ['apiKey', 'x y'],
+        highlightLines: [2],
+      });
+      assert.equal(parseCodeFenceMeta(' noLineNumbers').showLineNumbers, false);
+      assert.equal(parseCodeFenceMeta(' showLineNumbers=false').showLineNumbers, false);
+      assert.equal(parseCodeFenceMeta(' showLineNumbers').showLineNumbers, true);
+      assert.equal(parseCodeFenceMeta(' {1}').showLineNumbers, undefined);
+      const many = parseCodeFenceMeta(
+        Array.from({ length: 12 }, (_, index) => ` "w${index}"`).join('')
+      );
+      assert.equal(many.highlightWords?.length, 10);
+    },
+  },
+  {
+    name: 'parseDiffLanguage splits diff-<lang> into diff marking plus syntax language',
+    run: () => {
+      assert.deepEqual(parseDiffLanguage('diff-ts'), { isDiff: true, syntaxLanguage: 'ts' });
+      assert.deepEqual(parseDiffLanguage('diff'), { isDiff: true, syntaxLanguage: 'diff' });
+      assert.deepEqual(parseDiffLanguage('ts'), { isDiff: false, syntaxLanguage: 'ts' });
+      assert.deepEqual(parseDiffLanguage('diff-'), { isDiff: false, syntaxLanguage: 'diff-' });
+    },
+  },
+  {
+    name: 'markWords wraps matches in marks without touching line numbers',
+    run: () => {
+      const pattern = createWordPattern(['api', 'apiKey', 'a.b']);
+      const row: HighlighterNode = {
+        type: 'element',
+        tagName: 'span',
+        children: [
+          {
+            type: 'element',
+            tagName: 'span',
+            properties: { className: ['linenumber'] },
+            children: [{ type: 'text', value: 'apiKey' }],
+          },
+          { type: 'text', value: 'const apiKey = a.b + axb;' },
+        ],
+      };
+      const marked = markWords(row, pattern);
+      assert.equal(marked.children?.[0], row.children?.[0]);
+      const texts = (marked.children ?? [])
+        .slice(1)
+        .map((child) =>
+          child.type === 'element' ? `[${child.children?.[0].value}]` : String(child.value)
+        )
+        .join('');
+      assert.equal(texts, 'const [apiKey] = [a.b] + axb;');
+      assert.equal(createWordPattern([]), null);
+      assert.equal(markWords(row, null), row);
+    },
+  },
+  {
+    name: 'MDX code meta carries highlight words and line-number flags to CodeBlock',
+    run: async () => {
+      const html = await compileMdxToHtml('```ts "apiKey" noLineNumbers\nconst apiKey = 1;\n```');
+      const { document } = new JSDOM(`<body>${html}</body>`).window;
+      assert.deepEqual(readHtmlCodeBlock(document.body.firstElementChild!), {
+        language: 'ts',
+        code: 'const apiKey = 1;',
+        highlightWords: ['apiKey'],
+        showLineNumbers: false,
+      });
+      const diffTs = await compileMdxToHtml('```diff-ts\n-a\n+b\n```');
+      assert.match(diffTs, /data-code-language="diff-ts"/);
+      assert.match(diffTs, /data-line-kind="added"/);
+    },
+  },
+  {
+    name: 'MDX <Tabs group> emits a validated sync key',
+    run: async () => {
+      const grouped = await compileMdxToHtml(
+        '<Tabs group="Pkg">\n  <Tab label="a">x</Tab>\n</Tabs>'
+      );
+      assert.match(grouped, /<div class="papers-tabs" data-tabs-group="pkg">/);
+      const invalid = await compileMdxToHtml(
+        '<Tabs group="no spaces!">\n  <Tab label="a">x</Tab>\n</Tabs>'
+      );
+      assert.doesNotMatch(invalid, /data-tabs-group/);
+    },
+  },
+  {
+    name: ':::steps and :::cards render numbered steps and safe link cards',
+    run: async () => {
+      const steps = await render(':::steps\n1. One\n2. Two\n:::');
+      assert.match(steps.html, /^<div class="papers-steps"><ol>\s*<li>One<\/li>/);
+      const cards = await render(
+        ':::cards\n::card [Go](/docs/x)\nBody\n::card [Bad](javascript:alert(1))\nB\n::card Plain\nC\n:::'
+      );
+      assert.match(cards.html, /^<div class="papers-card-grid">/);
+      assert.match(
+        cards.html,
+        /<p class="papers-card__title papers-card__title--link"><a href="\/docs\/x">Go<\/a><\/p><p>Body<\/p>/
+      );
+      assert.match(cards.html, /<p class="papers-card__title">Bad<\/p>/);
+      assert.doesNotMatch(cards.html, /javascript:/);
+      assert.match(cards.html, /<p class="papers-card__title">Plain<\/p>/);
+    },
+  },
+  {
+    name: 'sanitizeCardHref only allows site paths and https URLs',
+    run: () => {
+      assert.equal(sanitizeCardHref('/docs/a#b'), '/docs/a#b');
+      assert.equal(sanitizeCardHref('https://example.com/x'), 'https://example.com/x');
+      for (const bad of ['//evil.com', 'javascript:alert(1)', 'http://x', 'data:text/html,x', '']) {
+        assert.equal(sanitizeCardHref(bad), null, bad);
+      }
+    },
+  },
+  {
+    name: 'MDX <Steps>, <CardGrid>, and <Card href> render sanitized markup',
+    run: async () => {
+      const html = await compileMdxToHtml(
+        '<Steps>\n\n1. One\n\n</Steps>\n\n<CardGrid>\n  <Card title="Go" href="/docs/x">Body</Card>\n  <Card title="Bad" href="javascript:alert(1)">B</Card>\n</CardGrid>'
+      );
+      assert.match(html, /<div class="papers-steps"><ol>/);
+      assert.match(
+        html,
+        /<div class="papers-card-grid"><div class="papers-card"><p class="papers-card__title papers-card__title--link"><a href="\/docs\/x">Go<\/a><\/p>/
+      );
+      assert.match(html, /<p class="papers-card__title">Bad<\/p>/);
+      assert.doesNotMatch(html, /javascript:/);
     },
   },
 ];

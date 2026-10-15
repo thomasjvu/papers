@@ -6,6 +6,20 @@ import type { CodeBlockData } from './markdownCore';
  * Handles plain `<pre><code class="language-x">` and the `div.papers-code`
  * wrapper emitted for fences with title / {lines} / diff metadata.
  */
+function readHighlightWords(encoded: string | null): string[] {
+  if (!encoded) return [];
+  try {
+    const parsed: unknown = JSON.parse(decodeURIComponent(encoded));
+    return Array.isArray(parsed)
+      ? parsed
+          .filter((word): word is string => typeof word === 'string' && word.length > 0)
+          .slice(0, 10)
+      : [];
+  } catch {
+    return [];
+  }
+}
+
 export function readHtmlCodeBlock(element: Element): CodeBlockData | null {
   const tagName = element.tagName.toLowerCase();
 
@@ -37,6 +51,12 @@ export function readHtmlCodeBlock(element: Element): CodeBlockData | null {
       code: lines.map((line) => line.textContent ?? '').join('\n'),
     };
     if (title) block.title = title;
+    const words = readHighlightWords(element.getAttribute('data-highlight-words'));
+    if (words.length > 0) block.highlightWords = words;
+    const lineNumbers = element.getAttribute('data-line-numbers');
+    if (lineNumbers === 'true' || lineNumbers === 'false') {
+      block.showLineNumbers = lineNumbers === 'true';
+    }
     if (highlightLines.length > 0) block.highlightLines = highlightLines;
     return block;
   }

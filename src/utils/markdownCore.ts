@@ -4,13 +4,21 @@ import { markedHighlight } from 'marked-highlight';
 import { stripMarkdownBom } from './markdown.ts';
 import {
   getDiffLineKind,
+  parseDiffLanguage,
   parseCodeFenceInfo,
   parseHighlightLines,
+  sanitizeCardHref,
   type CodeFenceInfo,
   type CodeLineKind,
 } from '../../shared/codeFence.js';
 
-export { getDiffLineKind, parseCodeFenceInfo, parseHighlightLines };
+export {
+  getDiffLineKind,
+  parseCodeFenceInfo,
+  parseDiffLanguage,
+  parseHighlightLines,
+  sanitizeCardHref,
+};
 export type { CodeFenceInfo, CodeLineKind };
 
 export interface CodeBlockData {
@@ -21,6 +29,10 @@ export interface CodeBlockData {
   title?: string;
   /** 1-based line numbers to emphasize, from a `{1,3-5}` fence attribute. */
   highlightLines?: number[];
+  /** Terms to emphasize wherever they appear, from quoted fence attributes. */
+  highlightWords?: string[];
+  /** Per-block line-number default from `showLineNumbers` / `noLineNumbers`. */
+  showLineNumbers?: boolean;
 }
 
 export interface MermaidBlockData {
@@ -151,7 +163,7 @@ const mathExtensions = [
   },
 ];
 
-export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger'] as const;
+export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger', 'details'] as const;
 export type AdmonitionType = (typeof ADMONITION_TYPES)[number];
 
 const ADMONITION_DEFAULT_TITLES: Record<AdmonitionType, string> = {
@@ -160,6 +172,7 @@ const ADMONITION_DEFAULT_TITLES: Record<AdmonitionType, string> = {
   info: 'Info',
   warning: 'Warning',
   danger: 'Danger',
+  details: 'Details',
 };
 
 // GitHub-style alerts map onto the same five visual types.
@@ -173,7 +186,7 @@ const GITHUB_ALERT_TYPES: Record<string, { type: AdmonitionType; title: string }
 
 // `:::type Optional title` ... `:::`. Use more colons on the outer fence to nest.
 const ADMONITION_PATTERN =
-  /^ {0,3}(:{3,})[ \t]*(note|tip|info|warning|danger)\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+  /^ {0,3}(:{3,})[ \t]*(note|tip|info|warning|danger|details)\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
 const GITHUB_ALERT_PATTERN =
   /^ {0,3}>[ \t]*\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*\n((?: {0,3}>[^\n]*(?:\n|$))*)/i;
 
@@ -189,6 +202,10 @@ function renderAdmonition(
 ): string {
   const { admonitionType, title, tokens } = token as AdmonitionToken;
   const body = this.parser.parse(tokens);
+  if (admonitionType === 'details') {
+    // Collapsible callout: native <details>, closed by default, keyboard accessible.
+    return `<details class="admonition admonition-details"><summary class="admonition-title">${escapeHtml(title)}</summary><div class="admonition-content">${body}</div></details>\n`;
+  }
   return `<div class="admonition admonition-${admonitionType}" role="note" aria-label="${escapeHtml(title)}"><p class="admonition-title">${escapeHtml(title)}</p><div class="admonition-content">${body}</div></div>\n`;
 }
 
@@ -197,7 +214,7 @@ const admonitionExtensions = [
     name: 'admonition',
     level: 'block' as const,
     start(src: string) {
-      return src.match(/^ {0,3}:{3,}[ \t]*(?:note|tip|info|warning|danger)\b/im)?.index;
+      return src.match(/^ {0,3}:{3,}[ \t]*(?:note|tip|info|warning|danger|details)\b/im)?.index;
     },
     tokenizer(
       this: {
@@ -272,6 +289,90 @@ export function splitTabPanels(body: string): Array<{ label: string; content: st
     return { label: marker[1].trim(), content: body.slice(start, end).replace(/^\n/, '') };
   });
 }
+
+// `:::steps` wraps an ordered list as numbered steps.
+const STEPS_PATTERN = /^ {0,3}(:{3,})[ \t]*steps[ \t]*\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+// `:::cards` holds `::card Title` or `::card [Title](/docs/path)` sections.
+const CARDS_PATTERN = /^ {0,3}(:{3,})[ \t]*cards[ \t]*\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
+const CARD_MARKER_PATTERN = /^ {0,3}::card[ \t]+([^\n]+)$/gm;
+const CARD_LINK_PATTERN = /^\[([^\]]+)\]\((.+)\)$/;
+
+type BlockLexer = {
+  lexer: { blockTokens: (src: string, tokens?: Tokens.Generic[]) => Tokens.Generic[] };
+};
+type BlockParser = { parser: { parse: (tokens: Tokens.Generic[]) => string } };
+
+/** Split `::card` sections and resolve an optional safe link from `[Title](href)`. */
+export function splitCards(
+  body: string
+): Array<{ title: string; href: string | null; content: string }> {
+  const markers = Array.from(body.matchAll(CARD_MARKER_PATTERN));
+  return markers.map((marker, index) => {
+    const start = (marker.index ?? 0) + marker[0].length;
+    const end =
+      index + 1 < markers.length ? (markers[index + 1].index ?? body.length) : body.length;
+    const label = marker[1].trim();
+    const link = CARD_LINK_PATTERN.exec(label);
+    return {
+      title: link ? link[1].trim() : label,
+      href: link ? sanitizeCardHref(link[2]) : null,
+      content: body.slice(start, end).replace(/^\n/, ''),
+    };
+  });
+}
+
+const stepsExtension = {
+  name: 'steps',
+  level: 'block' as const,
+  start(src: string) {
+    return src.match(/^ {0,3}:{3,}[ \t]*steps\b/im)?.index;
+  },
+  tokenizer(this: BlockLexer, src: string) {
+    const match = STEPS_PATTERN.exec(src);
+    if (!match) return undefined;
+    return { type: 'steps', raw: match[0], tokens: this.lexer.blockTokens(match[2], []) };
+  },
+  renderer(this: BlockParser, token: Tokens.Generic) {
+    return `<div class="papers-steps">${this.parser.parse(token.tokens as Tokens.Generic[])}</div>\n`;
+  },
+};
+
+const cardsExtension = {
+  name: 'cards',
+  level: 'block' as const,
+  start(src: string) {
+    return src.match(/^ {0,3}:{3,}[ \t]*cards\b/im)?.index;
+  },
+  tokenizer(this: BlockLexer, src: string) {
+    const match = CARDS_PATTERN.exec(src);
+    if (!match) return undefined;
+    const cards = splitCards(match[2]);
+    if (cards.length === 0) return undefined;
+    return {
+      type: 'cards',
+      raw: match[0],
+      cards: cards.map((card) => ({ ...card, tokens: this.lexer.blockTokens(card.content, []) })),
+    };
+  },
+  renderer(this: BlockParser, token: Tokens.Generic) {
+    const cards = token.cards as Array<{
+      title: string;
+      href: string | null;
+      tokens: Tokens.Generic[];
+    }>;
+    const body = cards
+      .map((card) => {
+        const title = escapeHtml(card.title);
+        const heading = card.href ? `<a href="${escapeHtml(card.href)}">${title}</a>` : title;
+        const titleClass = card.href
+          ? 'papers-card__title papers-card__title--link'
+          : 'papers-card__title';
+        return `<div class="papers-card"><p class="${titleClass}">${heading}</p>${this.parser.parse(card.tokens)}</div>`;
+      })
+      .join('');
+    return `<div class="papers-card-grid">${body}</div>\n`;
+  },
+};
 
 const tabsExtension = {
   name: 'contentTabs',
@@ -355,10 +456,12 @@ function createRenderer(
 
     const blockId = createId('codeblock');
     const snippets = createCodeBlockSnippets(language, code);
-    if (fenceInfo.title || fenceInfo.highlightLines) {
-      for (const snippet of snippets) {
-        if (fenceInfo.title) snippet.title = fenceInfo.title;
-        if (fenceInfo.highlightLines) snippet.highlightLines = [...fenceInfo.highlightLines];
+    for (const snippet of snippets) {
+      if (fenceInfo.title) snippet.title = fenceInfo.title;
+      if (fenceInfo.highlightLines) snippet.highlightLines = [...fenceInfo.highlightLines];
+      if (fenceInfo.highlightWords) snippet.highlightWords = [...fenceInfo.highlightWords];
+      if (fenceInfo.showLineNumbers !== undefined) {
+        snippet.showLineNumbers = fenceInfo.showLineNumbers;
       }
     }
     codeBlocksData.set(blockId, snippets);
@@ -387,7 +490,13 @@ export async function buildMarkdownRenderState(
     }
   );
   markdownProcessor.use({
-    extensions: [tabsExtension, ...admonitionExtensions, ...mathExtensions],
+    extensions: [
+      tabsExtension,
+      stepsExtension,
+      cardsExtension,
+      ...admonitionExtensions,
+      ...mathExtensions,
+    ],
   });
 
   const html = await markdownProcessor.parse(stripMarkdownBom(content));

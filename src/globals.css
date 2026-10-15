@@ -1532,6 +1532,74 @@
     color: var(--papers-text-color);
   }
 
+  .doc-content .papers-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+    gap: var(--space-4);
+    margin: var(--space-6) 0;
+  }
+
+  .doc-content .papers-card-grid > .papers-card {
+    margin: 0;
+  }
+
+  .doc-content .papers-card > :last-child {
+    margin-bottom: 0;
+  }
+
+  .doc-content .papers-card__title--link a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .doc-content .papers-card__title--link a::after {
+    content: ' \2192';
+    color: var(--primary-color);
+  }
+
+  .doc-content .papers-card:has(.papers-card__title--link a:hover) {
+    border-color: var(--primary-color);
+  }
+
+  /* Numbered steps (:::steps / <Steps>) */
+  .doc-content .papers-steps > ol {
+    counter-reset: papers-step;
+    list-style: none;
+    margin: var(--space-6) 0;
+    padding-left: 0;
+  }
+
+  .doc-content .papers-steps > ol > li {
+    position: relative;
+    counter-increment: papers-step;
+    margin: 0;
+    padding: 0 0 var(--space-5) 2.75rem;
+    border-left: 1px solid var(--border-unified);
+    margin-left: 0.875rem;
+  }
+
+  .doc-content .papers-steps > ol > li:last-child {
+    border-left-color: transparent;
+  }
+
+  .doc-content .papers-steps > ol > li::before {
+    content: counter(papers-step);
+    position: absolute;
+    left: -0.875rem;
+    top: 0;
+    display: grid;
+    place-items: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid var(--border-unified);
+    border-radius: 999px;
+    background: var(--card-color);
+    color: var(--papers-text-color);
+    font-family: var(--mono-font);
+    font-size: 0.8125rem;
+    font-weight: 700;
+  }
+
   .doc-content .role-lane-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2018,6 +2086,25 @@
     border-left: 4px solid var(--admonition-accent);
     border-radius: var(--radius-md, 8px);
     background-color: color-mix(in srgb, var(--admonition-accent) 7%, transparent);
+  }
+
+  .admonition-details {
+    --admonition-accent: var(--muted-color);
+  }
+
+  .admonition-details > summary.admonition-title {
+    margin: 0;
+    cursor: pointer;
+    list-style-position: inside;
+  }
+
+  .admonition-details[open] > summary.admonition-title {
+    margin-bottom: var(--space-2);
+  }
+
+  .admonition-details > summary.admonition-title:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
   }
 
   .admonition-tip {

@@ -127,6 +127,7 @@ declare module '@app-shared/documentation-config.js' {
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
   export const chromeConfig: ChromeConfig;
+  export const uiStringsConfig: Record<string, Record<string, string>>;
   export const brandingConfig: BrandingConfig;
   export const openapiConfig: OpenApiConfig;
   export const designBookConfig: DesignBookConfig;
@@ -263,6 +264,7 @@ declare module '*/shared/documentation-config.js' {
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
   export const chromeConfig: ChromeConfig;
+  export const uiStringsConfig: Record<string, Record<string, string>>;
   export const brandingConfig: BrandingConfig;
   export const openapiConfig: OpenApiConfig;
   export const designBookConfig: DesignBookConfig;

@@ -2,6 +2,8 @@ declare module '*/shared/codeFence.js' {
   export interface CodeFenceMeta {
     title?: string;
     highlightLines?: number[];
+    highlightWords?: string[];
+    showLineNumbers?: boolean;
   }
 
   export interface CodeFenceInfo extends CodeFenceMeta {
@@ -13,5 +15,10 @@ declare module '*/shared/codeFence.js' {
   export function parseHighlightLines(spec: string): number[];
   export function parseCodeFenceMeta(meta: string): CodeFenceMeta;
   export function parseCodeFenceInfo(info: string): CodeFenceInfo;
+  export function parseDiffLanguage(language: string): {
+    isDiff: boolean;
+    syntaxLanguage: string;
+  };
   export function getDiffLineKind(line: string, isDiff: boolean): CodeLineKind;
+  export function sanitizeCardHref(href: string | undefined): string | null;
 }

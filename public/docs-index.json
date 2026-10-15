@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-11T13:11:16.429Z",
+  "generated": "2026-10-11T16:01:47.501Z",
   "paths": [
     "api-reference/content-pipeline",
     "api-reference/openapi",
@@ -19,8 +19,10 @@
     "developer-guides/icon-customization",
     "developer-guides/math-and-diagrams",
     "developer-guides/math-in-mdx",
+    "developer-guides/steps-and-cards",
     "developer-guides/tailwind-integration",
     "developer-guides/themes",
+    "developer-guides/translating-the-interface",
     "developer-guides/ui-configuration",
     "getting-started/installation",
     "getting-started/introduction",
@@ -34,7 +36,7 @@
     "user-guide/interactive-map",
     "user-guide/troubleshooting"
   ],
-  "count": 32,
+  "count": 34,
   "titles": {
     "api-reference/content-pipeline": "Content Pipeline",
     "api-reference/openapi": "OpenAPI Explorer",
@@ -54,8 +56,10 @@
     "developer-guides/icon-customization": "Icon Customization",
     "developer-guides/math-and-diagrams": "Math And Diagrams",
     "developer-guides/math-in-mdx": "Math And Diagrams In MDX",
+    "developer-guides/steps-and-cards": "Steps And Cards",
     "developer-guides/tailwind-integration": "Tailwind Integration",
     "developer-guides/themes": "Themes",
+    "developer-guides/translating-the-interface": "Translating The Interface",
     "developer-guides/ui-configuration": "UI Configuration",
     "getting-started/installation": "Installation",
     "getting-started/introduction": "Introduction",

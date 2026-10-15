@@ -31,6 +31,8 @@ A minimal docs starter with install-ready defaults, generated content, and stati
 - [Code Examples](/docs/developer-guides/code-examples): This page shows the main authoring patterns supported by the current runtime.
 - [Callouts And Code Blocks](/docs/developer-guides/callouts-and-code): Callouts (admonitions), GitHub-style alerts, code block titles, line highlighting, and diffs.
 - [Callouts And Code In MDX](/docs/developer-guides/callouts-in-mdx): Use callouts, GitHub alerts, and code fence titles, line highlights, and diffs in MDX pages.
+- [Steps And Cards](/docs/developer-guides/steps-and-cards): Numbered steps and link cards for guides and landing pages.
+- [Translating The Interface](/docs/developer-guides/translating-the-interface): Translate or rename the labels in the docs chrome, per locale.
 - [Math And Diagrams](/docs/developer-guides/math-and-diagrams): Papers typesets TeX with KaTeX and renders Mermaid diagrams, including diagrams whose labels contain math. KaTeX loads only on pages that contain math.
 - [Math And Diagrams In MDX](/docs/developer-guides/math-in-mdx): KaTeX math and Mermaid diagrams in .mdx pages, alongside MDX shortcodes.
 - [Tailwind Integration](/docs/developer-guides/tailwind-integration): Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...

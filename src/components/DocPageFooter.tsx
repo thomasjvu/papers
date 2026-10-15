@@ -1,3 +1,5 @@
+import { useUiStrings } from '../lib/uiStrings';
+
 type DocPageFooterProps = {
   path: string;
   sourcePath?: string;
@@ -8,6 +10,7 @@ type DocPageFooterProps = {
  * Renders nothing when VITE_GITHUB_URL is unset (links would be broken).
  */
 export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) {
+  const ui = useUiStrings();
   const githubUrl = import.meta.env.VITE_GITHUB_URL?.trim();
   if (!githubUrl) {
     return null;
@@ -23,7 +26,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
 
   return (
     <footer className="doc-page-footer">
-      <nav className="doc-page-footer-links" aria-label="Page source actions">
+      <nav className="doc-page-footer-links" aria-label={ui.pageSourceActions}>
         <a
           href={editUrl}
           target="_blank"
@@ -31,7 +34,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           className="doc-page-footer-link"
           aria-label={`Edit ${path} on GitHub`}
         >
-          edit
+          {ui.edit}
         </a>
         <a
           href={issueUrl}
@@ -40,7 +43,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           className="doc-page-footer-link"
           aria-label={`Open a GitHub issue about ${path}`}
         >
-          issue
+          {ui.issue}
         </a>
         <a
           href={sourceUrl}
@@ -49,7 +52,7 @@ export default function DocPageFooter({ path, sourcePath }: DocPageFooterProps) 
           className="doc-page-footer-link"
           aria-label={`View source for ${path} on GitHub`}
         >
-          source
+          {ui.source}
         </a>
       </nav>
     </footer>

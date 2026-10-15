@@ -59,6 +59,14 @@ export const i18nConfig = {
 };
 
 /**
+ * Interface label overrides per locale (keys from shared/uiStrings.js). Any
+ * label you leave out keeps its English default. Example:
+ *   fr: { previous: 'Précédent', next: 'Suivant', lastUpdated: 'Mis à jour le' }
+ * @type {Record<string, Record<string, string>>}
+ */
+export const uiStringsConfig = {};
+
+/**
  * Site chrome — language switcher placement + sidebar skin.
  * @type {{
  *   languageSwitcher: { enabled: 'auto' | boolean, placement: Array<'sidebar' | 'command-palette'> },
@@ -342,6 +350,18 @@ export const documentationTree = [
         name: 'Callouts And Code In MDX.md',
         path: 'developer-guides/callouts-in-mdx',
         tags: ['callouts', 'admonitions', 'code', 'mdx'],
+      },
+      {
+        type: 'file',
+        name: 'Steps And Cards.md',
+        path: 'developer-guides/steps-and-cards',
+        tags: ['steps', 'cards', 'components', 'layout'],
+      },
+      {
+        type: 'file',
+        name: 'Translating The Interface.md',
+        path: 'developer-guides/translating-the-interface',
+        tags: ['i18n', 'locales', 'labels', 'translation'],
       },
       {
         type: 'file',

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T13:11:16.429Z",
+  "generated": "2026-10-11T16:01:47.501Z",
   "collection": "docs",
   "nodes": [
     {
@@ -112,6 +112,12 @@
       "description": "KaTeX math and Mermaid diagrams in .mdx pages, alongside MDX shortcodes."
     },
     {
+      "path": "developer-guides/steps-and-cards",
+      "href": "/docs/developer-guides/steps-and-cards",
+      "title": "Steps And Cards",
+      "description": "Numbered steps and link cards for guides and landing pages."
+    },
+    {
       "path": "developer-guides/tailwind-integration",
       "href": "/docs/developer-guides/tailwind-integration",
       "title": "Tailwind Integration",
@@ -122,6 +128,12 @@
       "href": "/docs/developer-guides/themes",
       "title": "Themes",
       "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell."
+    },
+    {
+      "path": "developer-guides/translating-the-interface",
+      "href": "/docs/developer-guides/translating-the-interface",
+      "title": "Translating The Interface",
+      "description": "Translate or rename the labels in the docs chrome, per locale."
     },
     {
       "path": "developer-guides/ui-configuration",
@@ -246,6 +258,30 @@
       "line": 9
     },
     {
+      "source": "developer-guides/callouts-in-mdx",
+      "target": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "line": 97
+    },
+    {
+      "source": "developer-guides/callouts-in-mdx",
+      "target": "developer-guides/steps-and-cards",
+      "href": "/docs/developer-guides/steps-and-cards",
+      "line": 94
+    },
+    {
+      "source": "developer-guides/steps-and-cards",
+      "target": "developer-guides/callouts-and-code",
+      "href": "/docs/developer-guides/callouts-and-code",
+      "line": 58
+    },
+    {
+      "source": "developer-guides/steps-and-cards",
+      "target": "developer-guides/callouts-in-mdx",
+      "href": "/docs/developer-guides/callouts-in-mdx",
+      "line": 60
+    },
+    {
       "source": "developer-guides/ui-configuration",
       "target": "developer-guides/themes",
       "href": "/docs/developer-guides/themes",
@@ -333,13 +369,13 @@
       "source": "user-guide/command-palette",
       "target": "user-guide/advanced-features",
       "href": "/docs/user-guide/advanced-features",
-      "line": 36
+      "line": 45
     },
     {
       "source": "user-guide/command-palette",
       "target": "user-guide/basic-usage",
       "href": "/docs/user-guide/basic-usage",
-      "line": 37
+      "line": 46
     },
     {
       "source": "user-guide/configuration",
@@ -423,9 +459,25 @@
         "source": "developer-guides/callouts-in-mdx",
         "href": "/docs/developer-guides/callouts-in-mdx",
         "line": 9
+      },
+      {
+        "source": "developer-guides/callouts-in-mdx",
+        "href": "/docs/developer-guides/callouts-in-mdx",
+        "line": 97
+      },
+      {
+        "source": "developer-guides/steps-and-cards",
+        "href": "/docs/developer-guides/steps-and-cards",
+        "line": 58
       }
     ],
-    "developer-guides/callouts-in-mdx": [],
+    "developer-guides/callouts-in-mdx": [
+      {
+        "source": "developer-guides/steps-and-cards",
+        "href": "/docs/developer-guides/steps-and-cards",
+        "line": 60
+      }
+    ],
     "developer-guides/character-notes": [],
     "developer-guides/code-examples": [
       {
@@ -444,6 +496,13 @@
     "developer-guides/icon-customization": [],
     "developer-guides/math-and-diagrams": [],
     "developer-guides/math-in-mdx": [],
+    "developer-guides/steps-and-cards": [
+      {
+        "source": "developer-guides/callouts-in-mdx",
+        "href": "/docs/developer-guides/callouts-in-mdx",
+        "line": 94
+      }
+    ],
     "developer-guides/tailwind-integration": [],
     "developer-guides/themes": [
       {
@@ -452,6 +511,7 @@
         "line": 30
       }
     ],
+    "developer-guides/translating-the-interface": [],
     "developer-guides/ui-configuration": [
       {
         "source": "user-guide/configuration",
@@ -491,7 +551,7 @@
       {
         "source": "user-guide/command-palette",
         "href": "/docs/user-guide/command-palette",
-        "line": 36
+        "line": 45
       }
     ],
     "user-guide/basic-usage": [
@@ -508,7 +568,7 @@
       {
         "source": "user-guide/command-palette",
         "href": "/docs/user-guide/command-palette",
-        "line": 37
+        "line": 46
       },
       {
         "source": "user-guide/interactive-map",

@@ -11,8 +11,8 @@
     "manifest": "/docs-collection.json",
     "references": "/docs-references.json"
   },
-  "generated": "2026-10-11T13:11:16.429Z",
-  "count": 32,
+  "generated": "2026-10-11T16:01:47.501Z",
+  "count": 34,
   "schema": {
     "title": {
       "type": "string"
@@ -189,6 +189,18 @@
           "name": "Callouts And Code In MDX.md",
           "path": "developer-guides/callouts-in-mdx",
           "tags": ["callouts", "admonitions", "code", "mdx"]
+        },
+        {
+          "type": "file",
+          "name": "Steps And Cards.md",
+          "path": "developer-guides/steps-and-cards",
+          "tags": ["steps", "cards", "components", "layout"]
+        },
+        {
+          "type": "file",
+          "name": "Translating The Interface.md",
+          "path": "developer-guides/translating-the-interface",
+          "tags": ["i18n", "locales", "labels", "translation"]
         },
         {
           "type": "file",
@@ -625,6 +637,25 @@
       "sourcePath": "src/docs/content/developer-guides/math-in-mdx.mdx"
     },
     {
+      "path": "developer-guides/steps-and-cards",
+      "title": "Steps And Cards",
+      "description": "Numbered steps and link cards for guides and landing pages.",
+      "frontmatter": {
+        "description": "Numbered steps and link cards for guides and landing pages."
+      },
+      "metadata": {
+        "title": "Steps And Cards",
+        "description": "Numbered steps and link cards for guides and landing pages.",
+        "canonicalPath": "/docs/developer-guides/steps-and-cards",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/steps-and-cards.md"
+    },
+    {
       "path": "developer-guides/tailwind-integration",
       "title": "Tailwind Integration",
       "description": "Papers is built with Tailwind CSS 4 (@tailwindcss/vite). This page explains the CSS contract so a downstream Tailwind 4 site can embed or restyle Papers...",
@@ -657,6 +688,25 @@
         "schemaVersion": 1
       },
       "sourcePath": "src/docs/content/developer-guides/themes.md"
+    },
+    {
+      "path": "developer-guides/translating-the-interface",
+      "title": "Translating The Interface",
+      "description": "Translate or rename the labels in the docs chrome, per locale.",
+      "frontmatter": {
+        "description": "Translate or rename the labels in the docs chrome, per locale."
+      },
+      "metadata": {
+        "title": "Translating The Interface",
+        "description": "Translate or rename the labels in the docs chrome, per locale.",
+        "canonicalPath": "/docs/developer-guides/translating-the-interface",
+        "contentFormat": "markdown",
+        "sourcePath": "src/docs/content/developer-guides/translating-the-interface.md",
+        "collection": "docs",
+        "routePrefix": "/docs",
+        "schemaVersion": 1
+      },
+      "sourcePath": "src/docs/content/developer-guides/translating-the-interface.md"
     },
     {
       "path": "developer-guides/ui-configuration",

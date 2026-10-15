@@ -4,9 +4,9 @@
  * (`title="..."`, `{1,3-5}`, `diff`). Output uses the same `admonition-*`
  * classes as Markdown pages and passes through the MDX sanitizer.
  */
-import { getDiffLineKind, parseCodeFenceMeta } from '../../shared/codeFence.js';
+import { getDiffLineKind, parseCodeFenceMeta, parseDiffLanguage } from '../../shared/codeFence.js';
 
-export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger'];
+export const ADMONITION_TYPES = ['note', 'tip', 'info', 'warning', 'danger', 'details'];
 
 const DEFAULT_TITLES = {
   note: 'Note',
@@ -14,6 +14,7 @@ const DEFAULT_TITLES = {
   info: 'Info',
   warning: 'Warning',
   danger: 'Danger',
+  details: 'Details',
   important: 'Important',
   caution: 'Caution',
 };
@@ -40,6 +41,29 @@ function titleNode(title) {
 
 /** Build an mdast node that renders as the shared admonition markup. */
 export function createAdmonitionNode(type, title, children, extraClassName = '') {
+  if (type === 'details') {
+    return {
+      type: 'admonition',
+      data: {
+        hName: 'details',
+        hProperties: {
+          className: `admonition admonition-details${extraClassName ? ` ${extraClassName}` : ''}`,
+        },
+      },
+      children: [
+        {
+          type: 'admonitionTitle',
+          data: { hName: 'summary', hProperties: { className: 'admonition-title' } },
+          children: [{ type: 'text', value: title }],
+        },
+        {
+          type: 'admonitionContent',
+          data: { hName: 'div', hProperties: { className: 'admonition-content' } },
+          children,
+        },
+      ],
+    };
+  }
   return {
     type: 'admonition',
     data: {
@@ -61,7 +85,8 @@ export function createAdmonitionNode(type, title, children, extraClassName = '')
   };
 }
 
-const OPENER_PATTERN = /^(:{3,})[ \t]*(note|tip|info|warning|danger)\b[ \t]*([^\n]*)(?:\n|$)/i;
+const OPENER_PATTERN =
+  /^(:{3,})[ \t]*(note|tip|info|warning|danger|details)\b[ \t]*([^\n]*)(?:\n|$)/i;
 
 function firstText(node) {
   return node?.type === 'paragraph' && node.children?.[0]?.type === 'text'
@@ -176,8 +201,16 @@ export function remarkAdmonitionDirectives() {
 function transformCodeNode(node) {
   const meta = parseCodeFenceMeta(node.meta || '');
   const language = node.lang || 'text';
-  const isDiff = language.toLowerCase() === 'diff';
-  if (!meta.title && !meta.highlightLines && !isDiff) return null;
+  const { isDiff } = parseDiffLanguage(language);
+  if (
+    !meta.title &&
+    !meta.highlightLines &&
+    !meta.highlightWords &&
+    meta.showLineNumbers === undefined &&
+    !isDiff
+  ) {
+    return null;
+  }
 
   const highlighted = new Set(meta.highlightLines || []);
   const lines = String(node.value || '').split('\n');
@@ -222,7 +255,19 @@ function transformCodeNode(node) {
 
   return {
     type: 'codeFigure',
-    data: { hName: 'div', hProperties: { className: 'papers-code', dataCodeLanguage: language } },
+    data: {
+      hName: 'div',
+      hProperties: {
+        className: 'papers-code',
+        dataCodeLanguage: language,
+        ...(meta.highlightWords
+          ? { dataHighlightWords: encodeURIComponent(JSON.stringify(meta.highlightWords)) }
+          : {}),
+        ...(meta.showLineNumbers !== undefined
+          ? { dataLineNumbers: String(meta.showLineNumbers) }
+          : {}),
+      },
+    },
     children,
   };
 }

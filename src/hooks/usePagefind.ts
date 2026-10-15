@@ -6,6 +6,7 @@ import {
   buildCanonicalDocsPath,
   parseCollectionRoutePath,
 } from '../../shared/docsRouting.js';
+import { PAGEFIND_RANKING, rankSearchResults, type PagefindFilters } from '../lib/searchRanking.ts';
 
 interface PagefindResult {
   url: string;
@@ -34,9 +35,13 @@ interface PagefindSearchResult {
 }
 
 interface PagefindInstance {
-  search: (query: string) => Promise<PagefindSearchResult>;
+  search: (query: string, options?: { filters?: PagefindFilters }) => Promise<PagefindSearchResult>;
   init: () => Promise<void>;
+  options?: (options: { ranking?: typeof PAGEFIND_RANKING }) => Promise<void>;
 }
+
+/** Results to load per query; Pagefind returns every match, but data() is per page. */
+const MAX_LOADED_RESULTS = 20;
 
 function normalizeCollectionPrefix(routePrefix: string): string {
   return routePrefix.replace(/^\/+|\/+$/g, '');
@@ -85,66 +90,28 @@ declare global {
 }
 
 export interface UsePagefindResult {
-  search: (query: string) => Promise<PagefindResult[]>;
+  search: (query: string, filters?: PagefindFilters) => Promise<PagefindResult[]>;
   isLoading: boolean;
   isAvailable: boolean;
 }
 
-const PAGEFIND_SCRIPT_SELECTOR = 'script[data-pagefind-loader="true"]';
+const PAGEFIND_MODULE_URL = '/pagefind/pagefind.js';
 
-let pagefindScriptPromise: Promise<void> | null = null;
 let pagefindInstancePromise: Promise<PagefindInstance | null> | null = null;
 
-function loadPagefindScript(): Promise<void> {
-  if (typeof window === 'undefined' || window.pagefind) {
-    return Promise.resolve();
+/**
+ * pagefind.js is an ES module that exports its API; it never sets
+ * `window.pagefind`, so a classic script tag left search on the fallback path.
+ * Import it directly (it only exists in production builds).
+ */
+async function importPagefind(): Promise<PagefindInstance | null> {
+  if (window.pagefind) {
+    return window.pagefind as unknown as PagefindInstance;
   }
-
-  if (pagefindScriptPromise) {
-    return pagefindScriptPromise;
-  }
-
-  pagefindScriptPromise = new Promise((resolve, reject) => {
-    const existingScript = document.querySelector(
-      PAGEFIND_SCRIPT_SELECTOR
-    ) as HTMLScriptElement | null;
-    const script = existingScript ?? document.createElement('script');
-
-    const cleanup = () => {
-      script.removeEventListener('load', handleLoad);
-      script.removeEventListener('error', handleError);
-    };
-
-    const handleLoad = () => {
-      script.dataset.loaded = 'true';
-      cleanup();
-      resolve();
-    };
-
-    const handleError = () => {
-      cleanup();
-      pagefindScriptPromise = null;
-      reject(new Error('Pagefind script failed to load'));
-    };
-
-    if (window.pagefind || script.dataset.loaded === 'true') {
-      resolve();
-      return;
-    }
-
-    script.addEventListener('load', handleLoad);
-    script.addEventListener('error', handleError);
-
-    if (!existingScript) {
-      script.src = '/pagefind/pagefind.js';
-      script.type = 'module';
-      script.async = true;
-      script.dataset.pagefindLoader = 'true';
-      document.head.appendChild(script);
-    }
-  });
-
-  return pagefindScriptPromise;
+  const moduleUrl = PAGEFIND_MODULE_URL;
+  const pagefindModule = (await import(/* @vite-ignore */ moduleUrl)) as PagefindInstance;
+  window.pagefind = pagefindModule as unknown as Window['pagefind'];
+  return pagefindModule;
 }
 
 async function getInitializedPagefind(): Promise<PagefindInstance | null> {
@@ -158,14 +125,14 @@ async function getInitializedPagefind(): Promise<PagefindInstance | null> {
 
   pagefindInstancePromise = (async () => {
     try {
-      await loadPagefindScript();
-
-      if (!window.pagefind) {
+      const instance = await importPagefind();
+      if (!instance) {
         return null;
       }
 
-      await window.pagefind.init();
-      return window.pagefind as unknown as PagefindInstance;
+      await instance.options?.({ ranking: PAGEFIND_RANKING });
+      await instance.init();
+      return instance;
     } catch (error) {
       console.warn('Failed to load Pagefind:', error);
       pagefindInstancePromise = null;
@@ -205,16 +172,19 @@ export function usePagefind(): UsePagefindResult {
   }, []);
 
   const search = useCallback(
-    async (query: string): Promise<PagefindResult[]> => {
+    async (query: string, filters?: PagefindFilters): Promise<PagefindResult[]> => {
       if (!pagefindInstance || !query.trim()) {
         return [];
       }
 
       try {
-        const results = await pagefindInstance.search(query);
+        const results = await pagefindInstance.search(
+          query,
+          filters && Object.keys(filters).length > 0 ? { filters } : undefined
+        );
 
-        return Promise.all(
-          results.results.map(async (result) => {
+        const loaded = await Promise.all(
+          results.results.slice(0, MAX_LOADED_RESULTS).map(async (result) => {
             const data = await result.data();
             const url = normalizePagefindUrl(data.url);
 
@@ -228,6 +198,7 @@ export function usePagefind(): UsePagefindResult {
             };
           })
         );
+        return rankSearchResults(loaded, query);
       } catch (error) {
         console.error('Pagefind search error:', error);
         return [];

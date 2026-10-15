@@ -37,56 +37,96 @@ const HTML_RENDERER_SANITIZE_CONFIG = {
   USE_PROFILES: { html: true },
 };
 
-type HtmlSegment =
-  | { kind: 'html'; html: string }
-  | { kind: 'mermaid'; chart: string }
-  | { kind: 'code'; snippet: CodeBlockData };
+const VOID_HTML_TAGS = new Set(['area', 'br', 'col', 'hr', 'img', 'input', 'source', 'wbr']);
+const INTERACTIVE_HTML_SELECTOR = 'pre, .papers-code, [data-mermaid-chart], .papers-tabs';
+
+function readMermaidChart(element: Element): string | null {
+  const encoded = element.getAttribute('data-mermaid-chart');
+  if (!encoded) return null;
+  try {
+    return decodeURIComponent(encoded);
+  } catch {
+    return null;
+  }
+}
 
 /**
- * Splits sanitized MDX HTML at top-level Mermaid placeholders so diagrams can be
- * rendered by <MermaidDiagram> while the rest stays static HTML.
+ * Convert sanitized MDX HTML to React. Code blocks (at any depth, including inside
+ * callouts and tabs), Mermaid placeholders, and `<Tabs>` become components; every
+ * other subtree stays static HTML so math hydration can still typeset it.
  */
-export function splitHtmlSegments(html: string): HtmlSegment[] {
-  if (
-    typeof document === 'undefined' ||
-    (!html.includes('data-mermaid-chart') &&
-      !html.includes('<pre') &&
-      !html.includes('papers-code'))
-  ) {
-    return [{ kind: 'html', html }];
+function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
+  if (node.nodeType === Node.TEXT_NODE) {
+    return node.textContent;
   }
-  const template = document.createElement('template');
-  template.innerHTML = html;
-  const segments: HtmlSegment[] = [];
-  let buffer = '';
-  for (const node of Array.from(template.content.childNodes)) {
-    const element = node.nodeType === Node.ELEMENT_NODE ? (node as Element) : null;
-    const codeSnippet = element ? readHtmlCodeBlock(element) : null;
-    if (codeSnippet) {
-      if (buffer) segments.push({ kind: 'html', html: buffer });
-      buffer = '';
-      segments.push({ kind: 'code', snippet: codeSnippet });
-      continue;
-    }
-    const encoded = element?.getAttribute('data-mermaid-chart');
-    if (encoded) {
-      let chart: string | null = null;
-      try {
-        chart = decodeURIComponent(encoded);
-      } catch {
-        chart = null;
-      }
-      if (chart) {
-        if (buffer) segments.push({ kind: 'html', html: buffer });
-        buffer = '';
-        segments.push({ kind: 'mermaid', chart });
-        continue;
-      }
-    }
-    buffer += element ? element.outerHTML : (node.textContent ?? '');
+  if (node.nodeType !== Node.ELEMENT_NODE) {
+    return null;
   }
-  if (buffer) segments.push({ kind: 'html', html: buffer });
-  return segments;
+
+  const element = node as Element;
+  const tagName = element.tagName.toLowerCase();
+
+  const codeSnippet = readHtmlCodeBlock(element);
+  if (codeSnippet) {
+    return <CodeBlock key={key} snippets={[codeSnippet]} showLineNumbers={true} className="my-6" />;
+  }
+
+  const chart = readMermaidChart(element);
+  if (chart) {
+    return (
+      <Suspense
+        key={key}
+        fallback={<div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>}
+      >
+        <MermaidDiagram chart={chart} />
+      </Suspense>
+    );
+  }
+
+  if (tagName === 'div' && element.classList.contains('papers-tabs')) {
+    const panels = Array.from(element.children)
+      .filter((child) => child.classList.contains('papers-tabs__panel'))
+      .map((panel, index) => {
+        const summary = Array.from(panel.children).find(
+          (child) => child.tagName.toLowerCase() === 'summary'
+        );
+        const content = Array.from(panel.childNodes)
+          .filter((child) => child !== summary)
+          .map((child, childIndex) => convertHtmlNode(child, `${key}-${index}-${childIndex}`));
+        return { label: summary?.textContent?.trim() || `Tab ${index + 1}`, content };
+      });
+    if (panels.length > 0) {
+      return (
+        <ContentTabs
+          key={key}
+          group={element.getAttribute('data-tabs-group')}
+          panels={panels}
+          className="papers-tabs"
+          panelClassName="papers-tabs__panel"
+        />
+      );
+    }
+  }
+
+  const props = getElementProps(element, key);
+  delete props.style;
+
+  if (VOID_HTML_TAGS.has(tagName)) {
+    return React.createElement(tagName, props);
+  }
+
+  if (!element.querySelector(INTERACTIVE_HTML_SELECTOR)) {
+    return React.createElement(tagName, {
+      ...props,
+      dangerouslySetInnerHTML: { __html: element.innerHTML },
+    });
+  }
+
+  return React.createElement(
+    tagName,
+    props,
+    Array.from(element.childNodes).map((child, index) => convertHtmlNode(child, `${key}-${index}`))
+  );
 }
 
 export function HtmlRenderer({ html }: HtmlRendererProps) {
@@ -95,7 +135,15 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
     () => DOMPurify.sanitize(html, HTML_RENDERER_SANITIZE_CONFIG),
     [html]
   );
-  const segments = useMemo(() => splitHtmlSegments(sanitizedHtml), [sanitizedHtml]);
+  const children = useMemo(() => {
+    if (typeof document === 'undefined') return null;
+    const template = document.createElement('template');
+    template.innerHTML = sanitizedHtml;
+    if (!template.content.querySelector(INTERACTIVE_HTML_SELECTOR)) return null;
+    return Array.from(template.content.childNodes).map((node, index) =>
+      convertHtmlNode(node, `html-${index}`)
+    );
+  }, [sanitizedHtml]);
 
   // Typeset math placeholders emitted by the MDX pipeline (scripts/lib/mdxCompile.mjs).
   useEffect(() => {
@@ -108,41 +156,13 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
     return () => {
       cancelled = true;
     };
-  }, [segments]);
+  }, [sanitizedHtml]);
 
-  if (segments.length === 1 && segments[0].kind === 'html') {
-    return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: segments[0].html }} />;
+  if (!children) {
+    return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
   }
 
-  return (
-    <div ref={containerRef}>
-      {segments.map((segment, index) =>
-        segment.kind === 'code' ? (
-          <CodeBlock
-            key={`code-${index}`}
-            snippets={[segment.snippet]}
-            showLineNumbers={true}
-            className="my-6"
-          />
-        ) : segment.kind === 'mermaid' ? (
-          <Suspense
-            key={`mermaid-${index}`}
-            fallback={
-              <div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>
-            }
-          >
-            <MermaidDiagram chart={segment.chart} />
-          </Suspense>
-        ) : (
-          <div
-            key={`html-${index}`}
-            className="contents"
-            dangerouslySetInnerHTML={{ __html: segment.html }}
-          />
-        )
-      )}
-    </div>
-  );
+  return <div ref={containerRef}>{children}</div>;
 }
 
 interface ProcessedMarkdownData {
@@ -160,7 +180,7 @@ interface RenderContext {
   navigate: (href: string) => void;
 }
 
-const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'readonly', 'selected']);
+const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'open', 'readonly', 'selected']);
 const EXTERNAL_PROTOCOL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
 const HEADING_TAG_PATTERN = /^h[1-6]$/;

@@ -281,8 +281,11 @@ test('callouts, GitHub alerts, and code fence metadata render accessibly', async
   const highlighted = page.locator('[class*="codeLineHighlighted"]');
   await expect(highlighted).toHaveCount(3);
   await expect(highlighted.first()).toContainText('@vitejs/plugin-react');
-  await expect(page.locator('[data-line-kind="added"]')).toHaveCount(1);
-  await expect(page.locator('[data-line-kind="removed"]')).toHaveCount(1);
+  const packageDiff = page
+    .locator('[data-code-title]', { hasText: /^package\.json$/ })
+    .locator('xpath=../..');
+  await expect(packageDiff.locator('[data-line-kind="added"]')).toHaveCount(1);
+  await expect(packageDiff.locator('[data-line-kind="removed"]')).toHaveCount(1);
   await assertNoRuntimeErrors(errors);
 });
 
@@ -369,4 +372,114 @@ test('doc routes ship a per-page social preview image', async ({ page, request }
     'content',
     /\/images\/og\/docs\/getting-started\/introduction\.svg$/
   );
+});
+
+test('collapsible callouts open from the keyboard', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  const details = page.locator('details.admonition-details').first();
+  await expect(details).not.toHaveAttribute('open', '');
+  await expect(details.locator('.admonition-content')).toBeHidden();
+  await details.locator('summary').focus();
+  await page.keyboard.press('Enter');
+  await expect(details.locator('.admonition-content')).toBeVisible();
+  await assertNoRuntimeErrors(errors);
+});
+
+test('code blocks support word highlights, diff colours, and a line-number toggle', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  await expect(page.locator('mark.code-word-highlight', { hasText: 'apiKey' })).toHaveCount(2);
+  await expect(page.locator('mark.code-word-highlight', { hasText: 'fetchDocs' })).toHaveCount(1);
+
+  const diffTs = page
+    .locator('[data-code-title]', { hasText: /^greet\.ts$/ })
+    .locator('xpath=../..');
+  await expect(diffTs.locator('[data-line-kind="added"]')).toHaveCount(1);
+  // diff-ts is tokenized as TypeScript, not as plain diff text.
+  await expect(diffTs.locator('.token', { hasText: /^function$/ })).toHaveCount(1);
+
+  const plain = page
+    .locator('[data-code-title]', { hasText: 'src/greet.ts' })
+    .locator('xpath=../..');
+  await expect(plain.locator('.linenumber').first()).toBeVisible();
+  const toggle = plain.getByRole('button', { name: 'Hide line numbers' });
+  await toggle.click();
+  await expect(plain.locator('.linenumber')).toHaveCount(0);
+  await expect(plain.getByRole('button', { name: 'Show line numbers' })).toHaveAttribute(
+    'aria-pressed',
+    'false'
+  );
+  await assertNoRuntimeErrors(errors);
+});
+
+test('MDX nested code blocks are interactive and MDX tabs sync with Markdown tabs', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  const callout = page.getByRole('note', { name: 'Install command' });
+  await expect(callout.locator('[data-code-title]', { hasText: 'install.sh' })).toBeVisible();
+  await expect(callout.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
+
+  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]');
+  await tabs.getByRole('tab', { name: 'pnpm', exact: true }).click();
+  await expect(tabs.getByRole('tabpanel')).toContainText('pnpm dev');
+  await expect(tabs.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
+
+  await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
+  await expect(
+    page
+      .locator('.md-tabs[data-tabs-group="pkg"]')
+      .first()
+      .getByRole('tab', { name: 'pnpm', exact: true })
+  ).toHaveAttribute('aria-selected', 'true');
+  await assertNoRuntimeErrors(errors);
+});
+
+test('steps and cards render in Markdown and MDX', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/developer-guides/steps-and-cards', { waitUntil: 'networkidle' });
+  await expect(page.locator('.papers-steps > ol > li')).toHaveCount(3);
+  await expect(
+    page.locator('.papers-steps').getByRole('button', { name: 'Copy to clipboard' })
+  ).toHaveCount(2);
+  const card = page.locator('.papers-card-grid .papers-card').first();
+  await card.getByRole('link', { name: 'Callouts and code' }).click();
+  await expect(page).toHaveURL(/\/docs\/developer-guides\/callouts-and-code$/);
+
+  await page.goto('/docs/developer-guides/callouts-in-mdx', { waitUntil: 'networkidle' });
+  await expect(page.locator('.papers-steps > ol > li')).toHaveCount(2);
+  await expect(page.locator('.papers-card-grid .papers-card')).toHaveCount(2);
+  await assertNoRuntimeErrors(errors);
+});
+
+test('Pagefind index supports section filters for docs: and api: scopes', async ({ page }) => {
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await page
+    .getByPlaceholder('Search documentation or type a command...')
+    .fill('docs: content tabs');
+  await expect(page.getByRole('button', { name: /Callouts And Code Blocks/i }).first()).toBeVisible(
+    {
+      timeout: 15_000,
+    }
+  );
+  const counts = await page.evaluate(async () => {
+    const pagefind = window.pagefind;
+    const docs = await pagefind.search('character', { filters: { section: 'docs' } });
+    const api = await pagefind.search('character', { filters: { section: 'api' } });
+    const apiOnly = await pagefind.search('get', { filters: { section: 'api' } });
+    const apiData = await Promise.all(apiOnly.results.slice(0, 5).map((result) => result.data()));
+    return {
+      docs: docs.results.length,
+      api: api.results.length,
+      apiKinds: Array.from(new Set(apiData.map((data) => data.meta.kind))),
+    };
+  });
+  expect(counts.docs).toBeGreaterThan(0);
+  expect(counts.api).toBe(0);
+  for (const kind of counts.apiKinds) expect(kind).toMatch(/^openapi-/);
 });

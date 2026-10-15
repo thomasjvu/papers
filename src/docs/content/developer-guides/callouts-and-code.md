@@ -65,6 +65,21 @@ Inner text.
 :::
 ::::
 
+### Collapsible Callouts
+
+`:::details Title` renders a callout that starts closed. Readers open it by
+clicking the title or pressing Enter or Space on it.
+
+```md
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+```
+
+:::details Show the full config
+The full configuration lives in `shared/documentation-config.js`.
+:::
+
 ## GitHub-Style Alerts
 
 The GitHub alert syntax renders the same way, so READMEs and docs can share
@@ -139,6 +154,49 @@ not depend on color alone.
 -    "build": "vite build"
 +    "build": "npm run generate:docs && vite build"
    }
+```
+
+To colour the code as well, add the language after `diff-`, for example
+`diff-ts` or `diff-json`:
+
+```diff-ts title="greet.ts"
+ export function greet(name: string) {
+-  return 'Hello ' + name;
++  return `Hello, ${name}!`;
+ }
+```
+
+## Word Highlighting
+
+Put a term in quotes after the language to highlight every place it appears.
+You can list up to 10 terms.
+
+````md
+```ts "apiKey" "fetchDocs"
+const apiKey = process.env.DOCS_API_KEY;
+await fetchDocs({ apiKey });
+```
+````
+
+```ts "apiKey" "fetchDocs"
+const apiKey = process.env.DOCS_API_KEY;
+await fetchDocs({ apiKey });
+```
+
+## Line Numbers
+
+Code blocks show line numbers by default. Add `noLineNumbers` (or
+`showLineNumbers=false`) to hide them for one block. Readers can also show
+or hide line numbers with the button in any code block's header.
+
+````md
+```bash noLineNumbers
+npm run build
+```
+````
+
+```bash noLineNumbers
+npm run build
 ```
 
 Every code block keeps its copy button. The copy button copies the code

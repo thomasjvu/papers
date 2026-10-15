@@ -13,6 +13,7 @@ import { prefetchDocument } from '../lib/content';
 import DocPageFooter from './DocPageFooter';
 import LastUpdated from './LastUpdated';
 import MarkdownRenderer, { HtmlRenderer } from './MarkdownRenderer';
+import { useUiStrings } from '../lib/uiStrings';
 
 type ContentRendererProps = {
   content: string;
@@ -32,6 +33,7 @@ const ContentRenderer = memo(function ContentRenderer({
   collection,
 }: ContentRendererProps) {
   const location = useLocation();
+  const ui = useUiStrings();
   const activeCollection = collection || getContentCollection('docs');
   const routePrefix =
     String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
@@ -145,7 +147,7 @@ const ContentRenderer = memo(function ContentRenderer({
             className="doc-page-bottom doc-page-bottom--anchored mt-auto w-full max-w-4xl mx-auto pt-0 pb-6 px-6 md:pb-8 md:px-8 lg:pb-12 lg:px-12"
           >
             {/* Row 1: adjacent docs — always in document flow under the article */}
-            <nav className="doc-page-bottom-row" aria-label="Adjacent documentation pages">
+            <nav className="doc-page-bottom-row" aria-label={ui.adjacentPages}>
               <div className="doc-page-bottom-nav doc-page-bottom-nav--prev">
                 {prevPage ? (
                   <button
@@ -156,7 +158,7 @@ const ContentRenderer = memo(function ContentRenderer({
                     type="button"
                   >
                     <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
-                      Previous
+                      {ui.previous}
                     </div>
                     <div
                       className="text-sm font-medium"
@@ -178,7 +180,7 @@ const ContentRenderer = memo(function ContentRenderer({
                     type="button"
                   >
                     <div className="mb-1 text-xs" style={{ color: 'var(--muted-color)' }}>
-                      Next
+                      {ui.next}
                     </div>
                     <div
                       className="text-sm font-medium"

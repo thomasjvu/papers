@@ -25,11 +25,14 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.div || []),
       [
         'className',
-        /^(papers-(callout|tabs|card|character-note|code)|admonition|formula|math-display|mermaid-placeholder)/,
+        /^(papers-(callout|tabs|card|character-note|code|steps)|admonition|formula|math-display|mermaid-placeholder)/,
       ],
       'ariaLabel',
       'dataCodeLanguage',
       'dataCodeTitle',
+      'dataHighlightWords',
+      'dataTabsGroup',
+      'dataLineNumbers',
       'dataCallout',
       'dataMermaidChart',
       'dataMathTex',
@@ -46,8 +49,15 @@ const sanitizeSchema = {
       'loading',
       'decoding',
     ],
-    details: [...(defaultSchema.attributes?.details || []), ['className', /^papers-tabs/], 'open'],
-    summary: [...(defaultSchema.attributes?.summary || []), ['className', /^papers-tabs/]],
+    details: [
+      ...(defaultSchema.attributes?.details || []),
+      ['className', /^(papers-tabs|admonition)/],
+      'open',
+    ],
+    summary: [
+      ...(defaultSchema.attributes?.summary || []),
+      ['className', /^(papers-tabs|admonition-title)/],
+    ],
     // Math placeholders, typeset client-side by KaTeX (see src/utils/renderMath.ts).
     span: [
       ...(defaultSchema.attributes?.span || []),
@@ -60,7 +70,10 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.p || []),
       ['className', /^(papers-(callout|card|character-note)|admonition-title)/],
     ],
-    a: [...(defaultSchema.attributes?.a || []), ['target', 'rel']],
+    a: [
+      ...(defaultSchema.attributes?.a || []),
+      ['target', 'rel'],
+    ],
   },
   tagNames: [...(defaultSchema.tagNames || []), 'details', 'summary'],
 };

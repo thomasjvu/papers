@@ -31,6 +31,7 @@ import {
   parseCollectionRoutePath,
 } from '../../../shared/docsRouting.js';
 import type { ContentCollection } from '../../../shared/docsRouting.js';
+import { useUiStrings } from '../../lib/uiStrings';
 
 interface DocumentationPageProps {
   initialContent: string;
@@ -65,6 +66,7 @@ const DocumentationPage = React.memo(
     pendingPath,
     collection,
   }: DocumentationPageProps) => {
+    const ui = useUiStrings();
     const navigate = useNavigate();
     const location = useLocation();
     const { openCommandPalette } = useCommandPalette();
@@ -382,7 +384,7 @@ const DocumentationPage = React.memo(
                 >
                   <span className="flex min-w-0 items-center gap-2">
                     <Icon icon="mingcute:search-ai-line" className="h-4 w-4 shrink-0" />
-                    <span className="truncate">Search docs</span>
+                    <span className="truncate">{ui.searchDocs}</span>
                   </span>
                   <kbd
                     className="hidden rounded-sm border px-1.5 py-0.5 text-xs md:inline-block"

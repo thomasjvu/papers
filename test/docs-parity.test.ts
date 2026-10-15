@@ -7,6 +7,21 @@ import {
 } from '../scripts/lib/lastUpdated.mjs';
 import { DEFAULT_OG_IMAGE_PATH, socialImagePathForRoute } from '../shared/seo.js';
 
+import {
+  buildSearchFilters,
+  parseSearchScope,
+  rankSearchResults,
+  titleBoost,
+} from '../src/lib/searchRanking.ts';
+import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
+
+import {
+  DEFAULT_UI_STRINGS,
+  resolveUiStrings,
+  validateUiStringsConfig,
+} from '../shared/uiStrings.js';
+import { uiStringsConfig, i18nConfig } from '../shared/documentation-config.js';
+
 type TestCase = { name: string; run: () => void | Promise<void> };
 
 export const docsParityTests: TestCase[] = [
@@ -74,6 +89,107 @@ export const docsParityTests: TestCase[] = [
       assert.equal(socialImagePathForRoute('/docs/../etc'), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute('/docs/a b'), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute('https://x.test/docs'), DEFAULT_OG_IMAGE_PATH);
+    },
+  },
+  {
+    name: 'parseSearchScope reads docs: and api: prefixes',
+    run: () => {
+      assert.deepEqual(parseSearchScope('  api: users '), { query: 'users', section: 'api' });
+      assert.deepEqual(parseSearchScope('DOCS:tabs'), { query: 'tabs', section: 'docs' });
+      assert.deepEqual(parseSearchScope('tabs api:'), { query: 'tabs api:', section: null });
+    },
+  },
+  {
+    name: 'buildSearchFilters keeps API results unless scoped, and pins docs to the variant',
+    run: () => {
+      assert.deepEqual(buildSearchFilters({ section: null }), {});
+      assert.deepEqual(buildSearchFilters({ section: 'api', version: 'v2' }), { section: 'api' });
+      assert.deepEqual(buildSearchFilters({ section: 'docs', locale: 'fr' }), {
+        section: 'docs',
+        locale: 'fr',
+      });
+      assert.deepEqual(buildSearchFilters({ section: null, version: 'v2', locale: 'fr' }), {
+        any: [{ section: 'docs', version: 'v2', locale: 'fr' }, { section: 'api' }],
+      });
+    },
+  },
+  {
+    name: 'rankSearchResults boosts title matches and keeps ties stable',
+    run: () => {
+      assert.equal(titleBoost('Content Tabs', 'content tabs'), 3);
+      assert.equal(titleBoost('Content Tabs Guide', 'content tabs'), 2.5);
+      assert.equal(titleBoost('Guide to tabs and content', 'content tabs'), 2);
+      assert.equal(titleBoost('Tabs', 'content tabs'), 1.25);
+      assert.equal(titleBoost('Other', 'content tabs'), 1);
+      const ranked = rankSearchResults(
+        [
+          { score: 1, meta: { title: 'Install' } },
+          { score: 0.6, meta: { title: 'Content tabs' } },
+          { score: 1, meta: { title: 'Deploy' } },
+        ],
+        'content tabs'
+      );
+      assert.deepEqual(
+        ranked.map((result) => result.meta.title),
+        ['Content tabs', 'Install', 'Deploy']
+      );
+    },
+  },
+  {
+    name: 'Pagefind records carry section, collection, version, and locale filters',
+    run: () => {
+      const records = createPagefindRecords({
+        collections: [{ id: 'docs', label: 'Docs', routePrefix: 'docs' }],
+        artifactsByCollectionId: {
+          docs: {
+            index: { paths: ['a'], titles: { a: 'A' } },
+            documents: { a: { title: 'A', content: '# A\n\nBody' } },
+          },
+        },
+        openapiArtifacts: {
+          specs: [
+            {
+              operations: [{ method: 'GET', path: '/x', summary: 'X', routePath: '/docs/x' }],
+              schemas: [],
+            },
+          ],
+        },
+      });
+      const doc = records.find((record) => record.meta.kind === 'documentation');
+      const api = records.find((record) => record.meta.kind === 'openapi-operation');
+      assert.deepEqual(doc?.filters, { section: ['docs'], collection: ['docs'] });
+      assert.deepEqual(api?.filters, { section: ['api'] });
+    },
+  },
+  {
+    name: 'resolveUiStrings merges valid per-locale overrides over English defaults',
+    run: () => {
+      const config = {
+        fr: { previous: 'Précédent', next: '', bogus: 'x' } as Record<string, string>,
+      };
+      const fr = resolveUiStrings('fr', config);
+      assert.equal(fr.previous, 'Précédent');
+      assert.equal(fr.next, DEFAULT_UI_STRINGS.next);
+      assert.equal((fr as Record<string, string>).bogus, undefined);
+      assert.deepEqual(resolveUiStrings('de', config), DEFAULT_UI_STRINGS);
+      assert.deepEqual(resolveUiStrings(null, config), DEFAULT_UI_STRINGS);
+    },
+  },
+  {
+    name: 'validateUiStringsConfig reports unknown locales, keys, and empty values',
+    run: () => {
+      assert.deepEqual(
+        validateUiStringsConfig({ fr: { previous: 'P', nope: 'x', next: ' ' }, de: {} }, [
+          'en',
+          'fr',
+        ]),
+        [
+          'uiStringsConfig.fr.nope: unknown label',
+          'uiStringsConfig.fr.next: must be a non-empty string',
+          'uiStringsConfig.de: locale is not in i18nConfig.locales',
+        ]
+      );
+      assert.deepEqual(validateUiStringsConfig(uiStringsConfig, i18nConfig.locales), []);
     },
   },
 ];
