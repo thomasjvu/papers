@@ -1,0 +1,45 @@
+{
+  "path": "developer-guides/translating-the-interface",
+  "title": "Translating The Interface",
+  "description": "Translate or rename the labels in the docs chrome, per locale.",
+  "frontmatter": {
+    "description": "Translate or rename the labels in the docs chrome, per locale."
+  },
+  "content": "# Translating The Interface\n\nPage content is translated by adding locale folders. The labels around the\ncontent, such as **Previous**, **Next**, **Last updated**, and the copy button,\ncome from `shared/uiStrings.js`. You can translate or rename them per locale.\n\n## Set Labels For A Locale\n\nAdd the labels to `uiStringsConfig` in `shared/documentation-config.js`. Use\nthe locale codes from `i18nConfig.locales`. Labels that you leave out keep the\nEnglish default.\n\n```js title=\"shared/documentation-config.js\"\nexport const i18nConfig = {\n  enabled: true,\n  defaultLocale: 'en',\n  locales: ['en', 'fr'],\n  labels: { en: 'EN', fr: 'FR' },\n};\n\nexport const uiStringsConfig = {\n  fr: {\n    previous: 'Précédent',\n    next: 'Suivant',\n    lastUpdated: 'Mis à jour le',\n    searchDocs: 'Rechercher',\n    copyCode: 'Copier',\n  },\n};\n```\n\nTo rename a label on a site with one language, add an entry for the default\nlocale, for example `en: { edit: 'Edit this page' }`.\n\nThe page language comes from the URL. Dates in the **Last updated** line use\nthe same locale.\n\n## Available Labels\n\n| Key                 | Default                                      |\n| ------------------- | -------------------------------------------- |\n| `previous`          | Previous                                     |\n| `next`              | Next                                         |\n| `adjacentPages`     | Adjacent documentation pages (screen reader) |\n| `lastUpdated`       | Last updated                                 |\n| `edit`              | edit                                         |\n| `issue`             | issue                                        |\n| `source`            | source                                       |\n| `pageSourceActions` | Page source actions (screen reader)          |\n| `searchDocs`        | Search docs                                  |\n| `searchPlaceholder` | Search documentation or type a command...    |\n| `noResults`         | No results found for                         |\n| `copyCode`          | Copy to clipboard                            |\n| `copied`            | Copied                                       |\n| `showLineNumbers`   | Show line numbers                            |\n| `hideLineNumbers`   | Hide line numbers                            |\n| `referencedBy`      | Referenced by                                |\n\n## Validation\n\n`npm run generate:docs` (and so `npm run build`) fails if `uiStringsConfig`\nuses a locale that is not in `i18nConfig.locales`, an unknown key, or an empty\nvalue. This keeps a typo from hiding a label.\n",
+  "contentFormat": "markdown",
+  "toc": [
+    {
+      "depth": 1,
+      "id": "translating-the-interface",
+      "text": "Translating The Interface"
+    },
+    {
+      "depth": 2,
+      "id": "set-labels-for-a-locale",
+      "text": "Set Labels For A Locale"
+    },
+    {
+      "depth": 2,
+      "id": "available-labels",
+      "text": "Available Labels"
+    },
+    {
+      "depth": 2,
+      "id": "validation",
+      "text": "Validation"
+    }
+  ],
+  "metadata": {
+    "title": "Translating The Interface",
+    "description": "Translate or rename the labels in the docs chrome, per locale.",
+    "canonicalPath": "/docs/developer-guides/translating-the-interface",
+    "contentFormat": "markdown",
+    "sourcePath": "src/docs/content/developer-guides/translating-the-interface.md",
+    "collection": "docs",
+    "routePrefix": "/docs",
+    "schemaVersion": 1
+  },
+  "references": [],
+  "links": [],
+  "sourcePath": "src/docs/content/developer-guides/translating-the-interface.md"
+}

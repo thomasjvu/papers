@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generated": "2026-10-11T15:47:41.245Z",
+  "generated": "2026-10-11T16:01:47.501Z",
   "collection": "docs",
   "nodes": [
     {
@@ -128,6 +128,12 @@
       "href": "/docs/developer-guides/themes",
       "title": "Themes",
       "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell."
+    },
+    {
+      "path": "developer-guides/translating-the-interface",
+      "href": "/docs/developer-guides/translating-the-interface",
+      "title": "Translating The Interface",
+      "description": "Translate or rename the labels in the docs chrome, per locale."
     },
     {
       "path": "developer-guides/ui-configuration",
@@ -505,6 +511,7 @@
         "line": 30
       }
     ],
+    "developer-guides/translating-the-interface": [],
     "developer-guides/ui-configuration": [
       {
         "source": "user-guide/configuration",

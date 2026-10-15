@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-11T15:47:41.245Z",
+  "generated": "2026-10-11T16:01:47.501Z",
   "paths": [
     "api-reference/content-pipeline",
     "api-reference/openapi",
@@ -22,6 +22,7 @@
     "developer-guides/steps-and-cards",
     "developer-guides/tailwind-integration",
     "developer-guides/themes",
+    "developer-guides/translating-the-interface",
     "developer-guides/ui-configuration",
     "getting-started/installation",
     "getting-started/introduction",
@@ -35,7 +36,7 @@
     "user-guide/interactive-map",
     "user-guide/troubleshooting"
   ],
-  "count": 33,
+  "count": 34,
   "titles": {
     "api-reference/content-pipeline": "Content Pipeline",
     "api-reference/openapi": "OpenAPI Explorer",
@@ -58,6 +59,7 @@
     "developer-guides/steps-and-cards": "Steps And Cards",
     "developer-guides/tailwind-integration": "Tailwind Integration",
     "developer-guides/themes": "Themes",
+    "developer-guides/translating-the-interface": "Translating The Interface",
     "developer-guides/ui-configuration": "UI Configuration",
     "getting-started/installation": "Installation",
     "getting-started/introduction": "Introduction",

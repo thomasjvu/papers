@@ -10,6 +10,7 @@ import { useTheme } from '../../providers/useTheme';
 
 import SearchResult, { type SearchResultType } from './SearchResult';
 import { useSearchLogic } from './useSearchLogic';
+import { useUiStrings } from '../../lib/uiStrings';
 
 interface OptimizedCommandPaletteProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ interface OptimizedCommandPaletteProps {
 
 export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCommandPaletteProps) {
   const navigate = useNavigate();
+  const ui = useUiStrings();
   const { prefersReducedMotion } = useTheme();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -207,7 +209,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                         type="text"
                         defaultValue={query}
                         onChange={(event) => handleInputChange(event.target.value)}
-                        placeholder="Search documentation or type a command..."
+                        placeholder={ui.searchPlaceholder}
                         className="w-full px-3 py-2 rounded-md outline-hidden text-base"
                         style={{
                           color: 'var(--papers-text-color)',
@@ -238,7 +240,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                       ))
                     ) : (
                       <div className="p-8 text-center" style={{ color: 'var(--muted-color)' }}>
-                        No results found for &ldquo;{query}&rdquo;
+                        {ui.noResults} &ldquo;{query}&rdquo;
                       </div>
                     )}
                   </div>

@@ -2,12 +2,14 @@ import { Icon } from '@iconify/react';
 import { Link } from 'react-router-dom';
 
 import type { DocumentBacklink } from '../../lib/content';
+import { useUiStrings } from '../../lib/uiStrings';
 
 type DocumentBacklinksProps = {
   backlinks: DocumentBacklink[];
 };
 
 export default function DocumentBacklinks({ backlinks }: DocumentBacklinksProps) {
+  const ui = useUiStrings();
   if (backlinks.length === 0) {
     return null;
   }
@@ -33,7 +35,7 @@ export default function DocumentBacklinks({ backlinks }: DocumentBacklinksProps)
           className="text-xs font-semibold uppercase tracking-[0.16em]"
           style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
         >
-          Referenced by
+          {ui.referencedBy}
         </h2>
       </div>
       <ul className="space-y-2">

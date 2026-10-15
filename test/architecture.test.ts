@@ -1878,17 +1878,18 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(contentRendererSource, /import DocPageFooter from ['"]\.\/DocPageFooter['"]/);
       assert.match(contentRendererSource, /<DocPageFooter\b/);
       assert.match(contentRendererSource, /doc-page-bottom-row/);
-      assert.match(contentRendererSource, />\s*Previous\s*</);
-      assert.match(contentRendererSource, />\s*Next\s*</);
+      // Labels are translatable (shared/uiStrings.js); English defaults stay.
+      assert.match(contentRendererSource, /\{ui\.previous\}/);
+      assert.match(contentRendererSource, /\{ui\.next\}/);
       assert.match(contentRendererSource, /prevPage/);
       assert.match(contentRendererSource, /nextPage/);
 
       assert.match(footerSource, /VITE_GITHUB_URL/);
       assert.match(footerSource, /\/edit\//);
       assert.match(footerSource, /\/blob\//);
-      assert.match(footerSource, />\s*edit\s*</);
-      assert.match(footerSource, />\s*source\s*</);
-      assert.match(footerSource, />\s*issue\s*</);
+      assert.match(footerSource, /\{ui\.edit\}/);
+      assert.match(footerSource, /\{ui\.source\}/);
+      assert.match(footerSource, /\{ui\.issue\}/);
 
       // Footer must stay in document flow (not absolute-faded / mobile-hidden)
       assert.doesNotMatch(globalsCss, /\.doc-page-footer\s*\{[^}]*position:\s*absolute/s);

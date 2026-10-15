@@ -15,6 +15,13 @@ import {
 } from '../src/lib/searchRanking.ts';
 import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
 
+import {
+  DEFAULT_UI_STRINGS,
+  resolveUiStrings,
+  validateUiStringsConfig,
+} from '../shared/uiStrings.js';
+import { uiStringsConfig, i18nConfig } from '../shared/documentation-config.js';
+
 type TestCase = { name: string; run: () => void | Promise<void> };
 
 export const docsParityTests: TestCase[] = [
@@ -152,6 +159,37 @@ export const docsParityTests: TestCase[] = [
       const api = records.find((record) => record.meta.kind === 'openapi-operation');
       assert.deepEqual(doc?.filters, { section: ['docs'], collection: ['docs'] });
       assert.deepEqual(api?.filters, { section: ['api'] });
+    },
+  },
+  {
+    name: 'resolveUiStrings merges valid per-locale overrides over English defaults',
+    run: () => {
+      const config = {
+        fr: { previous: 'Précédent', next: '', bogus: 'x' } as Record<string, string>,
+      };
+      const fr = resolveUiStrings('fr', config);
+      assert.equal(fr.previous, 'Précédent');
+      assert.equal(fr.next, DEFAULT_UI_STRINGS.next);
+      assert.equal((fr as Record<string, string>).bogus, undefined);
+      assert.deepEqual(resolveUiStrings('de', config), DEFAULT_UI_STRINGS);
+      assert.deepEqual(resolveUiStrings(null, config), DEFAULT_UI_STRINGS);
+    },
+  },
+  {
+    name: 'validateUiStringsConfig reports unknown locales, keys, and empty values',
+    run: () => {
+      assert.deepEqual(
+        validateUiStringsConfig({ fr: { previous: 'P', nope: 'x', next: ' ' }, de: {} }, [
+          'en',
+          'fr',
+        ]),
+        [
+          'uiStringsConfig.fr.nope: unknown label',
+          'uiStringsConfig.fr.next: must be a non-empty string',
+          'uiStringsConfig.de: locale is not in i18nConfig.locales',
+        ]
+      );
+      assert.deepEqual(validateUiStringsConfig(uiStringsConfig, i18nConfig.locales), []);
     },
   },
 ];

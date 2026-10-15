@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import { formatLastUpdated, loadLastUpdatedPages, normalizeRoutePath } from '../lib/lastUpdated';
+import { useUiLocale, useUiStrings } from '../lib/uiStrings';
 
 /**
  * "Last updated" line for doc pages. Dates come from dist/docs-last-updated.json,
@@ -9,6 +10,8 @@ import { formatLastUpdated, loadLastUpdatedPages, normalizeRoutePath } from '../
  */
 export default function LastUpdated() {
   const { pathname } = useLocation();
+  const ui = useUiStrings();
+  const locale = useUiLocale();
   const [iso, setIso] = useState<string | null>(null);
 
   useEffect(() => {
@@ -28,7 +31,7 @@ export default function LastUpdated() {
 
   return (
     <p className="doc-page-updated" data-last-updated={iso}>
-      Last updated <time dateTime={iso}>{formatLastUpdated(iso)}</time>
+      {ui.lastUpdated} <time dateTime={iso}>{formatLastUpdated(iso, locale)}</time>
     </p>
   );
 }

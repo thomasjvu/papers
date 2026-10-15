@@ -13,6 +13,7 @@ import { getDiffLineKind, parseDiffLanguage } from '../utils/markdownCore';
 import { createWordPattern, markWords, type HighlighterNode } from '../utils/codeWords';
 
 import styles from './CodeBlock.module.css';
+import { useUiStrings } from '../lib/uiStrings';
 
 interface CodeSnippet {
   language: string;
@@ -240,6 +241,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
   ({ snippets = [], title, defaultLanguage, showLineNumbers = true, className = '' }) => {
     const [activeTab, setActiveTab] = useState(0);
     const [copied, setCopied] = useState(false);
+    const ui = useUiStrings();
     // Per-block line-number toggle; null follows the fence/default setting.
     const [lineNumberOverride, setLineNumberOverride] = useState<boolean | null>(null);
     const [mounted, setMounted] = useState(false);
@@ -444,8 +446,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             <button
               className={styles.codeBlockCopyBtn}
               onClick={() => setLineNumberOverride(!lineNumbersVisible)}
-              title={lineNumbersVisible ? 'Hide line numbers' : 'Show line numbers'}
-              aria-label={lineNumbersVisible ? 'Hide line numbers' : 'Show line numbers'}
+              title={lineNumbersVisible ? ui.hideLineNumbers : ui.showLineNumbers}
+              aria-label={lineNumbersVisible ? ui.hideLineNumbers : ui.showLineNumbers}
               aria-pressed={lineNumbersVisible}
               type="button"
               data-line-number-toggle=""
@@ -455,8 +457,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             <button
               className={styles.codeBlockCopyBtn}
               onClick={copyToClipboard}
-              title={copied ? 'Copied!' : 'Copy to clipboard'}
-              aria-label={copied ? 'Copied' : 'Copy to clipboard'}
+              title={copied ? ui.copied : ui.copyCode}
+              aria-label={copied ? ui.copied : ui.copyCode}
               type="button"
             >
               {copied ? (

@@ -11,7 +11,13 @@ import {
   getCollectionVariants,
   validateContentCollections,
 } from '../shared/content-collections.js';
-import { frameworkDocPaths, openapiConfig } from '../shared/documentation-config.js';
+import {
+  frameworkDocPaths,
+  i18nConfig,
+  openapiConfig,
+  uiStringsConfig,
+} from '../shared/documentation-config.js';
+import { validateUiStringsConfig } from '../shared/uiStrings.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
 import {
@@ -24,6 +30,11 @@ import {
   resolveCollectionContentRoot,
   resolveCollectionFrameworkContentRoot,
 } from './lib/collectionContentRoot.mjs';
+
+const uiStringProblems = validateUiStringsConfig(uiStringsConfig, i18nConfig.locales || []);
+if (uiStringProblems.length > 0) {
+  throw new Error(`Invalid uiStringsConfig:\n- ${uiStringProblems.join('\n- ')}`);
+}
 
 async function readExistingJson(filePath) {
   try {
