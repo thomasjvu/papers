@@ -7,7 +7,7 @@
 - **Risk**: LOW
 - **Depends on**: none
 - **Category**: authoring | ui | accessibility
-- **Status**: IN PROGRESS. The first two rounds are done (PR #7, PR #8).
+- **Status**: IN PROGRESS. Rounds 1 to 3 are done (PR #7, PR #8, PR #9).
   The remaining gaps are ranked below.
 - **Planned at**: commit `3579993`, 2026-10-11
 
@@ -96,24 +96,41 @@ authoring components, which authors notice first when they migrate.
 - **Fix.** A single-line `<Callout>...</Callout>` in MDX now renders as a block
   callout.
 
+## Delivered in round 3 (PR #9)
+
+- **Collapsible callouts.** `:::details Title` in Markdown and MDX renders a
+  native `<details>` callout that starts closed.
+- **Code blocks.** `diff-<lang>` fences get syntax colours and +/- line
+  marking. Quoted terms (`"apiKey"`) are highlighted. `noLineNumbers` or
+  `showLineNumbers` sets line numbers per block, and a header button toggles
+  them. Added the Prism languages diff, python, yaml, sql, go, and rust.
+- **MDX parity.** Code blocks nested inside MDX callouts and tabs get the copy
+  button and syntax colours. `<Tabs group="key">` syncs with Markdown
+  `:::tabs key`.
+- **Steps and cards.** Markdown `:::steps` and `:::cards` (`::card
+[Title](/path)`). MDX `<Steps>`, `<CardGrid>`, and `<Card title href>`.
+  Card links accept only site paths and https URLs.
+- **Search.** Pagefind records carry section, collection, version, and locale
+  filters. Results stay in the reader's version and locale. `docs:` and
+  `api:` scope a query. Ranking is tuned and title matches are boosted.
+  **Fix:** the command palette never loaded Pagefind, because `pagefind.js` is
+  an ES module that does not set `window.pagefind`. It now imports the module.
+- **Translatable interface labels.** `uiStringsConfig` sets the labels for
+  each locale (`shared/uiStrings.js`). `generate:docs` validates it.
+
 ## Remaining gaps, in priority order
 
-1. **Code block polish.** Add diff fences with syntax highlighting
-   (`diff-ts`), word/inline highlighting, a per-block toggle for line numbers,
-   and collapsible callouts (`:::details`).
-2. **Search quality tuning.** Use Pagefind ranking weights, metadata filters
-   (collection, version, locale), and heading-level result anchors. Compare
-   results with Starlight defaults on the same corpus.
-3. **i18n UI strings.** Routing works, but check that the chrome labels
-   (sidebar, footer, palette) can be translated per locale.
-4. **Raster social cards.** The per-page cards are SVG, and some social
-   networks ignore SVG `og:image`. Rendering PNGs needs a rasterizer
-   dependency, which needs a dependency review first.
-5. **Tabs and code parity.** MDX `<Tabs>` do not sync by group yet. MDX code
-   blocks nested inside callouts or tabs stay static HTML. Markdown tabs cannot
-   be nested.
-6. **Low priority.** An RSS/Atom feed for changelog-style collections, and
-   Mintlify-style `Steps`/`Card` components.
+1. **Raster social cards.** The cards are still SVG. PNG output needs a
+   rasterizer dependency, which is not approved yet.
+2. **Heading-level search results.** Pagefind custom records have no
+   headings, so results link to whole pages. Indexing the route HTML would
+   give section anchors.
+3. **Search filter UI.** Scopes use a query prefix. There are no filter chips
+   in the palette yet.
+4. **More translatable labels.** Sidebar, mindmap, and palette command labels
+   are still English-only.
+5. **Nested Markdown tabs**, and a theme-aware diff palette per theme.
+6. **Low priority.** An RSS/Atom feed for changelog-style collections.
 
 ## Verification
 
