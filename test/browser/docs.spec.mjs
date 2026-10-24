@@ -287,35 +287,32 @@ test('callouts, GitHub alerts, and code fence metadata render accessibly', async
   await expect(packageDiff.locator('[data-line-kind="added"]')).toHaveCount(1);
   await expect(packageDiff.locator('[data-line-kind="removed"]')).toHaveCount(1);
 
-  // Diff lines take their colors from the theme tokens.
-  const diffColors = () =>
-    packageDiff.evaluate((block) => {
-      const root = getComputedStyle(document.documentElement);
+  // Diff lines take their colors from the theme tokens, in both color modes.
+  const diffColors = async (dark) => {
+    await page.evaluate((value) => localStorage.setItem('darkMode', String(value)), dark);
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.locator('html')).toHaveClass(dark ? /\bdark\b/ : /^(?!.*\bdark\b)/);
+    return packageDiff.evaluate((block) => {
       const added = block.querySelector('[data-line-kind="added"]');
       const removed = block.querySelector('[data-line-kind="removed"]');
-      const probe = document.createElement('span');
-      document.body.append(probe);
-      const resolve = (token) => {
-        probe.style.backgroundColor = root.getPropertyValue(token).trim();
-        return getComputedStyle(probe).backgroundColor;
-      };
-      const result = {
+      // The default theme writes these tokens as rgba(); the build may shorten 0.1 to .1.
+      const token = (name) => getComputedStyle(added).getPropertyValue(name).trim();
+      return {
         added: getComputedStyle(added).backgroundColor,
         removed: getComputedStyle(removed).backgroundColor,
         addedEdge: getComputedStyle(added).borderLeftColor,
-        insertedBg: resolve('--code-inserted-bg'),
-        deletedBg: resolve('--code-deleted-bg'),
+        insertedBg: token('--code-inserted-bg'),
+        deletedBg: token('--code-deleted-bg'),
       };
-      probe.remove();
-      return result;
     });
-  const light = await diffColors();
-  expect(light.added).toBe(light.insertedBg);
-  expect(light.removed).toBe(light.deletedBg);
+  };
+  const channels = (color) => (color.match(/[\d.]+/g) ?? []).map(Number);
+  const light = await diffColors(false);
+  expect(channels(light.added)).toEqual(channels(light.insertedBg));
+  expect(channels(light.removed)).toEqual(channels(light.deletedBg));
   expect(light.added).not.toBe(light.removed);
-  await page.evaluate(() => document.documentElement.classList.add('dark'));
-  const dark = await diffColors();
-  expect(dark.added).toBe(dark.insertedBg);
+  const dark = await diffColors(true);
+  expect(channels(dark.added)).toEqual(channels(dark.insertedBg));
   expect(dark.addedEdge).not.toBe(light.addedEdge);
   await assertNoRuntimeErrors(errors);
 });
