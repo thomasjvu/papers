@@ -358,19 +358,32 @@ test('grouped content tabs sync across the page and persist after reload', async
   await assertNoRuntimeErrors(errors);
 });
 
-test('doc routes ship a per-page social preview image', async ({ page, request }) => {
+test('doc routes ship a per-page PNG social card with an SVG fallback', async ({
+  page,
+  request,
+}) => {
   const response = await request.get('/docs/getting-started/introduction');
   const html = await response.text();
   const match = html.match(/property="og:image"\s+content="([^"]+)"/);
-  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.svg$/);
-  const image = await request.get(new URL(match[1], 'http://localhost').pathname);
+  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.png$/);
+  const imagePath = new URL(match[1], 'http://localhost').pathname;
+  const image = await request.get(imagePath);
   expect(image.ok()).toBe(true);
-  expect(await image.text()).toContain('Introduction');
+  const png = await image.body();
+  // PNG signature + IHDR dimensions (1200x630).
+  expect(png.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+  expect(png.readUInt32BE(16)).toBe(1200);
+  expect(png.readUInt32BE(20)).toBe(630);
+  test.info().attachments.push({ name: 'social-card.png', contentType: 'image/png', body: png });
+
+  const fallback = await request.get(imagePath.replace(/\.png$/, '.svg'));
+  expect(fallback.ok()).toBe(true);
+  expect(await fallback.text()).toContain('Introduction');
 
   await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
     'content',
-    /\/images\/og\/docs\/getting-started\/introduction\.svg$/
+    /\/images\/og\/docs\/getting-started\/introduction\.png$/
   );
 });
 

@@ -14,6 +14,7 @@ import {
   titleBoost,
 } from '../src/lib/searchRanking.ts';
 import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
+import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
 
 import {
   DEFAULT_UI_STRINGS,
@@ -80,9 +81,13 @@ export const docsParityTests: TestCase[] = [
     run: () => {
       assert.equal(
         socialImagePathForRoute('/docs/getting-started/introduction'),
+        '/images/og/docs/getting-started/introduction.png'
+      );
+      assert.equal(
+        socialImagePathForRoute('/docs/getting-started/introduction', 'svg'),
         '/images/og/docs/getting-started/introduction.svg'
       );
-      assert.equal(socialImagePathForRoute('/docs/a/'), '/images/og/docs/a.svg');
+      assert.equal(socialImagePathForRoute('/docs/a/'), '/images/og/docs/a.png');
       assert.equal(socialImagePathForRoute('/'), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute(''), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute(undefined), DEFAULT_OG_IMAGE_PATH);
@@ -190,6 +195,35 @@ export const docsParityTests: TestCase[] = [
         ]
       );
       assert.deepEqual(validateUiStringsConfig(uiStringsConfig, i18nConfig.locales), []);
+    },
+  },
+  {
+    name: 'renderSocialCardPng falls back (returns null) instead of failing the build',
+    run: async () => {
+      const warn = console.warn;
+      console.warn = () => {};
+      try {
+        assert.equal(await renderSocialCardPng('<svg'), null);
+        const previous = process.env.PAPERS_SOCIAL_CARD_FORMAT;
+        process.env.PAPERS_SOCIAL_CARD_FORMAT = 'svg';
+        try {
+          assert.equal(
+            await renderSocialCardPng(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"/>'
+            ),
+            null
+          );
+        } finally {
+          if (previous === undefined) delete process.env.PAPERS_SOCIAL_CARD_FORMAT;
+          else process.env.PAPERS_SOCIAL_CARD_FORMAT = previous;
+        }
+      } finally {
+        console.warn = warn;
+      }
+      const marked = emboldenSvgText('<text x="1" fill="#FFF" font-weight="800">A</text>');
+      assert.match(marked, /stroke="#FFF" stroke-width="3\.0"/);
+      // Attacker-controlled title text never reaches attributes.
+      assert.equal(emboldenSvgText('<text fill="x">A</text>'), '<text fill="x">A</text>');
     },
   },
 ];
