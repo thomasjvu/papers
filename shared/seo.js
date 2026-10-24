@@ -7,17 +7,21 @@ export const PAGE_SOCIAL_IMAGE_DIR = '/images/og';
 
 /**
  * Per-page social card path for a canonical route, e.g.
- * `/docs/getting-started/introduction` -> `/images/og/docs/getting-started/introduction.svg`.
- * The cards are generated into dist/ at build time by generate-route-html.
+ * `/docs/getting-started/introduction` -> `/images/og/docs/getting-started/introduction.png`.
+ * The cards are generated into dist/ at build time by generate-route-html as PNG
+ * (rasterised with resvg) alongside an SVG fallback (`format = 'svg'`).
  * Unsafe or empty routes fall back to the site-wide card.
  */
-export function socialImagePathForRoute(canonicalPath) {
+export const SOCIAL_IMAGE_FORMATS = Object.freeze(['png', 'svg']);
+
+export function socialImagePathForRoute(canonicalPath, format = 'png') {
+  const extension = SOCIAL_IMAGE_FORMATS.includes(format) ? format : 'png';
   if (typeof canonicalPath !== 'string') return DEFAULT_OG_IMAGE_PATH;
   const trimmed = canonicalPath.replace(/\/+$/, '');
   if (!trimmed || !/^(\/[A-Za-z0-9._-]+)+$/.test(trimmed) || trimmed.split('/').includes('..')) {
     return DEFAULT_OG_IMAGE_PATH;
   }
-  return `${PAGE_SOCIAL_IMAGE_DIR}${trimmed}.svg`;
+  return `${PAGE_SOCIAL_IMAGE_DIR}${trimmed}.${extension}`;
 }
 
 export const AGENT_ARTIFACTS = Object.freeze([
@@ -226,6 +230,22 @@ export function getHomeMetadataDefaults() {
     siteName: homepageConfig.hero?.title || 'papers',
     siteSubtitle: homepageConfig.hero?.subtitle || 'Documentation',
     siteDescription: homepageConfig.hero?.description || '',
+  };
+}
+
+/** The RSS feed written to dist/rss.xml by generate:rss. */
+export const RSS_FEED_LINK = Object.freeze({
+  path: '/rss.xml',
+  contentType: 'application/rss+xml',
+  title: 'Documentation updates',
+});
+
+/** The `<link rel="alternate">` fields for the RSS feed. */
+export function getFeedLink(siteUrl = '') {
+  return {
+    href: buildAbsoluteUrl(RSS_FEED_LINK.path, siteUrl),
+    contentType: RSS_FEED_LINK.contentType,
+    title: RSS_FEED_LINK.title,
   };
 }
 

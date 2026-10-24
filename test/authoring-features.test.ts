@@ -300,12 +300,45 @@ export const authoringFeatureTests: TestCase[] = [
     },
   },
   {
+    name: 'Markdown tabs nest when the outer set uses more colons',
+    run: async () => {
+      const { html } = await render(
+        [
+          '::::tabs os',
+          '::tab macOS',
+          ':::tabs pkg',
+          '::tab npm',
+          'mac npm',
+          '::tab pnpm',
+          'mac pnpm',
+          ':::',
+          '::tab Linux',
+          'linux only',
+          '::::',
+          '',
+          'after',
+        ].join('\n')
+      );
+      assert.match(
+        html,
+        /^<div class="md-tabs" data-tabs-group="os"><div class="md-tabs__panel" data-tab-label="macOS"><div class="md-tabs" data-tabs-group="pkg"><div class="md-tabs__panel" data-tab-label="npm"><p>mac npm<\/p>\n<\/div><div class="md-tabs__panel" data-tab-label="pnpm"><p>mac pnpm<\/p>\n<\/div><\/div>\n<\/div><div class="md-tabs__panel" data-tab-label="Linux"><p>linux only<\/p>\n<\/div><\/div>\n<p>after<\/p>/
+      );
+    },
+  },
+  {
     name: 'splitTabPanels and resolveTabIndex handle markers and stale choices',
     run: () => {
       assert.deepEqual(splitTabPanels('intro\n::tab A\none\n::tab B\ntwo'), [
-        { label: 'A', content: 'one\n' },
+        { label: 'A', content: 'one' },
         { label: 'B', content: 'two' },
       ]);
+      // Markers inside an inner container or a code fence stay with that block.
+      assert.deepEqual(
+        splitTabPanels(
+          '::tab Outer\n:::tabs\n::tab Inner\nx\n:::\n```md\n::tab Fenced\n```\n::tab Two\ny'
+        ).map((panel) => panel.label),
+        ['Outer', 'Two']
+      );
       assert.equal(resolveTabIndex(['npm', 'pnpm'], 'pnpm'), 1);
       assert.equal(resolveTabIndex(['npm', 'pnpm'], 'yarn'), 0);
       assert.equal(resolveTabIndex(['npm', 'pnpm'], null), 0);

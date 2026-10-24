@@ -70,10 +70,7 @@ const sanitizeSchema = {
       ...(defaultSchema.attributes?.p || []),
       ['className', /^(papers-(callout|card|character-note)|admonition-title)/],
     ],
-    a: [
-      ...(defaultSchema.attributes?.a || []),
-      ['target', 'rel'],
-    ],
+    a: [...(defaultSchema.attributes?.a || []), ['target', 'rel']],
   },
   tagNames: [...(defaultSchema.tagNames || []), 'details', 'summary'],
 };

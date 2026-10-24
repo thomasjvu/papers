@@ -3,7 +3,7 @@
   "title": "Command Palette",
   "description": "The command palette is the fastest way to move through the site.",
   "frontmatter": {},
-  "content": "# Command Palette\n\nThe command palette is the fastest way to move through the site.\n\n## Open It\n\n- Mac: `Cmd + K`\n- Windows / Linux: `Ctrl + K`\n\n## What It Can Show\n\n- docs pages from the shared navigation tree\n- built-in actions such as theme changes\n- FAQ answers inline inside the palette\n- quick links like the homepage and `llms.txt`\n- Pagefind full-text results after a production build\n\n## Keyboard Controls\n\n- `Up` and `Down` move through results\n- `Enter` opens a result or previews an FAQ answer\n- `Esc` closes the palette\n\n## Related Shortcut\n\n`Cmd/Ctrl + I` toggles the theme.\n\n## Search Notes\n\nLocal navigation results are always available.\n\nPagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.\n\n### Scoping And Ranking\n\n- Start a query with `docs:` to search only guides, or `api:` to search only\n  the OpenAPI reference. For example, `api: users`.\n- On a versioned or translated page, guide results come from the same version\n  and language as the page you are reading.\n- Pages whose title matches your query rank first. The ranking settings live in\n  `src/lib/searchRanking.ts`.\n\n## Next Steps\n\n- [Advanced Features](/docs/user-guide/advanced-features)\n- [Basic Usage](/docs/user-guide/basic-usage)\n",
+  "content": "# Command Palette\n\nThe command palette is the fastest way to move through the site.\n\n## Open It\n\n- Mac: `Cmd + K`\n- Windows / Linux: `Ctrl + K`\n\n## What It Can Show\n\n- docs pages from the shared navigation tree\n- built-in actions such as theme changes\n- FAQ answers inline inside the palette\n- quick links like the homepage and `llms.txt`\n- Pagefind full-text results after a production build\n\n## Keyboard Controls\n\n- `Up` and `Down` move through results\n- `Enter` opens a result or previews an FAQ answer\n- `Esc` closes the palette\n\n## Related Shortcut\n\n`Cmd/Ctrl + I` toggles the theme.\n\n## Search Notes\n\nLocal navigation results are always available.\n\nPagefind results depend on the production search index, so validate those with `npm run build` rather than only local dev.\n\n### Scoping And Ranking\n\n- Use the **All**, **Docs** and **API** buttons under the search box to choose\n  what to search. **Docs** searches only guides, and **API** searches only the\n  OpenAPI reference. The palette opens on **All** each time.\n- Results can point to a section of a page. These show the page title under\n  the section name, and opening one scrolls the page to that heading.\n- You can also start a query with `docs:` to search only guides, or `api:` to\n  search only the OpenAPI reference, for example `api: users`. A typed prefix\n  wins over the buttons.\n- On a versioned or translated page, guide results come from the same version\n  and language as the page you are reading.\n- Pages whose title matches your query rank first. The ranking settings live in\n  `src/lib/searchRanking.ts`.\n\n## Next Steps\n\n- [Advanced Features](/docs/user-guide/advanced-features)\n- [Basic Usage](/docs/user-guide/basic-usage)\n",
   "contentFormat": "markdown",
   "toc": [
     {
@@ -60,22 +60,22 @@
   "references": [
     {
       "target": "/docs/user-guide/advanced-features",
-      "line": 45
+      "line": 51
     },
     {
       "target": "/docs/user-guide/basic-usage",
-      "line": 46
+      "line": 52
     }
   ],
   "links": [
     {
       "target": "/docs/user-guide/advanced-features",
-      "line": 45,
+      "line": 51,
       "type": "internal"
     },
     {
       "target": "/docs/user-guide/basic-usage",
-      "line": 46,
+      "line": 52,
       "type": "internal"
     }
   ],

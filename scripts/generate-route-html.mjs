@@ -11,6 +11,7 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_TWITTER_IMAGE_PATH,
   getAgentArtifactLinks,
+  getFeedLink,
   getHomeMetadataDefaults,
   serializeJsonLd,
   socialImagePathForRoute,
@@ -20,6 +21,7 @@ import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 import { planHomepagePreloads, planRoutePreloads } from './lib/routePreloads.mjs';
 import { createAllCollectionSeoRouteEntries, createSocialCardSvg } from './lib/seoArtifacts.mjs';
+import { renderSocialCardPng, socialCardFontFiles } from './lib/socialCardPng.mjs';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -218,6 +220,7 @@ async function generateRouteHtml() {
       contentType: link.contentType,
       title: link.title,
     })),
+    getFeedLink(siteUrl),
   ];
   const homepageHtml = appendRoutePreloads(
     applyMetadataToHtml(templateHtml, {
@@ -238,34 +241,48 @@ async function generateRouteHtml() {
   );
   await writeFile(indexHtmlPath, `${homepageHtml.trimEnd()}\n`);
 
-  const writtenSocialImages = new Set();
+  const writtenSocialImages = new Map();
+  const cardFontFiles = socialCardFontFiles(publicDir);
+  let pngCards = 0;
+  let svgFallbacks = 0;
   for (const entry of routeEntries) {
     const canonicalUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;
     const pageUrl = buildAbsoluteUrl(entry.canonicalPath, siteUrl) || entry.canonicalPath;
     let imagePath = DEFAULT_OG_IMAGE_PATH;
     let twitterImagePath = DEFAULT_TWITTER_IMAGE_PATH;
-    const pageImagePath =
-      entry.type === 'article' ? socialImagePathForRoute(entry.canonicalPath) : null;
-    if (pageImagePath && pageImagePath !== DEFAULT_OG_IMAGE_PATH) {
-      if (!writtenSocialImages.has(pageImagePath)) {
-        const imageFile = join(distDir, pageImagePath.replace(/^\//, ''));
-        await mkdir(dirname(imageFile), { recursive: true });
-        await writeFile(
-          imageFile,
-          `${createSocialCardSvg({
-            title: String(entry.title || siteName).replace(
-              new RegExp(`\\s*\\|\\s*${escapeRegExp(String(siteName))}$`),
-              ''
-            ),
-            description: entry.description || siteDescription,
-            siteName,
-            label: siteName,
-          })}\n`
-        );
-        writtenSocialImages.add(pageImagePath);
+    const svgImagePath =
+      entry.type === 'article' ? socialImagePathForRoute(entry.canonicalPath, 'svg') : null;
+    if (svgImagePath && svgImagePath !== DEFAULT_OG_IMAGE_PATH) {
+      if (!writtenSocialImages.has(svgImagePath)) {
+        const svg = createSocialCardSvg({
+          title: String(entry.title || siteName).replace(
+            new RegExp(`\\s*\\|\\s*${escapeRegExp(String(siteName))}$`),
+            ''
+          ),
+          description: entry.description || siteDescription,
+          siteName,
+          label: siteName,
+        });
+        const svgFile = join(distDir, svgImagePath.replace(/^\//, ''));
+        await mkdir(dirname(svgFile), { recursive: true });
+        await writeFile(svgFile, `${svg}\n`);
+
+        // Prefer a PNG card (widely supported by social crawlers); keep the SVG
+        // as the advertised image when rasterising fails.
+        let advertisedPath = svgImagePath;
+        const png = await renderSocialCardPng(svg, { fontFiles: cardFontFiles });
+        if (png) {
+          const pngImagePath = socialImagePathForRoute(entry.canonicalPath, 'png');
+          await writeFile(join(distDir, pngImagePath.replace(/^\//, '')), png);
+          advertisedPath = pngImagePath;
+          pngCards += 1;
+        } else {
+          svgFallbacks += 1;
+        }
+        writtenSocialImages.set(svgImagePath, advertisedPath);
       }
-      imagePath = pageImagePath;
-      twitterImagePath = pageImagePath;
+      imagePath = writtenSocialImages.get(svgImagePath);
+      twitterImagePath = imagePath;
     }
     const imageUrl = buildAbsoluteUrl(imagePath, siteUrl) || imagePath;
     const twitterImageUrl = buildAbsoluteUrl(twitterImagePath, siteUrl) || twitterImagePath;
@@ -297,7 +314,7 @@ async function generateRouteHtml() {
   }
 
   console.log(
-    `Generated ${routeEntries.length} route HTML files with SEO metadata and ${writtenSocialImages.size} page social image(s).`
+    `Generated ${routeEntries.length} route HTML files with SEO metadata and ${writtenSocialImages.size} page social card(s) (${pngCards} PNG, ${svgFallbacks} SVG fallback).`
   );
 }
 

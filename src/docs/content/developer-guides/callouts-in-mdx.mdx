@@ -81,6 +81,20 @@ pnpm dev
   </Tab>
 </Tabs>
 
+### Nested Tabs
+
+A `<Tab>` can hold another `<Tabs>` set:
+
+<Tabs group="os">
+  <Tab label="macOS">
+    <Tabs group="pkg">
+      <Tab label="npm">Run `npm install papers`.</Tab>
+      <Tab label="pnpm">Run `pnpm add papers`.</Tab>
+    </Tabs>
+  </Tab>
+  <Tab label="Linux">Install Node.js, then run `npm install papers`.</Tab>
+</Tabs>
+
 ## Steps And Cards
 
 <Steps>

@@ -16,10 +16,17 @@
 - theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
 - Mermaid diagrams rendered as empty boxes: the SVG sanitizer's `ALLOWED_URI_REGEXP` stripped all geometry and `<foreignObject>` labels; diagrams now keep shapes, edges and HTML labels with theme-token colors
 - `check:runtime-audit` passes: Tailwind 3's glob dependencies (braces, micromatch, chokidar, fast-glob) are gone and vue / source-map-js / dompurify were updated within range
+- direct links to a heading (`/docs/page#heading`) now scroll the heading into view after the page loads
 - unknown `VITE_PAPERS_THEME` values (e.g. `pq2`) now fail with the env source, a "did you mean" hint, the available themes and the fix command
 
 ### Added
 
+- PNG social cards for each page (`@resvg/resvg-js`), with the SVG card as a fallback; `PAPERS_SOCIAL_CARD_FORMAT=svg` turns PNG off
+- heading-level search results that open the page at the matching section, and All / Docs / API scope buttons in the command palette
+- translatable sidebar, mindmap and command palette labels in `uiStringsConfig`, with placeholder checks for templates such as `Font: {font}`
+- nested Markdown tabs: an outer `::::tabs` set can hold an inner `:::tabs` set
+- `--code-inserted-*` and `--code-deleted-*` diff tokens, set by each bundled theme
+- `dist/rss.xml`, an RSS feed of recently updated pages, linked from every page
 - KaTeX math: inline `$...$`, display `$$...$$`, and typeset ` ```math ` fences (KaTeX lazy-loads only on pages with math)
 - Mermaid labels with KaTeX math (`$$...$$`) rendered as native MathML; verified with KaTeX 0.16.47 and 0.18.10 overrides
 - `developer-guides/math-and-diagrams` example page with unit and Playwright coverage

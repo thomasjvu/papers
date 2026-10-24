@@ -1,7 +1,11 @@
 declare module '*/shared/seo.js' {
   export const DEFAULT_OG_IMAGE_PATH: string;
   export const PAGE_SOCIAL_IMAGE_DIR: string;
-  export function socialImagePathForRoute(canonicalPath: string | undefined): string;
+  export const SOCIAL_IMAGE_FORMATS: readonly ['png', 'svg'];
+  export function socialImagePathForRoute(
+    canonicalPath: string | undefined,
+    format?: 'png' | 'svg'
+  ): string;
   export const DEFAULT_TWITTER_IMAGE_PATH: string;
   export const AGENT_DISCOVERY_PATH: string;
   export const AGENT_ARTIFACTS: ReadonlyArray<{
@@ -11,6 +15,12 @@ declare module '*/shared/seo.js' {
     title: string;
   }>;
 
+  export const RSS_FEED_LINK: Readonly<{ path: string; contentType: string; title: string }>;
+  export function getFeedLink(siteUrl?: string): {
+    href: string;
+    contentType: string;
+    title: string;
+  };
   export function getAgentArtifactLinks(siteUrl?: string): Array<{
     id: string;
     path: string;

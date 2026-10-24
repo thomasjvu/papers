@@ -156,6 +156,11 @@ not depend on color alone.
    }
 ```
 
+Diff colors come from the theme. Each bundled theme sets
+`--code-inserted-color`, `--code-deleted-color`, `--code-inserted-bg` and
+`--code-deleted-bg` to match its palette. Set them in your theme's
+`tokens.css` to change them.
+
 To colour the code as well, add the language after `diff-`, for example
 `diff-ts` or `diff-json`:
 
@@ -254,4 +259,37 @@ Run `pnpm dev` to start the dev server.
 
 Tabs without a group key switch on their own. If a panel contains a callout,
 give the tabs fence more colons than the callout, for example `::::tabs`.
-Tabs cannot be nested.
+
+### Nested Tabs
+
+Tabs can hold another tab set. Give the outer set more colons than the inner
+one, so `::::tabs` closes with `::::` and the inner `:::tabs` closes with
+`:::`. Each set keeps its own `::tab` markers and group key.
+
+```md
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+```
+
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+
+The inner set uses the `pkg` key, so it follows the package manager tabs above.

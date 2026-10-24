@@ -13,10 +13,14 @@ import {
   rankSearchResults,
   titleBoost,
 } from '../src/lib/searchRanking.ts';
-import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
+import { createPagefindRecords, splitSearchSections } from '../scripts/lib/pagefindArtifacts.mjs';
+import { createDocumentToc } from '../scripts/lib/docsArtifacts.mjs';
+import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
+import { createRssFeedXml, selectFeedItems } from '../scripts/lib/rssFeed.mjs';
 
 import {
   DEFAULT_UI_STRINGS,
+  formatUiString,
   resolveUiStrings,
   validateUiStringsConfig,
 } from '../shared/uiStrings.js';
@@ -80,9 +84,13 @@ export const docsParityTests: TestCase[] = [
     run: () => {
       assert.equal(
         socialImagePathForRoute('/docs/getting-started/introduction'),
+        '/images/og/docs/getting-started/introduction.png'
+      );
+      assert.equal(
+        socialImagePathForRoute('/docs/getting-started/introduction', 'svg'),
         '/images/og/docs/getting-started/introduction.svg'
       );
-      assert.equal(socialImagePathForRoute('/docs/a/'), '/images/og/docs/a.svg');
+      assert.equal(socialImagePathForRoute('/docs/a/'), '/images/og/docs/a.png');
       assert.equal(socialImagePathForRoute('/'), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute(''), DEFAULT_OG_IMAGE_PATH);
       assert.equal(socialImagePathForRoute(undefined), DEFAULT_OG_IMAGE_PATH);
@@ -162,6 +170,50 @@ export const docsParityTests: TestCase[] = [
     },
   },
   {
+    name: 'search sections split at h2/h3 with the same ids as the page TOC',
+    run: () => {
+      const body = [
+        '# Page',
+        'Intro text',
+        '## Setup',
+        'Install it',
+        '```md',
+        '## Not a heading',
+        '```',
+        '### Setup',
+        'Nested',
+        'Setext Heading',
+        '--------------',
+        'Under setext',
+        '#### Deep',
+        'Still setext section',
+      ].join('\n');
+      const { intro, sections } = splitSearchSections(body);
+      assert.match(intro, /Intro text/);
+      assert.deepEqual(
+        sections.map((section) => section.id),
+        ['setup', 'setup-2', 'setext-heading']
+      );
+      const tocIds = createDocumentToc(body).map((entry) => entry.id);
+      for (const section of sections) assert.ok(tocIds.includes(section.id));
+      assert.match(sections[0].body, /## Not a heading/);
+      assert.match(sections[2].body, /Still setext section/);
+
+      const records = createPagefindRecords({
+        collections: [{ id: 'docs', label: 'Docs', routePrefix: 'docs' }],
+        artifactsByCollectionId: {
+          docs: { index: { paths: ['a'] }, documents: { a: { title: 'A', content: body } } },
+        },
+      });
+      assert.deepEqual(
+        records.map((record) => record.url),
+        ['/docs/a', '/docs/a#setup', '/docs/a#setup-2', '/docs/a#setext-heading']
+      );
+      assert.equal(records[1].meta.page, 'A');
+      assert.doesNotMatch(records[0].content, /Install it/);
+    },
+  },
+  {
     name: 'resolveUiStrings merges valid per-locale overrides over English defaults',
     run: () => {
       const config = {
@@ -190,6 +242,96 @@ export const docsParityTests: TestCase[] = [
         ]
       );
       assert.deepEqual(validateUiStringsConfig(uiStringsConfig, i18nConfig.locales), []);
+    },
+  },
+  {
+    name: 'RSS feed keeps only indexed pages and escapes page text',
+    run: () => {
+      const doc = (canonicalPath, title, description = '') => ({
+        metadata: { canonicalPath, title, description },
+      });
+      const items = selectFeedItems(
+        [
+          doc('/docs/a', 'Tom & <Jerry>', 'Uses "quotes"'),
+          doc('/docs/b', 'Older'),
+          doc('/docs/draft', 'Draft'),
+          doc('/docs/undated', 'Undated'),
+        ],
+        {
+          '/docs/a': '2026-10-02T00:00:00.000Z',
+          '/docs/b': '2026-09-01T00:00:00.000Z',
+          '/docs/draft': '2026-10-03T00:00:00.000Z',
+        },
+        new Set(['/docs/a', '/docs/b', '/docs/undated'])
+      );
+      assert.deepEqual(
+        items.map((item) => item.path),
+        ['/docs/a', '/docs/b']
+      );
+      const xml = createRssFeedXml({
+        siteName: 'Papers',
+        siteUrl: 'https://example.com/',
+        description: 'Docs',
+        items,
+      });
+      assert.match(xml, /<title>Tom &amp; &lt;Jerry&gt;<\/title>/);
+      assert.match(xml, /<description>Uses &quot;quotes&quot;<\/description>/);
+      assert.match(xml, /<link>https:\/\/example\.com\/docs\/a<\/link>/);
+      assert.match(xml, /<lastBuildDate>Fri, 02 Oct 2026 00:00:00 GMT<\/lastBuildDate>/);
+      assert.doesNotMatch(xml, /Draft|Undated/);
+    },
+  },
+  {
+    name: 'renderSocialCardPng falls back (returns null) instead of failing the build',
+    run: async () => {
+      const warn = console.warn;
+      console.warn = () => {};
+      try {
+        assert.equal(await renderSocialCardPng('<svg'), null);
+        const previous = process.env.PAPERS_SOCIAL_CARD_FORMAT;
+        process.env.PAPERS_SOCIAL_CARD_FORMAT = 'svg';
+        try {
+          assert.equal(
+            await renderSocialCardPng(
+              '<svg xmlns="http://www.w3.org/2000/svg" width="4" height="4"/>'
+            ),
+            null
+          );
+        } finally {
+          if (previous === undefined) delete process.env.PAPERS_SOCIAL_CARD_FORMAT;
+          else process.env.PAPERS_SOCIAL_CARD_FORMAT = previous;
+        }
+      } finally {
+        console.warn = warn;
+      }
+      const marked = emboldenSvgText('<text x="1" fill="#FFF" font-weight="800">A</text>');
+      assert.match(marked, /stroke="#FFF" stroke-width="3\.0"/);
+      // Attacker-controlled title text never reaches attributes.
+      assert.equal(emboldenSvgText('<text fill="x">A</text>'), '<text fill="x">A</text>');
+    },
+  },
+  {
+    name: 'ui label templates keep their placeholders and format safely',
+    run: () => {
+      assert.equal(formatUiString(DEFAULT_UI_STRINGS.mindmapResultMany, { count: 3 }), '3 results');
+      assert.equal(formatUiString('Font: {font}', {}), 'Font: {font}');
+      assert.equal(formatUiString('{a}{a}', { a: '<b>' }), '<b><b>');
+      assert.deepEqual(
+        validateUiStringsConfig(
+          {
+            fr: {
+              mindmapResultMany: '{count} résultats',
+              commandFont: 'Police',
+              onThisPage: 'Sur cette page {x}',
+            },
+          },
+          ['en', 'fr']
+        ),
+        [
+          'uiStringsConfig.fr.commandFont: must use {font}',
+          'uiStringsConfig.fr.onThisPage: must use no placeholders',
+        ]
+      );
     },
   },
 ];

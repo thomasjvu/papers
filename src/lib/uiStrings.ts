@@ -6,6 +6,8 @@ import { contentCollections } from '../../shared/content-collections.js';
 import { parseCollectionRoutePath } from '../../shared/docsRouting.js';
 import { resolveUiStrings, type UiStrings, type UiStringsConfig } from '../../shared/uiStrings.js';
 
+export { formatUiString } from '../../shared/uiStrings.js';
+
 function trimSlashes(value: string): string {
   return value.replace(/^\/+|\/+$/g, '');
 }

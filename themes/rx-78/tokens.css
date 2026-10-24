@@ -100,6 +100,12 @@
   --code-copy-hover-border: var(--rx-white);
   --code-active-bg: var(--rx-white);
   --code-active-text: var(--rx-blue);
+  --code-inserted-color: var(--rx-yellow);
+  --code-deleted-color: #ffc2c5;
+  --code-inserted-bg: rgba(255, 248, 103, 0.16);
+  --code-deleted-bg: rgba(251, 47, 56, 0.3);
+  --code-inserted-border: var(--rx-yellow);
+  --code-deleted-border: var(--rx-red);
   --inline-code-bg: var(--rx-red);
   --inline-code-border-color: transparent;
   --inline-code-text-color: var(--rx-white);
@@ -215,6 +221,12 @@
   --code-copy-hover-border: var(--rx-white);
   --code-active-bg: var(--rx-white);
   --code-active-text: var(--rx-blue);
+  --code-inserted-color: var(--rx-yellow);
+  --code-deleted-color: #ffc2c5;
+  --code-inserted-bg: rgba(255, 248, 103, 0.16);
+  --code-deleted-bg: rgba(251, 47, 56, 0.3);
+  --code-inserted-border: var(--rx-yellow);
+  --code-deleted-border: var(--rx-red);
   --inline-code-bg: var(--rx-red);
   --inline-code-border-color: transparent;
   --inline-code-text-color: var(--rx-white);

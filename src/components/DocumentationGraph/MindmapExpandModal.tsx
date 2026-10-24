@@ -7,6 +7,7 @@ import { createPortal } from 'react-dom';
 import { useTheme } from '../../providers/useTheme';
 
 import OptimizedDocumentationGraph from './OptimizedDocumentationGraph';
+import { useUiStrings } from '../../lib/uiStrings';
 
 type MindmapExpandModalProps = {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function MindmapExpandModal({
   currentPath,
   onNodeClick,
 }: MindmapExpandModalProps) {
+  const ui = useUiStrings();
   const { prefersReducedMotion } = useTheme();
 
   useEffect(() => {
@@ -108,14 +110,14 @@ export default function MindmapExpandModal({
                     className="text-sm font-semibold"
                     style={{ color: 'var(--papers-text-color)', fontFamily: 'var(--mono-font)' }}
                   >
-                    Interactive map
+                    {ui.interactiveMap}
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={onClose}
                   className="ui-control-ghost rounded-md p-2"
-                  aria-label="Close expanded mindmap"
+                  aria-label={ui.mindmapClose}
                   style={{ color: 'var(--papers-text-color)' }}
                 >
                   <Icon icon="mingcute:close-line" className="h-5 w-5" />

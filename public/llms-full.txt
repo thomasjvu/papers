@@ -555,8 +555,14 @@ Pagefind results depend on the production search index, so validate those with `
 
 ### Scoping And Ranking
 
-- Start a query with `docs:` to search only guides, or `api:` to search only
-  the OpenAPI reference. For example, `api: users`.
+- Use the **All**, **Docs** and **API** buttons under the search box to choose
+  what to search. **Docs** searches only guides, and **API** searches only the
+  OpenAPI reference. The palette opens on **All** each time.
+- Results can point to a section of a page. These show the page title under
+  the section name, and opening one scrolls the page to that heading.
+- You can also start a query with `docs:` to search only guides, or `api:` to
+  search only the OpenAPI reference, for example `api: users`. A typed prefix
+  wins over the buttons.
 - On a versioned or translated page, guide results come from the same version
   and language as the page you are reading.
 - Pages whose title matches your query rank first. The ranking settings live in
@@ -731,6 +737,24 @@ Writes:
 ### `scripts/generate-route-html.mjs`
 
 Runs after the Vite bundle exists and writes route-specific HTML snapshots into `dist/` with page-level metadata.
+
+It also writes a social card for each page to `dist/images/og/`. Each card
+is drawn as SVG and rendered to a 1200x630 PNG with `@resvg/resvg-js`, because
+most social sites do not show SVG previews. The page metadata points at the
+PNG. If the PNG render fails, the build logs a warning and the page uses the
+SVG card instead. Set `PAPERS_SOCIAL_CARD_FORMAT=svg` to skip PNG rendering.
+
+### `scripts/generate-rss.mjs`
+
+Runs after `scripts/generate-last-updated.mjs` and writes `dist/rss.xml`, an
+RSS 2.0 feed of the 30 most recently updated pages. Each item uses the page
+title, description and last-updated date (the git commit date, or the
+`lastUpdated` frontmatter value). Only pages listed in the sitemap are
+included, so drafts and `noindex` pages stay out of the feed. Every page links
+to the feed with `<link rel="alternate" type="application/rss+xml">`.
+
+Set `VITE_SITE_URL` so feed links are absolute. Without it the feed uses
+relative links, which most feed readers cannot follow.
 
 ### `scripts/generate-llms.mjs`
 
@@ -1226,6 +1250,11 @@ not depend on color alone.
    }
 ```
 
+Diff colors come from the theme. Each bundled theme sets
+`--code-inserted-color`, `--code-deleted-color`, `--code-inserted-bg` and
+`--code-deleted-bg` to match its palette. Set them in your theme's
+`tokens.css` to change them.
+
 To colour the code as well, add the language after `diff-`, for example
 `diff-ts` or `diff-json`:
 
@@ -1324,7 +1353,40 @@ Run `pnpm dev` to start the dev server.
 
 Tabs without a group key switch on their own. If a panel contains a callout,
 give the tabs fence more colons than the callout, for example `::::tabs`.
-Tabs cannot be nested.
+
+### Nested Tabs
+
+Tabs can hold another tab set. Give the outer set more colons than the inner
+one, so `::::tabs` closes with `::::` and the inner `:::tabs` closes with
+`:::`. Each set keeps its own `::tab` markers and group key.
+
+```md
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+```
+
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+
+The inner set uses the `pkg` key, so it follows the package manager tabs above.
 
 
 ---
@@ -1415,6 +1477,20 @@ pnpm dev
 ```
 
   </Tab>
+</Tabs>
+
+### Nested Tabs
+
+A `<Tab>` can hold another `<Tabs>` set:
+
+<Tabs group="os">
+  <Tab label="macOS">
+    <Tabs group="pkg">
+      <Tab label="npm">Run `npm install papers`.</Tab>
+      <Tab label="pnpm">Run `pnpm add papers`.</Tab>
+    </Tabs>
+  </Tab>
+  <Tab label="Linux">Install Node.js, then run `npm install papers`.</Tab>
 </Tabs>
 
 ## Steps And Cards
@@ -1561,8 +1637,9 @@ description: Translate or rename the labels in the docs chrome, per locale.
 # Translating The Interface
 
 Page content is translated by adding locale folders. The labels around the
-content, such as **Previous**, **Next**, **Last updated**, and the copy button,
-come from `shared/uiStrings.js`. You can translate or rename them per locale.
+content come from `shared/uiStrings.js`. This includes the pager, the footer,
+code blocks, the sidebar and right rail, the mindmap, and the command palette's
+commands, scope buttons and hints. You can translate or rename them per locale.
 
 ## Set Labels For A Locale
 
@@ -1585,6 +1662,9 @@ export const uiStringsConfig = {
     lastUpdated: 'Mis à jour le',
     searchDocs: 'Rechercher',
     copyCode: 'Copier',
+    onThisPage: 'Sur cette page',
+    commandFont: 'Police : {font}',
+    mindmapResultMany: '{count} résultats',
   },
 };
 ```
@@ -1596,6 +1676,11 @@ The page language comes from the URL. Dates in the **Last updated** line use
 the same locale.
 
 ## Available Labels
+
+Some labels are templates. Keep their `{placeholders}` in the translation,
+for example `{count}` in `mindmapResultMany`.
+
+### Pages, Code And Search
 
 | Key                 | Default                                      |
 | ------------------- | -------------------------------------------- |
@@ -1610,17 +1695,83 @@ the same locale.
 | `searchDocs`        | Search docs                                  |
 | `searchPlaceholder` | Search documentation or type a command...    |
 | `noResults`         | No results found for                         |
+| `searchScope`       | Search scope (screen reader)                 |
+| `searchScopeAll`    | All                                          |
+| `searchScopeDocs`   | Docs                                         |
+| `searchScopeApi`    | API                                          |
 | `copyCode`          | Copy to clipboard                            |
 | `copied`            | Copied                                       |
 | `showLineNumbers`   | Show line numbers                            |
 | `hideLineNumbers`   | Hide line numbers                            |
 | `referencedBy`      | Referenced by                                |
 
+### Sidebar And Right Rail
+
+| Key                     | Default                       |
+| ----------------------- | ----------------------------- |
+| `sidebarNavigation`     | Documentation (screen reader) |
+| `closeSidebar`          | Close sidebar                 |
+| `showDocumentationTree` | Show documentation tree       |
+| `onThisPage`            | On This Page                  |
+| `interactiveMap`        | Interactive Map               |
+| `showTableOfContents`   | Show table of contents        |
+| `showInteractiveMap`    | Show interactive map          |
+| `version`               | Version                       |
+
+### Mindmap
+
+| Key                                | Default                   |
+| ---------------------------------- | ------------------------- |
+| `mindmapSearchPlaceholder`         | Search docs...            |
+| `mindmapSearchPlaceholderExpanded` | Search documents...       |
+| `mindmapZoomIn`                    | Zoom in                   |
+| `mindmapZoomOut`                   | Zoom out                  |
+| `mindmapReset`                     | Reset                     |
+| `mindmapResetView`                 | Reset view (Ctrl/Cmd + 0) |
+| `mindmapExpand`                    | Expand interactive map    |
+| `mindmapExpandShort`               | Expand map                |
+| `mindmapClose`                     | Close expanded mindmap    |
+| `mindmapLegendPages`               | Pages                     |
+| `mindmapLegendCurrent`             | Current                   |
+| `mindmapLegendFolder`              | Folder                    |
+| `mindmapLegendTags`                | Tags                      |
+| `mindmapLegendMatches`             | Matches                   |
+| `mindmapResultOne`                 | {count} result            |
+| `mindmapResultMany`                | {count} results           |
+| `mindmapNoMatches`                 | No matches found          |
+
+### Command Palette
+
+| Key                              | Default                                     |
+| -------------------------------- | ------------------------------------------- |
+| `commandLightMode`               | Switch to Light Mode                        |
+| `commandDarkMode`                | Switch to Dark Mode                         |
+| `commandEnableMotion`            | Enable Motion                               |
+| `commandReduceMotion`            | Reduce Motion                               |
+| `commandFont`                    | Font: {font}                                |
+| `fontSansSerif`                  | Sans Serif                                  |
+| `fontMonospace`                  | Monospace                                   |
+| `fontSerif`                      | Serif                                       |
+| `commandSwitchLocale`            | Switch to {language}                        |
+| `commandSwitchLocaleDescription` | Change documentation language to {language} |
+| `commandLlms`                    | LLMs.txt - AI Documentation                 |
+| `commandAgentSkill`              | Agent Skill - {site}                        |
+| `commandHomepage`                | Go to Homepage                              |
+| `paletteNavigateHint`            | to navigate                                 |
+| `paletteOpenHint`                | to open or preview                          |
+| `paletteCloseHint`               | to close                                    |
+| `faqPreview`                     | FAQ Preview                                 |
+| `badgeAction`                    | action                                      |
+| `badgeFaq`                       | faq                                         |
+
+The built-in FAQ answers in the command palette are still English only.
+
 ## Validation
 
 `npm run generate:docs` (and so `npm run build`) fails if `uiStringsConfig`
-uses a locale that is not in `i18nConfig.locales`, an unknown key, or an empty
-value. This keeps a typo from hiding a label.
+uses a locale that is not in `i18nConfig.locales`, an unknown key, an empty
+value, or a template whose `{placeholders}` differ from the default. This keeps
+a typo from hiding a label.
 
 
 ---
@@ -1978,8 +2129,13 @@ Code styling is controlled by dedicated variables in `src/globals.css`, includin
 - `--code-muted-color`
 - `--inline-code-bg`
 - `--inline-code-border-color`
+- `--code-inserted-color` and `--code-deleted-color` for diff text and markers
+- `--code-inserted-bg` and `--code-deleted-bg` for added and removed lines
+- `--code-inserted-border` and `--code-deleted-border` for the line edge
+  (optional, they default to the text colors)
 
-Use those instead of hardcoded syntax colors.
+Use those instead of hardcoded syntax colors. Each bundled theme sets its own
+diff colors, so added and removed lines match the theme palette.
 
 ## Shell Tokens To Prefer
 
@@ -2271,7 +2427,8 @@ URL: /docs/deployment/overview
 - generated docs JSON derived from your Markdown content
 - route-specific HTML files with page-level metadata
 - `robots.txt` and `sitemap.xml`
-- generated social preview images
+- `rss.xml`, a feed of recently updated pages
+- generated social preview images, including a PNG card for each page
 - `llms.txt` and `llms-full.txt`
 - the Pagefind search index in `dist/pagefind/`
 
@@ -2330,7 +2487,7 @@ VITE_GITHUB_URL="https://github.com/your-org/your-repo"
 VITE_GITHUB_BRANCH="main"
 ```
 
-`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and absolute social metadata.
+`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, RSS feed links, and absolute social metadata.
 
 ## Build Pipeline
 
@@ -2391,7 +2548,7 @@ After deploy, verify:
 - the homepage loads
 - a deep docs route loads directly
 - `/llms` loads directly
-- `/robots.txt` and `/sitemap.xml` load
+- `/robots.txt`, `/sitemap.xml` and `/rss.xml` load
 - link previews use the expected title and description
 - Pagefind search returns results
 - GitHub footer links go to the expected repo

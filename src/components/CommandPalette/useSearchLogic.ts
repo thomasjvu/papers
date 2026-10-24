@@ -16,7 +16,13 @@ import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chr
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
-import { buildSearchFilters, parseSearchScope } from '../../lib/searchRanking.ts';
+import {
+  buildSearchFilters,
+  parseSearchScope,
+  resolveSearchSection,
+  type SearchScopeFilter,
+} from '../../lib/searchRanking.ts';
+import { formatUiString, useUiStrings } from '../../lib/uiStrings.ts';
 
 const FAQ_ITEMS = [
   {
@@ -111,15 +117,20 @@ function getCollectionRouteContext(pathname: string) {
 }
 
 const FONT_OPTIONS = [
-  { value: 'sans-serif' as const, label: 'Sans Serif', icon: 'mingcute:font-size-line' },
-  { value: 'mono' as const, label: 'Monospace', icon: 'mingcute:code-line' },
-  { value: 'serif' as const, label: 'Serif', icon: 'mingcute:text-line' },
+  {
+    value: 'sans-serif' as const,
+    labelKey: 'fontSansSerif' as const,
+    icon: 'mingcute:font-size-line',
+  },
+  { value: 'mono' as const, labelKey: 'fontMonospace' as const, icon: 'mingcute:code-line' },
+  { value: 'serif' as const, labelKey: 'fontSerif' as const, icon: 'mingcute:text-line' },
 ];
 
-export const useSearchLogic = (query: string) => {
+export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = 'all') => {
   const { isDarkMode, toggleDarkMode, prefersReducedMotion, toggleReducedMotion, setFontFamily } =
     useTheme();
   const debouncedQuery = useDebounce(query, 150);
+  const ui = useUiStrings();
   const { search: pagefindSearch, isAvailable: pagefindAvailable } = usePagefind();
   const [pagefindResults, setPagefindResults] = useState<SearchResultType[]>([]);
   const latestQueryRef = useRef('');
@@ -130,6 +141,7 @@ export const useSearchLogic = (query: string) => {
     const trimmedQuery = debouncedQuery.trim();
     latestQueryRef.current = trimmedQuery;
     const scope = parseSearchScope(trimmedQuery);
+    const section = resolveSearchSection(scope.section, scopeFilter);
 
     if (!pagefindAvailable || !scope.query) {
       setPagefindResults([]);
@@ -138,7 +150,7 @@ export const useSearchLogic = (query: string) => {
 
     let cancelled = false;
     const filters = buildSearchFilters({
-      section: scope.section,
+      section,
       version: searchVariant.activeVersion,
       locale: searchVariant.activeLocale,
     });
@@ -149,13 +161,24 @@ export const useSearchLogic = (query: string) => {
           return;
         }
 
-        const formattedResults: SearchResultType[] = results.slice(0, 5).map((result) => ({
-          title: result.meta.title,
-          path: result.url,
-          type: 'page' as const,
-          description: `${result.excerpt.replace(/<[^>]*>/g, '').slice(0, 100)}...`,
-          icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
-        }));
+        const limit = section ? 10 : 5;
+        const formattedResults: SearchResultType[] = results.slice(0, limit).map((result) => {
+          const excerpt = `${result.excerpt.replace(/<[^>]*>/g, '').slice(0, 100)}...`;
+          const isSection = Boolean(result.meta.page) && result.url.includes('#');
+          return {
+            title: result.meta.title,
+            path: result.url,
+            type: 'page' as const,
+            // Heading-level results name their page so "Install" under two
+            // guides stays distinguishable.
+            description: isSection ? `${result.meta.page} › ${excerpt}` : excerpt,
+            section: isSection ? result.meta.page : undefined,
+            icon: createElement(Icon, {
+              icon: isSection ? 'mingcute:hashtag-line' : 'mingcute:file-line',
+              className: 'w-5 h-5',
+            }),
+          };
+        });
         setPagefindResults(formattedResults);
       })
       .catch(() => {
@@ -167,7 +190,7 @@ export const useSearchLogic = (query: string) => {
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, pagefindAvailable, pagefindSearch, searchVariant]);
+  }, [debouncedQuery, pagefindAvailable, pagefindSearch, searchVariant, scopeFilter]);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -179,7 +202,7 @@ export const useSearchLogic = (query: string) => {
   const preferenceCommands = useMemo<SearchResultType[]>(() => {
     const commands: SearchResultType[] = [
       {
-        title: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+        title: isDarkMode ? ui.commandLightMode : ui.commandDarkMode,
         path: 'theme-toggle',
         type: 'theme',
         action: toggleDarkMode,
@@ -189,7 +212,7 @@ export const useSearchLogic = (query: string) => {
         shortcut: 'I',
       },
       {
-        title: prefersReducedMotion ? 'Enable Motion' : 'Reduce Motion',
+        title: prefersReducedMotion ? ui.commandEnableMotion : ui.commandReduceMotion,
         path: 'motion-toggle',
         type: 'action',
         action: toggleReducedMotion,
@@ -201,7 +224,7 @@ export const useSearchLogic = (query: string) => {
 
     FONT_OPTIONS.forEach((option) => {
       commands.push({
-        title: `Font: ${option.label}`,
+        title: formatUiString(ui.commandFont, { font: ui[option.labelKey] }),
         path: `font-${option.value}`,
         type: 'action',
         action: () => setFontFamily(option.value),
@@ -216,10 +239,10 @@ export const useSearchLogic = (query: string) => {
         if (locale === activeLocale) continue;
         const label = getLocaleLabel(locale);
         commands.push({
-          title: `Switch to ${label}`,
+          title: formatUiString(ui.commandSwitchLocale, { language: label }),
           path: `locale:${locale}`,
           type: 'action',
-          description: `Change documentation language to ${label}`,
+          description: formatUiString(ui.commandSwitchLocaleDescription, { language: label }),
           action: () => {
             if (!routeContext.collection) return;
             navigate(
@@ -250,13 +273,14 @@ export const useSearchLogic = (query: string) => {
     routeContext.docPath,
     routeContext.collection,
     routeContext.i18nConfig,
+    ui,
   ]);
 
   const searchIndex = useMemo(() => {
     const results: SearchResultType[] = [...preferenceCommands];
 
     results.push({
-      title: 'LLMs.txt - AI Documentation',
+      title: ui.commandLlms,
       path: '/llms.txt',
       type: 'page',
       icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
@@ -265,7 +289,7 @@ export const useSearchLogic = (query: string) => {
 
     const siteName = import.meta.env.VITE_SITE_NAME || 'Docs';
     results.push({
-      title: `Agent Skill - ${siteName}`,
+      title: formatUiString(ui.commandAgentSkill, { site: siteName }),
       path: '/skill.md',
       type: 'page',
       icon: createElement(Icon, { icon: 'mingcute:magic-2-line', className: 'w-5 h-5' }),
@@ -314,7 +338,7 @@ export const useSearchLogic = (query: string) => {
 
     if (homepageConfig.enabled) {
       results.push({
-        title: 'Go to Homepage',
+        title: ui.commandHomepage,
         path: '/',
         type: 'action',
         icon: createElement(Icon, { icon: 'mingcute:home-2-line', className: 'w-5 h-5' }),
@@ -325,6 +349,7 @@ export const useSearchLogic = (query: string) => {
     return results;
   }, [
     preferenceCommands,
+    ui,
     routeContext.activeLocale,
     routeContext.activeVersion,
     routeContext.collection,
@@ -341,8 +366,23 @@ export const useSearchLogic = (query: string) => {
   }, [searchIndex]);
 
   const filteredResults = useMemo(() => {
+    // Scope buttons narrow the palette to Pagefind sections; commands, FAQ and
+    // agent artifacts only show under "All". Docs keeps the local page list so
+    // dev servers (no Pagefind index) still list guides.
+    const scopedIndex =
+      scopeFilter === 'all'
+        ? null
+        : scopeFilter === 'docs'
+          ? completeSearchIndex.filter(
+              (item) =>
+                item.type === 'page' &&
+                item.path.startsWith('/') &&
+                !/\.(?:txt|md)$/.test(item.path)
+            )
+          : [];
+
     if (!debouncedQuery) {
-      return searchIndex.slice(0, 10);
+      return (scopedIndex ?? searchIndex).slice(0, 10);
     }
 
     const lowerQuery = debouncedQuery.toLowerCase();
@@ -353,7 +393,7 @@ export const useSearchLogic = (query: string) => {
     const titleContainMatches: SearchResultType[] = [];
     const descriptionMatches: SearchResultType[] = [];
 
-    for (const item of completeSearchIndex) {
+    for (const item of scopedIndex ?? completeSearchIndex) {
       const titleLower = item.title.toLowerCase();
       const descLower = item.description?.toLowerCase() || '';
 
@@ -376,7 +416,7 @@ export const useSearchLogic = (query: string) => {
     );
 
     return results.slice(0, 8);
-  }, [debouncedQuery, searchIndex, completeSearchIndex]);
+  }, [debouncedQuery, searchIndex, completeSearchIndex, scopeFilter]);
 
   const combinedResults = useMemo(() => {
     return combineSearchResults(filteredResults, pagefindResults, {

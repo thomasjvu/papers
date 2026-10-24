@@ -37,3 +37,23 @@ for (const mode of ['light', 'dark']) {
     }
   }
 }
+
+for (const mode of ['light', 'dark']) {
+  test(`${theme} ${mode} diff colors`, async ({ page }) => {
+    await page.setViewportSize({ width: 1280, height: 900 });
+    await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: mode });
+    await page.addInitScript((dark) => {
+      localStorage.setItem('darkMode', String(dark));
+      localStorage.setItem('prefersReducedMotion', 'true');
+    }, mode === 'dark');
+    await page.goto('/docs/developer-guides/callouts-and-code#diffs', { waitUntil: 'networkidle' });
+    await page.evaluate(() => document.fonts.ready);
+    const block = page
+      .locator('[data-code-title]', { hasText: /^package\.json$/ })
+      .first()
+      .locator('xpath=../..');
+    await block.scrollIntoViewIfNeeded();
+    await page.waitForTimeout(400);
+    await expect(block).toHaveScreenshot(`${theme}/${mode}-diff.png`);
+  });
+}

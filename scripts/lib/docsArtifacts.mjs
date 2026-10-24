@@ -365,13 +365,24 @@ function slugifyHeading(value) {
   );
 }
 
-/** Build the stable heading TOC used by route/link validation and page UI. */
-export function createDocumentToc(content, schema = documentFrontmatterSchema) {
-  const { body } = parseFrontmatter(content, schema);
-  const lines = body.split(/\r?\n/);
+/**
+ * Scan a Markdown body (frontmatter already removed) for ATX and setext
+ * headings outside code fences. `line` is the zero-based index of the heading's
+ * first line; `endLine` is the last line it occupies. Ids are de-duplicated
+ * exactly like the rendered page headings.
+ */
+export function scanDocumentHeadings(body) {
+  const lines = String(body).split(/\r?\n/);
   const seenIds = new Map();
-  const toc = [];
+  const headings = [];
   let fenceCharacter = null;
+
+  const nextId = (text) => {
+    const baseId = slugifyHeading(text);
+    const occurrence = seenIds.get(baseId) || 0;
+    seenIds.set(baseId, occurrence + 1);
+    return occurrence === 0 ? baseId : `${baseId}-${occurrence + 1}`;
+  };
 
   for (let index = 0; index < lines.length; index += 1) {
     const line = lines[index];
@@ -391,13 +402,12 @@ export function createDocumentToc(content, schema = documentFrontmatterSchema) {
     if (atxMatch) {
       const text = normalizeHeadingText(atxMatch[2]);
       if (text) {
-        const baseId = slugifyHeading(text);
-        const occurrence = seenIds.get(baseId) || 0;
-        seenIds.set(baseId, occurrence + 1);
-        toc.push({
+        headings.push({
           depth: atxMatch[1].length,
-          id: occurrence === 0 ? baseId : `${baseId}-${occurrence + 1}`,
+          id: nextId(text),
           text,
+          line: index,
+          endLine: index,
         });
       }
       continue;
@@ -406,19 +416,24 @@ export function createDocumentToc(content, schema = documentFrontmatterSchema) {
     const setextMatch = lines[index + 1]?.match(/^\s{0,3}(=+|-+)\s*$/);
     if (line.trim() && setextMatch) {
       const text = normalizeHeadingText(line.trim());
-      const baseId = slugifyHeading(text);
-      const occurrence = seenIds.get(baseId) || 0;
-      seenIds.set(baseId, occurrence + 1);
-      toc.push({
+      headings.push({
         depth: setextMatch[1][0] === '=' ? 1 : 2,
-        id: occurrence === 0 ? baseId : `${baseId}-${occurrence + 1}`,
+        id: nextId(text),
         text,
+        line: index,
+        endLine: index + 1,
       });
       index += 1;
     }
   }
 
-  return toc;
+  return headings;
+}
+
+/** Build the stable heading TOC used by route/link validation and page UI. */
+export function createDocumentToc(content, schema = documentFrontmatterSchema) {
+  const { body } = parseFrontmatter(content, schema);
+  return scanDocumentHeadings(body).map(({ depth, id, text }) => ({ depth, id, text }));
 }
 
 function createDocumentMetadata({

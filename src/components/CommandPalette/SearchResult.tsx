@@ -1,5 +1,6 @@
 import { button as MotionButton } from 'framer-motion/m';
 import React from 'react';
+import { useUiStrings } from '../../lib/uiStrings';
 
 export interface SearchResultType {
   title: string;
@@ -10,6 +11,8 @@ export interface SearchResultType {
   icon?: React.ReactNode;
   shortcut?: string;
   answer?: string;
+  /** Parent page title when the result is a heading inside that page. */
+  section?: string;
 }
 
 interface SearchResultProps {
@@ -30,6 +33,7 @@ function getShortcutLabel(shortcut: string): string {
 
 const SearchResult: React.FC<SearchResultProps> = React.memo(
   ({ result, index, isSelected, onSelect, onMouseEnter }) => {
+    const ui = useUiStrings();
     return (
       <MotionButton
         key={result.path}
@@ -52,6 +56,15 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           >
             {result.title}
           </div>
+          {result.section && (
+            <div
+              className="truncate text-2xs leading-snug"
+              data-search-section
+              style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
+            >
+              {result.section}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {result.shortcut && (
@@ -75,7 +88,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
                 fontFamily: 'var(--mono-font)',
               }}
             >
-              action
+              {ui.badgeAction}
             </span>
           )}
           {result.type === 'faq' && (
@@ -88,7 +101,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
                 fontFamily: 'var(--mono-font)',
               }}
             >
-              faq
+              {ui.badgeFaq}
             </span>
           )}
         </div>

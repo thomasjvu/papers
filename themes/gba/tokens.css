@@ -80,6 +80,12 @@ body {
   --code-line-number-color: #8bac0f;
   --code-active-bg: #9bbc0f;
   --code-active-text: #0f380f;
+  --code-inserted-color: var(--gb3);
+  --code-deleted-color: var(--gb2);
+  --code-inserted-bg: var(--gb1);
+  --code-deleted-bg: rgba(139, 172, 15, 0.14);
+  --code-inserted-border: var(--gb3);
+  --code-deleted-border: var(--gb2);
   --inline-code-bg: #9bbc0f;
   --inline-code-border-color: #8bac0f;
   --inline-code-text-color: #0f380f;

@@ -81,6 +81,10 @@ body {
   --code-bg: var(--lore-bg-active);
   --code-header-bg: var(--lore-bg-hover);
   --code-border-color: var(--lore-border);
+  --code-inserted-color: var(--lore-notice);
+  --code-deleted-color: var(--lore-error);
+  --code-inserted-bg: rgba(110, 231, 183, 0.1);
+  --code-deleted-bg: rgba(251, 113, 133, 0.1);
   --code-block-radius: 12px;
   --code-block-clip-path: none;
   --inline-code-bg: var(--lore-bg-hover);

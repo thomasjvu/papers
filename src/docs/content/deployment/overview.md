@@ -8,7 +8,8 @@
 - generated docs JSON derived from your Markdown content
 - route-specific HTML files with page-level metadata
 - `robots.txt` and `sitemap.xml`
-- generated social preview images
+- `rss.xml`, a feed of recently updated pages
+- generated social preview images, including a PNG card for each page
 - `llms.txt` and `llms-full.txt`
 - the Pagefind search index in `dist/pagefind/`
 

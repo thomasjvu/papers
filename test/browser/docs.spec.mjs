@@ -286,6 +286,34 @@ test('callouts, GitHub alerts, and code fence metadata render accessibly', async
     .locator('xpath=../..');
   await expect(packageDiff.locator('[data-line-kind="added"]')).toHaveCount(1);
   await expect(packageDiff.locator('[data-line-kind="removed"]')).toHaveCount(1);
+
+  // Diff lines take their colors from the theme tokens, in both color modes.
+  const diffColors = async (dark) => {
+    await page.evaluate((value) => localStorage.setItem('darkMode', String(value)), dark);
+    await page.reload({ waitUntil: 'networkidle' });
+    await expect(page.locator('html')).toHaveClass(dark ? /\bdark\b/ : /^(?!.*\bdark\b)/);
+    return packageDiff.evaluate((block) => {
+      const added = block.querySelector('[data-line-kind="added"]');
+      const removed = block.querySelector('[data-line-kind="removed"]');
+      // The default theme writes these tokens as rgba(); the build may shorten 0.1 to .1.
+      const token = (name) => getComputedStyle(added).getPropertyValue(name).trim();
+      return {
+        added: getComputedStyle(added).backgroundColor,
+        removed: getComputedStyle(removed).backgroundColor,
+        addedEdge: getComputedStyle(added).borderLeftColor,
+        insertedBg: token('--code-inserted-bg'),
+        deletedBg: token('--code-deleted-bg'),
+      };
+    });
+  };
+  const channels = (color) => (color.match(/[\d.]+/g) ?? []).map(Number);
+  const light = await diffColors(false);
+  expect(channels(light.added)).toEqual(channels(light.insertedBg));
+  expect(channels(light.removed)).toEqual(channels(light.deletedBg));
+  expect(light.added).not.toBe(light.removed);
+  const dark = await diffColors(true);
+  expect(channels(dark.added)).toEqual(channels(dark.insertedBg));
+  expect(dark.addedEdge).not.toBe(light.addedEdge);
   await assertNoRuntimeErrors(errors);
 });
 
@@ -329,7 +357,8 @@ test('grouped content tabs sync across the page and persist after reload', async
   const errors = collectRuntimeErrors(page);
   await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
   const sets = page.locator('.md-tabs[data-tabs-group="pkg"]');
-  await expect(sets).toHaveCount(2);
+  // Two top-level sets plus the inner set of the nested tabs example.
+  await expect(sets).toHaveCount(3);
   await expect(sets.nth(1).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
     'aria-selected',
     'true'
@@ -358,19 +387,32 @@ test('grouped content tabs sync across the page and persist after reload', async
   await assertNoRuntimeErrors(errors);
 });
 
-test('doc routes ship a per-page social preview image', async ({ page, request }) => {
+test('doc routes ship a per-page PNG social card with an SVG fallback', async ({
+  page,
+  request,
+}) => {
   const response = await request.get('/docs/getting-started/introduction');
   const html = await response.text();
   const match = html.match(/property="og:image"\s+content="([^"]+)"/);
-  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.svg$/);
-  const image = await request.get(new URL(match[1], 'http://localhost').pathname);
+  expect(match?.[1]).toMatch(/\/images\/og\/docs\/getting-started\/introduction\.png$/);
+  const imagePath = new URL(match[1], 'http://localhost').pathname;
+  const image = await request.get(imagePath);
   expect(image.ok()).toBe(true);
-  expect(await image.text()).toContain('Introduction');
+  const png = await image.body();
+  // PNG signature + IHDR dimensions (1200x630).
+  expect(png.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
+  expect(png.readUInt32BE(16)).toBe(1200);
+  expect(png.readUInt32BE(20)).toBe(630);
+  test.info().attachments.push({ name: 'social-card.png', contentType: 'image/png', body: png });
+
+  const fallback = await request.get(imagePath.replace(/\.png$/, '.svg'));
+  expect(fallback.ok()).toBe(true);
+  expect(await fallback.text()).toContain('Introduction');
 
   await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
   await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute(
     'content',
-    /\/images\/og\/docs\/getting-started\/introduction\.svg$/
+    /\/images\/og\/docs\/getting-started\/introduction\.png$/
   );
 });
 
@@ -424,7 +466,7 @@ test('MDX nested code blocks are interactive and MDX tabs sync with Markdown tab
   await expect(callout.locator('[data-code-title]', { hasText: 'install.sh' })).toBeVisible();
   await expect(callout.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
 
-  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]');
+  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]').first();
   await tabs.getByRole('tab', { name: 'pnpm', exact: true }).click();
   await expect(tabs.getByRole('tabpanel')).toContainText('pnpm dev');
   await expect(tabs.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
@@ -456,6 +498,46 @@ test('steps and cards render in Markdown and MDX', async ({ page }) => {
   await assertNoRuntimeErrors(errors);
 });
 
+test('search scope buttons and heading-level results jump to the matching section', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  const scopes = page.getByRole('radiogroup', { name: 'Search scope' });
+  await expect(scopes.getByRole('radio', { name: 'All' })).toHaveAttribute('aria-checked', 'true');
+  await scopes.getByRole('radio', { name: 'Docs' }).click();
+  await expect(scopes.getByRole('radio', { name: 'Docs' })).toHaveAttribute('aria-checked', 'true');
+  // Commands are hidden outside the "All" scope.
+  await expect(page.getByRole('button', { name: /Switch to (Light|Dark) Mode/ })).toHaveCount(0);
+
+  const input = page.getByPlaceholder('Search documentation or type a command...');
+  await input.fill('collapsible callouts');
+  const sectionResult = page
+    .locator('[data-command-palette] button')
+    .filter({ hasText: 'Collapsible Callouts' })
+    .filter({ has: page.locator('[data-search-section]', { hasText: 'Callouts And Code Blocks' }) })
+    .first();
+  await expect(sectionResult).toBeVisible({ timeout: 15_000 });
+  await page.screenshot({ path: test.info().outputPath('search-section-results.png') });
+  await sectionResult.click();
+  await expect(page).toHaveURL(/\/docs\/developer-guides\/callouts-and-code#collapsible-callouts$/);
+  await expect(page.locator('#collapsible-callouts')).toBeInViewport({ timeout: 10_000 });
+
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await scopes.getByRole('radio', { name: 'API' }).click();
+  await input.fill('collapsible callouts');
+  await expect(page.getByText(/No results found for/)).toBeVisible({ timeout: 15_000 });
+  await assertNoRuntimeErrors(errors);
+});
+
+test('direct links to a heading scroll it into view after the page renders', async ({ page }) => {
+  await page.goto('/docs/developer-guides/callouts-and-code#collapsible-callouts', {
+    waitUntil: 'networkidle',
+  });
+  await expect(page.locator('#collapsible-callouts')).toBeInViewport({ timeout: 10_000 });
+});
+
 test('Pagefind index supports section filters for docs: and api: scopes', async ({ page }) => {
   await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Search docs/i }).click();
@@ -482,4 +564,94 @@ test('Pagefind index supports section filters for docs: and api: scopes', async 
   expect(counts.docs).toBeGreaterThan(0);
   expect(counts.api).toBe(0);
   for (const kind of counts.apiKinds) expect(kind).toMatch(/^openapi-/);
+});
+
+test('sidebar, mindmap and command labels come from the interface strings', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('navigation', { name: 'Documentation' })).toBeVisible();
+  const railHeading = page.locator('.right-rail-header h3');
+  const initial = (await railHeading.textContent())?.trim();
+  expect(['On This Page', 'Interactive Map']).toContain(initial);
+  await page.locator('.right-rail-toggle').click();
+  await expect(railHeading).toHaveText(
+    initial === 'On This Page' ? 'Interactive Map' : 'On This Page'
+  );
+  if ((await railHeading.textContent())?.trim() !== 'Interactive Map') {
+    await page.locator('.right-rail-toggle').click();
+  }
+  await expect(page.getByPlaceholder('Search docs...')).toBeVisible();
+  await expect(page.locator('.graph-legend')).toContainText('Pages');
+  await expect(page.locator('.graph-legend')).toContainText('Folder');
+
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await expect(page.getByRole('button', { name: /Switch to (Light|Dark) Mode/ })).toBeVisible();
+  await expect(page.getByText('to open or preview')).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('interface-labels.png') });
+  await assertNoRuntimeErrors(errors);
+});
+
+test('nested tab sets switch independently in Markdown and MDX', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  for (const route of [
+    '/docs/developer-guides/callouts-and-code',
+    '/docs/developer-guides/callouts-in-mdx',
+  ]) {
+    await page.goto(route, { waitUntil: 'networkidle' });
+    const outer = page.locator('.md-tabs[data-tabs-group="os"]').first();
+    await outer.scrollIntoViewIfNeeded();
+    const outerTabs = outer.locator(':scope > .md-tabs__list > [role="tab"]');
+    await expect(outerTabs).toHaveText(['macOS', 'Linux']);
+    // The os group is saved, so the MDX page opens on the Linux tab chosen below.
+    if (route.endsWith('callouts-in-mdx')) {
+      await expect(outerTabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+      await outerTabs.first().click();
+    }
+    const inner = outer.locator('.md-tabs[data-tabs-group="pkg"]');
+    await expect(inner).toBeVisible();
+    await inner.getByRole('tab', { name: 'pnpm', exact: true }).click();
+    await expect(inner.getByText(/pnpm add papers/)).toBeVisible();
+    await expect(outerTabs.first()).toHaveAttribute('aria-selected', 'true');
+
+    await outer.getByRole('tab', { name: 'Linux', exact: true }).click();
+    await expect(outer.getByText(/Install Node\.js/)).toBeVisible();
+    await expect(inner).toBeHidden();
+    await outer.screenshot({
+      path: test.info().outputPath(`nested-tabs-${route.split('/').pop()}.png`),
+    });
+  }
+  await assertNoRuntimeErrors(errors);
+});
+
+test('the RSS feed lists recently updated pages and is linked from every page', async ({
+  page,
+  request,
+}) => {
+  const response = await request.get('/rss.xml');
+  expect(response.ok()).toBe(true);
+  const xml = await response.text();
+  await test.info().attach('rss.xml', { body: xml, contentType: 'application/rss+xml' });
+  expect(xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<rss version="2\.0"/);
+  const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, body]) => ({
+    link: body.match(/<link>([^<]+)<\/link>/)?.[1],
+    date: Date.parse(body.match(/<pubDate>([^<]+)<\/pubDate>/)?.[1] ?? ''),
+  }));
+  expect(items.length).toBeGreaterThan(5);
+  for (const item of items) {
+    expect(item.link).toMatch(/^(https?:\/\/[^/]+)?\/docs\//);
+    expect(Number.isNaN(item.date)).toBe(false);
+  }
+  const dates = items.map((item) => item.date);
+  expect(dates).toEqual([...dates].sort((left, right) => right - left));
+
+  const errors = collectRuntimeErrors(page);
+  for (const route of ['/', '/docs/developer-guides/callouts-and-code']) {
+    await page.goto(route, { waitUntil: 'networkidle' });
+    await expect(
+      page.locator('head link[rel="alternate"][type="application/rss+xml"]')
+    ).toHaveAttribute('href', /\/rss\.xml$/);
+    await expect(page.locator('head link[type="application/rss+xml"]')).toHaveCount(1);
+  }
+  await assertNoRuntimeErrors(errors);
 });

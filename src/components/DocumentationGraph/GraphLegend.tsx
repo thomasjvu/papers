@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatUiString, useUiStrings } from '../../lib/uiStrings';
 
 interface GraphLegendProps {
   searchTerm: string;
@@ -10,6 +11,7 @@ const legendTextStyle = { color: 'var(--mindmap-legend-text)', fontFamily: 'var(
 
 const GraphLegend: React.FC<GraphLegendProps> = React.memo(
   ({ searchTerm, searchResults, isSidebarView }) => {
+    const ui = useUiStrings();
     const sizeClass = isSidebarView ? 'text-xs' : 'text-xs';
 
     return (
@@ -23,7 +25,7 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
               style={{ backgroundColor: 'var(--primary-color)' }}
             />
             <span className={sizeClass} style={legendTextStyle}>
-              Pages
+              {ui.mindmapLegendPages}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -32,7 +34,7 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
               style={{ backgroundColor: 'var(--mindmap-node-current)' }}
             />
             <span className={sizeClass} style={legendTextStyle}>
-              Current
+              {ui.mindmapLegendCurrent}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -41,7 +43,7 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
               style={{ borderTop: '1px solid var(--mindmap-node-connected)', opacity: 0.6 }}
             />
             <span className={sizeClass} style={legendTextStyle}>
-              Folder
+              {ui.mindmapLegendFolder}
             </span>
           </div>
           <div className="flex items-center gap-1">
@@ -50,7 +52,7 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
               style={{ borderTop: '1px dashed var(--accent-color)', opacity: 0.4 }}
             />
             <span className={sizeClass} style={legendTextStyle}>
-              Tags
+              {ui.mindmapLegendTags}
             </span>
           </div>
           {searchTerm && (
@@ -60,7 +62,7 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
                 style={{ backgroundColor: 'var(--mindmap-node-search)' }}
               />
               <span className={sizeClass} style={legendTextStyle}>
-                Matches
+                {ui.mindmapLegendMatches}
               </span>
             </div>
           )}
@@ -69,8 +71,11 @@ const GraphLegend: React.FC<GraphLegendProps> = React.memo(
         {searchTerm && (
           <div className={`mt-1 text-center opacity-75 ui-meta ${sizeClass}`}>
             {searchResults.hasResults
-              ? `${searchResults.nodes.length} result${searchResults.nodes.length !== 1 ? 's' : ''}`
-              : 'No matches found'}
+              ? formatUiString(
+                  searchResults.nodes.length === 1 ? ui.mindmapResultOne : ui.mindmapResultMany,
+                  { count: searchResults.nodes.length }
+                )
+              : ui.mindmapNoMatches}
           </div>
         )}
       </>
