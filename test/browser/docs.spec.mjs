@@ -329,7 +329,8 @@ test('grouped content tabs sync across the page and persist after reload', async
   const errors = collectRuntimeErrors(page);
   await page.goto('/docs/developer-guides/callouts-and-code', { waitUntil: 'networkidle' });
   const sets = page.locator('.md-tabs[data-tabs-group="pkg"]');
-  await expect(sets).toHaveCount(2);
+  // Two top-level sets plus the inner set of the nested tabs example.
+  await expect(sets).toHaveCount(3);
   await expect(sets.nth(1).getByRole('tab', { name: 'npm', exact: true })).toHaveAttribute(
     'aria-selected',
     'true'
@@ -437,7 +438,7 @@ test('MDX nested code blocks are interactive and MDX tabs sync with Markdown tab
   await expect(callout.locator('[data-code-title]', { hasText: 'install.sh' })).toBeVisible();
   await expect(callout.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
 
-  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]');
+  const tabs = page.locator('.papers-tabs[data-tabs-group="pkg"]').first();
   await tabs.getByRole('tab', { name: 'pnpm', exact: true }).click();
   await expect(tabs.getByRole('tabpanel')).toContainText('pnpm dev');
   await expect(tabs.getByRole('button', { name: 'Copy to clipboard' })).toBeVisible();
@@ -560,5 +561,37 @@ test('sidebar, mindmap and command labels come from the interface strings', asyn
   await expect(page.getByRole('button', { name: /Switch to (Light|Dark) Mode/ })).toBeVisible();
   await expect(page.getByText('to open or preview')).toBeVisible();
   await page.screenshot({ path: test.info().outputPath('interface-labels.png') });
+  await assertNoRuntimeErrors(errors);
+});
+
+test('nested tab sets switch independently in Markdown and MDX', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  for (const route of [
+    '/docs/developer-guides/callouts-and-code',
+    '/docs/developer-guides/callouts-in-mdx',
+  ]) {
+    await page.goto(route, { waitUntil: 'networkidle' });
+    const outer = page.locator('.md-tabs[data-tabs-group="os"]').first();
+    await outer.scrollIntoViewIfNeeded();
+    const outerTabs = outer.locator(':scope > .md-tabs__list > [role="tab"]');
+    await expect(outerTabs).toHaveText(['macOS', 'Linux']);
+    // The os group is saved, so the MDX page opens on the Linux tab chosen below.
+    if (route.endsWith('callouts-in-mdx')) {
+      await expect(outerTabs.nth(1)).toHaveAttribute('aria-selected', 'true');
+      await outerTabs.first().click();
+    }
+    const inner = outer.locator('.md-tabs[data-tabs-group="pkg"]');
+    await expect(inner).toBeVisible();
+    await inner.getByRole('tab', { name: 'pnpm', exact: true }).click();
+    await expect(inner.getByText(/pnpm add papers/)).toBeVisible();
+    await expect(outerTabs.first()).toHaveAttribute('aria-selected', 'true');
+
+    await outer.getByRole('tab', { name: 'Linux', exact: true }).click();
+    await expect(outer.getByText(/Install Node\.js/)).toBeVisible();
+    await expect(inner).toBeHidden();
+    await outer.screenshot({
+      path: test.info().outputPath(`nested-tabs-${route.split('/').pop()}.png`),
+    });
+  }
   await assertNoRuntimeErrors(errors);
 });

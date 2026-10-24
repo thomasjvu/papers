@@ -271,7 +271,6 @@ const admonitionExtensions = [
 // group key stay in sync across the page and site (see ContentTabs.tsx).
 const TABS_PATTERN =
   /^ {0,3}(:{3,})[ \t]*tabs\b[ \t]*([^\n]*)\n([\s\S]*?)\n? {0,3}\1[ \t]*(?:\n+|$)/i;
-const TAB_MARKER_PATTERN = /^ {0,3}::tab[ \t]+([^\n]+)$/gm;
 const TAB_GROUP_PATTERN = /^[a-z0-9][a-z0-9_-]{0,39}$/i;
 
 type TabsToken = Tokens.Generic & {
@@ -279,15 +278,47 @@ type TabsToken = Tokens.Generic & {
   panels: Array<{ label: string; tokens: Tokens.Generic[] }>;
 };
 
-/** Split a tabs body into labelled panels. Text before the first `::tab` is ignored. */
+const TAB_MARKER_LINE = /^ {0,3}::tab[ \t]+(.+?)[ \t]*$/;
+const CONTAINER_OPEN_LINE = /^ {0,3}(:{3,})[ \t]*[A-Za-z]/;
+const CONTAINER_CLOSE_LINE = /^ {0,3}(:{3,})[ \t]*$/;
+const CODE_FENCE_LINE = /^ {0,3}(`{3,}|~{3,})/;
+
+/**
+ * Split a tabs body into labelled panels. Text before the first `::tab` is
+ * ignored. `::tab` markers inside nested `:::` containers (for example an inner
+ * `:::tabs` set) or code fences belong to that inner block, which is what lets
+ * `::::tabs` hold a `:::tabs` set.
+ */
 export function splitTabPanels(body: string): Array<{ label: string; content: string }> {
-  const markers = Array.from(body.matchAll(TAB_MARKER_PATTERN));
-  return markers.map((marker, index) => {
-    const start = (marker.index ?? 0) + marker[0].length;
-    const end =
-      index + 1 < markers.length ? (markers[index + 1].index ?? body.length) : body.length;
-    return { label: marker[1].trim(), content: body.slice(start, end).replace(/^\n/, '') };
-  });
+  const lines = body.split('\n');
+  const panels: Array<{ label: string; lines: string[] }> = [];
+  const containers: number[] = [];
+  let fence: string | null = null;
+
+  for (const line of lines) {
+    const fenceMatch = CODE_FENCE_LINE.exec(line);
+    if (fence) {
+      if (fenceMatch && fenceMatch[1][0] === fence[0] && fenceMatch[1].length >= fence.length) {
+        fence = null;
+      }
+    } else if (fenceMatch) {
+      fence = fenceMatch[1];
+    } else if (containers.length === 0 && TAB_MARKER_LINE.test(line)) {
+      panels.push({ label: (TAB_MARKER_LINE.exec(line) as RegExpExecArray)[1].trim(), lines: [] });
+      continue;
+    } else {
+      const open = CONTAINER_OPEN_LINE.exec(line);
+      const close = CONTAINER_CLOSE_LINE.exec(line);
+      if (open) containers.push(open[1].length);
+      else if (close && containers.length > 0) {
+        const index = containers.lastIndexOf(close[1].length);
+        containers.length = index >= 0 ? index : containers.length - 1;
+      }
+    }
+    panels[panels.length - 1]?.lines.push(line);
+  }
+
+  return panels.map((panel) => ({ label: panel.label, content: panel.lines.join('\n') }));
 }
 
 // `:::steps` wraps an ordered list as numbered steps.

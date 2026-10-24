@@ -254,4 +254,37 @@ Run `pnpm dev` to start the dev server.
 
 Tabs without a group key switch on their own. If a panel contains a callout,
 give the tabs fence more colons than the callout, for example `::::tabs`.
-Tabs cannot be nested.
+
+### Nested Tabs
+
+Tabs can hold another tab set. Give the outer set more colons than the inner
+one, so `::::tabs` closes with `::::` and the inner `:::tabs` closes with
+`:::`. Each set keeps its own `::tab` markers and group key.
+
+```md
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+```
+
+::::tabs os
+::tab macOS
+:::tabs pkg
+::tab npm
+Run `brew install node`, then `npm install papers`.
+::tab pnpm
+Run `brew install pnpm`, then `pnpm add papers`.
+:::
+::tab Linux
+Install Node.js from your distribution, then run `npm install papers`.
+::::
+
+The inner set uses the `pkg` key, so it follows the package manager tabs above.
