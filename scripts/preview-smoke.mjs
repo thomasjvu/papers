@@ -242,6 +242,7 @@ async function main() {
     );
     await fetchText(baseUrl, '/robots.txt');
     await fetchText(baseUrl, '/sitemap.xml');
+    await fetchText(baseUrl, '/rss.xml');
     await fetchText(baseUrl, '/docs-index.json');
     await fetchText(baseUrl, `/docs-content/${buildDocsContentPath(sampleDocPath)}.json`);
     await fetchText(baseUrl, '/pagefind/pagefind.js');

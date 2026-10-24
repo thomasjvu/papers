@@ -96,6 +96,11 @@ function main() {
   assert(existsSync(distAgentManifestPath), 'Missing dist/agents.json.');
   assert(existsSync(join(distDir, 'robots.txt')), 'Missing dist/robots.txt.');
   assert(existsSync(join(distDir, 'sitemap.xml')), 'Missing dist/sitemap.xml.');
+  assert(existsSync(join(distDir, 'rss.xml')), 'Missing dist/rss.xml.');
+  assert(
+    readText(join(distDir, 'rss.xml')).includes('<item>'),
+    'dist/rss.xml has no items; check dist/docs-last-updated.json.'
+  );
   assert(existsSync(join(distDir, 'llms.html')), 'Missing dist/llms.html.');
   assert(existsSync(join(distDir, 'skill.html')), 'Missing dist/skill.html.');
   assert(existsSync(join(distDir, '404.html')), 'Missing dist/404.html.');

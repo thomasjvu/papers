@@ -233,6 +233,22 @@ export function getHomeMetadataDefaults() {
   };
 }
 
+/** The RSS feed written to dist/rss.xml by generate:rss. */
+export const RSS_FEED_LINK = Object.freeze({
+  path: '/rss.xml',
+  contentType: 'application/rss+xml',
+  title: 'Documentation updates',
+});
+
+/** The `<link rel="alternate">` fields for the RSS feed. */
+export function getFeedLink(siteUrl = '') {
+  return {
+    href: buildAbsoluteUrl(RSS_FEED_LINK.path, siteUrl),
+    contentType: RSS_FEED_LINK.contentType,
+    title: RSS_FEED_LINK.title,
+  };
+}
+
 export function getAgentArtifactLinks(siteUrl = '', options = {}) {
   const collectionArtifacts = (options.collections || []).flatMap((collection) => {
     const namespace = collection?.artifactNamespace || collection?.id;

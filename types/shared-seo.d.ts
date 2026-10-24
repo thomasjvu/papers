@@ -15,6 +15,12 @@ declare module '*/shared/seo.js' {
     title: string;
   }>;
 
+  export const RSS_FEED_LINK: Readonly<{ path: string; contentType: string; title: string }>;
+  export function getFeedLink(siteUrl?: string): {
+    href: string;
+    contentType: string;
+    title: string;
+  };
   export function getAgentArtifactLinks(siteUrl?: string): Array<{
     id: string;
     path: string;

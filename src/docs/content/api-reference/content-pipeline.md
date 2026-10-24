@@ -58,6 +58,24 @@ Writes:
 
 Runs after the Vite bundle exists and writes route-specific HTML snapshots into `dist/` with page-level metadata.
 
+It also writes a social card for each page to `dist/images/og/`. Each card
+is drawn as SVG and rendered to a 1200x630 PNG with `@resvg/resvg-js`, because
+most social sites do not show SVG previews. The page metadata points at the
+PNG. If the PNG render fails, the build logs a warning and the page uses the
+SVG card instead. Set `PAPERS_SOCIAL_CARD_FORMAT=svg` to skip PNG rendering.
+
+### `scripts/generate-rss.mjs`
+
+Runs after `scripts/generate-last-updated.mjs` and writes `dist/rss.xml`, an
+RSS 2.0 feed of the 30 most recently updated pages. Each item uses the page
+title, description and last-updated date (the git commit date, or the
+`lastUpdated` frontmatter value). Only pages listed in the sitemap are
+included, so drafts and `noindex` pages stay out of the feed. Every page links
+to the feed with `<link rel="alternate" type="application/rss+xml">`.
+
+Set `VITE_SITE_URL` so feed links are absolute. Without it the feed uses
+relative links, which most feed readers cannot follow.
+
 ### `scripts/generate-llms.mjs`
 
 Writes:

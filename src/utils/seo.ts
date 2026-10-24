@@ -6,6 +6,7 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_TWITTER_IMAGE_PATH,
   getAgentArtifactLinks,
+  getFeedLink,
   normalizeSiteUrl,
   serializeJsonLd,
   socialImagePathForRoute,
@@ -148,6 +149,7 @@ export function applySeoMetadata({
       contentType: link.contentType,
       title: link.title,
     })),
+    getFeedLink(siteUrl),
   ];
 
   agentLinks.forEach((link) => upsertAlternateLink(link.href, link.contentType, link.title));

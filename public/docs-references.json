@@ -213,13 +213,13 @@
       "source": "api-reference/content-pipeline",
       "target": "api-reference/runtime-apis",
       "href": "/docs/api-reference/runtime-apis",
-      "line": 137
+      "line": 155
     },
     {
       "source": "api-reference/content-pipeline",
       "target": "developer-guides/code-examples",
       "href": "/docs/developer-guides/code-examples",
-      "line": 138
+      "line": 156
     },
     {
       "source": "api-reference/overview",
@@ -237,19 +237,19 @@
       "source": "deployment/overview",
       "target": "deployment/platforms/cloudflare",
       "href": "/docs/deployment/platforms/cloudflare",
-      "line": 45
+      "line": 46
     },
     {
       "source": "deployment/overview",
       "target": "deployment/platforms/netlify",
       "href": "/docs/deployment/platforms/netlify",
-      "line": 47
+      "line": 48
     },
     {
       "source": "deployment/overview",
       "target": "deployment/platforms/vercel",
       "href": "/docs/deployment/platforms/vercel",
-      "line": 46
+      "line": 47
     },
     {
       "source": "developer-guides/callouts-in-mdx",
@@ -416,7 +416,7 @@
       {
         "source": "api-reference/content-pipeline",
         "href": "/docs/api-reference/content-pipeline",
-        "line": 137
+        "line": 155
       },
       {
         "source": "api-reference/overview",
@@ -435,21 +435,21 @@
       {
         "source": "deployment/overview",
         "href": "/docs/deployment/overview",
-        "line": 45
+        "line": 46
       }
     ],
     "deployment/platforms/netlify": [
       {
         "source": "deployment/overview",
         "href": "/docs/deployment/overview",
-        "line": 47
+        "line": 48
       }
     ],
     "deployment/platforms/vercel": [
       {
         "source": "deployment/overview",
         "href": "/docs/deployment/overview",
-        "line": 46
+        "line": 47
       }
     ],
     "deployment/production-setup": [],
@@ -483,7 +483,7 @@
       {
         "source": "api-reference/content-pipeline",
         "href": "/docs/api-reference/content-pipeline",
-        "line": 138
+        "line": 156
       }
     ],
     "developer-guides/design-system": [

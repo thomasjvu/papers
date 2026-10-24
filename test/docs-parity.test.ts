@@ -16,6 +16,7 @@ import {
 import { createPagefindRecords, splitSearchSections } from '../scripts/lib/pagefindArtifacts.mjs';
 import { createDocumentToc } from '../scripts/lib/docsArtifacts.mjs';
 import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
+import { createRssFeedXml, selectFeedItems } from '../scripts/lib/rssFeed.mjs';
 
 import {
   DEFAULT_UI_STRINGS,
@@ -241,6 +242,43 @@ export const docsParityTests: TestCase[] = [
         ]
       );
       assert.deepEqual(validateUiStringsConfig(uiStringsConfig, i18nConfig.locales), []);
+    },
+  },
+  {
+    name: 'RSS feed keeps only indexed pages and escapes page text',
+    run: () => {
+      const doc = (canonicalPath, title, description = '') => ({
+        metadata: { canonicalPath, title, description },
+      });
+      const items = selectFeedItems(
+        [
+          doc('/docs/a', 'Tom & <Jerry>', 'Uses "quotes"'),
+          doc('/docs/b', 'Older'),
+          doc('/docs/draft', 'Draft'),
+          doc('/docs/undated', 'Undated'),
+        ],
+        {
+          '/docs/a': '2026-10-02T00:00:00.000Z',
+          '/docs/b': '2026-09-01T00:00:00.000Z',
+          '/docs/draft': '2026-10-03T00:00:00.000Z',
+        },
+        new Set(['/docs/a', '/docs/b', '/docs/undated'])
+      );
+      assert.deepEqual(
+        items.map((item) => item.path),
+        ['/docs/a', '/docs/b']
+      );
+      const xml = createRssFeedXml({
+        siteName: 'Papers',
+        siteUrl: 'https://example.com/',
+        description: 'Docs',
+        items,
+      });
+      assert.match(xml, /<title>Tom &amp; &lt;Jerry&gt;<\/title>/);
+      assert.match(xml, /<description>Uses &quot;quotes&quot;<\/description>/);
+      assert.match(xml, /<link>https:\/\/example\.com\/docs\/a<\/link>/);
+      assert.match(xml, /<lastBuildDate>Fri, 02 Oct 2026 00:00:00 GMT<\/lastBuildDate>/);
+      assert.doesNotMatch(xml, /Draft|Undated/);
     },
   },
   {

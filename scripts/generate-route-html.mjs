@@ -11,6 +11,7 @@ import {
   DEFAULT_OG_IMAGE_PATH,
   DEFAULT_TWITTER_IMAGE_PATH,
   getAgentArtifactLinks,
+  getFeedLink,
   getHomeMetadataDefaults,
   serializeJsonLd,
   socialImagePathForRoute,
@@ -219,6 +220,7 @@ async function generateRouteHtml() {
       contentType: link.contentType,
       title: link.title,
     })),
+    getFeedLink(siteUrl),
   ];
   const homepageHtml = appendRoutePreloads(
     applyMetadataToHtml(templateHtml, {

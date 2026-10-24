@@ -11,7 +11,7 @@ VITE_GITHUB_URL="https://github.com/your-org/your-repo"
 VITE_GITHUB_BRANCH="main"
 ```
 
-`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, and absolute social metadata.
+`VITE_SITE_URL` is what powers canonical URLs, sitemap entries, RSS feed links, and absolute social metadata.
 
 ## Build Pipeline
 
@@ -72,7 +72,7 @@ After deploy, verify:
 - the homepage loads
 - a deep docs route loads directly
 - `/llms` loads directly
-- `/robots.txt` and `/sitemap.xml` load
+- `/robots.txt`, `/sitemap.xml` and `/rss.xml` load
 - link previews use the expected title and description
 - Pagefind search returns results
 - GitHub footer links go to the expected repo

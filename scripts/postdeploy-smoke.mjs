@@ -161,6 +161,7 @@ async function main() {
   );
   await fetchWithRetry('/robots.txt');
   await fetchWithRetry('/sitemap.xml');
+  await fetchWithRetry('/rss.xml');
   await fetchWithRetry('/llms.txt');
   await fetchWithRetry('/llms-full.txt');
   await fetchWithRetry('/skill.md');

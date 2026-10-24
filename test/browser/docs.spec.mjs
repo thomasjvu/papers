@@ -623,3 +623,35 @@ test('nested tab sets switch independently in Markdown and MDX', async ({ page }
   }
   await assertNoRuntimeErrors(errors);
 });
+
+test('the RSS feed lists recently updated pages and is linked from every page', async ({
+  page,
+  request,
+}) => {
+  const response = await request.get('/rss.xml');
+  expect(response.ok()).toBe(true);
+  const xml = await response.text();
+  await test.info().attach('rss.xml', { body: xml, contentType: 'application/rss+xml' });
+  expect(xml).toMatch(/^<\?xml version="1\.0" encoding="UTF-8"\?>\n<rss version="2\.0"/);
+  const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)].map(([, body]) => ({
+    link: body.match(/<link>([^<]+)<\/link>/)?.[1],
+    date: Date.parse(body.match(/<pubDate>([^<]+)<\/pubDate>/)?.[1] ?? ''),
+  }));
+  expect(items.length).toBeGreaterThan(5);
+  for (const item of items) {
+    expect(item.link).toMatch(/^(https?:\/\/[^/]+)?\/docs\//);
+    expect(Number.isNaN(item.date)).toBe(false);
+  }
+  const dates = items.map((item) => item.date);
+  expect(dates).toEqual([...dates].sort((left, right) => right - left));
+
+  const errors = collectRuntimeErrors(page);
+  for (const route of ['/', '/docs/developer-guides/callouts-and-code']) {
+    await page.goto(route, { waitUntil: 'networkidle' });
+    await expect(
+      page.locator('head link[rel="alternate"][type="application/rss+xml"]')
+    ).toHaveAttribute('href', /\/rss\.xml$/);
+    await expect(page.locator('head link[type="application/rss+xml"]')).toHaveCount(1);
+  }
+  await assertNoRuntimeErrors(errors);
+});
