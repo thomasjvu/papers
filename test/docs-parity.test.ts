@@ -13,7 +13,8 @@ import {
   rankSearchResults,
   titleBoost,
 } from '../src/lib/searchRanking.ts';
-import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
+import { createPagefindRecords, splitSearchSections } from '../scripts/lib/pagefindArtifacts.mjs';
+import { createDocumentToc } from '../scripts/lib/docsArtifacts.mjs';
 import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
 
 import {
@@ -164,6 +165,50 @@ export const docsParityTests: TestCase[] = [
       const api = records.find((record) => record.meta.kind === 'openapi-operation');
       assert.deepEqual(doc?.filters, { section: ['docs'], collection: ['docs'] });
       assert.deepEqual(api?.filters, { section: ['api'] });
+    },
+  },
+  {
+    name: 'search sections split at h2/h3 with the same ids as the page TOC',
+    run: () => {
+      const body = [
+        '# Page',
+        'Intro text',
+        '## Setup',
+        'Install it',
+        '```md',
+        '## Not a heading',
+        '```',
+        '### Setup',
+        'Nested',
+        'Setext Heading',
+        '--------------',
+        'Under setext',
+        '#### Deep',
+        'Still setext section',
+      ].join('\n');
+      const { intro, sections } = splitSearchSections(body);
+      assert.match(intro, /Intro text/);
+      assert.deepEqual(
+        sections.map((section) => section.id),
+        ['setup', 'setup-2', 'setext-heading']
+      );
+      const tocIds = createDocumentToc(body).map((entry) => entry.id);
+      for (const section of sections) assert.ok(tocIds.includes(section.id));
+      assert.match(sections[0].body, /## Not a heading/);
+      assert.match(sections[2].body, /Still setext section/);
+
+      const records = createPagefindRecords({
+        collections: [{ id: 'docs', label: 'Docs', routePrefix: 'docs' }],
+        artifactsByCollectionId: {
+          docs: { index: { paths: ['a'] }, documents: { a: { title: 'A', content: body } } },
+        },
+      });
+      assert.deepEqual(
+        records.map((record) => record.url),
+        ['/docs/a', '/docs/a#setup', '/docs/a#setup-2', '/docs/a#setext-heading']
+      );
+      assert.equal(records[1].meta.page, 'A');
+      assert.doesNotMatch(records[0].content, /Install it/);
     },
   },
   {

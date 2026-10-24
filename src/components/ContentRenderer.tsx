@@ -8,6 +8,7 @@ import { findPageTags } from '../lib/navigation';
 import { parseCollectionRoutePath } from '../../shared/docsRouting.js';
 import type { ContentCollection } from '../../shared/docsRouting.js';
 import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
+import { useScrollToHash } from '../hooks/useScrollToHash';
 import { prefetchDocument } from '../lib/content';
 
 import DocPageFooter from './DocPageFooter';
@@ -34,6 +35,7 @@ const ContentRenderer = memo(function ContentRenderer({
 }: ContentRendererProps) {
   const location = useLocation();
   const ui = useUiStrings();
+  useScrollToHash(`${path}:${content.length}`);
   const activeCollection = collection || getContentCollection('docs');
   const routePrefix =
     String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';

@@ -20,6 +20,10 @@ export const DEFAULT_UI_STRINGS = Object.freeze({
   showLineNumbers: 'Show line numbers',
   hideLineNumbers: 'Hide line numbers',
   referencedBy: 'Referenced by',
+  searchScope: 'Search scope',
+  searchScopeAll: 'All',
+  searchScopeDocs: 'Docs',
+  searchScopeApi: 'API',
 });
 
 export const UI_STRING_KEYS = Object.freeze(Object.keys(DEFAULT_UI_STRINGS));

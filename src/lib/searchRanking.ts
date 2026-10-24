@@ -17,6 +17,23 @@ export const PAGEFIND_RANKING = Object.freeze({
 
 export type SearchSection = 'docs' | 'api';
 
+/** Command palette scope buttons: everything, or one Pagefind `section`. */
+export type SearchScopeFilter = 'all' | SearchSection;
+
+export const SEARCH_SCOPE_FILTERS: readonly SearchScopeFilter[] = Object.freeze([
+  'all',
+  'docs',
+  'api',
+]);
+
+/** A typed `docs:`/`api:` prefix wins over the selected scope button. */
+export function resolveSearchSection(
+  prefixSection: SearchSection | null,
+  scopeFilter: SearchScopeFilter = 'all'
+): SearchSection | null {
+  return prefixSection ?? (scopeFilter === 'all' ? null : scopeFilter);
+}
+
 export type PagefindFilters = Record<string, string | string[]>;
 
 const SECTION_PREFIX = /^(docs|api):\s*/i;

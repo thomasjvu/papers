@@ -11,6 +11,7 @@ import { useTheme } from '../../providers/useTheme';
 import SearchResult, { type SearchResultType } from './SearchResult';
 import { useSearchLogic } from './useSearchLogic';
 import { useUiStrings } from '../../lib/uiStrings';
+import { SEARCH_SCOPE_FILTERS, type SearchScopeFilter } from '../../lib/searchRanking.ts';
 
 interface OptimizedCommandPaletteProps {
   isOpen: boolean;
@@ -23,10 +24,11 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
   const { prefersReducedMotion } = useTheme();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [scopeFilter, setScopeFilter] = useState<SearchScopeFilter>('all');
   const inputRef = useRef<HTMLInputElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
 
-  const { filteredResults } = useSearchLogic(query);
+  const { filteredResults } = useSearchLogic(query, scopeFilter);
 
   const activeFaq = useMemo(() => {
     const result = filteredResults[selectedIndex];
@@ -67,6 +69,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
     if (isOpen) {
       setQuery('');
       setSelectedIndex(0);
+      setScopeFilter('all');
       document.body.style.overflow = 'hidden';
       setTimeout(() => inputRef.current?.focus(), TIMING_CONSTANTS.autoFocusDelay);
     } else {
@@ -218,6 +221,47 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                           border: '1px solid transparent',
                         }}
                       />
+                    </div>
+                    <div
+                      role="radiogroup"
+                      aria-label={ui.searchScope}
+                      data-search-scope
+                      className="mt-2 flex items-center gap-1"
+                    >
+                      {SEARCH_SCOPE_FILTERS.map((scope) => {
+                        const active = scope === scopeFilter;
+                        const label =
+                          scope === 'all'
+                            ? ui.searchScopeAll
+                            : scope === 'docs'
+                              ? ui.searchScopeDocs
+                              : ui.searchScopeApi;
+                        return (
+                          <button
+                            key={scope}
+                            type="button"
+                            role="radio"
+                            aria-checked={active}
+                            data-scope={scope}
+                            onClick={() => {
+                              setScopeFilter(scope);
+                              setSelectedIndex(0);
+                              inputRef.current?.focus();
+                            }}
+                            className="rounded-sm border px-2 py-0.5 text-2xs"
+                            style={{
+                              fontFamily: 'var(--mono-font)',
+                              borderColor: active ? 'var(--primary-color)' : 'var(--border-color)',
+                              backgroundColor: active ? 'var(--primary-color)' : 'transparent',
+                              color: active
+                                ? 'var(--selection-text-color)'
+                                : 'var(--papers-text-secondary)',
+                            }}
+                          >
+                            {label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 

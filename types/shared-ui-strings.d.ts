@@ -16,6 +16,10 @@ declare module '*/shared/uiStrings.js' {
     readonly showLineNumbers: string;
     readonly hideLineNumbers: string;
     readonly referencedBy: string;
+    readonly searchScope: string;
+    readonly searchScopeAll: string;
+    readonly searchScopeDocs: string;
+    readonly searchScopeApi: string;
   };
   export type UiStringKey = keyof UiStrings;
   export type UiStringsConfig = Record<string, Partial<Record<UiStringKey, string>>>;

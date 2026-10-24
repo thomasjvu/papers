@@ -469,6 +469,46 @@ test('steps and cards render in Markdown and MDX', async ({ page }) => {
   await assertNoRuntimeErrors(errors);
 });
 
+test('search scope buttons and heading-level results jump to the matching section', async ({
+  page,
+}) => {
+  const errors = collectRuntimeErrors(page);
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  const scopes = page.getByRole('radiogroup', { name: 'Search scope' });
+  await expect(scopes.getByRole('radio', { name: 'All' })).toHaveAttribute('aria-checked', 'true');
+  await scopes.getByRole('radio', { name: 'Docs' }).click();
+  await expect(scopes.getByRole('radio', { name: 'Docs' })).toHaveAttribute('aria-checked', 'true');
+  // Commands are hidden outside the "All" scope.
+  await expect(page.getByRole('button', { name: /Switch to (Light|Dark) Mode/ })).toHaveCount(0);
+
+  const input = page.getByPlaceholder('Search documentation or type a command...');
+  await input.fill('collapsible callouts');
+  const sectionResult = page
+    .locator('[data-command-palette] button')
+    .filter({ hasText: 'Collapsible Callouts' })
+    .filter({ has: page.locator('[data-search-section]', { hasText: 'Callouts And Code Blocks' }) })
+    .first();
+  await expect(sectionResult).toBeVisible({ timeout: 15_000 });
+  await page.screenshot({ path: test.info().outputPath('search-section-results.png') });
+  await sectionResult.click();
+  await expect(page).toHaveURL(/\/docs\/developer-guides\/callouts-and-code#collapsible-callouts$/);
+  await expect(page.locator('#collapsible-callouts')).toBeInViewport({ timeout: 10_000 });
+
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await scopes.getByRole('radio', { name: 'API' }).click();
+  await input.fill('collapsible callouts');
+  await expect(page.getByText(/No results found for/)).toBeVisible({ timeout: 15_000 });
+  await assertNoRuntimeErrors(errors);
+});
+
+test('direct links to a heading scroll it into view after the page renders', async ({ page }) => {
+  await page.goto('/docs/developer-guides/callouts-and-code#collapsible-callouts', {
+    waitUntil: 'networkidle',
+  });
+  await expect(page.locator('#collapsible-callouts')).toBeInViewport({ timeout: 10_000 });
+});
+
 test('Pagefind index supports section filters for docs: and api: scopes', async ({ page }) => {
   await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
   await page.getByRole('button', { name: /Search docs/i }).click();

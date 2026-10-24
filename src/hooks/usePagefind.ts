@@ -12,6 +12,8 @@ interface PagefindResult {
   url: string;
   meta: {
     title: string;
+    /** Parent page title for heading-level (section) results. */
+    page?: string;
   };
   excerpt: string;
   score: number;
@@ -21,6 +23,7 @@ interface PagefindResultData {
   url: string;
   meta?: {
     title?: string;
+    page?: string;
   };
   excerpt?: string;
 }
@@ -186,12 +189,14 @@ export function usePagefind(): UsePagefindResult {
         const loaded = await Promise.all(
           results.results.slice(0, MAX_LOADED_RESULTS).map(async (result) => {
             const data = await result.data();
-            const url = normalizePagefindUrl(data.url);
+            const [rawPath, anchor] = data.url.split('#');
+            const url = `${normalizePagefindUrl(rawPath)}${anchor ? `#${anchor}` : ''}`;
 
             return {
               url,
               meta: {
                 title: data.meta?.title || url,
+                ...(data.meta?.page ? { page: data.meta.page } : {}),
               },
               excerpt: data.excerpt || '',
               score: result.score,

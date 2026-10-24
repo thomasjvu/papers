@@ -3,6 +3,10 @@ import {
   buildCollectionContentPath,
   getCollectionVariantContexts,
 } from '../../shared/docsRouting.js';
+import { scanDocumentHeadings } from './docsArtifacts.mjs';
+
+/** Heading depths that start their own search result (h2/h3, like Algolia DocSearch lvl2/lvl3). */
+const SECTION_DEPTHS = new Set([2, 3]);
 
 function stripUtf8Bom(content) {
   return content.replace(/^\uFEFF/, '');
@@ -27,55 +31,86 @@ export function stripSearchMarkdown(content = '') {
     .trim();
 }
 
+/**
+ * Split a Markdown body into an intro (text before the first h2/h3) and one
+ * section per h2/h3 heading. Section ids come from the same heading scanner as
+ * the page TOC, so `route#id` lands on the rendered heading.
+ */
+export function splitSearchSections(content = '') {
+  const lines = stripUtf8Bom(String(content)).split(/\r?\n/);
+  const headings = scanDocumentHeadings(lines.join('\n')).filter((heading) =>
+    SECTION_DEPTHS.has(heading.depth)
+  );
+  const intro = lines.slice(0, headings[0]?.line ?? lines.length).join('\n');
+  const sections = headings.map((heading, position) => ({
+    id: heading.id,
+    title: heading.text,
+    depth: heading.depth,
+    body: lines.slice(heading.endLine + 1, headings[position + 1]?.line ?? lines.length).join('\n'),
+  }));
+  return { intro, sections };
+}
+
 function createDocumentationRecord(collection, context, docPath, document, index) {
   const title =
     document.title || index.titles?.[docPath] || getTitle(docPath, document.content || '');
   const description = document.description || '';
-  const searchableContent = stripSearchMarkdown(document.content || '');
+  const { intro, sections } = splitSearchSections(document.content || '');
   const variantParts = [context.version, context.locale].filter(Boolean);
   const collectionLabel = collection.label || collection.id;
-  const content = [
-    collectionLabel,
-    collection.id,
-    ...variantParts,
-    title,
-    description,
-    searchableContent,
-  ]
-    .filter(Boolean)
-    .join('\n\n');
-  const meta = {
-    title,
+  const url = buildCanonicalCollectionPath(collection, docPath, context);
+  const contentPath = buildCollectionContentPath(collection, docPath, context);
+  const baseMeta = {
     kind: 'documentation',
     collection: collection.id,
     collectionLabel,
+    ...(context.version ? { version: context.version } : {}),
+    ...(context.locale ? { locale: context.locale } : {}),
   };
+  // Pagefind filters: the client limits results to the reader's version
+  // and locale and supports `docs:` / `api:` scopes (src/lib/searchRanking.ts).
+  const filters = {
+    section: ['docs'],
+    collection: [collection.id],
+    ...(context.version ? { version: [context.version] } : {}),
+    ...(context.locale ? { locale: [context.locale] } : {}),
+  };
+  const language = context.locale || 'en';
 
-  if (context.version) {
-    meta.version = context.version;
-  }
-
-  if (context.locale) {
-    meta.locale = context.locale;
-  }
-
-  return {
-    key: `${collection.id}::${buildCanonicalCollectionPath(collection, docPath, context)}::${buildCollectionContentPath(collection, docPath, context)}`,
+  const pageRecord = {
+    key: `${collection.id}::${url}::${contentPath}`,
     record: {
-      url: buildCanonicalCollectionPath(collection, docPath, context),
-      content,
-      language: context.locale || 'en',
-      meta,
-      // Pagefind filters: the client limits results to the reader's version
-      // and locale and supports `docs:` / `api:` scopes (src/lib/searchRanking.ts).
-      filters: {
-        section: ['docs'],
-        collection: [collection.id],
-        ...(context.version ? { version: [context.version] } : {}),
-        ...(context.locale ? { locale: [context.locale] } : {}),
-      },
+      url,
+      content: [
+        collectionLabel,
+        collection.id,
+        ...variantParts,
+        title,
+        description,
+        stripSearchMarkdown(intro),
+      ]
+        .filter(Boolean)
+        .join('\n\n'),
+      language,
+      meta: { title, ...baseMeta },
+      filters,
     },
   };
+
+  const sectionRecords = sections
+    .map((section) => ({ ...section, text: stripSearchMarkdown(section.body) }))
+    .map((section) => ({
+      key: `${collection.id}::${url}#${section.id}::${contentPath}`,
+      record: {
+        url: `${url}#${section.id}`,
+        content: [section.title, section.text].filter(Boolean).join('\n\n'),
+        language,
+        meta: { title: section.title, page: title, anchor: section.id, ...baseMeta },
+        filters,
+      },
+    }));
+
+  return [pageRecord, ...sectionRecords];
 }
 
 function createOpenApiRecords(openapiArtifacts) {
@@ -184,7 +219,15 @@ export function createPagefindRecords({
           );
         }
 
-        addRecord(createDocumentationRecord(collection, context, docPath, document, index));
+        for (const pagefindRecord of createDocumentationRecord(
+          collection,
+          context,
+          docPath,
+          document,
+          index
+        )) {
+          addRecord(pagefindRecord);
+        }
       }
     }
   }

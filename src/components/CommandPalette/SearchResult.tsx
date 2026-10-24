@@ -10,6 +10,8 @@ export interface SearchResultType {
   icon?: React.ReactNode;
   shortcut?: string;
   answer?: string;
+  /** Parent page title when the result is a heading inside that page. */
+  section?: string;
 }
 
 interface SearchResultProps {
@@ -52,6 +54,15 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
           >
             {result.title}
           </div>
+          {result.section && (
+            <div
+              className="truncate text-2xs leading-snug"
+              data-search-section
+              style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
+            >
+              {result.section}
+            </div>
+          )}
         </div>
         <div className="flex items-center gap-2">
           {result.shortcut && (
