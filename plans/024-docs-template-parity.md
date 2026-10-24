@@ -7,8 +7,8 @@
 - **Risk**: LOW
 - **Depends on**: none
 - **Category**: authoring | ui | accessibility
-- **Status**: IN PROGRESS. Rounds 1 to 3 are done (PR #7, PR #8, PR #9).
-  The remaining gaps are ranked below.
+- **Status**: DONE. Rounds 1 to 4 are done (PR #7, PR #8, PR #9, PR #10).
+  Possible follow-ups are listed at the end.
 - **Planned at**: commit `3579993`, 2026-10-11
 
 ## Comparison set
@@ -118,19 +118,40 @@ authoring components, which authors notice first when they migrate.
 - **Translatable interface labels.** `uiStringsConfig` sets the labels for
   each locale (`shared/uiStrings.js`). `generate:docs` validates it.
 
-## Remaining gaps, in priority order
+## Delivered in round 4 (PR #10)
 
-1. **Raster social cards.** The cards are still SVG. PNG output needs a
-   rasterizer dependency, which is not approved yet.
-2. **Heading-level search results.** Pagefind custom records have no
-   headings, so results link to whole pages. Indexing the route HTML would
-   give section anchors.
-3. **Search filter UI.** Scopes use a query prefix. There are no filter chips
-   in the palette yet.
-4. **More translatable labels.** Sidebar, mindmap, and palette command labels
-   are still English-only.
-5. **Nested Markdown tabs**, and a theme-aware diff palette per theme.
-6. **Low priority.** An RSS/Atom feed for changelog-style collections.
+- **PNG social cards.** Each page card is drawn as SVG and rendered to a
+  1200x630 PNG with `@resvg/resvg-js` (prebuilt binaries for macOS and Linux
+  CI). Page metadata points at the PNG. If the render fails, the build warns
+  and uses the SVG card. `PAPERS_SOCIAL_CARD_FORMAT=svg` turns PNG off. resvg
+  draws variable fonts at their default weight, so heavier text is drawn with
+  a matching stroke. The font licence does not allow shipping renamed static
+  copies of Mona Sans.
+- **Heading-level search results.** Pagefind gets one record per h2 and h3
+  with the same ids as the page table of contents. A result opens the page
+  and scrolls to the heading. Direct links to a heading now scroll it into
+  view.
+- **Search filter UI.** All, Docs, and API buttons in the command palette. A
+  typed `docs:` or `api:` prefix still wins.
+- **More translatable labels.** The sidebar, mindmap, and palette commands and
+  hints read `uiStringsConfig`. Templates such as `Font: {font}` must keep
+  their placeholders, and `generate:docs` checks this.
+- **Nested Markdown tabs.** An outer `::::tabs` set can hold an inner
+  `:::tabs` set. `::tab` lines inside a nested block or code fence stay with
+  that block. MDX `<Tabs>` already nested.
+- **Diff colours per theme.** `--code-inserted-*` and `--code-deleted-*`
+  tokens, set by each bundled theme. Visual checks include a diff block for
+  each theme and colour mode.
+- **RSS feed.** `dist/rss.xml` lists the 30 most recently updated indexed
+  pages, and every page links to it.
+
+## Possible follow-ups
+
+1. When PNG rendering falls back to SVG, client-side navigation still sets
+   the PNG path in the page meta tags. Route HTML (what crawlers read) is
+   correct.
+2. FAQ answers in the command palette are English only.
+3. One feed per collection, if a changelog-style collection is added.
 
 ## Verification
 
