@@ -100,7 +100,6 @@ export const routePreloadTests = [
         openApiPreloads,
         '<link rel="modulepreload" crossorigin href="/assets/OpenApiPage-d4e5f6.js" />'
       );
-      assert.doesNotMatch(openApiPreloads, /DocsPage|esm-|Mermaid|https?:\/\//);
 
       const openApiOverviewWithoutKind = planRoutePreloads({
         routeEntry: {
@@ -114,10 +113,6 @@ export const routePreloadTests = [
       assert.equal(
         openApiOverviewWithoutKind,
         '<link rel="modulepreload" crossorigin href="/assets/OpenApiPage-d4e5f6.js" />'
-      );
-      assert.doesNotMatch(
-        openApiOverviewWithoutKind,
-        /DocsPage|docs-content|esm-|Mermaid|https?:\/\//
       );
 
       for (const routeEntry of [

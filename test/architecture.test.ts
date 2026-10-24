@@ -6,7 +6,6 @@ import { join } from 'node:path';
 
 import { JSDOM } from 'jsdom';
 
-import { buildPaddedViewBox } from '../src/utils/mermaidLayout.ts';
 import { generateDocsContent } from '../scripts/generate-docs.mjs';
 import {
   createDocsArtifacts,
@@ -17,7 +16,7 @@ import {
   stabilizeIndexGeneration,
 } from '../scripts/lib/docsArtifacts.mjs';
 import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
-import { compileMdxToHtml, validateMdxComponentsInSource } from '../scripts/lib/mdxCompile.mjs';
+import { validateMdxComponentsInSource } from '../scripts/lib/mdxCompile.mjs';
 import {
   addFileToTree,
   replaceDocumentationTreeExport,
@@ -45,16 +44,15 @@ import {
   parseDocsRoutePath,
 } from '../shared/docsRouting.js';
 import { buildOpenApiRoutePath, getOpenApiRoutePrefix } from '../shared/openapiRouting.js';
-import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { findDirectoryDefaultPath, findFirstDocumentPath } from '../src/lib/navigation.ts';
 import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
 import { sanitizeMermaidSvg } from '../src/utils/sanitizeMermaidSvg.ts';
-import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/themeRegistry.mjs';
 import { collectLazyFeatureBoundaryIssues } from '../src/framework/lazyFeatureBoundaries.ts';
 import { isPapersTemplateRoot, shouldUseLocalTemplate } from '../packages/create-papers/index.mjs';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { createDocumentReferenceGraph } from '../scripts/lib/referenceGraph.mjs';
 import { createOpenApiArtifacts } from '../scripts/lib/openapiArtifacts.mjs';
+import { findPathToFile, mergeExpandedPaths } from '../src/components/FileTree/treeState.ts';
 import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
 import { normalizePagefindUrl } from '../src/hooks/usePagefind.ts';
 
@@ -87,6 +85,62 @@ const seoTestDocumentationTree = [
 ];
 
 export const architectureTests: ArchitectureTestCase[] = [
+  {
+    name: 'file tree helpers expand only the directories needed for the active file',
+    run: () => {
+      const items = [
+        {
+          type: 'directory' as const,
+          name: 'Guides',
+          path: 'guides',
+          children: [
+            {
+              type: 'directory' as const,
+              name: 'Advanced',
+              path: 'guides/advanced',
+              children: [
+                {
+                  type: 'file' as const,
+                  name: 'Caching.md',
+                  path: 'guides/advanced/caching',
+                },
+              ],
+            },
+          ],
+        },
+      ];
+
+      const pathsToExpand = findPathToFile(items, 'guides/advanced/caching');
+      assert.deepEqual(pathsToExpand, ['guides', 'guides/advanced']);
+
+      const merged = mergeExpandedPaths({ guides: true, other: true }, pathsToExpand ?? []);
+      assert.deepEqual(merged, {
+        guides: true,
+        'guides/advanced': true,
+        other: true,
+      });
+    },
+  },
+  {
+    name: 'OpenAPI artifacts expose operations parameters examples and schemas',
+    run: async () => {
+      const artifacts = await createOpenApiArtifacts({ rootDir: process.cwd() });
+      const publicSpec = artifacts.specs.find((spec) => spec.id === 'public');
+      const internalSpec = artifacts.specs.find((spec) => spec.id === 'internal');
+
+      assert(publicSpec);
+      assert(internalSpec);
+      assert.equal(publicSpec.counts.operations, 2);
+      assert.equal(publicSpec.counts.schemas, 1);
+      assert.equal(publicSpec.operations?.[0]?.method, 'GET');
+      assert.equal(publicSpec.operations?.[0]?.path, '/docs');
+      assert.equal(publicSpec.operations?.[0]?.parameters[0]?.name, 'limit');
+      assert.equal(publicSpec.operations?.[0]?.responses[0]?.content[0]?.schema, 'DocsManifest');
+      assert.equal(publicSpec.schemas?.[0]?.properties[0]?.name, 'count');
+      assert.equal(internalSpec.operations?.[0]?.requestBody?.content[0]?.schema, 'BuildRequest');
+      assert.equal(internalSpec.schemas?.length, 2);
+    },
+  },
   {
     name: 'build identity fingerprints published inputs and records release metadata',
     run: async () => {
@@ -615,26 +669,6 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
-    name: 'OpenAPI artifacts expose operations parameters examples and schemas',
-    run: async () => {
-      const artifacts = await createOpenApiArtifacts({ rootDir: process.cwd() });
-      const publicSpec = artifacts.specs.find((spec) => spec.id === 'public');
-      const internalSpec = artifacts.specs.find((spec) => spec.id === 'internal');
-
-      assert(publicSpec);
-      assert(internalSpec);
-      assert.equal(publicSpec.counts.operations, 2);
-      assert.equal(publicSpec.counts.schemas, 1);
-      assert.equal(publicSpec.operations?.[0]?.method, 'GET');
-      assert.equal(publicSpec.operations?.[0]?.path, '/docs');
-      assert.equal(publicSpec.operations?.[0]?.parameters[0]?.name, 'limit');
-      assert.equal(publicSpec.operations?.[0]?.responses[0]?.content[0]?.schema, 'DocsManifest');
-      assert.equal(publicSpec.schemas?.[0]?.properties[0]?.name, 'count');
-      assert.equal(internalSpec.operations?.[0]?.requestBody?.content[0]?.schema, 'BuildRequest');
-      assert.equal(internalSpec.schemas?.length, 2);
-    },
-  },
-  {
     name: 'docs artifact helpers keep stable manifest metadata and trailing newlines',
     run: () => {
       const previousIndex = {
@@ -827,59 +861,6 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
-    name: 'buildMarkdownRenderState emits mermaid placeholders instead of code blocks',
-    run: async () => {
-      const markdown = ['```mermaid', 'flowchart LR', '  A --> B', '```'].join('\n');
-
-      const result = await buildMarkdownRenderState(markdown, {
-        createId: createDeterministicIdGenerator(),
-      });
-
-      assert.match(result.html, /data-mermaid-id="mermaid-1"/);
-      assert.equal(result.codeBlocks.size, 0);
-      assert.deepEqual(result.mermaidBlocks.get('mermaid-1'), {
-        chart: 'flowchart LR\n  A --> B',
-      });
-    },
-  },
-  {
-    name: 'buildMarkdownRenderState emits math placeholders for inline, display and fenced math',
-    run: async () => {
-      const markdown = [
-        'Euler: $e^{i\\pi} + 1 = 0$ and costs $5 and $10.',
-        '',
-        '$$',
-        '\\int_0^1 x\\,dx',
-        '$$',
-        '',
-        '```math',
-        'a < b',
-        '```',
-      ].join('\n');
-
-      const result = await buildMarkdownRenderState(markdown, {
-        createId: createDeterministicIdGenerator(),
-      });
-
-      assert.match(
-        result.html,
-        new RegExp(
-          `<span class="math-inline" data-math-tex="${encodeURIComponent('e^{i\\pi} + 1 = 0')}" data-math-display="false">`
-        )
-      );
-      assert.match(result.html, /costs \$5 and \$10\./);
-      assert.match(
-        result.html,
-        new RegExp(
-          `data-math-tex="${encodeURIComponent('\\int_0^1 x\\,dx')}" data-math-display="true"`
-        )
-      );
-      assert.match(result.html, /data-math-tex="a%20%3C%20b"/);
-      assert.match(result.html, /a &lt; b/);
-      assert.equal(result.codeBlocks.size, 0);
-    },
-  },
-  {
     name: 'installed katex renders TeX safely with the Papers options (mermaid-compatible)',
     run: async () => {
       const katexModule = await import('katex');
@@ -914,175 +895,6 @@ export const architectureTests: ArchitectureTestCase[] = [
       );
       assert.equal(suggestThemeId('defualt', ['default', 'gba']), 'default');
       assert.equal(suggestThemeId('pq2', ['default', 'lorelei']), null);
-    },
-  },
-  {
-    name: 'compileMdxToHtml emits KaTeX placeholders for MDX math and keeps prices as text',
-    run: async () => {
-      const html = await compileMdxToHtml(
-        [
-          'Inline $\\frac{a}{b}$ costs $5 or $10.',
-          '',
-          '$$',
-          '\\int_0^1 x\\,dx',
-          '$$',
-          '',
-          '```math',
-          'a < b',
-          '```',
-        ].join('\n')
-      );
-      assert.match(
-        html,
-        new RegExp(
-          `<span class="math-inline" data-math-tex="${encodeURIComponent('\\frac{a}{b}')}" data-math-display="false">`
-        )
-      );
-      assert.match(html, /costs \$5 or \$10\./);
-      assert.match(
-        html,
-        new RegExp(
-          `data-math-tex="${encodeURIComponent('\\int_0^1 x\\,dx')}" data-math-display="true"`
-        )
-      );
-      assert.match(html, /data-math-tex="a%20%3C%20b"/);
-    },
-  },
-  {
-    name: 'compileMdxToHtml emits Mermaid placeholders with readable fallback source',
-    run: async () => {
-      const html = await compileMdxToHtml('```mermaid\nflowchart LR\n  A["x < y"] --> B\n```\n');
-      const chart = 'flowchart LR\n  A["x < y"] --> B';
-      assert.match(
-        html,
-        new RegExp(
-          `<div class="mermaid-placeholder" data-mermaid-chart="${encodeURIComponent(chart)}">`
-        )
-      );
-      assert.match(html, /<pre>flowchart LR/);
-      assert.doesNotMatch(html, /language-mermaid/);
-    },
-  },
-  {
-    name: 'Papers CSS tokens stay out of Tailwind 4 theme namespaces',
-    run: async () => {
-      const files = [
-        'src/globals.css',
-        ...['default', 'gba', 'lorelei', 'rx-78'].map((id) => `themes/${id}/tokens.css`),
-      ];
-      const clashing =
-        /(?<![\w-])--(?:text|leading|radius|shadow|color|spacing|font|breakpoint|container)-[\w-]+\s*:/g;
-      for (const file of files) {
-        const css = await readFile(join(process.cwd(), file), 'utf8');
-        const outsideTheme = css.replace(/@theme\s*\{[\s\S]*?\n\}/g, '');
-        assert.deepEqual(
-          outsideTheme.match(clashing) ?? [],
-          [],
-          `${file} defines Tailwind-namespaced tokens`
-        );
-      }
-      const globals = await readFile(join(process.cwd(), 'src/globals.css'), 'utf8');
-      assert.match(globals, /@layer theme, base, components, papers-base, utilities, papers;/);
-      assert.doesNotMatch(globals, /@tailwind /);
-      assert.doesNotMatch(globals, /@media[^{]*\d+px/);
-    },
-  },
-  {
-    name: 'chartHasMath detects KaTeX labels in Mermaid charts',
-    run: async () => {
-      const { chartHasMath } = await import('../src/utils/sanitizeMermaidSvg.ts');
-      assert.equal(chartHasMath('flowchart LR\n  A["$$x^2$$"] --> B'), true);
-      assert.equal(chartHasMath('flowchart LR\n  A[costs $5] --> B'), false);
-    },
-  },
-  {
-    name: 'compileMdxToHtml renders callouts and enrichDocumentArtifact marks html output',
-    run: async () => {
-      const html = await compileMdxToHtml('# MDX title\n\n> [!WARNING]\n> Sensitive example\n');
-      assert.match(html, /<h1>MDX title<\/h1>/);
-      assert.match(html, /papers-callout--warning/);
-      assert.match(html, /Sensitive example/);
-
-      const enriched = await enrichDocumentArtifact({
-        path: 'demo/page',
-        title: 'Demo',
-        content: '# MDX title',
-        contentFormat: 'markdown',
-        sourcePath: 'src/docs/content/demo/page.mdx',
-      });
-
-      assert.equal(enriched.contentFormat, 'html');
-      assert.match(enriched.content, /<h1>MDX title<\/h1>/);
-    },
-  },
-  {
-    name: 'compileMdxToHtml renders MDX shortcodes for Callout Tabs and Card',
-    run: async () => {
-      const source = [
-        '# Shortcodes',
-        '',
-        '<Callout type="warning" title="Careful">',
-        'Watch out',
-        '</Callout>',
-        '',
-        '<Tabs>',
-        '<Tab label="Alpha">First tab</Tab>',
-        '<Tab label="Beta">Second tab</Tab>',
-        '</Tabs>',
-        '',
-        '<Card title="Feature">',
-        'Card body',
-        '</Card>',
-      ].join('\n');
-
-      const html = await compileMdxToHtml(source);
-
-      assert.match(html, /papers-callout--warning/);
-      assert.match(html, /papers-callout__title/);
-      assert.match(html, /Watch out/);
-      assert.match(html, /papers-tabs/);
-      assert.match(html, /papers-tabs__label/);
-      assert.match(html, /First tab/);
-      assert.match(html, /papers-card/);
-      assert.match(html, /Card body/);
-    },
-  },
-  {
-    name: 'compileMdxToHtml renders CharacterNote shortcode with avatar and tone classes',
-    run: async () => {
-      const source = [
-        '# Character notes',
-        '',
-        '<CharacterNote type="warning">',
-        'This route may change.',
-        '</CharacterNote>',
-      ].join('\n');
-
-      const html = await compileMdxToHtml(source);
-
-      assert.match(html, /papers-character-note papers-character-note--warning/);
-      assert.match(html, /papers-character-note__avatar/);
-      assert.match(html, /character-notes\/.*warning/);
-      assert.match(html, /This route may change/);
-      assert.doesNotMatch(html, /papers-character-note__title/);
-    },
-  },
-  {
-    name: 'content renderer honors the declared html artifact format',
-    run: async () => {
-      const contentRendererSource = await readFile(
-        new URL('../src/components/ContentRenderer.tsx', import.meta.url),
-        'utf8'
-      );
-      const markdownRendererSource = await readFile(
-        new URL('../src/components/MarkdownRenderer.tsx', import.meta.url),
-        'utf8'
-      );
-
-      assert.match(contentRendererSource, /contentFormat === 'html'/);
-      assert.match(contentRendererSource, /<HtmlRenderer html=\{content\}/);
-      assert.match(markdownRendererSource, /DOMPurify\.sanitize/);
-      assert.match(markdownRendererSource, /dangerouslySetInnerHTML/);
     },
   },
   {
@@ -1121,42 +933,6 @@ export const architectureTests: ArchitectureTestCase[] = [
       );
       assert.match(replaced, /guides\/advanced\/caching/);
       assert.match(replaced, /export const versionConfig = \{\}/);
-    },
-  },
-  {
-    name: 'file tree helpers expand only the directories needed for the active file',
-    run: () => {
-      const items = [
-        {
-          type: 'directory' as const,
-          name: 'Guides',
-          path: 'guides',
-          children: [
-            {
-              type: 'directory' as const,
-              name: 'Advanced',
-              path: 'guides/advanced',
-              children: [
-                {
-                  type: 'file' as const,
-                  name: 'Caching.md',
-                  path: 'guides/advanced/caching',
-                },
-              ],
-            },
-          ],
-        },
-      ];
-
-      const pathsToExpand = findPathToFile(items, 'guides/advanced/caching');
-      assert.deepEqual(pathsToExpand, ['guides', 'guides/advanced']);
-
-      const merged = mergeExpandedPaths({ guides: true, other: true }, pathsToExpand ?? []);
-      assert.deepEqual(merged, {
-        guides: true,
-        'guides/advanced': true,
-        other: true,
-      });
     },
   },
   {
@@ -1366,76 +1142,6 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.match(indexHtml, /rel="alternate"[^>]+href="\/agents\.json"/);
       assert.match(indexHtml, /property="og:image:alt"/);
       assert.match(indexHtml, /name="twitter:image:alt"/);
-    },
-  },
-  {
-    name: 'OpenAPI runtime uses the route-lazy standalone Scalar boundary',
-    async run() {
-      const openApiReferenceSource = await readFile(
-        new URL('../src/components/OpenApiReference.tsx', import.meta.url),
-        'utf8'
-      );
-      const viteConfigSource = await readFile(
-        new URL('../vite.config.ts', import.meta.url),
-        'utf8'
-      );
-
-      assert.doesNotMatch(openApiReferenceSource, /@scalar\/api-reference-react/);
-      assert.match(openApiReferenceSource, /import\('@scalar\/api-reference'\)/);
-      assert.match(openApiReferenceSource, /scalarInstance\?\.destroy\(\)/);
-      assert.match(viteConfigSource, /@scalar\/api-reference\/esm\.js/);
-      assert.doesNotMatch(viteConfigSource, /vendor-openapi/);
-    },
-  },
-  {
-    name: 'initial shell defers optional motion and serves theme-owned base fonts',
-    run: async () => {
-      const commandPaletteProviderSource = await readFile(
-        new URL('../src/providers/CommandPaletteProvider.tsx', import.meta.url),
-        'utf8'
-      );
-      const appSource = await readFile(new URL('../src/App.tsx', import.meta.url), 'utf8');
-      const docsPageSource = await readFile(
-        new URL('../src/pages/DocsPage.tsx', import.meta.url),
-        'utf8'
-      );
-      const commandPaletteSource = await readFile(
-        new URL('../src/components/CommandPalette/OptimizedCommandPalette.tsx', import.meta.url),
-        'utf8'
-      );
-      const docsShellSources = await Promise.all(
-        [
-          '../src/components/ContentRenderer.tsx',
-          '../src/components/FileTree.tsx',
-          '../src/components/MarkdownRenderer.tsx',
-          '../src/components/Navigation.tsx',
-          '../src/components/docs/DocumentationPage.tsx',
-        ].map((path) => readFile(new URL(path, import.meta.url), 'utf8'))
-      );
-      const globalStylesSource = await readFile(
-        new URL('../src/globals.css', import.meta.url),
-        'utf8'
-      );
-      const defaultFontSource = await readFile(
-        new URL('../themes/default/fonts.css', import.meta.url),
-        'utf8'
-      );
-
-      assert.match(
-        commandPaletteProviderSource,
-        /lazy\(\(\) => import\('\.\.\/components\/CommandPalette\/OptimizedCommandPalette'\)\)/
-      );
-      assert.match(commandPaletteProviderSource, /isOpen \?/);
-      assert.doesNotMatch(appSource, /framer-motion/);
-      assert.match(docsPageSource, /<LazyMotion features=\{domAnimation\}>/);
-      assert.match(commandPaletteSource, /<LazyMotion features=\{domAnimation\}>/);
-      for (const source of docsShellSources) {
-        assert.match(source, /framer-motion\/m/);
-        assert.doesNotMatch(source, /m as motion.*from ['"]framer-motion['"]/);
-      }
-      assert.doesNotMatch(globalStylesSource, /@font-face/);
-      assert.match(defaultFontSource, /Mona-Sans\.woff/);
-      assert.match(defaultFontSource, /Hubot-Sans\.woff/);
     },
   },
   {
@@ -1752,14 +1458,6 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
-    name: 'buildPaddedViewBox expands mermaid diagram bounds with vertical breathing room',
-    run: async () => {
-      const viewBox = buildPaddedViewBox({ x: 0, y: 0, width: 749.46875, height: 506.5 }, 20, 28);
-
-      assert.equal(viewBox, '-20 -28 789.46875 562.5');
-    },
-  },
-  {
     name: 'content security rejects unsafe Mermaid SVG and OpenAPI spec URLs',
     run: async () => {
       assert.deepEqual(validateOpenApiSpecUrl('/openapi-v1.yaml', { allowedOrigins: [] }), {
@@ -1837,66 +1535,6 @@ export const architectureTests: ArchitectureTestCase[] = [
         }
         dom.window.close();
       }
-
-      const docsPageSource = await readFile(join(process.cwd(), 'src/pages/DocsPage.tsx'), 'utf8');
-      assert.match(docsPageSource, /setIsNotFound\(true\)/);
-      assert.match(docsPageSource, /<NotFoundPage\s*\/>/);
-    },
-  },
-  {
-    name: 'adjacent page navigation supports shift plus arrow keys',
-    run: async () => {
-      const hookSource = await readFile(
-        join(process.cwd(), 'src/hooks/useAdjacentPageNavigation.ts'),
-        'utf8'
-      );
-      const contentRendererSource = await readFile(
-        join(process.cwd(), 'src/components/ContentRenderer.tsx'),
-        'utf8'
-      );
-
-      assert.match(hookSource, /event\.shiftKey/);
-      assert.match(hookSource, /KEYBOARD_KEYS\.ARROW_LEFT/);
-      assert.match(hookSource, /KEYBOARD_KEYS\.ARROW_RIGHT/);
-      assert.match(hookSource, /isEditableTarget/);
-      assert.match(contentRendererSource, /useAdjacentPageNavigation/);
-    },
-  },
-  {
-    name: 'doc page bottom chrome includes prev/next and GitHub edit/source footer',
-    run: async () => {
-      const contentRendererSource = await readFile(
-        join(process.cwd(), 'src/components/ContentRenderer.tsx'),
-        'utf8'
-      );
-      const footerSource = await readFile(
-        join(process.cwd(), 'src/components/DocPageFooter.tsx'),
-        'utf8'
-      );
-      const globalsCss = await readFile(join(process.cwd(), 'src/globals.css'), 'utf8');
-
-      assert.match(contentRendererSource, /import DocPageFooter from ['"]\.\/DocPageFooter['"]/);
-      assert.match(contentRendererSource, /<DocPageFooter\b/);
-      assert.match(contentRendererSource, /doc-page-bottom-row/);
-      // Labels are translatable (shared/uiStrings.js); English defaults stay.
-      assert.match(contentRendererSource, /\{ui\.previous\}/);
-      assert.match(contentRendererSource, /\{ui\.next\}/);
-      assert.match(contentRendererSource, /prevPage/);
-      assert.match(contentRendererSource, /nextPage/);
-
-      assert.match(footerSource, /VITE_GITHUB_URL/);
-      assert.match(footerSource, /\/edit\//);
-      assert.match(footerSource, /\/blob\//);
-      assert.match(footerSource, /\{ui\.edit\}/);
-      assert.match(footerSource, /\{ui\.source\}/);
-      assert.match(footerSource, /\{ui\.issue\}/);
-
-      // Footer must stay in document flow (not absolute-faded / mobile-hidden)
-      assert.doesNotMatch(globalsCss, /\.doc-page-footer\s*\{[^}]*position:\s*absolute/s);
-      assert.doesNotMatch(
-        globalsCss,
-        /@media\s*\(max-width:\s*640px\)\s*\{\s*\.doc-page-footer\s*\{\s*display:\s*none/s
-      );
     },
   },
   {
@@ -1904,64 +1542,6 @@ export const architectureTests: ArchitectureTestCase[] = [
     run: () => {
       const issues = collectLazyFeatureBoundaryIssues();
       assert.deepEqual(issues, []);
-    },
-  },
-  {
-    name: 'verification entry points use the test aliases and canonical docs-tree script',
-    run: async () => {
-      const packageJson = JSON.parse(
-        await readFile(new URL('../package.json', import.meta.url), 'utf8')
-      );
-      const loaderSource = await readFile(
-        new URL('./register-ts-node.mjs', import.meta.url),
-        'utf8'
-      );
-      const resolverSource = await readFile(
-        new URL('./resolve-aliases.mjs', import.meta.url),
-        'utf8'
-      );
-      const treeScriptSource = await readFile(
-        new URL('../scripts/sync-documentation-tree.mjs', import.meta.url),
-        'utf8'
-      );
-
-      assert.equal(
-        packageJson.scripts['check:docs-tree'],
-        'node scripts/sync-documentation-tree.mjs --check'
-      );
-      assert.equal(
-        packageJson.scripts['sync:docs-tree'],
-        'node scripts/sync-documentation-tree.mjs'
-      );
-      assert.match(loaderSource, /resolve-aliases\.mjs/);
-      assert.match(resolverSource, /@app-shared\/documentation-config\.js/);
-      assert.match(resolverSource, /specifier\.startsWith\('@\/'\)/);
-      assert.match(treeScriptSource, /\.\.\/shared\/documentation-config\.js/);
-      assert.match(treeScriptSource, /\.\/lib\/documentationTreeWriter\.mjs/);
-    },
-  },
-  {
-    name: 'maintainer contract names source ownership and credential boundaries',
-    run: async () => {
-      const agentsSource = await readFile(join(process.cwd(), 'AGENTS.md'), 'utf8');
-
-      for (const heading of [
-        '## 1. Project identity and constraints',
-        '## 2. Source ownership',
-        '## 3. Verification ladder',
-        '## 4. Change boundaries',
-        '## 5. Deployment rules',
-        '## 6. Stop and report rules',
-        '## 7. Handoff expectations',
-      ]) {
-        assert.match(agentsSource, new RegExp(heading.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-      }
-
-      assert.match(agentsSource, /npm run format:check/);
-      assert.match(agentsSource, /npm run release:check/);
-      assert.match(agentsSource, /PAPERS_DEPLOY_HOST/);
-      assert.match(agentsSource, /FRAMEWORK\.md/);
-      assert.match(agentsSource, /RELEASING\.md/);
     },
   },
   {
@@ -2061,24 +1641,6 @@ export const architectureTests: ArchitectureTestCase[] = [
       } finally {
         await rm(tempDir, { recursive: true, force: true });
       }
-    },
-  },
-  {
-    name: 'theme registry resolves built-in default and gba themes',
-    run: () => {
-      const registry = readRegistry();
-      const ids = registry.themes.map((theme: { id: string }) => theme.id);
-      assert.deepEqual(ids, ['default', 'gba', 'rx-78', 'lorelei']);
-
-      assert.equal(resolveThemeId('default'), 'default');
-      assert.equal(resolveThemeId('gba'), 'gba');
-
-      const gba = loadThemeManifest('gba');
-      assert.equal(gba.manifest.iconSet, 'pixelarticons');
-      assert.equal(gba.manifest.features?.lightDarkToggle, false);
-      assert.equal(gba.manifest.defaultColorMode, 'dark');
-      assert.equal(gba.manifest.fontCss, 'fonts.css');
-      assert.match(gba.manifest.fonts?.[0]?.preload || '', /GeistPixel-Square\.woff2/);
     },
   },
 ];

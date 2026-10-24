@@ -135,3 +135,11 @@ jobs:
 
       - name: Run browser smoke suite
         run: npx playwright test
+
+      - name: Upload browser test evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: browser-test-results
+          path: test-results
+          if-no-files-found: warn

@@ -44,6 +44,20 @@ npm run lighthouse:check
 resolution, `npm run build`, and browser/Lighthouse setup can write local
 artifacts or caches; inspect `git status` afterward.
 
+### Testing policy
+
+- Never write unit tests after you write code.
+- Highly prefer E2E tests as the sole testing mechanism. Use them to verify
+  complex features work. At the end of E2E tests, produce a verifiable and
+  repeatable artifact.
+- If you must test a system in isolation, first write down all the ways it
+  could fail, then write the code.
+
+Keep an isolated test only when it catches a concrete failure the E2E suite
+misses, such as malicious input, invalid author configuration, or build-time
+invariants. Do not add tests that merely restate implementation details or
+duplicate a covered browser journey.
+
 ## 4. Change boundaries
 
 Preserve published route paths, canonical URLs, artifact names, and direct

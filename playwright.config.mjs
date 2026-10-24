@@ -5,7 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  reporter: 'list',
+  outputDir: 'test-results/artifacts',
+  reporter: [['list'], ['html', { outputFolder: 'test-results/report', open: 'never' }]],
   use: {
     baseURL: 'http://127.0.0.1:3333',
     trace: 'retain-on-failure',

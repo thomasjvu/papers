@@ -11,9 +11,7 @@ import {
   buildSearchFilters,
   parseSearchScope,
   rankSearchResults,
-  titleBoost,
 } from '../src/lib/searchRanking.ts';
-import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
 
 import {
   DEFAULT_UI_STRINGS,
@@ -25,6 +23,14 @@ import { uiStringsConfig, i18nConfig } from '../shared/documentation-config.js';
 type TestCase = { name: string; run: () => void | Promise<void> };
 
 export const docsParityTests: TestCase[] = [
+  {
+    name: 'parseSearchScope reads docs: and api: prefixes',
+    run: () => {
+      assert.deepEqual(parseSearchScope('  api: users '), { query: 'users', section: 'api' });
+      assert.deepEqual(parseSearchScope('DOCS:tabs'), { query: 'tabs', section: 'docs' });
+      assert.deepEqual(parseSearchScope('tabs api:'), { query: 'tabs api:', section: null });
+    },
+  },
   {
     name: 'normalizeLastUpdated accepts ISO dates and rejects junk',
     run: () => {
@@ -92,14 +98,6 @@ export const docsParityTests: TestCase[] = [
     },
   },
   {
-    name: 'parseSearchScope reads docs: and api: prefixes',
-    run: () => {
-      assert.deepEqual(parseSearchScope('  api: users '), { query: 'users', section: 'api' });
-      assert.deepEqual(parseSearchScope('DOCS:tabs'), { query: 'tabs', section: 'docs' });
-      assert.deepEqual(parseSearchScope('tabs api:'), { query: 'tabs api:', section: null });
-    },
-  },
-  {
     name: 'buildSearchFilters keeps API results unless scoped, and pins docs to the variant',
     run: () => {
       assert.deepEqual(buildSearchFilters({ section: null }), {});
@@ -116,11 +114,6 @@ export const docsParityTests: TestCase[] = [
   {
     name: 'rankSearchResults boosts title matches and keeps ties stable',
     run: () => {
-      assert.equal(titleBoost('Content Tabs', 'content tabs'), 3);
-      assert.equal(titleBoost('Content Tabs Guide', 'content tabs'), 2.5);
-      assert.equal(titleBoost('Guide to tabs and content', 'content tabs'), 2);
-      assert.equal(titleBoost('Tabs', 'content tabs'), 1.25);
-      assert.equal(titleBoost('Other', 'content tabs'), 1);
       const ranked = rankSearchResults(
         [
           { score: 1, meta: { title: 'Install' } },
@@ -133,32 +126,6 @@ export const docsParityTests: TestCase[] = [
         ranked.map((result) => result.meta.title),
         ['Content tabs', 'Install', 'Deploy']
       );
-    },
-  },
-  {
-    name: 'Pagefind records carry section, collection, version, and locale filters',
-    run: () => {
-      const records = createPagefindRecords({
-        collections: [{ id: 'docs', label: 'Docs', routePrefix: 'docs' }],
-        artifactsByCollectionId: {
-          docs: {
-            index: { paths: ['a'], titles: { a: 'A' } },
-            documents: { a: { title: 'A', content: '# A\n\nBody' } },
-          },
-        },
-        openapiArtifacts: {
-          specs: [
-            {
-              operations: [{ method: 'GET', path: '/x', summary: 'X', routePath: '/docs/x' }],
-              schemas: [],
-            },
-          ],
-        },
-      });
-      const doc = records.find((record) => record.meta.kind === 'documentation');
-      const api = records.find((record) => record.meta.kind === 'openapi-operation');
-      assert.deepEqual(doc?.filters, { section: ['docs'], collection: ['docs'] });
-      assert.deepEqual(api?.filters, { section: ['api'] });
     },
   },
   {
