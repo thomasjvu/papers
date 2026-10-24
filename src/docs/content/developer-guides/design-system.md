@@ -85,8 +85,13 @@ Code styling is controlled by dedicated variables in `src/globals.css`, includin
 - `--code-muted-color`
 - `--inline-code-bg`
 - `--inline-code-border-color`
+- `--code-inserted-color` and `--code-deleted-color` for diff text and markers
+- `--code-inserted-bg` and `--code-deleted-bg` for added and removed lines
+- `--code-inserted-border` and `--code-deleted-border` for the line edge
+  (optional, they default to the text colors)
 
-Use those instead of hardcoded syntax colors.
+Use those instead of hardcoded syntax colors. Each bundled theme sets its own
+diff colors, so added and removed lines match the theme palette.
 
 ## Shell Tokens To Prefer
 

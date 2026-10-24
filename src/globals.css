@@ -277,6 +277,10 @@
     --code-line-number-color: #a1a1aa;
     --code-active-bg: #111111;
     --code-active-text: #ffffff;
+    --code-inserted-color: #15803d;
+    --code-deleted-color: #b91c1c;
+    --code-inserted-bg: rgba(22, 163, 74, 0.1);
+    --code-deleted-bg: rgba(220, 38, 38, 0.09);
     --code-font-size: 0.9375rem;
     --code-inline-font-size: 0.875rem;
     --code-label-size: 0.8125rem;
@@ -416,6 +420,10 @@
     --code-line-number-color: #71717a;
     --code-active-bg: #f5f5f5;
     --code-active-text: #111111;
+    --code-inserted-color: #4ade80;
+    --code-deleted-color: #f87171;
+    --code-inserted-bg: rgba(74, 222, 128, 0.12);
+    --code-deleted-bg: rgba(248, 113, 113, 0.12);
     --inline-code-bg: #151515;
     --inline-code-border-color: #27272a;
     --inline-code-text-color: #f5f5f5;

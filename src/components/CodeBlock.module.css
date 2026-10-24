@@ -107,13 +107,13 @@
   }
 
   .codeLineAdded {
-    background-color: rgba(34, 160, 90, 0.14);
-    border-left-color: rgb(34, 160, 90);
+    background-color: var(--code-inserted-bg, rgba(34, 160, 90, 0.14));
+    border-left-color: var(--code-inserted-border, var(--code-inserted-color, rgb(34, 160, 90)));
   }
 
   .codeLineRemoved {
-    background-color: rgba(214, 60, 60, 0.14);
-    border-left-color: rgb(214, 60, 60);
+    background-color: var(--code-deleted-bg, rgba(214, 60, 60, 0.14));
+    border-left-color: var(--code-deleted-border, var(--code-deleted-color, rgb(214, 60, 60)));
   }
 
   .codeBlockContent :global(.code-word-highlight) {

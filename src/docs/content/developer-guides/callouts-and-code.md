@@ -156,6 +156,11 @@ not depend on color alone.
    }
 ```
 
+Diff colors come from the theme. Each bundled theme sets
+`--code-inserted-color`, `--code-deleted-color`, `--code-inserted-bg` and
+`--code-deleted-bg` to match its palette. Set them in your theme's
+`tokens.css` to change them.
+
 To colour the code as well, add the language after `diff-`, for example
 `diff-ts` or `diff-json`:
 

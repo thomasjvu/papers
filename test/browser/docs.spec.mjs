@@ -286,6 +286,37 @@ test('callouts, GitHub alerts, and code fence metadata render accessibly', async
     .locator('xpath=../..');
   await expect(packageDiff.locator('[data-line-kind="added"]')).toHaveCount(1);
   await expect(packageDiff.locator('[data-line-kind="removed"]')).toHaveCount(1);
+
+  // Diff lines take their colors from the theme tokens.
+  const diffColors = () =>
+    packageDiff.evaluate((block) => {
+      const root = getComputedStyle(document.documentElement);
+      const added = block.querySelector('[data-line-kind="added"]');
+      const removed = block.querySelector('[data-line-kind="removed"]');
+      const probe = document.createElement('span');
+      document.body.append(probe);
+      const resolve = (token) => {
+        probe.style.backgroundColor = root.getPropertyValue(token).trim();
+        return getComputedStyle(probe).backgroundColor;
+      };
+      const result = {
+        added: getComputedStyle(added).backgroundColor,
+        removed: getComputedStyle(removed).backgroundColor,
+        addedEdge: getComputedStyle(added).borderLeftColor,
+        insertedBg: resolve('--code-inserted-bg'),
+        deletedBg: resolve('--code-deleted-bg'),
+      };
+      probe.remove();
+      return result;
+    });
+  const light = await diffColors();
+  expect(light.added).toBe(light.insertedBg);
+  expect(light.removed).toBe(light.deletedBg);
+  expect(light.added).not.toBe(light.removed);
+  await page.evaluate(() => document.documentElement.classList.add('dark'));
+  const dark = await diffColors();
+  expect(dark.added).toBe(dark.insertedBg);
+  expect(dark.addedEdge).not.toBe(light.addedEdge);
   await assertNoRuntimeErrors(errors);
 });
 
