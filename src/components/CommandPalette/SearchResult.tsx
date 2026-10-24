@@ -1,5 +1,6 @@
 import { button as MotionButton } from 'framer-motion/m';
 import React from 'react';
+import { useUiStrings } from '../../lib/uiStrings';
 
 export interface SearchResultType {
   title: string;
@@ -32,6 +33,7 @@ function getShortcutLabel(shortcut: string): string {
 
 const SearchResult: React.FC<SearchResultProps> = React.memo(
   ({ result, index, isSelected, onSelect, onMouseEnter }) => {
+    const ui = useUiStrings();
     return (
       <MotionButton
         key={result.path}
@@ -86,7 +88,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
                 fontFamily: 'var(--mono-font)',
               }}
             >
-              action
+              {ui.badgeAction}
             </span>
           )}
           {result.type === 'faq' && (
@@ -99,7 +101,7 @@ const SearchResult: React.FC<SearchResultProps> = React.memo(
                 fontFamily: 'var(--mono-font)',
               }}
             >
-              faq
+              {ui.badgeFaq}
             </span>
           )}
         </div>

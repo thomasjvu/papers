@@ -312,7 +312,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                             className="text-xs uppercase tracking-[0.2em] mb-1"
                             style={{ color: 'var(--muted-color)', fontFamily: 'var(--mono-font)' }}
                           >
-                            FAQ Preview
+                            {ui.faqPreview}
                           </div>
                           <div
                             className="text-sm font-semibold"
@@ -353,7 +353,9 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                         >
                           down
                         </kbd>{' '}
-                        <span style={{ fontFamily: 'var(--mono-font)' }}>to navigate</span>
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>
+                          {ui.paletteNavigateHint}
+                        </span>
                       </span>
                       <span>
                         <kbd
@@ -362,7 +364,7 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                         >
                           enter
                         </kbd>{' '}
-                        <span style={{ fontFamily: 'var(--mono-font)' }}>to open or preview</span>
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>{ui.paletteOpenHint}</span>
                       </span>
                       <span>
                         <kbd
@@ -371,7 +373,9 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
                         >
                           esc
                         </kbd>{' '}
-                        <span style={{ fontFamily: 'var(--mono-font)' }}>to close</span>
+                        <span style={{ fontFamily: 'var(--mono-font)' }}>
+                          {ui.paletteCloseHint}
+                        </span>
                       </span>
                     </div>
                   </div>

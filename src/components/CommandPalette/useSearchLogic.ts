@@ -22,6 +22,7 @@ import {
   resolveSearchSection,
   type SearchScopeFilter,
 } from '../../lib/searchRanking.ts';
+import { formatUiString, useUiStrings } from '../../lib/uiStrings.ts';
 
 const FAQ_ITEMS = [
   {
@@ -116,15 +117,20 @@ function getCollectionRouteContext(pathname: string) {
 }
 
 const FONT_OPTIONS = [
-  { value: 'sans-serif' as const, label: 'Sans Serif', icon: 'mingcute:font-size-line' },
-  { value: 'mono' as const, label: 'Monospace', icon: 'mingcute:code-line' },
-  { value: 'serif' as const, label: 'Serif', icon: 'mingcute:text-line' },
+  {
+    value: 'sans-serif' as const,
+    labelKey: 'fontSansSerif' as const,
+    icon: 'mingcute:font-size-line',
+  },
+  { value: 'mono' as const, labelKey: 'fontMonospace' as const, icon: 'mingcute:code-line' },
+  { value: 'serif' as const, labelKey: 'fontSerif' as const, icon: 'mingcute:text-line' },
 ];
 
 export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = 'all') => {
   const { isDarkMode, toggleDarkMode, prefersReducedMotion, toggleReducedMotion, setFontFamily } =
     useTheme();
   const debouncedQuery = useDebounce(query, 150);
+  const ui = useUiStrings();
   const { search: pagefindSearch, isAvailable: pagefindAvailable } = usePagefind();
   const [pagefindResults, setPagefindResults] = useState<SearchResultType[]>([]);
   const latestQueryRef = useRef('');
@@ -196,7 +202,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
   const preferenceCommands = useMemo<SearchResultType[]>(() => {
     const commands: SearchResultType[] = [
       {
-        title: isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+        title: isDarkMode ? ui.commandLightMode : ui.commandDarkMode,
         path: 'theme-toggle',
         type: 'theme',
         action: toggleDarkMode,
@@ -206,7 +212,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
         shortcut: 'I',
       },
       {
-        title: prefersReducedMotion ? 'Enable Motion' : 'Reduce Motion',
+        title: prefersReducedMotion ? ui.commandEnableMotion : ui.commandReduceMotion,
         path: 'motion-toggle',
         type: 'action',
         action: toggleReducedMotion,
@@ -218,7 +224,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
 
     FONT_OPTIONS.forEach((option) => {
       commands.push({
-        title: `Font: ${option.label}`,
+        title: formatUiString(ui.commandFont, { font: ui[option.labelKey] }),
         path: `font-${option.value}`,
         type: 'action',
         action: () => setFontFamily(option.value),
@@ -233,10 +239,10 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
         if (locale === activeLocale) continue;
         const label = getLocaleLabel(locale);
         commands.push({
-          title: `Switch to ${label}`,
+          title: formatUiString(ui.commandSwitchLocale, { language: label }),
           path: `locale:${locale}`,
           type: 'action',
-          description: `Change documentation language to ${label}`,
+          description: formatUiString(ui.commandSwitchLocaleDescription, { language: label }),
           action: () => {
             if (!routeContext.collection) return;
             navigate(
@@ -267,13 +273,14 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
     routeContext.docPath,
     routeContext.collection,
     routeContext.i18nConfig,
+    ui,
   ]);
 
   const searchIndex = useMemo(() => {
     const results: SearchResultType[] = [...preferenceCommands];
 
     results.push({
-      title: 'LLMs.txt - AI Documentation',
+      title: ui.commandLlms,
       path: '/llms.txt',
       type: 'page',
       icon: createElement(Icon, { icon: 'mingcute:file-line', className: 'w-5 h-5' }),
@@ -282,7 +289,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
 
     const siteName = import.meta.env.VITE_SITE_NAME || 'Docs';
     results.push({
-      title: `Agent Skill - ${siteName}`,
+      title: formatUiString(ui.commandAgentSkill, { site: siteName }),
       path: '/skill.md',
       type: 'page',
       icon: createElement(Icon, { icon: 'mingcute:magic-2-line', className: 'w-5 h-5' }),
@@ -331,7 +338,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
 
     if (homepageConfig.enabled) {
       results.push({
-        title: 'Go to Homepage',
+        title: ui.commandHomepage,
         path: '/',
         type: 'action',
         icon: createElement(Icon, { icon: 'mingcute:home-2-line', className: 'w-5 h-5' }),
@@ -342,6 +349,7 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
     return results;
   }, [
     preferenceCommands,
+    ui,
     routeContext.activeLocale,
     routeContext.activeVersion,
     routeContext.collection,

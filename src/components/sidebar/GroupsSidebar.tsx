@@ -7,6 +7,7 @@ import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docs
 import safeLocalStorage from '../../utils/storage';
 
 import styles from './GroupsSidebar.module.css';
+import { useUiStrings } from '../../lib/uiStrings';
 
 type GroupsSidebarProps = {
   items: FileItem[];
@@ -53,6 +54,7 @@ export default function GroupsSidebar({
   currentPath,
   defaultOpenAll = true,
 }: GroupsSidebarProps) {
+  const ui = useUiStrings();
   const location = useLocation();
   const docsRouteSlug = location.pathname.startsWith('/docs')
     ? location.pathname.replace(/^\/docs\/?/, '')
@@ -120,7 +122,7 @@ export default function GroupsSidebar({
   };
 
   return (
-    <nav className={styles.nav} aria-label="Documentation">
+    <nav className={styles.nav} aria-label={ui.sidebarNavigation}>
       {rootFiles.length > 0 && (
         <div className={styles.rootLinks}>{rootFiles.map((file) => renderFileLink(file))}</div>
       )}

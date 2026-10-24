@@ -8,6 +8,7 @@ import GraphLegend from './GraphLegend';
 import GraphLinks from './GraphLinks';
 import GraphNode from './GraphNode';
 import { useGraphLogic, type GraphNode as GraphNodeType, type GraphLink } from './useGraphLogic';
+import { useUiStrings } from '../../lib/uiStrings';
 
 interface OptimizedDocumentationGraphProps {
   currentPath?: string;
@@ -35,6 +36,7 @@ export default function OptimizedDocumentationGraph({
   layoutMode = 'sidebar',
   onExpandRequest,
 }: OptimizedDocumentationGraphProps) {
+  const ui = useUiStrings();
   const instanceId = useId();
   const svgRef = useRef<SVGSVGElement>(null);
   const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
@@ -335,7 +337,9 @@ export default function OptimizedDocumentationGraph({
         <input
           key={`search-${graphRenderKey}`}
           type="text"
-          placeholder={isSidebarView ? 'Search docs...' : 'Search documents...'}
+          placeholder={
+            isSidebarView ? ui.mindmapSearchPlaceholder : ui.mindmapSearchPlaceholderExpanded
+          }
           onChange={handleSearchChange}
           className={`w-full rounded-lg border outline-hidden transition-colors ${
             isSidebarView ? 'px-2 py-1 text-xs' : 'px-3 py-2 text-sm'
@@ -383,8 +387,8 @@ export default function OptimizedDocumentationGraph({
             onClick={onExpandRequest}
             className="ui-control-ghost absolute bottom-2 right-3 z-10 flex h-7 w-7 items-center justify-center rounded-md"
             style={{ fontFamily: 'var(--mono-font)', color: 'var(--mindmap-text-color)' }}
-            aria-label="Expand interactive map"
-            title="Expand map"
+            aria-label={ui.mindmapExpand}
+            title={ui.mindmapExpandShort}
           >
             <Icon icon="mingcute:fullscreen-line" className="h-4 w-4" />
           </button>

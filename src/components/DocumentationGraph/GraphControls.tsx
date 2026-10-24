@@ -1,4 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
+
+import { useUiStrings } from '../../lib/uiStrings';
 
 interface GraphControlsProps {
   scale: number;
@@ -19,6 +21,7 @@ const monoStyle = { fontFamily: 'var(--mono-font)' };
 
 const GraphControls: React.FC<GraphControlsProps> = React.memo(
   ({ scale, canReset, onZoomIn, onZoomOut, onResetZoom, minScale, maxScale, isSidebarView }) => {
+    const ui = useUiStrings();
     if (isSidebarView) {
       return null;
     }
@@ -29,7 +32,8 @@ const GraphControls: React.FC<GraphControlsProps> = React.memo(
           onClick={onZoomOut}
           className={controlButtonClass}
           style={monoStyle}
-          title="Zoom out"
+          title={ui.mindmapZoomOut}
+          aria-label={ui.mindmapZoomOut}
           disabled={scale <= minScale}
           type="button"
         >
@@ -39,7 +43,8 @@ const GraphControls: React.FC<GraphControlsProps> = React.memo(
           onClick={onZoomIn}
           className={controlButtonClass}
           style={monoStyle}
-          title="Zoom in"
+          title={ui.mindmapZoomIn}
+          aria-label={ui.mindmapZoomIn}
           disabled={scale >= maxScale}
           type="button"
         >
@@ -50,10 +55,10 @@ const GraphControls: React.FC<GraphControlsProps> = React.memo(
             onClick={onResetZoom}
             className={resetButtonClass}
             style={monoStyle}
-            title="Reset view (Ctrl/Cmd + 0)"
+            title={ui.mindmapResetView}
             type="button"
           >
-            Reset
+            {ui.mindmapReset}
           </button>
         )}
       </div>

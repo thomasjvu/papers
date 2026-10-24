@@ -295,7 +295,7 @@ const DocumentationPage = React.memo(
               className="fixed inset-0 z-30 md:hidden"
               style={{ backgroundColor: 'var(--overlay-color)' }}
               onClick={toggleSidebar}
-              aria-label="Close sidebar"
+              aria-label={ui.closeSidebar}
               type="button"
             />
           )}
@@ -367,7 +367,7 @@ const DocumentationPage = React.memo(
                     <button
                       onClick={toggleSidebar}
                       className="rounded-full p-2 transition-opacity hover:opacity-70 md:hidden"
-                      aria-label="Close sidebar"
+                      aria-label={ui.closeSidebar}
                       style={{ color: 'var(--papers-text-color)' }}
                       type="button"
                     >
@@ -479,7 +479,7 @@ const DocumentationPage = React.memo(
               <button
                 onClick={toggleSidebar}
                 className={`fixed z-30 rounded-lg p-3 shadow-lg ${getMobileTogglePositionClasses(uiConfig.mobileTogglePosition)}`}
-                aria-label="Show documentation tree"
+                aria-label={ui.showDocumentationTree}
                 style={floatingButtonStyle}
                 type="button"
               >
@@ -489,7 +489,7 @@ const DocumentationPage = React.memo(
               <MotionButton
                 onClick={toggleSidebar}
                 className={`fixed z-30 rounded-lg p-3 shadow-lg ${getMobileTogglePositionClasses(uiConfig.mobileTogglePosition)}`}
-                aria-label="Show documentation tree"
+                aria-label={ui.showDocumentationTree}
                 style={floatingButtonStyle}
                 type="button"
                 {...buttonAnimationConfig}
@@ -549,12 +549,12 @@ const DocumentationPage = React.memo(
                   fontFamily: 'var(--mono-font)',
                 }}
               >
-                {rightSidebarVisible ? 'Interactive Map' : 'On This Page'}
+                {rightSidebarVisible ? ui.interactiveMap : ui.onThisPage}
               </h3>
               <button
                 onClick={toggleRightSidebar}
                 className="right-rail-toggle"
-                aria-label={rightSidebarVisible ? 'Show table of contents' : 'Show interactive map'}
+                aria-label={rightSidebarVisible ? ui.showTableOfContents : ui.showInteractiveMap}
                 type="button"
               >
                 <Icon

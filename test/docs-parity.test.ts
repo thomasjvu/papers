@@ -19,6 +19,7 @@ import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardP
 
 import {
   DEFAULT_UI_STRINGS,
+  formatUiString,
   resolveUiStrings,
   validateUiStringsConfig,
 } from '../shared/uiStrings.js';
@@ -269,6 +270,30 @@ export const docsParityTests: TestCase[] = [
       assert.match(marked, /stroke="#FFF" stroke-width="3\.0"/);
       // Attacker-controlled title text never reaches attributes.
       assert.equal(emboldenSvgText('<text fill="x">A</text>'), '<text fill="x">A</text>');
+    },
+  },
+  {
+    name: 'ui label templates keep their placeholders and format safely',
+    run: () => {
+      assert.equal(formatUiString(DEFAULT_UI_STRINGS.mindmapResultMany, { count: 3 }), '3 results');
+      assert.equal(formatUiString('Font: {font}', {}), 'Font: {font}');
+      assert.equal(formatUiString('{a}{a}', { a: '<b>' }), '<b><b>');
+      assert.deepEqual(
+        validateUiStringsConfig(
+          {
+            fr: {
+              mindmapResultMany: '{count} résultats',
+              commandFont: 'Police',
+              onThisPage: 'Sur cette page {x}',
+            },
+          },
+          ['en', 'fr']
+        ),
+        [
+          'uiStringsConfig.fr.commandFont: must use {font}',
+          'uiStringsConfig.fr.onThisPage: must use no placeholders',
+        ]
+      );
     },
   },
 ];

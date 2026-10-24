@@ -536,3 +536,29 @@ test('Pagefind index supports section filters for docs: and api: scopes', async 
   expect(counts.api).toBe(0);
   for (const kind of counts.apiKinds) expect(kind).toMatch(/^openapi-/);
 });
+
+test('sidebar, mindmap and command labels come from the interface strings', async ({ page }) => {
+  const errors = collectRuntimeErrors(page);
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.getByRole('navigation', { name: 'Documentation' })).toBeVisible();
+  const railHeading = page.locator('.right-rail-header h3');
+  const initial = (await railHeading.textContent())?.trim();
+  expect(['On This Page', 'Interactive Map']).toContain(initial);
+  await page.locator('.right-rail-toggle').click();
+  await expect(railHeading).toHaveText(
+    initial === 'On This Page' ? 'Interactive Map' : 'On This Page'
+  );
+  if ((await railHeading.textContent())?.trim() !== 'Interactive Map') {
+    await page.locator('.right-rail-toggle').click();
+  }
+  await expect(page.getByPlaceholder('Search docs...')).toBeVisible();
+  await expect(page.locator('.graph-legend')).toContainText('Pages');
+  await expect(page.locator('.graph-legend')).toContainText('Folder');
+
+  await page.getByRole('button', { name: /Search docs/i }).click();
+  await expect(page.getByRole('button', { name: /Switch to (Light|Dark) Mode/ })).toBeVisible();
+  await expect(page.getByText('to open or preview')).toBeVisible();
+  await page.screenshot({ path: test.info().outputPath('interface-labels.png') });
+  await assertNoRuntimeErrors(errors);
+});

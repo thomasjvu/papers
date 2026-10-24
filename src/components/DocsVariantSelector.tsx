@@ -8,6 +8,7 @@ import {
 import type { ContentCollection } from '../../shared/docsRouting.js';
 import { getContentCollection } from '../data/collections';
 import { i18nConfig, versionConfig } from '@app-shared/documentation-config.js';
+import { useUiStrings } from '../lib/uiStrings';
 
 type DocsVariantSelectorProps = {
   docPath: string;
@@ -19,6 +20,7 @@ type DocsVariantSelectorProps = {
  * do not render a second locale dropdown here.
  */
 export default function DocsVariantSelector({ docPath, collection }: DocsVariantSelectorProps) {
+  const ui = useUiStrings();
   const navigate = useNavigate();
   const location = useLocation();
   const activeCollection = collection || getContentCollection('docs');
@@ -55,7 +57,7 @@ export default function DocsVariantSelector({ docPath, collection }: DocsVariant
         className="inline-flex items-center gap-2 text-xs"
         style={{ color: 'var(--muted-color)' }}
       >
-        <span style={{ fontFamily: 'var(--mono-font)' }}>Version</span>
+        <span style={{ fontFamily: 'var(--mono-font)' }}>{ui.version}</span>
         <select
           value={routeContext.activeVersion || activeVersionConfig.current}
           onChange={(event) => navigateWithVersion(event.target.value)}
