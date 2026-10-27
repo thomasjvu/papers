@@ -328,102 +328,118 @@ function isLikelyDocumentTarget(pathname) {
   return !pathname || !extname(pathname) || /\.(?:md|mdx)$/i.test(pathname);
 }
 
-function validateLink({
-  reference,
-  sourceRecord,
-  sourceRecords,
-  routeModel,
-  documentPaths,
-  publicDir,
-  contentRoot,
-  sourcePath,
-  issues,
-  frontmatterSchema,
-}) {
-  if (reference.type === 'action') {
+function checkTargetAnchor(documentPath, suffix, link) {
+  if (!suffix.startsWith('#')) {
     return;
   }
 
-  const { target, line } = reference;
-  const { pathname, suffix } = splitTargetSuffix(target);
+  const targetRecord = findSourceRecord(documentPath, link.sourceRecords);
+  if (targetRecord) {
+    checkAnchor(
+      targetRecord,
+      suffix,
+      link.sourceRecords,
+      link.issues,
+      link.sourcePath,
+      link.reference.line,
+      link.frontmatterSchema
+    );
+  }
+}
 
-  if (!pathname && suffix.startsWith('#')) {
-    checkAnchor(sourceRecord, suffix, sourceRecords, issues, sourcePath, line, frontmatterSchema);
-    return;
+function isAmbiguousRoute(routeModel, decodedPathname, pathname) {
+  return (
+    routeModel.ambiguousRoutes.has(decodedPathname.replace(/\/+$/, '') || '/') ||
+    routeModel.ambiguousRoutes.has(pathname.replace(/\/+$/, '') || '/')
+  );
+}
+
+/** Returns true when the absolute pathname resolved to a route (valid or reported). */
+function validateRouteLink(link, pathname, decodedPathname, suffix) {
+  const routeTarget = resolveRouteTarget(decodedPathname, link.routeModel);
+  if (!routeTarget) {
+    return false;
   }
 
-  if (!pathname && suffix.startsWith('?')) {
-    return;
+  if (isAmbiguousRoute(link.routeModel, decodedPathname, pathname)) {
+    link.issues.push(
+      `${link.sourcePath}:${link.reference.line}: ambiguous route target "${link.reference.target}"`
+    );
+  } else if (routeTarget.type === 'document') {
+    checkTargetAnchor(routeTarget.documentPath, suffix, link);
+  }
+  return true;
+}
+
+/** Returns true when the relative pathname names a known document. */
+function validateRelativeDocumentLink(link, decodedPathname, suffix) {
+  const documentPath = resolveRelativeDocumentPath(link.sourceRecord.documentPath, decodedPathname);
+  if (
+    !documentPath ||
+    !link.documentPaths.has(documentPath) ||
+    !isLikelyDocumentTarget(decodedPathname)
+  ) {
+    return false;
   }
 
-  const decodedPathname = safeDecode(pathname || '');
+  checkTargetAnchor(documentPath, suffix, link);
+  return true;
+}
+
+/** Same-page `#anchor` and `?query` links; returns true when the link had no pathname to resolve. */
+function validateInPageLink(link, pathname, suffix) {
+  if (pathname) {
+    return false;
+  }
+
+  if (suffix.startsWith('#')) {
+    const { sourceRecord, sourceRecords, issues, sourcePath, reference } = link;
+    checkAnchor(
+      sourceRecord,
+      suffix,
+      sourceRecords,
+      issues,
+      sourcePath,
+      reference.line,
+      link.frontmatterSchema
+    );
+    return true;
+  }
+
+  return suffix.startsWith('?');
+}
+
+function validatePathLink(link, pathname, suffix) {
+  const { reference, sourceRecord, publicDir, contentRoot, sourcePath, issues } = link;
+  const decodedPathname = safeDecode(pathname);
   if (decodedPathname === null) {
-    issues.push(`${sourcePath}:${line}: invalid encoded link target "${target}"`);
+    issues.push(
+      `${sourcePath}:${reference.line}: invalid encoded link target "${reference.target}"`
+    );
     return;
   }
 
-  if (pathname.startsWith('/')) {
-    const routeTarget = resolveRouteTarget(decodedPathname, routeModel);
-    const normalizedRoute = decodedPathname.replace(/\/+$/, '') || '/';
-
-    if (routeTarget) {
-      if (
-        routeModel.ambiguousRoutes.has(normalizedRoute) ||
-        routeModel.ambiguousRoutes.has(pathname.replace(/\/+$/, '') || '/')
-      ) {
-        issues.push(`${sourcePath}:${line}: ambiguous route target "${target}"`);
-        return;
-      }
-
-      if (suffix.startsWith('#') && routeTarget.type === 'document') {
-        const targetRecord = findSourceRecord(routeTarget.documentPath, sourceRecords);
-        if (targetRecord) {
-          checkAnchor(
-            targetRecord,
-            suffix,
-            sourceRecords,
-            issues,
-            sourcePath,
-            line,
-            frontmatterSchema
-          );
-        }
-      }
-      return;
-    }
-
-    if (checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
-      return;
-    }
-
-    issues.push(`${sourcePath}:${line}: unresolved internal link target "${target}"`);
+  const resolved = pathname.startsWith('/')
+    ? validateRouteLink(link, pathname, decodedPathname, suffix)
+    : validateRelativeDocumentLink(link, decodedPathname, suffix);
+  if (resolved || checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
     return;
   }
 
-  const documentPath = resolveRelativeDocumentPath(sourceRecord.documentPath, decodedPathname);
-  if (documentPath && documentPaths.has(documentPath) && isLikelyDocumentTarget(decodedPathname)) {
-    if (suffix.startsWith('#')) {
-      const targetRecord = findSourceRecord(documentPath, sourceRecords);
-      if (targetRecord) {
-        checkAnchor(
-          targetRecord,
-          suffix,
-          sourceRecords,
-          issues,
-          sourcePath,
-          line,
-          frontmatterSchema
-        );
-      }
-    }
+  issues.push(
+    `${sourcePath}:${reference.line}: unresolved internal link target "${reference.target}"`
+  );
+}
+
+function validateLink(link) {
+  if (link.reference.type === 'action') {
     return;
   }
 
-  if (checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
-    return;
+  const { pathname, suffix } = splitTargetSuffix(link.reference.target);
+  if (!validateInPageLink(link, pathname, suffix)) {
+    validatePathLink(link, pathname, suffix);
   }
-
-  issues.push(`${sourcePath}:${line}: unresolved internal link target "${target}"`);
 }
 
 function validateSourceLinks({
