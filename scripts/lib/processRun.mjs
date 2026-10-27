@@ -34,3 +34,15 @@ export function assertCondition(condition, message) {
     throw new Error(message);
   }
 }
+
+/** Collect a child's recent stdout, stderr and spawn errors; returns a trimmed-log getter. */
+export function captureProcessOutput(child, limit = 4_000) {
+  let logs = '';
+  const capture = (chunk) => {
+    logs = `${logs}${chunk.toString()}`.slice(-limit);
+  };
+  child.stdout.on('data', capture);
+  child.stderr.on('data', capture);
+  child.on('error', capture);
+  return () => logs.trim();
+}

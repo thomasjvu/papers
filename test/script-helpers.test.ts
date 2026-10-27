@@ -3,7 +3,14 @@ import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { assertCondition, parseNpmPackJson, runCommand } from '../scripts/lib/processRun.mjs';
+import { EventEmitter } from 'node:events';
+
+import {
+  assertCondition,
+  captureProcessOutput,
+  parseNpmPackJson,
+  runCommand,
+} from '../scripts/lib/processRun.mjs';
 import { splitTargetSuffix } from '../scripts/lib/linkTargets.mjs';
 import { getCollectionArtifactFiles } from '../scripts/lib/collectionArtifacts.mjs';
 import { resolveSiteMetadata } from '../scripts/lib/siteMetadata.mjs';
@@ -163,6 +170,23 @@ export const scriptHelperTests: TestCase[] = [
       } finally {
         await rm(tempDir, { recursive: true, force: true });
       }
+    },
+  },
+  {
+    name: 'captureProcessOutput keeps the last 4000 characters of stdout, stderr and errors',
+    run: () => {
+      const child = Object.assign(new EventEmitter(), {
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+      });
+      const getLogs = captureProcessOutput(child);
+      assert.equal(getLogs(), '');
+      child.stdout.emit('data', Buffer.from('  out '));
+      child.stderr.emit('data', 'err ');
+      child.emit('error', new Error('spawn failed'));
+      assert.equal(getLogs(), 'out err Error: spawn failed');
+      child.stdout.emit('data', 'x'.repeat(5000));
+      assert.equal(getLogs(), 'x'.repeat(4000));
     },
   },
 ];

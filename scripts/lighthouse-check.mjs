@@ -7,6 +7,8 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { chromium } from 'playwright';
 
+import { captureProcessOutput } from './lib/processRun.mjs';
+
 const cwd = process.cwd();
 const require = createRequire(import.meta.url);
 const config = require(resolve(cwd, 'lighthouserc.cjs'));
@@ -65,14 +67,7 @@ function startPreview() {
     // otherwise the orphaned server keeps the pipes open and the gate never exits.
     detached: process.platform !== 'win32',
   });
-  let logs = '';
-  const capture = (chunk) => {
-    logs = `${logs}${chunk.toString()}`.slice(-4_000);
-  };
-  child.stdout.on('data', capture);
-  child.stderr.on('data', capture);
-  child.on('error', capture);
-  return { child, getLogs: () => logs.trim() };
+  return { child, getLogs: captureProcessOutput(child) };
 }
 
 async function runLighthouseCli(url, base, browserPath) {
@@ -91,18 +86,12 @@ async function runLighthouseCli(url, base, browserPath) {
     env: { ...process.env, CHROME_PATH: browserPath },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  let logs = '';
-  const capture = (chunk) => {
-    logs = `${logs}${chunk.toString()}`.slice(-4_000);
-  };
-  child.stdout.on('data', capture);
-  child.stderr.on('data', capture);
-  child.on('error', capture);
+  const getLogs = captureProcessOutput(child);
 
   const [exitCode, signal] = await once(child, 'close');
   if (exitCode !== 0) {
     throw new Error(
-      `Lighthouse failed for ${url} (exit=${exitCode ?? 'null'} signal=${signal ?? 'none'})${logs.trim() ? `:\n${logs.trim()}` : ''}`
+      `Lighthouse failed for ${url} (exit=${exitCode ?? 'null'} signal=${signal ?? 'none'})${getLogs() ? `:\n${getLogs()}` : ''}`
     );
   }
 
