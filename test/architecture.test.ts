@@ -57,6 +57,7 @@ import { createDocumentReferenceGraph } from '../scripts/lib/referenceGraph.mjs'
 import { createOpenApiArtifacts } from '../scripts/lib/openapiArtifacts.mjs';
 import { createPagefindRecords } from '../scripts/lib/pagefindArtifacts.mjs';
 import { normalizePagefindUrl } from '../src/hooks/usePagefind.ts';
+import { disabledFeatureConfigs, disabledVariantConfigs } from './helpers/validationFixtures.ts';
 
 export interface ArchitectureTestCase {
   name: string;
@@ -170,23 +171,7 @@ export const architectureTests: ArchitectureTestCase[] = [
               path: 'guides/fixture',
             },
           ],
-          versionConfig: {
-            enabled: false,
-            current: '1.0',
-            versions: ['1.0'],
-            labels: {},
-          },
-          i18nConfig: {
-            enabled: false,
-            defaultLocale: 'en',
-            locales: ['en'],
-          },
-          openapiConfig: {
-            enabled: false,
-            pagePath: 'api-reference/openapi',
-            defaultSpecId: 'public',
-            specs: [],
-          },
+          ...disabledFeatureConfigs(),
         });
 
         assert.deepEqual(validation.issues, []);
@@ -286,20 +271,7 @@ export const architectureTests: ArchitectureTestCase[] = [
           '# Beta start\n\nBeta content.'
         );
 
-        const disabledVariants = {
-          versionConfig: {
-            enabled: false,
-            current: '1.0',
-            versions: ['1.0'],
-            labels: {},
-          },
-          i18nConfig: {
-            enabled: false,
-            defaultLocale: 'en',
-            locales: ['en'],
-            labels: {},
-          },
-        };
+        const disabledVariants = disabledVariantConfigs();
         const collections = [
           {
             id: 'alpha',
@@ -416,20 +388,7 @@ export const architectureTests: ArchitectureTestCase[] = [
           labels: {},
         },
       };
-      const disabledVariants = {
-        versionConfig: {
-          enabled: false,
-          current: '1.0',
-          versions: ['1.0'],
-          labels: {},
-        },
-        i18nConfig: {
-          enabled: false,
-          defaultLocale: 'en',
-          locales: ['en'],
-          labels: {},
-        },
-      };
+      const disabledVariants = disabledVariantConfigs();
       const collections = validateContentCollections([
         {
           id: 'alpha',
@@ -714,23 +673,7 @@ export const architectureTests: ArchitectureTestCase[] = [
         contentRoot: 'content',
         publicDir: 'public',
         documentationTree,
-        versionConfig: {
-          enabled: false,
-          current: '1.0',
-          versions: ['1.0'],
-          labels: {},
-        },
-        i18nConfig: {
-          enabled: false,
-          defaultLocale: 'en',
-          locales: ['en'],
-        },
-        openapiConfig: {
-          enabled: false,
-          pagePath: 'api-reference/openapi',
-          defaultSpecId: 'public',
-          specs: [],
-        },
+        ...disabledFeatureConfigs(),
       };
 
       try {

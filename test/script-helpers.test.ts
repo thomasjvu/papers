@@ -16,6 +16,7 @@ import { getCollectionArtifactFiles } from '../scripts/lib/collectionArtifacts.m
 import { resolveSiteMetadata } from '../scripts/lib/siteMetadata.mjs';
 import { createCollectionDocumentPaths } from '../scripts/generate-docs.mjs';
 import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
+import { disabledFeatureConfigs } from './helpers/validationFixtures.ts';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -150,14 +151,7 @@ export const scriptHelperTests: TestCase[] = [
             { type: 'file' as const, name: 'Page.md', path: 'guide/page' },
             { type: 'file' as const, name: 'Other.md', path: 'guide/other' },
           ],
-          versionConfig: { enabled: false, current: '1.0', versions: ['1.0'], labels: {} },
-          i18nConfig: { enabled: false, defaultLocale: 'en', locales: ['en'] },
-          openapiConfig: {
-            enabled: false,
-            pagePath: 'api-reference/openapi',
-            defaultSpecId: 'public',
-            specs: [],
-          },
+          ...disabledFeatureConfigs(),
         });
         assert.deepEqual(result.issues, [
           'content/guide/page.md:4: invalid encoded link target "%E0%A4%A"',
