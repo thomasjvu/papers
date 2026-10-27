@@ -7,23 +7,10 @@ import {
 import React from 'react';
 
 import { useTheme } from '../../providers/useTheme';
-
-interface GraphNode {
-  id: string;
-  title: string;
-  path: string;
-  type: 'file' | 'directory';
-  x: number;
-  y: number;
-  level: number;
-  connections: string[];
-  visible: boolean;
-  searchRelevance: number;
-  tags?: string[];
-}
+import type { GraphNode as GraphNodeData } from './useGraphLogic';
 
 interface GraphNodeProps {
-  node: GraphNode;
+  node: GraphNodeData;
   index: number;
   currentPath?: string;
   focusedNodeId?: string;
@@ -32,10 +19,10 @@ interface GraphNodeProps {
   isSidebarView: boolean;
   glowFilterId: string;
   nodeGradientId: string;
-  onNodeClick: (node: GraphNode) => void;
-  onSwitchClick: (node: GraphNode) => void;
-  getNodeColor: (node: GraphNode) => string;
-  getNodeRadius: (node: GraphNode) => number;
+  onNodeClick: (node: GraphNodeData) => void;
+  onSwitchClick: (node: GraphNodeData) => void;
+  getNodeColor: (node: GraphNodeData) => string;
+  getNodeRadius: (node: GraphNodeData) => number;
 }
 
 const GraphNode: React.FC<GraphNodeProps> = React.memo(
