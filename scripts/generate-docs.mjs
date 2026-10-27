@@ -5,7 +5,6 @@ import { pathToFileURL } from 'node:url';
 
 import {
   contentCollections,
-  getCollectionArtifactPaths,
   getCollectionFrontmatterSchema,
   getCollectionSchemaAdapter,
   getCollectionVariants,
@@ -18,6 +17,7 @@ import {
   uiStringsConfig,
 } from '../shared/documentation-config.js';
 import { validateUiStringsConfig } from '../shared/uiStrings.js';
+import { getCollectionArtifactFiles } from './lib/collectionArtifacts.mjs';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
 import {
@@ -67,6 +67,20 @@ export function getCollectionFrameworkDocPaths(collection) {
   return collection.id === 'docs' ? frameworkDocPaths : [];
 }
 
+/** A collection with the sorted, de-duplicated document paths its routes are built from. */
+export function createCollectionDocumentPaths(collection) {
+  return {
+    collection,
+    documentationTree: collection.tree,
+    documentPaths: Array.from(
+      new Set([
+        ...collectDocumentPaths(collection.tree || []),
+        ...getCollectionFrameworkDocPaths(collection),
+      ])
+    ).sort(),
+  };
+}
+
 function getCollectionOpenApiConfig(collection) {
   if (collection.openapiConfig) {
     return collection.openapiConfig;
@@ -113,14 +127,14 @@ export function createCollectionGenerationOptions({
 }
 
 async function removeCollectionArtifacts(publicDir, collection) {
-  const artifactPaths = getCollectionArtifactPaths(collection);
-  await rm(join(publicDir, artifactPaths.index.replace(/^\//, '')), { force: true });
-  await rm(join(publicDir, artifactPaths.content.replace(/^\//, '')), {
-    recursive: true,
-    force: true,
-  });
-  await rm(join(publicDir, artifactPaths.manifest.replace(/^\//, '')), { force: true });
-  await rm(join(publicDir, artifactPaths.references.replace(/^\//, '')), { force: true });
+  const { indexPath, contentDir, manifestPath, referencesPath } = getCollectionArtifactFiles(
+    publicDir,
+    collection
+  );
+  await rm(indexPath, { force: true });
+  await rm(contentDir, { recursive: true, force: true });
+  await rm(manifestPath, { force: true });
+  await rm(referencesPath, { force: true });
 }
 
 /**
@@ -135,16 +149,7 @@ export async function generateDocsContent({
 } = {}) {
   const validatedCollections = validateContentCollections(collections, { rootDir });
   const previousCollectionsManifest = await readExistingJson(join(publicDir, 'collections.json'));
-  const collectionDocumentPaths = validatedCollections.map((collection) => ({
-    collection,
-    documentationTree: collection.tree,
-    documentPaths: Array.from(
-      new Set([
-        ...collectDocumentPaths(collection.tree || []),
-        ...getCollectionFrameworkDocPaths(collection),
-      ])
-    ).sort(),
-  }));
+  const collectionDocumentPaths = validatedCollections.map(createCollectionDocumentPaths);
   const manifests = {};
   const artifactsByCollectionId = {};
 
@@ -170,11 +175,10 @@ export async function generateDocsContent({
   );
 
   for (const collection of validatedCollections) {
-    const artifactPaths = getCollectionArtifactPaths(collection);
-    const indexPath = join(publicDir, artifactPaths.index.replace(/^\//, ''));
-    const contentDir = join(publicDir, artifactPaths.content.replace(/^\//, ''));
-    const manifestPath = join(publicDir, artifactPaths.manifest.replace(/^\//, ''));
-    const referencesPath = join(publicDir, artifactPaths.references.replace(/^\//, ''));
+    const { indexPath, contentDir, manifestPath, referencesPath } = getCollectionArtifactFiles(
+      publicDir,
+      collection
+    );
     const options = createCollectionGenerationOptions({
       collection,
       rootDir,

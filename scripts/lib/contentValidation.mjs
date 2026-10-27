@@ -22,6 +22,7 @@ import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { createDocumentToc, extractDocumentLinks, parseFrontmatter } from './docsArtifacts.mjs';
 import { validateMdxComponentsInSource } from './mdxCompile.mjs';
+import { splitTargetSuffix } from './linkTargets.mjs';
 
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx']);
 export const EXCLUDED_SOURCE_DIRECTORIES = new Set(['generated', 'variants']);
@@ -37,22 +38,6 @@ function stripDocumentExtension(value) {
 function normalizeDocPath(value) {
   const normalized = posix.normalize(value.replaceAll('\\', '/')).replace(/^\.\//, '');
   return normalized === '.' ? '' : normalized.replace(/^\/+|\/+$/g, '');
-}
-
-function splitTargetSuffix(target) {
-  const hashIndex = target.indexOf('#');
-  const queryIndex = target.indexOf('?');
-  const splitIndex =
-    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
-
-  if (splitIndex === -1) {
-    return { pathname: target, suffix: '' };
-  }
-
-  return {
-    pathname: target.slice(0, splitIndex),
-    suffix: target.slice(splitIndex),
-  };
 }
 
 function safeDecode(value) {

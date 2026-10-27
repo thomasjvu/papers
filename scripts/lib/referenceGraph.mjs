@@ -3,22 +3,7 @@ import { posix } from 'node:path';
 import { buildCanonicalCollectionPath, buildCanonicalDocsPath } from '../../shared/docsRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { extractDocumentLinks } from './docsArtifacts.mjs';
-
-function splitTargetSuffix(target) {
-  const hashIndex = target.indexOf('#');
-  const queryIndex = target.indexOf('?');
-  const splitIndex =
-    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
-
-  if (splitIndex === -1) {
-    return { pathname: target, suffix: '' };
-  }
-
-  return {
-    pathname: target.slice(0, splitIndex),
-    suffix: target.slice(splitIndex),
-  };
-}
+import { splitTargetSuffix } from './linkTargets.mjs';
 
 function normalizeDocumentPath(value) {
   const normalized = posix.normalize(String(value || '').replaceAll('\\', '/'));
