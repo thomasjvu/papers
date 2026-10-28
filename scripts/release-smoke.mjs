@@ -217,6 +217,14 @@ function main() {
 
   const headers = readText(distHeadersPath);
   assert(headers.includes("script-src 'self'"), 'CSP is missing self-only script-src.');
+  // Pagefind needs WebAssembly, and the CSP font-src does not allow data: fonts.
+  assert(headers.includes("'wasm-unsafe-eval'"), 'CSP blocks Pagefind WebAssembly search.');
+  for (const name of readdirSync(join(distDir, 'assets')).filter((file) => file.endsWith('.css'))) {
+    assert(
+      !readText(join(distDir, 'assets', name)).includes('data:font/'),
+      `dist/assets/${name} inlines a data: font that the CSP font-src blocks.`
+    );
+  }
 
   const docsIndex = JSON.parse(readText(distDocsIndexPath));
   const docsCollection = JSON.parse(readText(distDocsCollectionPath));

@@ -62,6 +62,9 @@ export default defineConfig({
     cssMinify: true,
     minify: 'esbuild',
     chunkSizeWarningLimit: 600,
+    // Never inline fonts: the shipped CSP font-src blocks data: URLs (KaTeX math fonts).
+    assetsInlineLimit: (filePath: string) =>
+      /\.(woff2?|ttf|otf|eot)$/i.test(filePath) ? false : undefined,
     rollupOptions: {
       output: {
         manualChunks: (id) => {
