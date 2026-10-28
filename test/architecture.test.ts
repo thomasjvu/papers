@@ -51,7 +51,6 @@ import { buildMarkdownRenderState } from '../src/utils/markdownCore.ts';
 import { sanitizeMermaidSvg } from '../src/utils/sanitizeMermaidSvg.ts';
 import { loadThemeManifest, readRegistry, resolveThemeId } from '../scripts/lib/themeRegistry.mjs';
 import { collectLazyFeatureBoundaryIssues } from '../src/framework/lazyFeatureBoundaries.ts';
-import { isPapersTemplateRoot, shouldUseLocalTemplate } from '../packages/create-papers/index.mjs';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { createDocumentReferenceGraph } from '../scripts/lib/referenceGraph.mjs';
 import { createOpenApiArtifacts } from '../scripts/lib/openapiArtifacts.mjs';
@@ -62,6 +61,8 @@ import { disabledFeatureConfigs, disabledVariantConfigs } from './helpers/valida
 export interface ArchitectureTestCase {
   name: string;
   run: () => void | Promise<void>;
+  /** Skip this test when the path is missing (Papers-only parts, absent in sites). */
+  requires?: string;
 }
 
 function createDeterministicIdGenerator() {
@@ -90,6 +91,8 @@ const seoTestDocumentationTree = [
 export const architectureTests: ArchitectureTestCase[] = [
   {
     name: 'build identity fingerprints published inputs and records release metadata',
+    // Pins the Papers repo's own sample content and config.
+    requires: 'packages/create-papers',
     run: async () => {
       const tempDir = await mkdtemp(join(tmpdir(), 'papers-build-identity-'));
       try {
@@ -575,6 +578,8 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'OpenAPI artifacts expose operations parameters examples and schemas',
+    // Pins the Papers repo's own sample content and config.
+    requires: 'packages/create-papers',
     run: async () => {
       const artifacts = await createOpenApiArtifacts({ rootDir: process.cwd() });
       const publicSpec = artifacts.specs.find((spec) => spec.id === 'public');
@@ -1924,6 +1929,8 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'maintainer contract names source ownership and credential boundaries',
+    // Pins the Papers repo's own sample content and config.
+    requires: 'packages/create-papers',
     run: async () => {
       const agentsSource = await readFile(join(process.cwd(), 'AGENTS.md'), 'utf8');
 
@@ -1948,6 +1955,7 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'create-papers help and version are offline and deterministic',
+    requires: 'packages/create-papers',
     run: () => {
       const cliPath = join(process.cwd(), 'packages/create-papers/index.mjs');
       const env = {
@@ -1969,6 +1977,7 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'create-papers preserves non-empty targets and supports offline fixtures',
+    requires: 'packages/create-papers',
     run: async () => {
       const tempDir = await mkdtemp(join(tmpdir(), 'papers-create-cli-'));
       const fixtureRoot = join(process.cwd(), 'test/fixtures/create-papers-template');
@@ -2013,10 +2022,14 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'create-papers only treats a marker-complete checkout as a local template',
+    requires: 'packages/create-papers',
     run: async () => {
       const tempDir = await mkdtemp(join(tmpdir(), 'papers-create-template-'));
       try {
         await writeFile(join(tempDir, 'package.json'), '{}');
+        const { isPapersTemplateRoot, shouldUseLocalTemplate } = await import(
+          '../packages/create-papers/index.mjs'
+        );
         assert.equal(await isPapersTemplateRoot(tempDir), false);
         assert.equal(await shouldUseLocalTemplate(tempDir, { repo: 'thomasjvu/papers' }), false);
         await assert.rejects(
@@ -2047,6 +2060,8 @@ export const architectureTests: ArchitectureTestCase[] = [
   },
   {
     name: 'theme registry resolves built-in default and gba themes',
+    // Pins the Papers repo's own sample content and config.
+    requires: 'packages/create-papers',
     run: () => {
       const registry = readRegistry();
       const ids = registry.themes.map((theme: { id: string }) => theme.id);
