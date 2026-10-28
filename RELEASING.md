@@ -100,6 +100,8 @@ One-time setup, done by the npm package owner on npmjs.com:
   repository `thomasjvu/papers`, workflow `release.yml`, environment `npm`.
 - Then set "Publishing access" to require two-factor authentication and
   disallow tokens.
+- Set the GitHub repository variable `NPM_PUBLISH` to `true`. Until then the
+  Release workflow tags and creates GitHub releases but skips npm.
 - In the GitHub repository settings, under Actions, allow GitHub Actions to
   create pull requests so release-please can open its release pull request.
 

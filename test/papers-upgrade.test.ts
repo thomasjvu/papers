@@ -50,7 +50,7 @@ export const papersUpgradeTests = [
         await mkdir(upstream);
         git(upstream, 'init', '-q', '-b', 'main');
         const baseFiles = {
-          'package.json': '{ "version": "0.1.0" }\n',
+          'package.json': '{ "name": "papers", "version": "0.1.0" }\n',
           'scripts/shared.mjs': 'one\ntwo\nthree\nfour\nfive\n',
           'scripts/clash.mjs': 'value = 1\n',
           'scripts/gone.mjs': 'old\n',
@@ -63,7 +63,7 @@ export const papersUpgradeTests = [
         git(upstream, 'tag', 'v0.1.0');
         const base = git(upstream, 'rev-parse', 'HEAD');
         await writeFiles(upstream, {
-          'package.json': '{ "version": "0.2.0" }\n',
+          'package.json': '{ "name": "@thomasjvu/papers", "version": "0.2.0", "bin": "x.mjs" }\n',
           'scripts/shared.mjs': 'ONE\ntwo\nthree\nfour\nfive\n',
           'scripts/clash.mjs': 'value = 2\n',
           'scripts/gone.mjs': null,
@@ -104,13 +104,28 @@ export const papersUpgradeTests = [
         assert.equal(existsSync(join(site, 'scripts/gone.mjs')), false);
         assert.equal(existsSync(join(site, 'scripts/site-removed.mjs')), false);
         assert.equal(await read('src/docs/content/intro.md'), '# Our product\n');
-        assert.equal(await read('package.json'), '{ "version": "0.2.0" }\n');
+        // An unedited site package.json still keeps its own identity.
+        assert.deepEqual(JSON.parse(await read('package.json')), {
+          name: 'papers',
+          version: '0.1.0',
+        });
         const lock = JSON.parse(await read('papers.lock.json'));
         assert.equal(lock.commit, target);
         assert.equal(lock.ref, 'v0.2.0');
         assert.equal(lock.version, '0.2.0');
         assert.match(result.stdout, /Conflicts to resolve \(1\)/);
         assert.match(result.stdout, /Kept removed by the site \(1\)/);
+
+        // A site already past a release is never taken back to it.
+        const back = spawnSync(
+          process.execPath,
+          [cli, '--site', site, '--check', '--to', 'v0.1.0'],
+          {
+            encoding: 'utf8',
+          }
+        );
+        assert.equal(back.status, 0, back.stderr + back.stdout);
+        assert.match(back.stdout, /already past Papers v0\.1\.0/);
       } finally {
         await rm(temp, { recursive: true, force: true });
       }

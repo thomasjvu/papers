@@ -398,7 +398,10 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
       report.alreadyCurrent.push(path);
       continue;
     }
-    if ((baseBlob && ours.equals(baseBlob)) || UPGRADER_PATHS(path)) {
+    const isPackageJson = path === 'package.json' || path.endsWith('/package.json');
+    // package.json always goes through the key merge so the site keeps its
+    // name, version and other identity fields even if it never edited them.
+    if ((!isPackageJson && baseBlob && ours.equals(baseBlob)) || UPGRADER_PATHS(path)) {
       await writeTheirs();
       report.updated.push(path);
       continue;
@@ -407,7 +410,7 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
       report.conflicts.push({ path, reason: 'Binary file changed by both Papers and the site.' });
       continue;
     }
-    if (path === 'package.json' || path.endsWith('/package.json')) {
+    if (isPackageJson) {
       const { text, conflicts } = mergePackageJson(
         baseBlob?.toString('utf8'),
         ours.toString('utf8'),
