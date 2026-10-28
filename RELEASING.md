@@ -77,20 +77,28 @@ version. Update both package contracts, the starter smoke fixture, and
 
 ```bash
 node -p "require('./package.json').version"
-git tag v0.1.0
-git push origin v0.1.0
+git tag v0.2.0
+git push origin v0.2.0
 ```
 
-The trusted `Release create-papers` workflow validates the tag, runs the full
-framework gate and packed clean-consumer smoke, generates a manifest pinned to
-the tag commit, publishes with npm provenance, probes the exact public version,
-and records the resolved tarball URL in the GitHub release notes. Do not run a
-manual `npm publish` unless package ownership, access, provenance, and release
-credentials have been explicitly confirmed.
+Pushing the tag runs the trusted `Release create-papers` workflow. It
+validates the tag against both package versions, runs the full framework gate
+and the packed clean-consumer smoke, then creates the GitHub release from the
+version's CHANGELOG section. Sites upgrade from that tag with
+`node scripts/papers-upgrade.mjs` (see the README), and their weekly upgrade
+job opens a pull request for it.
 
-The current checkout has not proven public npm availability or ownership. A
-release is complete only when the post-publish exact-version probe succeeds;
-use [CHANGELOG.md](CHANGELOG.md) as the release body starting point.
+Publishing `create-papers` to npm is optional and only runs when an
+`NPM_TOKEN` repository secret exists; it then publishes with provenance,
+probes the exact public version and adds the tarball URL to the release
+notes. Do not run a manual `npm publish` unless package ownership, access,
+provenance, and release credentials have been explicitly confirmed.
+
+Breaking changes for sites need a changelog entry under "Changed (breaking)"
+and, when the change is mechanical, a codemod in
+`scripts/migrations/<version>.mjs` that exports `description` and
+`run({ site, isUpstreamPath })`. The upgrader runs it for sites crossing that
+version.
 
 ## Post-Deploy Checks
 

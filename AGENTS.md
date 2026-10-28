@@ -19,6 +19,13 @@ for content-engine direction.
   `npm run generate:llms`, `npm run generate:seo`, `npm run resolve:theme`, or
   `npm run build` as appropriate; do not hand-edit generated output.
 
+- Sites copy this framework and upgrade with `scripts/papers-upgrade.mjs`
+  (three-way merge from the release in their `papers.lock.json`). Paths in
+  `papers.upgrade.json` are site-owned and never upgraded. A change that
+  breaks sites needs a CHANGELOG "breaking" entry and, if mechanical, a
+  codemod in `scripts/migrations/<version>.mjs`. Never ask sites to rsync or
+  hand-copy framework files.
+
 ## 3. Verification ladder
 
 `npm ci` installs. The read-only baseline is:

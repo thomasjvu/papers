@@ -35,6 +35,53 @@ PAPERS_TEMPLATE_ROOT=local node packages/create-papers/index.mjs my-docs --no-in
 The starter requires Node 24 or newer. Its package-level documentation lives
 in [packages/create-papers/README.md](packages/create-papers/README.md).
 
+## Keep a site up to date
+
+A Papers site is a copy of the framework plus your own content, config and
+theme. `papers.lock.json` in the site records which Papers release its
+framework files match. To move to a newer release:
+
+```bash
+node scripts/papers-upgrade.mjs            # latest release
+node scripts/papers-upgrade.mjs --to v0.2.0
+npm install                                # if package.json changed
+```
+
+The upgrader works like `git merge` for the framework:
+
+- it applies only what changed in Papers between your release and the new one;
+- your edits to framework files are kept, and if you and Papers changed the
+  same lines it leaves standard conflict markers for you to resolve;
+- your content (`src/docs/content/`), generated files, lockfiles, CI and the
+  other paths listed in [papers.upgrade.json](papers.upgrade.json) are never
+  touched, and files you deleted stay deleted;
+- add your own never-upgrade paths to `exclude` in `papers.lock.json`;
+- breaking changes ship a codemod in `scripts/migrations/<version>.mjs`, run
+  automatically when an upgrade crosses that version.
+
+It refuses to run with uncommitted changes, so every upgrade is one reviewable
+diff. Read [CHANGELOG.md](CHANGELOG.md) for what changed.
+
+**Automatic upgrade pull requests.** Run
+`node scripts/papers-upgrade.mjs --install-workflow` once. It adds a weekly CI
+job (GitHub or Forgejo) that opens a pull request when a new Papers release is
+tagged. Clean upgrades are set to merge once the site's checks pass; upgrades
+with conflicts open as drafts. The job needs a `PAPERS_UPGRADE_TOKEN` secret
+that can push branches and open pull requests (the built-in GitHub token
+cannot start CI on the pull requests it opens).
+
+**Sites made before the upgrader existed** adopt it once:
+
+```bash
+node scripts/papers-upgrade.mjs --detect-base     # closest Papers commit
+node scripts/papers-upgrade.mjs --init <commit>   # writes papers.lock.json
+node scripts/papers-upgrade.mjs                   # then upgrade
+```
+
+The upgrader itself is a framework file, so copy `scripts/papers-upgrade.mjs`,
+`scripts/lib/papersUpgrade.mjs` and `scripts/migrations/` into the site for
+that first run.
+
 ## Develop the framework
 
 ```bash
