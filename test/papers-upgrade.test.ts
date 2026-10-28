@@ -132,3 +132,45 @@ papersUpgradeTests.push({
     assert.equal(renameTokens(once), once);
   },
 });
+
+papersUpgradeTests.push({
+  name: 'papers upgrade merges package.json by key and keeps site identity',
+  run: async () => {
+    const { mergePackageJson } = await import('../scripts/lib/papersUpgrade.mjs');
+    const base = {
+      name: 'papers',
+      version: '0.1.0',
+      scripts: { build: 'b1', test: 't1' },
+      devDependencies: { vite: '^5' },
+    };
+    const ours = {
+      name: '@site/docs',
+      version: '3.0.0',
+      scripts: { build: 'b1', test: 't-site', deploy: 'd' },
+      devDependencies: { vite: '^5' },
+    };
+    const theirs = {
+      name: 'papers',
+      version: '0.2.0',
+      scripts: { build: 'b2', test: 't2', 'package:check': 'p' },
+      devDependencies: { vite: '^6', jscpd: '^4' },
+    };
+    const { text, conflicts } = mergePackageJson(
+      JSON.stringify(base),
+      JSON.stringify(ours),
+      JSON.stringify(theirs),
+      {
+        skipFields: ['name', 'version'],
+        skipScripts: ['package:check'],
+        skipDependencies: ['jscpd'],
+      }
+    );
+    assert.deepEqual(JSON.parse(text), {
+      name: '@site/docs',
+      version: '3.0.0',
+      scripts: { build: 'b2', test: 't-site', deploy: 'd' },
+      devDependencies: { vite: '^6' },
+    });
+    assert.deepEqual(conflicts, ['scripts.test']);
+  },
+});

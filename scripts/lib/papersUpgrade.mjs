@@ -210,6 +210,84 @@ export function readSiteOwned(root, commit) {
   return Array.isArray(parsed.siteOwned) ? parsed.siteOwned : DEFAULT_SITE_OWNED;
 }
 
+const PACKAGE_SECTIONS = [
+  'scripts',
+  'dependencies',
+  'devDependencies',
+  'peerDependencies',
+  'optionalDependencies',
+  'engines',
+  'overrides',
+];
+const DEFAULT_PACKAGE_JSON_RULES = {
+  skipFields: ['name', 'version', 'description', 'license', 'repository', 'homepage', 'private'],
+  skipScripts: [],
+  skipDependencies: [],
+};
+
+const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+
+/**
+ * Key-level three-way merge of package.json. Site identity fields are kept,
+ * Papers-only scripts and dependencies are not introduced, and a key both
+ * sides changed keeps the site's value and is reported.
+ */
+export function mergePackageJson(
+  baseText,
+  oursText,
+  theirsText,
+  rules = DEFAULT_PACKAGE_JSON_RULES
+) {
+  const base = baseText ? JSON.parse(baseText) : {};
+  const ours = JSON.parse(oursText);
+  const theirs = JSON.parse(theirsText);
+  const conflicts = [];
+  const skipFields = new Set(rules.skipFields || []);
+  const skipKeys = {
+    scripts: new Set(rules.skipScripts || []),
+    dependencies: new Set(rules.skipDependencies || []),
+    devDependencies: new Set(rules.skipDependencies || []),
+  };
+  const mergeValue = (label, b, o, t) => {
+    if (same(o, b)) return { value: t };
+    if (same(t, b) || same(o, t)) return { value: o };
+    conflicts.push(label);
+    return { value: o };
+  };
+  const result = { ...ours };
+  const keys = new Set([...Object.keys(base), ...Object.keys(theirs)]);
+  for (const key of keys) {
+    if (skipFields.has(key)) continue;
+    if (PACKAGE_SECTIONS.includes(key)) {
+      const b = base[key] || {};
+      const o = ours[key] || {};
+      const t = theirs[key] || {};
+      const section = { ...o };
+      for (const name of new Set([...Object.keys(b), ...Object.keys(t)])) {
+        if (skipKeys[key]?.has(name) && !(name in o)) continue;
+        const { value } = mergeValue(`${key}.${name}`, b[name], o[name], t[name]);
+        if (value === undefined) delete section[name];
+        else section[name] = value;
+      }
+      if (Object.keys(section).length > 0 || key in ours) result[key] = section;
+      continue;
+    }
+    const { value } = mergeValue(key, base[key], ours[key], theirs[key]);
+    if (value === undefined) delete result[key];
+    else result[key] = value;
+  }
+  return { text: `${JSON.stringify(result, null, 2)}\n`, conflicts };
+}
+
+export function readPackageJsonRules(root, commit) {
+  const config = readBlob(root, commit, UPGRADE_CONFIG_FILE);
+  if (!config) return DEFAULT_PACKAGE_JSON_RULES;
+  return {
+    ...DEFAULT_PACKAGE_JSON_RULES,
+    ...(JSON.parse(config.toString('utf8')).packageJson || {}),
+  };
+}
+
 function isBinary(buffer) {
   return buffer.subarray(0, 8000).includes(0);
 }
@@ -249,6 +327,7 @@ export function listChangedPaths(root, base, target) {
  * Returns a report with one entry per upstream-changed path.
  */
 export async function applyUpgrade({ root, site, base, target, siteOwned, exclude = [] }) {
+  const packageRules = readPackageJsonRules(root, target);
   const isSiteOwned = createPathFilter([...siteOwned, ...exclude]);
   const report = {
     updated: [],
@@ -311,6 +390,24 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
     }
     if (isBinary(ours) || isBinary(theirs) || (baseBlob && isBinary(baseBlob))) {
       report.conflicts.push({ path, reason: 'Binary file changed by both Papers and the site.' });
+      continue;
+    }
+    if (path === 'package.json' || path.endsWith('/package.json')) {
+      const { text, conflicts } = mergePackageJson(
+        baseBlob?.toString('utf8'),
+        ours.toString('utf8'),
+        theirs.toString('utf8'),
+        packageRules
+      );
+      await writeFile(destination, text);
+      if (conflicts.length > 0) {
+        report.conflicts.push({
+          path,
+          reason: `kept the site's value for ${conflicts.join(', ')}; Papers changed them too.`,
+        });
+      } else {
+        report.merged.push(path);
+      }
       continue;
     }
     const { merged, conflicts } = mergeText(baseBlob || Buffer.alloc(0), ours, theirs, labels);

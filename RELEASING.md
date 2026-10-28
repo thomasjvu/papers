@@ -28,7 +28,7 @@ npm test
 npm run lint
 npm run type-check
 npm run build
-npm run release:check
+npm run release:check:papers   # release:check plus the starter package check
 npx playwright test
 npm run lighthouse:check
 npm audit --audit-level=high

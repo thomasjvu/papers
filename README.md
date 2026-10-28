@@ -105,7 +105,7 @@ npm run create:smoke
 npm run type-check
 npm run lint
 npm run format:check
-npm run release:check
+npm run release:check:papers
 ```
 
 ## Customize a site

@@ -44,7 +44,7 @@ npm run check:security-policy
 npm run check:assets
 npm run check:runtime-audit
 npm run build
-npm run release:check
+npm run release:check:papers   # release:check plus the starter package check
 npm run create:smoke
 npx playwright test
 npm run lighthouse:check

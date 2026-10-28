@@ -42,5 +42,30 @@
     "public/images/og-image.svg",
     "public/images/twitter-card.svg",
     "public/images/docs/**"
-  ]
+  ],
+  "packageJson": {
+    "$comment": "package.json is merged key by key. Site identity fields stay the site's, and Papers-only scripts and dependencies are not added to sites.",
+    "skipFields": [
+      "name",
+      "version",
+      "description",
+      "license",
+      "repository",
+      "homepage",
+      "private"
+    ],
+    "skipScripts": [
+      "create",
+      "publish:create-papers",
+      "package:check",
+      "create:smoke",
+      "release:check:papers",
+      "quality:coverage",
+      "quality:crap",
+      "quality:dup",
+      "quality:mutate",
+      "lighthouse:check"
+    ],
+    "skipDependencies": ["@stryker-mutator/core", "c8", "jscpd", "lighthouse"]
+  }
 }
