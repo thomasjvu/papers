@@ -942,6 +942,39 @@ function createParsedSpec(spec, document, config) {
   );
 }
 
+function createOpenApiSeoEntry(kind, specId, { routePath, canonicalPath, title, description }) {
+  return {
+    routePath,
+    canonicalPath: canonicalPath || routePath,
+    title,
+    description,
+    type: 'article',
+    includeInSitemap: true,
+    noIndex: false,
+    kind,
+    specId,
+  };
+}
+
+function createOperationSeoEntry(operation, specId, siteName) {
+  const signature = `${operation.method} ${operation.path}`;
+  return createOpenApiSeoEntry('openapi-operation', specId, {
+    routePath: operation.routePath,
+    canonicalPath: operation.canonicalPath,
+    title: `${operation.summary || signature} | ${siteName}`,
+    description: operation.description || operation.summary || signature,
+  });
+}
+
+function createModelSeoEntry(model, spec, siteName) {
+  return createOpenApiSeoEntry('openapi-model', spec.id, {
+    routePath: model.routePath,
+    canonicalPath: model.canonicalPath,
+    title: `${model.name} | ${siteName}`,
+    description: model.description || `Schema model ${model.name} from ${spec.label}.`,
+  });
+}
+
 export function createOpenApiRouteEntries(
   artifacts,
   config = defaultOpenapiConfig,
@@ -952,43 +985,18 @@ export function createOpenApiRouteEntries(
     const specRoute =
       spec.routePath ||
       buildOpenApiRoutePath(config, spec.id === config.defaultSpecId ? null : spec.id);
-    entries.push({
-      routePath: specRoute,
-      canonicalPath: specRoute,
-      title: `${spec.title || spec.label} | ${siteName}`,
-      description: spec.description || `OpenAPI reference for ${spec.label}.`,
-      type: 'article',
-      includeInSitemap: true,
-      noIndex: false,
-      kind: 'openapi-overview',
-      specId: spec.id,
-    });
+    entries.push(
+      createOpenApiSeoEntry('openapi-overview', spec.id, {
+        routePath: specRoute,
+        title: `${spec.title || spec.label} | ${siteName}`,
+        description: spec.description || `OpenAPI reference for ${spec.label}.`,
+      })
+    );
     for (const operation of spec.operations || []) {
-      entries.push({
-        routePath: operation.routePath,
-        canonicalPath: operation.canonicalPath || operation.routePath,
-        title: `${operation.summary || `${operation.method} ${operation.path}`} | ${siteName}`,
-        description:
-          operation.description || operation.summary || `${operation.method} ${operation.path}`,
-        type: 'article',
-        includeInSitemap: true,
-        noIndex: false,
-        kind: 'openapi-operation',
-        specId: spec.id,
-      });
+      entries.push(createOperationSeoEntry(operation, spec.id, siteName));
     }
     for (const model of spec.schemas || []) {
-      entries.push({
-        routePath: model.routePath,
-        canonicalPath: model.canonicalPath || model.routePath,
-        title: `${model.name} | ${siteName}`,
-        description: model.description || `Schema model ${model.name} from ${spec.label}.`,
-        type: 'article',
-        includeInSitemap: true,
-        noIndex: false,
-        kind: 'openapi-model',
-        specId: spec.id,
-      });
+      entries.push(createModelSeoEntry(model, spec, siteName));
     }
   }
   return entries;

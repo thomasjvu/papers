@@ -6,6 +6,7 @@ import { scriptHelperTests } from './script-helpers.test.ts';
 import { llmsArtifactTests } from './llms-artifacts.test.ts';
 import { buildIdentityTests } from './build-identity.test.ts';
 import { routeModelTests } from './route-model.test.ts';
+import { seoRouteTests } from './seo-routes.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -16,6 +17,7 @@ const testCases = [
   ...llmsArtifactTests,
   ...buildIdentityTests,
   ...routeModelTests,
+  ...seoRouteTests,
 ];
 
 let failures = 0;

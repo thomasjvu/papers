@@ -1,0 +1,165 @@
+[
+  {
+    "routePath": "/guides/how-to",
+    "canonicalPath": "/guides/how-to",
+    "title": "How to | Site",
+    "description": "Body.",
+    "type": "article",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/",
+    "canonicalPath": "/",
+    "title": "Site | Sub",
+    "description": "Desc.",
+    "type": "website",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/docs",
+    "canonicalPath": "/docs/start/intro",
+    "title": "Intro | Site",
+    "description": "Start here.",
+    "type": "article",
+    "includeInSitemap": false
+  },
+  {
+    "routePath": "/docs/start",
+    "canonicalPath": "/docs/start/intro",
+    "title": "Intro | Site",
+    "description": "Start here.",
+    "type": "article",
+    "includeInSitemap": false
+  },
+  {
+    "routePath": "/docs/start/intro",
+    "canonicalPath": "/docs/start/intro",
+    "title": "Intro | Site",
+    "description": "Start here.",
+    "type": "article",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/docs/llms",
+    "canonicalPath": "/docs/llms",
+    "title": "LLMs.txt | Site",
+    "description": "AI exports.",
+    "type": "article",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/404.html",
+    "canonicalPath": "/404.html",
+    "title": "Not Found | Site",
+    "description": "The requested page could not be found.",
+    "type": "website",
+    "includeInSitemap": false,
+    "noIndex": true
+  },
+  {
+    "routePath": "/llms",
+    "canonicalPath": "/docs/llms",
+    "title": "LLMs.txt | Site",
+    "description": "AI exports.",
+    "type": "article",
+    "includeInSitemap": false,
+    "noIndex": true
+  },
+  {
+    "routePath": "/skill",
+    "canonicalPath": "/docs/skill",
+    "title": "Skill | Site",
+    "description": "Body.",
+    "type": "article",
+    "includeInSitemap": false,
+    "noIndex": true
+  },
+  {
+    "routePath": "/docs/api-reference/openapi/main",
+    "canonicalPath": "/docs/api-reference/openapi/main",
+    "title": "Main API Reference | Site",
+    "description": "Everything.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/get-pets",
+    "canonicalPath": "/docs/api/get-pets/",
+    "title": "List pets | Site",
+    "description": "Lists every pet.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/post-pets",
+    "canonicalPath": "/docs/api/post-pets",
+    "title": "Create | Site",
+    "description": "Create",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/delete-pet",
+    "canonicalPath": "/docs/api/delete-pet",
+    "title": "DELETE /pets/{id} | Site",
+    "description": "DELETE /pets/{id}",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/models/pet",
+    "canonicalPath": "/docs/api/models/pet",
+    "title": "Pet | Site",
+    "description": "A pet.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-model",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/models/owner",
+    "canonicalPath": "/owner",
+    "title": "Owner | Site",
+    "description": "Schema model Owner from Main API.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-model",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api-reference/openapi/billing",
+    "canonicalPath": "/docs/api-reference/openapi/billing",
+    "title": "Billing | Site",
+    "description": "OpenAPI reference for Billing.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "billing"
+  },
+  {
+    "routePath": "/custom/route",
+    "canonicalPath": "/custom/route",
+    "title": "Explicit | Site",
+    "description": "OpenAPI reference for Explicit.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "main"
+  }
+]

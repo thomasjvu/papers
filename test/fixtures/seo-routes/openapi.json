@@ -1,0 +1,90 @@
+[
+  {
+    "routePath": "/docs/api-reference/openapi",
+    "canonicalPath": "/docs/api-reference/openapi",
+    "title": "Main API Reference | Site",
+    "description": "Everything.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/get-pets",
+    "canonicalPath": "/docs/api/get-pets/",
+    "title": "List pets | Site",
+    "description": "Lists every pet.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/post-pets",
+    "canonicalPath": "/docs/api/post-pets",
+    "title": "Create | Site",
+    "description": "Create",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/delete-pet",
+    "canonicalPath": "/docs/api/delete-pet",
+    "title": "DELETE /pets/{id} | Site",
+    "description": "DELETE /pets/{id}",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-operation",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/models/pet",
+    "canonicalPath": "/docs/api/models/pet",
+    "title": "Pet | Site",
+    "description": "A pet.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-model",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api/models/owner",
+    "canonicalPath": "/owner",
+    "title": "Owner | Site",
+    "description": "Schema model Owner from Main API.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-model",
+    "specId": "main"
+  },
+  {
+    "routePath": "/docs/api-reference/openapi/billing",
+    "canonicalPath": "/docs/api-reference/openapi/billing",
+    "title": "Billing | Site",
+    "description": "OpenAPI reference for Billing.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "billing"
+  },
+  {
+    "routePath": "/custom/route",
+    "canonicalPath": "/custom/route",
+    "title": "Explicit | Site",
+    "description": "OpenAPI reference for Explicit.",
+    "type": "article",
+    "includeInSitemap": true,
+    "noIndex": false,
+    "kind": "openapi-overview",
+    "specId": "main"
+  }
+]
