@@ -4,6 +4,7 @@ import { dirname, extname, join, relative, resolve, sep } from 'node:path';
 import { posix } from 'node:path';
 
 import {
+  designBookConfig as defaultDesignBookConfig,
   documentationTree as defaultDocumentationTree,
   i18nConfig as defaultI18nConfig,
   openapiConfig as defaultOpenapiConfig,
@@ -200,6 +201,7 @@ export function createRouteModel({
   versionConfig,
   i18nConfig,
   routeCollections,
+  designBookConfig,
 }) {
   const routeMap = new Map();
   const ambiguousRoutes = new Set();
@@ -216,6 +218,11 @@ export function createRouteModel({
   if (!collection || collection.id === 'docs') {
     add('/llms', { type: 'document', collectionId: 'docs', documentPath: 'llms' });
     add('/skill', { type: 'document', collectionId: 'docs', documentPath: 'skill' });
+  }
+
+  // The design book is a site page, so docs may link to it.
+  if (designBookConfig?.enabled) {
+    add(designBookConfig.route || '/design', { type: 'site' });
   }
 
   addOpenApiRoutes(add, openapiConfig, documentPaths);
@@ -669,6 +676,7 @@ export async function validateDocumentationContent(options = {}) {
     versionConfig,
     i18nConfig,
     routeCollections: options.routeCollections,
+    designBookConfig: options.designBookConfig || defaultDesignBookConfig,
   });
 
   for (const routePath of routeModel.ambiguousRoutes) {

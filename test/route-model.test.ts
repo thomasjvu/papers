@@ -92,6 +92,15 @@ export const routeModelTests = [
         serialize(disabled).routes.map(([path]) => path),
         ['/', '/llms', '/skill']
       );
+
+      const withDesignBook = createRouteModel({
+        collection: docs,
+        documentationTree: [],
+        documentPaths: [],
+        openapiConfig: { ...openapiConfig, enabled: false },
+        designBookConfig: { enabled: true, route: '/design' },
+      });
+      assert.equal(withDesignBook.routeMap.has('/design'), true);
     },
   },
 ];
