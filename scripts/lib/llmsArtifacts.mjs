@@ -303,6 +303,20 @@ export function createLlmsArtifacts(options = {}) {
   };
 }
 
+/**
+ * Remove exactly the header renderLlmsIndex wrote (title, optional subtitle,
+ * optional description) so a collection's first section heading survives.
+ */
+function stripLlmsIndexHeader(llmsTxt, siteSubtitle, siteDescription) {
+  let body = llmsTxt.replace(/^# [^\n]*\n\n/, '');
+  for (const line of [siteSubtitle ? `> ${siteSubtitle}` : '', siteDescription]) {
+    // Outputs are already finalized, so compare without trailing spaces.
+    const prefix = `${line}\n\n`.replace(/[ \t]+$/gm, '');
+    if (line && body.startsWith(prefix)) body = body.slice(prefix.length);
+  }
+  return body;
+}
+
 export function createAllLlmsArtifacts({ collections = [], ...options } = {}) {
   const outputs = collections.map((collection) =>
     createLlmsArtifacts({
@@ -334,7 +348,7 @@ export function createAllLlmsArtifacts({ collections = [], ...options } = {}) {
     siteDescription,
     ...outputs.map((output, index) => {
       const label = collections[index]?.label || collections[index]?.id || 'Collection';
-      const body = output.llmsTxt.replace(/^# .*?\n\n(?:> .*?\n\n)?(?:.*?\n\n)?/, '');
+      const body = stripLlmsIndexHeader(output.llmsTxt, siteSubtitle, siteDescription);
       return `## ${label}\n\n${body.trim()}`;
     }),
   ]

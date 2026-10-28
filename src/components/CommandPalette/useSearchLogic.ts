@@ -13,6 +13,7 @@ import {
 } from '../../../shared/docsRouting.js';
 import { homepageConfig } from '../../../shared/documentation-config.js';
 import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
+import { papersThemeAllowsLightDarkToggle } from '../../lib/papersTheme';
 
 import type { SearchResultType } from './SearchResult';
 import { combineSearchResults } from './searchUtils';
@@ -221,6 +222,11 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
           : createElement(Icon, { icon: 'mingcute:pause-circle-line', className: 'w-5 h-5' }),
       },
     ];
+
+    if (!papersThemeAllowsLightDarkToggle()) {
+      // Single-mode themes hide the light/dark switch, so the palette must not offer it either.
+      commands.shift();
+    }
 
     FONT_OPTIONS.forEach((option) => {
       commands.push({

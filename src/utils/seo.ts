@@ -130,6 +130,11 @@ export function applySeoMetadata({
   upsertMetaTag('property', 'og:site_name', siteName);
   upsertMetaTag('property', 'og:url', pageUrl);
   upsertMetaTag('property', 'og:image', imageUrl);
+  upsertMetaTag(
+    'property',
+    'og:image:type',
+    /\.svg$/i.test(imageUrl) ? 'image/svg+xml' : 'image/png'
+  );
   upsertMetaTag('property', 'og:image:alt', `${title} documentation preview`);
   upsertMetaTag('name', 'twitter:card', 'summary_large_image');
   upsertMetaTag('name', 'twitter:title', title);

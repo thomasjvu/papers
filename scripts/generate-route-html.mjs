@@ -4,7 +4,11 @@ import { dirname, join } from 'path';
 
 import { contentCollections } from '../shared/content-collections.js';
 import { homepageConfig } from '../shared/documentation-config.js';
-import { DEFAULT_OG_IMAGE_PATH, socialImagePathForRoute } from '../shared/seo.js';
+import {
+  DEFAULT_OG_IMAGE_PATH,
+  DEFAULT_TWITTER_IMAGE_PATH,
+  socialImagePathForRoute,
+} from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
 import { resolveSiteMetadata } from './lib/siteMetadata.mjs';
@@ -99,6 +103,28 @@ async function writeSocialCard(entry, site, cards) {
   return advertisedPath;
 }
 
+/**
+ * Rasterise the site-wide SVG cards to PNG next to them, since social crawlers
+ * (X, Facebook, LinkedIn, Slack) do not render SVG previews. Returns the PNG
+ * paths to advertise, or {} to keep the SVGs when rasterising is unavailable.
+ */
+async function writeDefaultPngCards(fontFiles) {
+  const defaults = {};
+  for (const [key, svgPath] of [
+    ['og', DEFAULT_OG_IMAGE_PATH],
+    ['twitter', DEFAULT_TWITTER_IMAGE_PATH],
+  ]) {
+    const svgFile = join(distDir, svgPath.replace(/^\//, ''));
+    if (!existsSync(svgFile)) continue;
+    const png = await renderSocialCardPng(readFileSync(svgFile, 'utf8'), { fontFiles });
+    if (!png) continue;
+    const pngPath = svgPath.replace(/\.svg$/, '.png');
+    await writeFile(join(distDir, pngPath.replace(/^\//, '')), png);
+    defaults[key] = pngPath;
+  }
+  return defaults;
+}
+
 async function generateRouteHtml() {
   const { artifactsByCollectionId, openapiArtifacts } = readBuildInputs();
   const site = resolveSiteMetadata(loadViteEnv(rootDir, resolveEnvMode('production')));
@@ -120,26 +146,34 @@ async function generateRouteHtml() {
     ? planHomepagePreloads({ artwork: homepageConfig.hero?.artwork })
     : '';
   const agentLinks = createAgentLinks(siteUrl, contentCollections);
-  const homepageHtml = appendRoutePreloads(
-    applyMetadataToHtml(
-      templateHtml,
-      createHomepageMetadata({ siteName, siteSubtitle, siteDescription, siteUrl, agentLinks })
-    ),
-    homepagePreloads
-  );
-  await writeFile(indexHtmlPath, `${homepageHtml.trimEnd()}\n`);
-
   const cards = {
     written: new Map(),
     fontFiles: socialCardFontFiles(publicDir),
     png: 0,
     svgFallbacks: 0,
   };
+  const defaultImages = await writeDefaultPngCards(cards.fontFiles);
+  const homepageHtml = appendRoutePreloads(
+    applyMetadataToHtml(
+      templateHtml,
+      createHomepageMetadata({
+        siteName,
+        siteSubtitle,
+        siteDescription,
+        siteUrl,
+        agentLinks,
+        defaultImages,
+      })
+    ),
+    homepagePreloads
+  );
+  await writeFile(indexHtmlPath, `${homepageHtml.trimEnd()}\n`);
+
   for (const entry of routeEntries) {
     const imagePath = await writeSocialCard(entry, site, cards);
     const html = applyMetadataToHtml(
       templateHtml,
-      createRouteMetadata(entry, { siteUrl, siteName, agentLinks, imagePath })
+      createRouteMetadata(entry, { siteUrl, siteName, agentLinks, imagePath, defaultImages })
     );
     const routePreloads =
       entry.routePath === '/'

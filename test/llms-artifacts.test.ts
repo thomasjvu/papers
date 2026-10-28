@@ -421,7 +421,7 @@ export const llmsArtifactTests = [
       }),
   },
   {
-    name: 'createAllLlmsArtifacts labels collections and pins the hero-less header strip',
+    name: 'createAllLlmsArtifacts labels collections and keeps each first section heading',
     run: () =>
       withDocs({ x: 'Text.  \n' }, async ({ rootDir, tree }) => {
         await mkdir(join(rootDir, 'other/d'), { recursive: true });
@@ -431,11 +431,11 @@ export const llmsArtifactTests = [
           { tree, contentDir: 'other', routePrefix: '/b' },
         ];
         const bare = createAllLlmsArtifacts({ rootDir, collections });
-        // Without a hero description the per-collection strip regex also eats the
-        // first "## D" section heading. Pinned as current behaviour, not endorsed.
+        // Regression: without a hero description the header strip used to eat each
+        // collection's first "## D" section heading.
         assert.equal(
           bare.llmsTxt,
-          '# Documentation Documentation\n\n## a\n\n- [x](/docs/d/x): Text.\n\n## Collection\n\n- [x](/b/d/x): Other.\n'
+          '# Documentation Documentation\n\n## a\n\n## D\n\n- [x](/docs/d/x): Text.\n\n## Collection\n\n## D\n\n- [x](/b/d/x): Other.\n'
         );
         assert.match(
           bare.llmsFullTxt,
@@ -450,7 +450,17 @@ export const llmsArtifactTests = [
           collections,
           homepageConfig: { hero: { title: 'T', subtitle: 'S  ' } },
         });
-        assert.match(titled.llmsTxt, /^# T Documentation\n\n> S\n\n## a\n\n- \[x\]/);
+        assert.match(titled.llmsTxt, /^# T Documentation\n\n> S\n\n## a\n\n## D\n\n- \[x\]/);
+        const described = createAllLlmsArtifacts({
+          rootDir,
+          collections,
+          homepageConfig: { hero: { subtitle: 'S', description: 'Line one.\nLine two.' } },
+        });
+        assert.match(
+          described.llmsTxt,
+          /^# Documentation Documentation\n\n> S\n\nLine one\.\nLine two\.\n\n## a\n\n## D\n/
+        );
+        assert.equal(described.llmsTxt.match(/Line one/g)?.length, 1);
         assert.equal(
           createAllLlmsArtifacts({ rootDir, collections, homepageConfig: {} }).llmsTxt,
           bare.llmsTxt

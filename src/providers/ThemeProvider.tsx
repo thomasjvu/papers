@@ -1,8 +1,14 @@
 import { useState, useEffect, type ReactNode, useMemo, useCallback, useRef } from 'react';
-import { papersThemeDefaultDarkMode } from '../lib/papersTheme';
+import { papersThemeAllowsLightDarkToggle, papersThemeDefaultDarkMode } from '../lib/papersTheme';
 import safeLocalStorage from '../utils/storage';
 import { ThemeContext, type FontFamily } from './theme-context';
 const DEFAULT_DARK_MODE = papersThemeDefaultDarkMode();
+// Single-mode themes ignore stored preferences and cannot be toggled.
+const ALLOWS_TOGGLE = papersThemeAllowsLightDarkToggle();
+
+function readStoredThemePreference(): string | null {
+  return ALLOWS_TOGGLE ? safeLocalStorage.getItem('darkMode') : null;
+}
 
 function isEditableTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) {
@@ -18,7 +24,7 @@ function isEditableTarget(target: EventTarget | null): boolean {
 }
 
 function getInitialDarkModePreference(): boolean {
-  const storedThemePreference = safeLocalStorage.getItem('darkMode');
+  const storedThemePreference = readStoredThemePreference();
 
   if (storedThemePreference === 'true') {
     return true;
@@ -73,7 +79,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const motionMediaQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-    const storedThemePreference = safeLocalStorage.getItem('darkMode');
+    const storedThemePreference = readStoredThemePreference();
     const hasStoredThemePreference =
       storedThemePreference === 'true' || storedThemePreference === 'false';
     hasExplicitThemePreference.current = hasStoredThemePreference;
@@ -129,6 +135,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, [prefersReducedMotion, applyMotionPreference]);
 
   const toggleTheme = useCallback(() => {
+    if (!ALLOWS_TOGGLE) return;
     hasExplicitThemePreference.current = true;
     setIsDarkMode((prev) => !prev);
   }, []);
