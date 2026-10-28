@@ -7,6 +7,7 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { chromium } from 'playwright';
 
+import { evaluateAssertion } from './lib/lighthouseAssertions.mjs';
 import { captureProcessOutput } from './lib/processRun.mjs';
 
 const cwd = process.cwd();
@@ -141,31 +142,6 @@ async function waitForPreview(url, preview) {
   throw new Error(
     `Preview did not become ready within ${serverReadyTimeoutMs / 1000}s${preview.getLogs() ? `:\n${preview.getLogs()}` : ''}`
   );
-}
-
-function evaluateAssertion(lhr, id, assertion) {
-  if (!Array.isArray(assertion) || assertion.length < 2) {
-    throw new Error(`Unsupported assertion format for ${id}`);
-  }
-
-  const [level, options] = assertion;
-  if (level !== 'error' && level !== 'warn') {
-    throw new Error(`Unsupported assertion level for ${id}: ${level}`);
-  }
-
-  let actual;
-  let passes;
-  if (id.startsWith('categories:')) {
-    const categoryId = id.slice('categories:'.length);
-    actual = lhr.categories?.[categoryId]?.score;
-    passes = typeof actual === 'number' && actual >= options.minScore;
-  } else {
-    const audit = lhr.audits?.[id];
-    actual = audit?.numericValue;
-    passes = typeof actual === 'number' && actual <= options.maxNumericValue;
-  }
-
-  return { id, level, actual, passes };
 }
 
 function evaluateAssertions(lhr) {
