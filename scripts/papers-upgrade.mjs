@@ -144,6 +144,28 @@ if (target.commit === lock.commit) {
   process.exit(0);
 }
 
+// Never go backwards: a site that tracks a newer commit than the latest
+// release (for example `--to main`) stays put until a newer release exists.
+function isAncestor(older, newer) {
+  try {
+    execFileSync('git', ['merge-base', '--is-ancestor', older, newer], {
+      cwd: root,
+      stdio: 'ignore',
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+if (isAncestor(target.commit, lock.commit)) {
+  console.log(
+    `Site is already past Papers ${target.ref} (${target.commit.slice(0, 7)}); nothing to do.`
+  );
+  output('available', 'false');
+  process.exit(0);
+}
+
 if (values.check) {
   console.log(
     `Papers ${target.ref} is available (site is on ${lock.ref || lock.commit.slice(0, 7)}).`

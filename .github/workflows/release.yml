@@ -98,9 +98,11 @@ jobs:
       - name: Run packed clean-consumer smoke
         run: npm run create:smoke
 
+  # Publishing stays off until the npm side is set up (see RELEASING.md):
+  # set the repository variable NPM_PUBLISH to "true" to turn it on.
   publish:
     needs: validate
-    if: always() && needs.validate.result == 'success'
+    if: always() && needs.validate.result == 'success' && vars.NPM_PUBLISH == 'true'
     runs-on: ubuntu-latest
     environment: npm
     permissions:
