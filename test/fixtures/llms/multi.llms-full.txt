@@ -1,0 +1,92 @@
+# Fixture Documentation - Full Content
+
+> Complete documentation content for AI ingestion across all collections.
+
+
+## Docs
+
+> Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
+
+
+## Guides
+
+
+### intro
+
+URL: https://docs.example.com/docs/guides/intro
+
+---
+title: Intro
+description: "  Start here.  "
+---
+
+# Intro
+
+Welcome text.
+
+
+---
+
+
+### tables
+
+URL: https://docs.example.com/docs/guides/tables
+
+| a | b |
+| - | - |
+| 1 | 2 |
+
+
+---
+
+
+## Advanced
+
+
+### deep
+
+URL: https://docs.example.com/docs/guides/advanced/deep
+
+---
+title: Deep
+---
+
+# Deep
+
+- a list
+- only
+
+```js
+code();
+```
+
+The first real paragraph explains deep things.
+
+Second paragraph.
+
+---
+
+
+## api
+
+> Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
+
+
+## Guides
+
+
+### intro
+
+URL: https://docs.example.com/api-docs/guides/intro
+
+---
+title: Ref
+---
+
+API collection page.
+
+
+---
+
+
+## Advanced

@@ -1,0 +1,29 @@
+# Fixture Documentation
+
+> Sub
+
+Site description.
+
+## Docs
+
+## Advanced
+
+- [deep](https://docs.example.com/docs/guides/advanced/deep): The first real paragraph explains deep things.
+
+## Guides
+
+- [intro](https://docs.example.com/docs/guides/intro): Start here.
+- [tables](https://docs.example.com/docs/guides/tables): | a | b | | - | - | | 1 | 2 |
+- [missing](https://docs.example.com/docs/guides/missing)
+
+## api
+
+## Advanced
+
+- [deep](https://docs.example.com/api-docs/guides/advanced/deep)
+
+## Guides
+
+- [intro](https://docs.example.com/api-docs/guides/intro): API collection page.
+- [tables](https://docs.example.com/api-docs/guides/tables)
+- [missing](https://docs.example.com/api-docs/guides/missing)

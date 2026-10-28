@@ -1,0 +1,25 @@
+# Fixture Documentation
+
+> Sub
+
+Site description.
+
+## Advanced
+
+- [deep](https://docs.example.com/docs/guides/advanced/deep): The first real paragraph explains deep things.
+
+## Guides
+
+- [intro](https://docs.example.com/docs/guides/intro): Start here.
+- [tables](https://docs.example.com/docs/guides/tables): | a | b | | - | - | | 1 | 2 |
+- [missing](https://docs.example.com/docs/guides/missing)
+
+## API Reference
+
+### Pets API
+
+- [GET /pets](https://docs.example.com/api/pets/get-pets): List pets
+- [POST /pets](https://docs.example.com/api/pets/post-pets): OpenAPI operation reference.
+- [Pet](https://docs.example.com/api/pets/models/pet): OpenAPI schema model.
+- [Owner](https://docs.example.com/api/pets/models/owner): Pet owner.
+

@@ -3,6 +3,7 @@ import { routePreloadTests } from './route-preloads.test.ts';
 import { authoringFeatureTests } from './authoring-features.test.ts';
 import { docsParityTests } from './docs-parity.test.ts';
 import { scriptHelperTests } from './script-helpers.test.ts';
+import { llmsArtifactTests } from './llms-artifacts.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -10,6 +11,7 @@ const testCases = [
   ...authoringFeatureTests,
   ...docsParityTests,
   ...scriptHelperTests,
+  ...llmsArtifactTests,
 ];
 
 let failures = 0;
