@@ -1,3 +1,5 @@
+import { SectionHeading } from './SectionHeading';
+
 interface QuickStartStep {
   title: string;
   code: string;
@@ -14,28 +16,7 @@ export function QuickStart({ quickStart }: QuickStartProps) {
   return (
     <section className="py-20">
       <div className="papers-container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2
-            className="font-bold mb-4"
-            style={{
-              fontFamily: 'var(--title-font)',
-              color: 'var(--papers-text-color)',
-              fontSize: 'clamp(var(--papers-text-2xl), 4vw, var(--papers-text-4xl))',
-              letterSpacing: '-0.03em',
-            }}
-          >
-            {quickStart.title}
-          </h2>
-          <p
-            style={{
-              color: 'var(--muted-color)',
-              fontSize: 'var(--papers-text-lg)',
-              lineHeight: 'var(--papers-leading-loose)',
-            }}
-          >
-            Get up and running in minutes
-          </p>
-        </div>
+        <SectionHeading title={quickStart.title} subtitle="Get up and running in minutes" />
 
         <div className="max-w-3xl mx-auto space-y-4">
           {quickStart.steps.map((step, index) => (
