@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import React from 'react';
 import { useState, useEffect, useMemo, useCallback } from 'react';
 
+import { createBracketVariants } from '../animations/bracketVariants';
 import { socialLinks } from '../constants/social';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { useTheme } from '../providers/useTheme';
@@ -27,18 +28,6 @@ const navItems: NavItem[] = [
   { label: 'Deployment', href: '/docs/deployment/overview' },
   { label: 'LLMs.txt', href: '/docs/llms' },
 ];
-
-const bracketAnimationConfig = {
-  duration: 0.4,
-  times: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-  ease: 'easeOut' as const,
-};
-
-const exitAnimationConfig = {
-  duration: 0.3,
-  times: [0, 0.2, 0.4, 0.6, 0.8, 1],
-  ease: 'easeOut' as const,
-};
 
 export default function Navigation({
   docsPath,
@@ -64,105 +53,14 @@ export default function Navigation({
     return () => window.removeEventListener('resize', handleResize);
   }, [mobileMenuOpen]);
 
-  const leftBracketVariants = useMemo(() => {
-    if (prefersReducedMotion) {
-      return {
-        initial: { opacity: 0, color: 'var(--primary-color)' },
-        animate: { opacity: 1, color: 'var(--primary-color)', transition: { duration: 0.05 } },
-        exit: { opacity: 0, color: 'var(--primary-color)', transition: { duration: 0.05 } },
-      };
-    }
-    return {
-      initial: {
-        opacity: 0,
-        x: -10,
-        color: 'var(--primary-color)',
-      },
-      animate: {
-        opacity: [0, 0.4, 0, 0.7, 0, 1, 0, 0, 0, 0.5, 1],
-        x: [-10, -9, -7, -5, -4, -2, 0, 0, 0, 0, 0],
-        scale: [1, 1.2, 0.8, 1.1, 0.9, 1.0, 0.95, 1.1, 0.9, 1.0, 1],
-        color: [
-          'var(--primary-color)',
-          'transparent',
-          'var(--animation-text-color)',
-          'transparent',
-          'transparent',
-          'var(--primary-color)',
-          'transparent',
-          'transparent',
-          'transparent',
-          'var(--animation-text-color)',
-          'var(--primary-color)',
-        ],
-        transition: {
-          ...bracketAnimationConfig,
-          scale: { ...bracketAnimationConfig, ease: 'easeInOut' },
-          opacity: { ...bracketAnimationConfig, ease: 'linear' },
-          color: { ...bracketAnimationConfig, ease: 'linear' },
-        },
-      },
-      exit: {
-        opacity: [1, 0, 0.7, 0, 0.4, 0],
-        x: [-2, -4, -5, -7, -9, -10],
-        color: 'var(--primary-color)',
-        transition: {
-          ...exitAnimationConfig,
-          opacity: { ...exitAnimationConfig, ease: 'linear' },
-        },
-      },
-    };
-  }, [prefersReducedMotion]);
-
-  const rightBracketVariants = useMemo(() => {
-    if (prefersReducedMotion) {
-      return {
-        initial: { opacity: 0, color: 'var(--primary-color)' },
-        animate: { opacity: 1, color: 'var(--primary-color)', transition: { duration: 0.05 } },
-        exit: { opacity: 0, color: 'var(--primary-color)', transition: { duration: 0.05 } },
-      };
-    }
-    return {
-      initial: {
-        opacity: 0,
-        x: 10,
-        color: 'var(--primary-color)',
-      },
-      animate: {
-        opacity: [0, 0.4, 0, 0.7, 0, 1, 0, 0, 0, 0.5, 1],
-        x: [10, 9, 7, 5, 4, 2, 0, 0, 0, 0, 0],
-        scale: [1, 1.2, 0.8, 1.1, 0.9, 1.0, 0.95, 1.1, 0.9, 1.0, 1],
-        color: [
-          'var(--primary-color)',
-          'transparent',
-          'var(--animation-text-color)',
-          'transparent',
-          'transparent',
-          'var(--primary-color)',
-          'transparent',
-          'transparent',
-          'transparent',
-          'var(--animation-text-color)',
-          'var(--primary-color)',
-        ],
-        transition: {
-          ...bracketAnimationConfig,
-          scale: { ...bracketAnimationConfig, ease: 'easeInOut' },
-          opacity: { ...bracketAnimationConfig, ease: 'linear' },
-          color: { ...bracketAnimationConfig, ease: 'linear' },
-        },
-      },
-      exit: {
-        opacity: [1, 0, 0.7, 0, 0.4, 0],
-        x: [2, 4, 5, 7, 9, 10],
-        color: 'var(--primary-color)',
-        transition: {
-          ...exitAnimationConfig,
-          opacity: { ...exitAnimationConfig, ease: 'linear' },
-        },
-      },
-    };
-  }, [prefersReducedMotion]);
+  const leftBracketVariants = useMemo(
+    () => createBracketVariants('left', prefersReducedMotion),
+    [prefersReducedMotion]
+  );
+  const rightBracketVariants = useMemo(
+    () => createBracketVariants('right', prefersReducedMotion),
+    [prefersReducedMotion]
+  );
 
   const mobileMenuVariants = useMemo(() => {
     if (prefersReducedMotion) {

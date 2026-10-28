@@ -19,6 +19,8 @@ import { validateDocumentationContent } from '../scripts/lib/contentValidation.m
 import { disabledFeatureConfigs } from './helpers/validationFixtures.ts';
 import { getCollectionRouteSlug } from '../shared/docsRouting.js';
 import { createHeadingId } from '../src/utils/headingIds.ts';
+import { createBracketVariants } from '../src/animations/bracketVariants.ts';
+import { readFileSync } from 'node:fs';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -209,6 +211,25 @@ export const scriptHelperTests: TestCase[] = [
       assert.equal(createHeadingId('Hello World', counts), 'hello-world-3');
       assert.equal(createHeadingId('!!!', counts), 'section');
       assert.equal(createHeadingId('', counts), 'section-2');
+    },
+  },
+  {
+    name: 'createBracketVariants reproduces the navigation hover bracket animations',
+    run: () => {
+      const expected = JSON.parse(
+        readFileSync(
+          new URL('./fixtures/navigation/bracket-variants.json', import.meta.url),
+          'utf8'
+        )
+      );
+      for (const reduced of [true, false]) {
+        const actual = {
+          left: createBracketVariants('left', reduced),
+          right: createBracketVariants('right', reduced),
+        };
+        assert.deepEqual(JSON.parse(JSON.stringify(actual)), expected[String(reduced)]);
+      }
+      assert.ok(!Object.is(createBracketVariants('left', false).animate.x.at(-1), -0));
     },
   },
 ];

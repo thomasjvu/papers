@@ -1,0 +1,166 @@
+{
+  "true": {
+    "left": {
+      "initial": {
+        "opacity": 0,
+        "color": "var(--primary-color)"
+      },
+      "animate": {
+        "opacity": 1,
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.05
+        }
+      },
+      "exit": {
+        "opacity": 0,
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.05
+        }
+      }
+    },
+    "right": {
+      "initial": {
+        "opacity": 0,
+        "color": "var(--primary-color)"
+      },
+      "animate": {
+        "opacity": 1,
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.05
+        }
+      },
+      "exit": {
+        "opacity": 0,
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.05
+        }
+      }
+    }
+  },
+  "false": {
+    "left": {
+      "initial": {
+        "opacity": 0,
+        "x": -10,
+        "color": "var(--primary-color)"
+      },
+      "animate": {
+        "opacity": [0, 0.4, 0, 0.7, 0, 1, 0, 0, 0, 0.5, 1],
+        "x": [-10, -9, -7, -5, -4, -2, 0, 0, 0, 0, 0],
+        "scale": [1, 1.2, 0.8, 1.1, 0.9, 1, 0.95, 1.1, 0.9, 1, 1],
+        "color": [
+          "var(--primary-color)",
+          "transparent",
+          "var(--animation-text-color)",
+          "transparent",
+          "transparent",
+          "var(--primary-color)",
+          "transparent",
+          "transparent",
+          "transparent",
+          "var(--animation-text-color)",
+          "var(--primary-color)"
+        ],
+        "transition": {
+          "duration": 0.4,
+          "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+          "ease": "easeOut",
+          "scale": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "easeInOut"
+          },
+          "opacity": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "linear"
+          },
+          "color": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "linear"
+          }
+        }
+      },
+      "exit": {
+        "opacity": [1, 0, 0.7, 0, 0.4, 0],
+        "x": [-2, -4, -5, -7, -9, -10],
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.3,
+          "times": [0, 0.2, 0.4, 0.6, 0.8, 1],
+          "ease": "easeOut",
+          "opacity": {
+            "duration": 0.3,
+            "times": [0, 0.2, 0.4, 0.6, 0.8, 1],
+            "ease": "linear"
+          }
+        }
+      }
+    },
+    "right": {
+      "initial": {
+        "opacity": 0,
+        "x": 10,
+        "color": "var(--primary-color)"
+      },
+      "animate": {
+        "opacity": [0, 0.4, 0, 0.7, 0, 1, 0, 0, 0, 0.5, 1],
+        "x": [10, 9, 7, 5, 4, 2, 0, 0, 0, 0, 0],
+        "scale": [1, 1.2, 0.8, 1.1, 0.9, 1, 0.95, 1.1, 0.9, 1, 1],
+        "color": [
+          "var(--primary-color)",
+          "transparent",
+          "var(--animation-text-color)",
+          "transparent",
+          "transparent",
+          "var(--primary-color)",
+          "transparent",
+          "transparent",
+          "transparent",
+          "var(--animation-text-color)",
+          "var(--primary-color)"
+        ],
+        "transition": {
+          "duration": 0.4,
+          "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+          "ease": "easeOut",
+          "scale": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "easeInOut"
+          },
+          "opacity": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "linear"
+          },
+          "color": {
+            "duration": 0.4,
+            "times": [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+            "ease": "linear"
+          }
+        }
+      },
+      "exit": {
+        "opacity": [1, 0, 0.7, 0, 0.4, 0],
+        "x": [2, 4, 5, 7, 9, 10],
+        "color": "var(--primary-color)",
+        "transition": {
+          "duration": 0.3,
+          "times": [0, 0.2, 0.4, 0.6, 0.8, 1],
+          "ease": "easeOut",
+          "opacity": {
+            "duration": 0.3,
+            "times": [0, 0.2, 0.4, 0.6, 0.8, 1],
+            "ease": "linear"
+          }
+        }
+      }
+    }
+  }
+}
