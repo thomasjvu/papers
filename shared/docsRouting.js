@@ -418,6 +418,20 @@ export function buildCollectionLandingPath(collection, path = '', options = {}) 
   return buildCanonicalCollectionPath(collection, path || '', options);
 }
 
+/**
+ * The route slug after a collection's prefix, or null when `pathname` is outside it.
+ *
+ * @param {{ routePrefix?: string } | undefined} collection
+ * @param {string} pathname
+ * @returns {string | null}
+ */
+export function getCollectionRouteSlug(collection, pathname) {
+  const routePrefix = String(collection?.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+  return pathname.startsWith(routePrefix)
+    ? pathname.replace(new RegExp(`^${routePrefix}/?`), '')
+    : null;
+}
+
 export function parseCollectionRoutePath(collection, slug = '', options = {}) {
   const routeOptions = getCollectionRoutingOptions(collection, options);
   const prefixSegments = normalizeCollectionRoutePrefix(collection?.routePrefix)

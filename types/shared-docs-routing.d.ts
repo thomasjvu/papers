@@ -254,6 +254,11 @@ declare module '*/shared/docsRouting.js' {
     }
   ): string;
 
+  export function getCollectionRouteSlug(
+    collection: Partial<Pick<ContentCollection, 'routePrefix'>> | undefined,
+    pathname: string
+  ): string | null;
+
   export function parseCollectionRoutePath(
     collection?: ContentCollection,
     slug?: string,

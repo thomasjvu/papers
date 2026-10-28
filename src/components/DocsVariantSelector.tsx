@@ -1,14 +1,11 @@
-import { useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-import {
-  buildCanonicalCollectionPath,
-  parseCollectionRoutePath,
-} from '../../shared/docsRouting.js';
+import { buildCanonicalCollectionPath } from '../../shared/docsRouting.js';
 import type { ContentCollection } from '../../shared/docsRouting.js';
 import { getContentCollection } from '../data/collections';
 import { i18nConfig, versionConfig } from '@app-shared/documentation-config.js';
 import { useUiStrings } from '../lib/uiStrings';
+import { useCollectionRouteContext } from '../hooks/useCollectionRouteContext';
 
 type DocsVariantSelectorProps = {
   docPath: string;
@@ -24,15 +21,7 @@ export default function DocsVariantSelector({ docPath, collection }: DocsVariant
   const navigate = useNavigate();
   const location = useLocation();
   const activeCollection = collection || getContentCollection('docs');
-  const routePrefix =
-    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
-  const docsRouteSlug = location.pathname.startsWith(routePrefix)
-    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
-    : '';
-  const routeContext = useMemo(
-    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
-    [activeCollection, docsRouteSlug]
-  );
+  const routeContext = useCollectionRouteContext(activeCollection, location.pathname);
 
   const activeVersionConfig = activeCollection.variants?.versionConfig || versionConfig;
   const activeI18nConfig = activeCollection.variants?.i18nConfig || i18nConfig;
