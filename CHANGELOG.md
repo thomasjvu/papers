@@ -33,7 +33,7 @@ themes and CSS by the bundled 0.2.0 codemod.
 
 - `scripts/papers-upgrade.mjs`: three-way upgrade of a site's framework files from the release recorded in `papers.lock.json`, with site-owned paths in `papers.upgrade.json`, versioned codemods in `scripts/migrations/`, and `--install-workflow` for weekly upgrade pull requests (GitHub and Forgejo)
 - `create-papers` writes `papers.lock.json` into new sites
-- tag releases create a GitHub release from the changelog; npm publishing runs only when `NPM_TOKEN` is set
+- releases are cut by release-please and published to npm as `@thomasjvu/papers` and `create-papers` with provenance via npm trusted publishing (no stored token); `npx @thomasjvu/papers upgrade` runs the upgrader
 - PNG social cards for each page (`@resvg/resvg-js`), with the SVG card as a fallback; `PAPERS_SOCIAL_CARD_FORMAT=svg` turns PNG off
 - heading-level search results that open the page at the matching section, and All / Docs / API scope buttons in the command palette
 - translatable sidebar, mindmap and command palette labels in `uiStringsConfig`, with placeholder checks for templates such as `Font: {font}`

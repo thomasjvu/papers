@@ -68,31 +68,40 @@ its static asset behavior. The root `/llms` and `/skill` snapshots are
 compatibility aliases with `noindex` metadata and canonical URLs pointing to
 `/docs/llms` and `/docs/skill` respectively.
 
-5. Release the framework and starter from one versioned tag.
+5. Release with release-please; npm publishing is automatic.
 
-The root framework and `create-papers` starter intentionally share one semver
-version. Update both package contracts, the starter smoke fixture, and
-[CHANGELOG.md](CHANGELOG.md) together. The release tag must be exactly
-`v<root-package-version>`; for example:
+The framework (`@thomasjvu/papers`) and the starter (`create-papers`) share
+one semver version and one tag, `vX.Y.Z`. You do not bump versions or edit
+the changelog by hand:
 
-```bash
-node -p "require('./package.json').version"
-git tag v0.2.0
-git push origin v0.2.0
-```
+1. Merge pull requests to `main` with conventional commit titles (`feat:`,
+   `fix:`, `feat!:` for breaking changes).
+2. The [Release workflow](.github/workflows/release.yml) keeps a
+   `chore(release): vX.Y.Z` pull request open. It bumps both
+   `package.json` versions and writes [CHANGELOG.md](CHANGELOG.md) from those
+   commits. Edit its changelog text if you want, then merge it.
+3. Merging it tags `vX.Y.Z`, creates the GitHub release, runs the full
+   framework gate on the tag and publishes both packages to npm with
+   provenance. Publishing uses npm trusted publishing (GitHub OIDC), so no npm
+   token is stored anywhere.
+4. Sites pick the release up from their weekly upgrade job, or by running
+   `npx @thomasjvu/papers@latest upgrade` (see the README).
 
-Pushing the tag runs the trusted `Release create-papers` workflow. It
-validates the tag against both package versions, runs the full framework gate
-and the packed clean-consumer smoke, then creates the GitHub release from the
-version's CHANGELOG section. Sites upgrade from that tag with
-`node scripts/papers-upgrade.mjs` (see the README), and their weekly upgrade
-job opens a pull request for it.
+To publish an existing tag again (for example after fixing npm settings), run
+the Release workflow by hand with that tag. Versions already on npm are
+skipped.
 
-Publishing `create-papers` to npm is optional and only runs when an
-`NPM_TOKEN` repository secret exists; it then publishes with provenance,
-probes the exact public version and adds the tarball URL to the release
-notes. Do not run a manual `npm publish` unless package ownership, access,
-provenance, and release credentials have been explicitly confirmed.
+One-time setup, done by the npm package owner on npmjs.com:
+
+- Publish each package once by hand (`npm publish --access public` from the
+  repo root and from `packages/create-papers`), because npm only lets you add
+  a trusted publisher to a package that exists.
+- On each package's Settings page, add a trusted publisher: GitHub Actions,
+  repository `thomasjvu/papers`, workflow `release.yml`, environment `npm`.
+- Then set "Publishing access" to require two-factor authentication and
+  disallow tokens.
+- In the GitHub repository settings, under Actions, allow GitHub Actions to
+  create pull requests so release-please can open its release pull request.
 
 Breaking changes for sites need a changelog entry under "Changed (breaking)"
 and, when the change is mechanical, a codemod in

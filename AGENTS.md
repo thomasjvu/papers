@@ -82,3 +82,15 @@ updated, commands and outcomes, known blockers, and any follow-up plan. Keep
 run IDs, personal paths, credentials, and temporary host assumptions out of
 repository documentation. Detailed release procedure lives in
 [RELEASING.md](RELEASING.md).
+
+## 8. Docs as code
+
+- Docs change in the same PR as the code they describe. Say in the PR what
+  docs changed, or why none needed to.
+- Generate reference docs from source where possible (CLI `--help`, OpenAPI
+  specs, config schemas, types) instead of copying values by hand.
+- The docs build (`npm run build`) and the docs and link checks
+  (`npm run release:check:papers`, which runs `docs:check`) run in CI. A docs
+  failure is a test failure.
+- Write docs plainly: short sentences, simple words, a working example.
+- Full rules: the `docs-as-code` skill (`~/.agents/skills/docs-as-code/SKILL.md`).

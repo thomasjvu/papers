@@ -39,13 +39,20 @@ in [packages/create-papers/README.md](packages/create-papers/README.md).
 
 A Papers site is a copy of the framework plus your own content, config and
 theme. `papers.lock.json` in the site records which Papers release its
-framework files match. To move to a newer release:
+framework files match. Papers is released to npm as
+[`@thomasjvu/papers`](https://www.npmjs.com/package/@thomasjvu/papers) (the
+framework and its `papers` command) and `create-papers` (the starter), with
+one shared version and a Git tag `vX.Y.Z` per release. To move a site to a
+newer release:
 
 ```bash
-node scripts/papers-upgrade.mjs            # latest release
-node scripts/papers-upgrade.mjs --to v0.2.0
-npm install                                # if package.json changed
+npx @thomasjvu/papers@latest upgrade      # latest release
+npx @thomasjvu/papers@0.2.0 upgrade       # a specific release
+npm install                               # if package.json changed
 ```
+
+`node scripts/papers-upgrade.mjs` is the same command from the site's own
+copy. Run it with `--help` for every option; that help text is the reference.
 
 The upgrader works like `git merge` for the framework:
 
