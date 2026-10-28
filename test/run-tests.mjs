@@ -11,6 +11,7 @@ import { designBookTests } from './design-book.test.ts';
 import { openapiLabelTests } from './openapi-labels.test.ts';
 import { scriptLibTests } from './script-libs.test.ts';
 import { internalHrefTests } from './internal-href.test.ts';
+import { graphNodeViewTests } from './graph-node-view.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -26,6 +27,7 @@ const testCases = [
   ...openapiLabelTests,
   ...scriptLibTests,
   ...internalHrefTests,
+  ...graphNodeViewTests,
 ];
 
 let failures = 0;
