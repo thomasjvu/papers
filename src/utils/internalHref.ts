@@ -43,8 +43,51 @@ function buildResolvedDocsHref(
   );
 }
 
+const HOSTED_FILE_ROUTES = new Map([
+  ['/llms', '/llms.txt'],
+  ['/llms.txt', '/llms.txt'],
+  ['/skill', '/skill.md'],
+  ['/skill.md', '/skill.md'],
+]);
+
+const PASSTHROUGH_ROUTE_PREFIXES = ['/docs', '/dev-docs'];
+
+function isBrowserHandledHref(href: string): boolean {
+  return !href || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href);
+}
+
+function isPassthroughRoute(pathname: string): boolean {
+  return PASSTHROUGH_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
+  );
+}
+
+function resolveAbsoluteHref(href: string, context: InternalHrefContext): string {
+  const parsed = new URL(href, 'https://docs.local');
+  const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
+  const suffix = `${parsed.search}${parsed.hash}`;
+
+  if (isPassthroughRoute(pathname)) {
+    return pathname + suffix;
+  }
+
+  return buildResolvedDocsHref(pathname.replace(/^\/+/, ''), suffix, context);
+}
+
+function resolveRelativeHref(href: string, context: InternalHrefContext): string {
+  const { pathname, suffix } = splitPathSuffix(href);
+  const lastSlash = context.currentPath.lastIndexOf('/');
+  const baseDirectory = lastSlash === -1 ? '' : context.currentPath.slice(0, lastSlash + 1);
+  const resolved = new URL(pathname, `https://docs.local/${baseDirectory}`);
+  return buildResolvedDocsHref(resolved.pathname.replace(/^\/+/, ''), suffix, context);
+}
+
+/**
+ * Rewrites a markdown link to its canonical in-app route, or returns null when
+ * the browser should handle it (anchors and external URLs).
+ */
 export function resolveInternalHref(href: string, context: InternalHrefContext): string | null {
-  if (!href || href === '#' || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href)) {
+  if (isBrowserHandledHref(href)) {
     return null;
   }
 
@@ -52,37 +95,12 @@ export function resolveInternalHref(href: string, context: InternalHrefContext):
     return href;
   }
 
-  if (href === '/llms' || href === '/llms.txt') {
-    return '/llms.txt';
+  const hostedFile = HOSTED_FILE_ROUTES.get(href);
+  if (hostedFile) {
+    return hostedFile;
   }
 
-  if (href === '/skill' || href === '/skill.md') {
-    return '/skill.md';
-  }
-
-  if (href.startsWith('/')) {
-    const parsed = new URL(href, 'https://docs.local');
-    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
-    const suffix = `${parsed.search}${parsed.hash}`;
-
-    if (
-      pathname === '/docs' ||
-      pathname.startsWith('/docs/') ||
-      pathname === '/dev-docs' ||
-      pathname.startsWith('/dev-docs/')
-    ) {
-      return pathname + suffix;
-    }
-
-    const docPath = pathname.replace(/^\/+/, '');
-    return buildResolvedDocsHref(docPath, suffix, context);
-  }
-
-  const { pathname, suffix } = splitPathSuffix(href);
-  const baseDirectory = context.currentPath.includes('/')
-    ? context.currentPath.slice(0, context.currentPath.lastIndexOf('/') + 1)
-    : '';
-  const resolved = new URL(pathname, `https://docs.local/${baseDirectory}`);
-  const docPath = resolved.pathname.replace(/^\/+/, '');
-  return buildResolvedDocsHref(docPath, suffix, context);
+  return href.startsWith('/')
+    ? resolveAbsoluteHref(href, context)
+    : resolveRelativeHref(href, context);
 }
