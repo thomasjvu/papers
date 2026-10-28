@@ -1,18 +1,27 @@
 import type { OpenApiSchemaNode } from './openapiArtifacts';
 
+type SchemaKind = OpenApiSchemaNode['kind'];
+
+const unionSeparator = (node: OpenApiSchemaNode) => (node.variant === 'allOf' ? ' & ' : ' | ');
+
+const enumLabel = (values: unknown[]) => values.map((value) => JSON.stringify(value)).join(' | ');
+
+const labelByKind: Partial<Record<SchemaKind, (node: OpenApiSchemaNode) => string>> = {
+  reference: (node) => node.name || node.ref || 'unknown',
+  array: (node) => `Array<${schemaLabel(node.items)}>`,
+  union: (node) => node.schemas?.map(schemaLabel).join(unionSeparator(node)) || 'unknown',
+  object: () => 'object',
+  primitive: (node) => (node.enum?.length ? enumLabel(node.enum) : typeLabel(node)),
+};
+
+function typeLabel(node: OpenApiSchemaNode): string {
+  return node.type || 'unknown';
+}
+
+/** Short TypeScript-like label for a schema node, e.g. `Array<Pet>` or `"a" | "b"`. */
 export function schemaLabel(node: OpenApiSchemaNode | undefined): string {
   if (!node) return 'unknown';
-  if (node.kind === 'reference') return node.name || node.ref || 'unknown';
-  if (node.kind === 'array') return `Array<${schemaLabel(node.items)}>`;
-  if (node.kind === 'union') {
-    const separator = node.variant === 'allOf' ? ' & ' : ' | ';
-    return node.schemas?.map(schemaLabel).join(separator) || 'unknown';
-  }
-  if (node.kind === 'object') return 'object';
-  if (node.kind === 'primitive' && node.enum?.length) {
-    return node.enum.map((value) => JSON.stringify(value)).join(' | ');
-  }
-  return node.type || 'unknown';
+  return (labelByKind[node.kind] ?? typeLabel)(node);
 }
 
 export function valueLabel(value: unknown): string {
