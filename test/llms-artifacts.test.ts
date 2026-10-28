@@ -3,7 +3,11 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { createAllLlmsArtifacts, createLlmsArtifacts } from '../scripts/lib/llmsArtifacts.mjs';
+import {
+  createAllLlmsArtifacts,
+  createHostedSkillArtifact,
+  createLlmsArtifacts,
+} from '../scripts/lib/llmsArtifacts.mjs';
 
 const fixtureDir = new URL('./fixtures/llms/', import.meta.url);
 const updateGolden = process.env.UPDATE_LLMS_GOLDEN === '1';
@@ -191,5 +195,22 @@ export const llmsArtifactTests = [
         assert.equal(none.expectedFileCount, 0);
         assert.match(none.llmsTxt, /^# Documentation Documentation\n\n$/);
       }),
+  },
+  {
+    name: 'createHostedSkillArtifact prefers options, then frontmatter, then defaults',
+    run: () => {
+      assert.equal(
+        createHostedSkillArtifact('Body text\n'),
+        '---\nname: documentation-agent\ndescription: Agent guidance for navigating and maintaining this documentation site.\n---\n\nBody text\n'
+      );
+      assert.equal(
+        createHostedSkillArtifact('\uFEFF---\ndescription: From file\n---\n\n  Body  \n'),
+        '---\nname: documentation-agent\ndescription: From file\n---\n\nBody\n'
+      );
+      assert.equal(
+        createHostedSkillArtifact('---\ndescription: F\n---\nB', { name: 'n', description: 'd' }),
+        '---\nname: n\ndescription: d\n---\n\nB\n'
+      );
+    },
   },
 ];
