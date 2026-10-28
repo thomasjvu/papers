@@ -16,6 +16,7 @@ import { codeBlockViewTests } from './code-block-view.test.ts';
 import { routeHtmlTests } from './route-html.test.ts';
 import { markdownElementsTests } from './markdown-elements.test.ts';
 import { documentationPageViewTests } from './documentation-page-view.test.ts';
+import { papersUpgradeTests } from './papers-upgrade.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -36,6 +37,7 @@ const testCases = [
   ...markdownElementsTests,
   ...routeHtmlTests,
   ...codeBlockViewTests,
+  ...papersUpgradeTests,
 ];
 
 let failures = 0;

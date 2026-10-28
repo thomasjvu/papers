@@ -1,14 +1,43 @@
 {
-  "name": "papers",
-  "version": "0.1.0",
-  "private": true,
+  "name": "@thomasjvu/papers",
+  "version": "0.2.0",
   "description": "Static documentation template built with React, Vite, and TypeScript.",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/thomasjvu/papers.git"
   },
+  "homepage": "https://github.com/thomasjvu/papers#readme",
+  "bugs": {
+    "url": "https://github.com/thomasjvu/papers/issues"
+  },
   "type": "module",
+  "bin": {
+    "papers": "scripts/papers-upgrade.mjs"
+  },
+  "files": [
+    "index.html",
+    "vite.config.ts",
+    "tsconfig.json",
+    "tsconfig.*.json",
+    "eslint.config.mjs",
+    "postcss.config.*",
+    "commitlint.config.*",
+    "papers.upgrade.json",
+    "public/",
+    "scripts/",
+    "shared/",
+    "src/",
+    "themes/",
+    "types/",
+    "CHANGELOG.md",
+    "LICENSE",
+    "README.md"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
   "scripts": {
     "dev": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:docs && npm run generate:seo -- --mode development && vite",
     "build": "npm run resolve:theme && npm run generate:icons && npm run generate:design-book && npm run generate:openapi && npm run generate:llms && npm run generate:docs && npm run generate:seo -- --mode production && tsc -b && vite build && npm run generate:route-html -- --mode production && npm run generate:pagefind && npm run generate:last-updated && npm run generate:rss && npm run write:build-manifest",
@@ -26,7 +55,8 @@
     "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md,mdx}\"",
     "type-check": "tsc --noEmit",
     "test": "node --import ./test/register-ts-node.mjs ./test/run-tests.mjs",
-    "release:check": "npm run docs:check && npm run check:docs-tree && npm run check:security-policy && npm run check:assets && npm run check:runtime-audit && npm run package:check && npm run release:artifact-check && npm run release:preview-check",
+    "release:check": "npm run docs:check && npm run check:docs-tree && npm run check:security-policy && npm run check:assets && npm run check:runtime-audit && npm run release:artifact-check && npm run release:preview-check",
+    "release:check:papers": "npm run release:check && npm run package:check",
     "deploy": "npx wrangler pages deploy dist",
     "deploy:create": "npx wrangler pages project create papers-docs --production-branch main",
     "prepare": "husky",

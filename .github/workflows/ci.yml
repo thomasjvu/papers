@@ -50,7 +50,7 @@ jobs:
 
       - name: Run release smoke checks
         if: matrix.node-version == 24
-        run: npm run release:check
+        run: npm run release:check:papers
 
       - name: Run runtime security audit
         if: matrix.node-version == 24

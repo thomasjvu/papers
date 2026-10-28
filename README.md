@@ -35,6 +35,60 @@ PAPERS_TEMPLATE_ROOT=local node packages/create-papers/index.mjs my-docs --no-in
 The starter requires Node 24 or newer. Its package-level documentation lives
 in [packages/create-papers/README.md](packages/create-papers/README.md).
 
+## Keep a site up to date
+
+A Papers site is a copy of the framework plus your own content, config and
+theme. `papers.lock.json` in the site records which Papers release its
+framework files match. Papers is released to npm as
+[`@thomasjvu/papers`](https://www.npmjs.com/package/@thomasjvu/papers) (the
+framework and its `papers` command) and `create-papers` (the starter), with
+one shared version and a Git tag `vX.Y.Z` per release. To move a site to a
+newer release:
+
+```bash
+npx @thomasjvu/papers@latest upgrade      # latest release
+npx @thomasjvu/papers@0.2.0 upgrade       # a specific release
+npm install                               # if package.json changed
+```
+
+`node scripts/papers-upgrade.mjs` is the same command from the site's own
+copy. Run it with `--help` for every option; that help text is the reference.
+
+The upgrader works like `git merge` for the framework:
+
+- it applies only what changed in Papers between your release and the new one;
+- your edits to framework files are kept, and if you and Papers changed the
+  same lines it leaves standard conflict markers for you to resolve;
+- your content (`src/docs/content/`), generated files, lockfiles, CI and the
+  other paths listed in [papers.upgrade.json](papers.upgrade.json) are never
+  touched, and files you deleted stay deleted;
+- add your own never-upgrade paths to `exclude` in `papers.lock.json`;
+- breaking changes ship a codemod in `scripts/migrations/<version>.mjs`, run
+  automatically when an upgrade crosses that version.
+
+It refuses to run with uncommitted changes, so every upgrade is one reviewable
+diff. Read [CHANGELOG.md](CHANGELOG.md) for what changed.
+
+**Automatic upgrade pull requests.** Run
+`node scripts/papers-upgrade.mjs --install-workflow` once. It adds a weekly CI
+job (GitHub or Forgejo) that opens a pull request when a new Papers release is
+tagged. Clean upgrades are set to merge once the site's checks pass; upgrades
+with conflicts open as drafts. The job needs a `PAPERS_UPGRADE_TOKEN` secret
+that can push branches and open pull requests (the built-in GitHub token
+cannot start CI on the pull requests it opens).
+
+**Sites made before the upgrader existed** adopt it once:
+
+```bash
+node scripts/papers-upgrade.mjs --detect-base     # closest Papers commit
+node scripts/papers-upgrade.mjs --init <commit>   # writes papers.lock.json
+node scripts/papers-upgrade.mjs                   # then upgrade
+```
+
+The upgrader itself is a framework file, so copy `scripts/papers-upgrade.mjs`,
+`scripts/lib/papersUpgrade.mjs` and `scripts/migrations/` into the site for
+that first run.
+
 ## Develop the framework
 
 ```bash
@@ -58,7 +112,7 @@ npm run create:smoke
 npm run type-check
 npm run lint
 npm run format:check
-npm run release:check
+npm run release:check:papers
 ```
 
 ## Customize a site

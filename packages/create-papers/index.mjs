@@ -4,7 +4,7 @@ import { execFileSync, spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { realpathSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const packageRoot = dirname(fileURLToPath(import.meta.url));
@@ -13,6 +13,8 @@ const manifestPath = join(packageRoot, 'template-manifest.json');
 const defaultRepo = 'thomasjvu/papers';
 const TEMPLATE_MARKERS = ['shared/documentation-config.js', 'src/docs/content', 'vite.config.ts'];
 const COMMIT_PATTERN = /^[0-9a-f]{40}$/i;
+
+const FRAMEWORK_PACKAGE = '@thomasjvu/papers';
 
 const EXCLUDED_DIRECTORIES = new Set([
   '.git',
@@ -384,7 +386,11 @@ async function main() {
         ? manifest.template.archive
         : `https://codeload.github.com/${options.repo}/tar.gz/${revision}`;
     await scaffoldFromGitHub(targetDir, options.repo, revision, archiveUrl);
+    await writeUpgradeLock(targetDir, `https://github.com/${options.repo}.git`, revision);
   }
+
+  await makeSitePackage(targetDir);
+  await writeSiteAgentsGuide(targetDir);
 
   console.log(`\nCreated papers site at ${targetDir}`);
 
@@ -400,6 +406,49 @@ async function main() {
   }
   console.log('  npm run dev');
   console.log('\nCustomize shared/documentation-config.js and src/docs/content/ first.');
+}
+
+// Records the Papers commit the new site was created from, so
+// `node scripts/papers-upgrade.mjs` can apply later releases with a 3-way merge.
+async function makeSitePackage(targetDir) {
+  const packagePath = join(targetDir, 'package.json');
+  let pkg;
+  try {
+    pkg = JSON.parse(await readFile(packagePath, 'utf8'));
+  } catch {
+    return;
+  }
+  // The template is the published @thomasjvu/papers package; a new site is a
+  // private app, not another copy of that package.
+  if (pkg.name !== FRAMEWORK_PACKAGE) return;
+  const { bin: _bin, files: _files, publishConfig: _publishConfig, bugs: _bugs, ...rest } = pkg;
+  const site = { ...rest, name: basename(targetDir), private: true };
+  await writeFile(packagePath, `${JSON.stringify(site, null, 2)}\n`);
+}
+
+// New sites get a short site-focused AGENTS.md (with the docs-as-code rules)
+// instead of the framework maintainer contract.
+async function writeSiteAgentsGuide(targetDir) {
+  const templatePath = join(targetDir, 'scripts', 'templates', 'site-AGENTS.md');
+  if (!(await pathExists(templatePath))) return;
+  await writeFile(join(targetDir, 'AGENTS.md'), await readFile(templatePath, 'utf8'));
+}
+
+async function writeUpgradeLock(targetDir, repository, revision) {
+  let version = null;
+  try {
+    version = JSON.parse(await readFile(join(targetDir, 'package.json'), 'utf8')).version || null;
+  } catch {
+    version = null;
+  }
+  const lock = {
+    repository,
+    version,
+    ref: version ? `v${version}` : revision,
+    commit: revision,
+    exclude: [],
+  };
+  await writeFile(join(targetDir, 'papers.lock.json'), `${JSON.stringify(lock, null, 2)}\n`);
 }
 
 const invokedScript = process.argv[1] ? realpathSync(process.argv[1]) : '';

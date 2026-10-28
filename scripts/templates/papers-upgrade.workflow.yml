@@ -1,0 +1,105 @@
+# Opens a pull request when a new Papers release is out.
+# Written by `node scripts/papers-upgrade.mjs --install-workflow`.
+#
+# Needs a PAPERS_UPGRADE_TOKEN secret (a token that can push branches and open
+# pull requests) so the pull request runs CI. Clean upgrades are set to merge
+# automatically once required checks pass; upgrades with conflicts open as
+# drafts for a person to resolve.
+name: Papers upgrade
+
+on:
+  schedule:
+    - cron: '17 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      to:
+        description: Papers release tag or commit (blank for the latest release)
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: papers-upgrade
+  cancel-in-progress: false
+
+jobs:
+  upgrade:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: __SITE_DIR__
+    env:
+      TO: ${{ inputs.to }}
+      TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.PAPERS_UPGRADE_TOKEN || github.token }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Check for a new Papers release
+        id: check
+        run: |
+          set +e
+          node scripts/papers-upgrade.mjs --check --to "$TO"
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] && [ "$code" -ne 10 ]; then exit "$code"; fi
+
+      - name: Upgrade
+        id: upgrade
+        if: steps.check.outputs.available == 'true'
+        run: |
+          set +e
+          node scripts/papers-upgrade.mjs --to "$TO" --report "$RUNNER_TEMP/papers-upgrade.md"
+          code=$?
+          set -e
+          if [ "$code" -ne 0 ] && [ "$code" -ne 3 ]; then exit "$code"; fi
+          if [ -f package-lock.json ]; then npm install --package-lock-only --ignore-scripts --no-audit --no-fund; fi
+
+      - name: Open pull request
+        if: steps.check.outputs.available == 'true'
+        env:
+          VERSION: ${{ steps.upgrade.outputs.version }}
+          CONFLICTS: ${{ steps.upgrade.outputs.conflicts }}
+          GH_TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN || github.token }}
+        run: |
+          branch="papers/upgrade-$VERSION"
+          title="chore(papers): upgrade to $VERSION"
+          base_branch="${GITHUB_BASE_REF:-${GITHUB_REF_NAME}}"
+          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+            echo "Branch $branch already exists; nothing to do."; exit 0
+          fi
+          git config user.name "papers-upgrade[bot]"
+          git config user.email "papers-upgrade@users.noreply.github.com"
+          git switch -c "$branch"
+          git add -A .
+          git commit -m "$title"
+          git push origin "$branch"
+          body="$RUNNER_TEMP/papers-upgrade.md"
+          draft=false
+          if [ "${CONFLICTS:-0}" != "0" ]; then draft=true; fi
+          if [ "$GITHUB_SERVER_URL" = "https://github.com" ]; then
+            flag=""; if [ "$draft" = true ]; then flag="--draft"; fi
+            gh pr create --base "$base_branch" --head "$branch" --title "$title" --body-file "$body" $flag
+            if [ "$draft" = false ]; then
+              gh pr merge "$branch" --auto --merge || echo "Auto-merge is not enabled for this repository."
+            fi
+          else
+            # Forgejo / Gitea API
+            api="$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY"
+            [ "$draft" = true ] && title="WIP: $title"
+            payload=$(node -e 'const fs=require("fs");console.log(JSON.stringify({base:process.argv[1],head:process.argv[2],title:process.argv[3],body:fs.readFileSync(process.argv[4],"utf8")}))' "$base_branch" "$branch" "$title" "$body")
+            index=$(curl -fsS -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' -d "$payload" "$api/pulls" | node -pe 'JSON.parse(require("fs").readFileSync(0,"utf8")).number')
+            if [ "$draft" = false ]; then
+              curl -fsS -X POST -H "Authorization: token $TOKEN" -H 'Content-Type: application/json' \
+                -d '{"Do":"merge","merge_when_checks_succeed":true}' "$api/pulls/$index/merge" \
+                || echo "Could not schedule auto-merge."
+            fi
+          fi

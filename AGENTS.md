@@ -19,6 +19,13 @@ for content-engine direction.
   `npm run generate:llms`, `npm run generate:seo`, `npm run resolve:theme`, or
   `npm run build` as appropriate; do not hand-edit generated output.
 
+- Sites copy this framework and upgrade with `scripts/papers-upgrade.mjs`
+  (three-way merge from the release in their `papers.lock.json`). Paths in
+  `papers.upgrade.json` are site-owned and never upgraded. A change that
+  breaks sites needs a CHANGELOG "breaking" entry and, if mechanical, a
+  codemod in `scripts/migrations/<version>.mjs`. Never ask sites to rsync or
+  hand-copy framework files.
+
 ## 3. Verification ladder
 
 `npm ci` installs. The read-only baseline is:
@@ -34,7 +41,7 @@ npm run check:security-policy
 npm run check:assets
 npm run check:runtime-audit
 npm run build
-npm run release:check
+npm run release:check:papers   # release:check plus the starter package check
 npm run release:preview-check
 npx playwright test
 npm run lighthouse:check
@@ -75,3 +82,15 @@ updated, commands and outcomes, known blockers, and any follow-up plan. Keep
 run IDs, personal paths, credentials, and temporary host assumptions out of
 repository documentation. Detailed release procedure lives in
 [RELEASING.md](RELEASING.md).
+
+## 8. Docs as code
+
+- Docs change in the same PR as the code they describe. Say in the PR what
+  docs changed, or why none needed to.
+- Generate reference docs from source where possible (CLI `--help`, OpenAPI
+  specs, config schemas, types) instead of copying values by hand.
+- The docs build (`npm run build`) and the docs and link checks
+  (`npm run release:check:papers`, which runs `docs:check`) run in CI. A docs
+  failure is a test failure.
+- Write docs plainly: short sentences, simple words, a working example.
+- Full rules: the `docs-as-code` skill (`~/.agents/skills/docs-as-code/SKILL.md`).
