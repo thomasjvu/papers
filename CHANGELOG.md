@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 0.2.0 - 2026-10-28
+
+Upgrade an existing site with `node scripts/papers-upgrade.mjs --to v0.2.0`
+(see the README). The Tailwind 4 token renames below are applied to your own
+themes and CSS by the bundled 0.2.0 codemod.
 
 ### Changed (breaking for custom themes)
 
@@ -11,6 +15,12 @@
 
 ### Fixed
 
+- search works on deployed sites: the shipped CSP now allows WebAssembly (`'wasm-unsafe-eval'`) for Pagefind
+- KaTeX fonts are emitted as files instead of inlined `data:` URLs the CSP blocked
+- the favicon and web manifest links point at files that exist
+- light-default themes no longer flash dark on load, and dark-only themes can no longer be toggled into a broken light mode
+- the homepage and default share cards are PNG, and `og:image:type` matches the image
+- combined `llms.txt` keeps each collection's first section heading
 - CI Lighthouse gate: Chrome runs without the sandbox on Linux CI runners, and the preview server's process group is killed so the job can no longer hang
 
 - theme toggle label and icon now show the **current** color mode (matching font and motion controls), not the mode you would switch to
@@ -21,6 +31,9 @@
 
 ### Added
 
+- `scripts/papers-upgrade.mjs`: three-way upgrade of a site's framework files from the release recorded in `papers.lock.json`, with site-owned paths in `papers.upgrade.json`, versioned codemods in `scripts/migrations/`, and `--install-workflow` for weekly upgrade pull requests (GitHub and Forgejo)
+- `create-papers` writes `papers.lock.json` into new sites
+- tag releases create a GitHub release from the changelog; npm publishing runs only when `NPM_TOKEN` is set
 - PNG social cards for each page (`@resvg/resvg-js`), with the SVG card as a fallback; `PAPERS_SOCIAL_CARD_FORMAT=svg` turns PNG off
 - heading-level search results that open the page at the matching section, and All / Docs / API scope buttons in the command palette
 - translatable sidebar, mindmap and command palette labels in `uiStringsConfig`, with placeholder checks for templates such as `Font: {font}`

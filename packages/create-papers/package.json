@@ -1,6 +1,6 @@
 {
   "name": "create-papers",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Create a reproducible static documentation site with papers.",
   "license": "MIT",
   "type": "module",
