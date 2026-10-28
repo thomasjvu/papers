@@ -1370,7 +1370,7 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.doesNotMatch(openApiReferenceSource, /@scalar\/api-reference-react/);
       assert.match(openApiReferenceSource, /import\('@scalar\/api-reference'\)/);
       assert.match(openApiReferenceSource, /scalarInstance\?\.destroy\(\)/);
-      assert.match(viteConfigSource, /@scalar\/api-reference\/esm\.js/);
+      assert.match(viteConfigSource, /findPackageDir\('@scalar\/api-reference'\), 'esm\.js'\)/);
       assert.doesNotMatch(viteConfigSource, /vendor-openapi/);
     },
   },

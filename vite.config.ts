@@ -1,9 +1,22 @@
 ﻿import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { dirname, resolve } from 'node:path';
 
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+
+// Find an installed package folder by walking up node_modules, so sites in an
+// npm/pnpm workspace (where dependencies are hoisted) resolve it too.
+function findPackageDir(name: string): string {
+  let dir = __dirname;
+  for (;;) {
+    const candidate = resolve(dir, 'node_modules', name);
+    if (existsSync(resolve(candidate, 'package.json'))) return candidate;
+    const parent = dirname(dir);
+    if (parent === dir) return resolve(__dirname, 'node_modules', name);
+    dir = parent;
+  }
+}
 
 function readThemeFontSnippet(): string {
   const snippetPath = resolve(__dirname, 'src/lib/generated/papers-theme-fonts.html');
@@ -50,7 +63,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, './src'),
       '@app-shared/documentation-config.js': resolve(__dirname, './shared/documentation-config.js'),
-      '@scalar/api-reference': resolve(__dirname, './node_modules/@scalar/api-reference/esm.js'),
+      '@scalar/api-reference': resolve(findPackageDir('@scalar/api-reference'), 'esm.js'),
     },
   },
   css: {
