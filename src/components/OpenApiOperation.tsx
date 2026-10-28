@@ -5,9 +5,9 @@ import type {
   OpenApiContent,
   OpenApiOperation,
   OpenApiSchemaArtifact,
-  OpenApiSchemaNode,
   OpenApiSpecArtifact,
 } from '../lib/openapiArtifacts';
+import { schemaLabel, valueLabel } from '../lib/openapiLabels';
 
 type OpenApiOperationProps = {
   artifact: OpenApiSpecArtifact;
@@ -20,30 +20,6 @@ type OpenApiModelProps = {
   model: OpenApiSchemaArtifact;
   overviewPath: string;
 };
-
-function schemaLabel(node: OpenApiSchemaNode | undefined): string {
-  if (!node) return 'unknown';
-  if (node.kind === 'reference') return node.name || node.ref || 'unknown';
-  if (node.kind === 'array') return `Array<${schemaLabel(node.items)}>`;
-  if (node.kind === 'union') {
-    const separator = node.variant === 'allOf' ? ' & ' : ' | ';
-    return node.schemas?.map(schemaLabel).join(separator) || 'unknown';
-  }
-  if (node.kind === 'object') return 'object';
-  if (node.kind === 'primitive' && node.enum?.length) {
-    return node.enum.map((value) => JSON.stringify(value)).join(' | ');
-  }
-  return node.type || 'unknown';
-}
-
-function valueLabel(value: unknown): string {
-  if (typeof value === 'string') return value;
-  try {
-    return JSON.stringify(value, null, 2) || '';
-  } catch {
-    return String(value);
-  }
-}
 
 function ContentSummary({ content }: { content: OpenApiContent[] }) {
   if (content.length === 0) {
