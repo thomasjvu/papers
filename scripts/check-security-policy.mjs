@@ -11,7 +11,8 @@ const vercelPath = join(rootDir, 'vercel.json');
 
 const REQUIRED_CSP_SOURCES = {
   'default-src': ["'self'"],
-  'script-src': ["'self'"],
+  // Pagefind search compiles WebAssembly; 'wasm-unsafe-eval' allows only that, not JS eval.
+  'script-src': ["'self'", "'wasm-unsafe-eval'"],
   'style-src': ["'self'", "'unsafe-inline'", ...securityConfig.fontStyleOrigins],
   'img-src': ["'self'", 'data:'],
   'font-src': ["'self'", ...securityConfig.fontResourceOrigins],
@@ -132,8 +133,8 @@ function validateCsp(policy, label) {
       label + ' contains a wildcard or unsafe-eval source in ' + directive + '.'
     );
     assert(
-      directive !== 'script-src' || equalSources(sources, ["'self'"]),
-      label + ' must contain script-src self only.'
+      directive !== 'script-src' || equalSources(sources, REQUIRED_CSP_SOURCES['script-src']),
+      label + " must contain script-src 'self' 'wasm-unsafe-eval' only."
     );
   }
 
