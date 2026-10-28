@@ -30,6 +30,8 @@ const ROOT_INPUT_FILES = [
 
 const ROOT_INPUT_DIRECTORIES = ['packages', 'public', 'scripts', 'shared', 'src', 'themes'];
 
+const SKIPPED_DIRECTORIES = new Set(['node_modules', 'dist', '.git']);
+
 function walkFiles(rootDir, relativeDirectory) {
   const directoryPath = join(rootDir, relativeDirectory);
 
@@ -46,15 +48,10 @@ function walkFiles(rootDir, relativeDirectory) {
     const relativePath = join(relativeDirectory, entry.name);
 
     if (entry.isDirectory()) {
-      if (entry.name === 'node_modules' || entry.name === 'dist' || entry.name === '.git') {
-        continue;
+      if (!SKIPPED_DIRECTORIES.has(entry.name)) {
+        files.push(...walkFiles(rootDir, relativePath));
       }
-
-      files.push(...walkFiles(rootDir, relativePath));
-      continue;
-    }
-
-    if (entry.isFile()) {
+    } else if (entry.isFile()) {
       files.push(relativePath);
     }
   }
@@ -105,14 +102,31 @@ function runGit(rootDir, args) {
   }
 }
 
-function getWorkingTreeState(rootDir) {
-  const status = runGit(rootDir, ['status', '--porcelain', '--untracked-files=all']);
-  const relevantLines = status
+/** 'dirty' when `git status --porcelain` lists anything outside plans/. */
+export function summarizeWorktreeState(porcelainStatus) {
+  const relevantLines = porcelainStatus
     .split('\n')
     .filter(Boolean)
     .filter((line) => !line.slice(3).startsWith('plans/'));
 
   return relevantLines.length > 0 ? 'dirty' : 'clean';
+}
+
+function getWorkingTreeState(rootDir) {
+  return summarizeWorktreeState(
+    runGit(rootDir, ['status', '--porcelain', '--untracked-files=all'])
+  );
+}
+
+/** CI-provided revisions win over the local git HEAD; 'unknown' when neither exists. */
+export function resolveSourceRevision(configuredRevision, gitRevision) {
+  if (configuredRevision) {
+    return { sourceRevision: configuredRevision, sourceRevisionSource: 'environment' };
+  }
+  if (gitRevision) {
+    return { sourceRevision: gitRevision, sourceRevisionSource: 'git' };
+  }
+  return { sourceRevision: 'unknown', sourceRevisionSource: 'unknown' };
 }
 
 function getNpmVersion() {
@@ -139,8 +153,7 @@ export function createBuildIdentity(rootDir, buildMode = process.env.NODE_ENV ||
     schemaVersion: BUILD_MANIFEST_VERSION,
     generatorVersion: BUILD_GENERATOR_VERSION,
     packageVersion: packageJson.version,
-    sourceRevision: configuredRevision || gitRevision || 'unknown',
-    sourceRevisionSource: configuredRevision ? 'environment' : gitRevision ? 'git' : 'unknown',
+    ...resolveSourceRevision(configuredRevision, gitRevision),
     worktreeState: getWorkingTreeState(rootDir),
     buildMode,
     nodeVersion: process.version,
