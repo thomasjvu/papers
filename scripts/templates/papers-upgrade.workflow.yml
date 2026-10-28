@@ -80,7 +80,7 @@ jobs:
           git config user.email "papers-upgrade@users.noreply.github.com"
           git switch -c "$branch"
           git add -A .
-          git commit -m "$title" --no-verify
+          git commit -m "$title"
           git push origin "$branch"
           body="$RUNNER_TEMP/papers-upgrade.md"
           draft=false

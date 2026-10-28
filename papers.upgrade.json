@@ -52,7 +52,13 @@
       "license",
       "repository",
       "homepage",
-      "private"
+      "private",
+      "bin",
+      "files",
+      "publishConfig",
+      "bugs",
+      "keywords",
+      "exports"
     ],
     "skipScripts": [
       "create",

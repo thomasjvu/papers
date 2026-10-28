@@ -220,7 +220,21 @@ const PACKAGE_SECTIONS = [
   'overrides',
 ];
 const DEFAULT_PACKAGE_JSON_RULES = {
-  skipFields: ['name', 'version', 'description', 'license', 'repository', 'homepage', 'private'],
+  skipFields: [
+    'name',
+    'version',
+    'description',
+    'license',
+    'repository',
+    'homepage',
+    'private',
+    'bin',
+    'files',
+    'publishConfig',
+    'bugs',
+    'keywords',
+    'exports',
+  ],
   skipScripts: [],
   skipDependencies: [],
 };

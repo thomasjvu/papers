@@ -23,6 +23,7 @@ import {
 } from './lib/papersUpgrade.mjs';
 
 const HELP = `Usage: node scripts/papers-upgrade.mjs [options]
+       npx @thomasjvu/papers upgrade [options]
 
 Upgrades the Papers framework files in this site to a newer Papers release with
 a three-way merge. Site content, config edits and branding are kept; only what
@@ -43,7 +44,8 @@ Options:
 
 Exit codes: 0 done, 3 upgraded with conflicts to resolve, 10 upgrade available (--check).`;
 
-const { values } = parseArgs({
+const { values, positionals } = parseArgs({
+  allowPositionals: true,
   options: {
     to: { type: 'string' },
     site: { type: 'string', default: '.' },
@@ -61,6 +63,11 @@ const { values } = parseArgs({
 if (values.help) {
   console.log(HELP);
   process.exit(0);
+}
+
+if (positionals.length > 1 || (positionals[0] && positionals[0] !== 'upgrade')) {
+  console.error(`Unknown command: ${positionals.join(' ')}\n\n${HELP}`);
+  process.exit(2);
 }
 
 function output(key, value) {
