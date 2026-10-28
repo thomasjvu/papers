@@ -5,6 +5,7 @@ import { docsParityTests } from './docs-parity.test.ts';
 import { scriptHelperTests } from './script-helpers.test.ts';
 import { llmsArtifactTests } from './llms-artifacts.test.ts';
 import { buildIdentityTests } from './build-identity.test.ts';
+import { routeModelTests } from './route-model.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -14,6 +15,7 @@ const testCases = [
   ...scriptHelperTests,
   ...llmsArtifactTests,
   ...buildIdentityTests,
+  ...routeModelTests,
 ];
 
 let failures = 0;

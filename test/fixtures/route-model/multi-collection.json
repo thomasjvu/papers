@@ -1,0 +1,75 @@
+{
+  "routes": [
+    [
+      "/",
+      {
+        "type": "site"
+      }
+    ],
+    [
+      "/docs",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/guides",
+      {
+        "type": "document",
+        "collectionId": "guides",
+        "documentPath": "start"
+      }
+    ],
+    [
+      "/guides/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "guides",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/guides/start",
+      {
+        "type": "document",
+        "collectionId": "guides",
+        "documentPath": "start"
+      }
+    ]
+  ],
+  "ambiguous": []
+}

@@ -141,7 +141,58 @@ function addRoute(routeMap, ambiguousRoutes, routePath, target) {
   }
 }
 
-function createRouteModel({
+function addCollectionRoutes(add, entry, routeOptions) {
+  const { collection, documentationTree, documentPaths } = entry;
+  const collectionId = collection?.id || 'docs';
+  const entryOptions = collection
+    ? getCollectionRoutingOptions(collection, routeOptions)
+    : routeOptions;
+  const buildRoutes = collection
+    ? (path) => buildCollectionRouteVariants(collection, path, entryOptions)
+    : (path) => buildDocsRouteVariants(path, entryOptions);
+  const routePrefix = collection?.routePrefix || '/docs';
+  const addDocument = (routePath, documentPath) =>
+    add(routePath, { type: 'document', collectionId, documentPath });
+
+  for (const documentPath of documentPaths) {
+    for (const routePath of buildRoutes(documentPath)) {
+      addDocument(routePath, documentPath);
+    }
+  }
+
+  const defaultDocumentPath = getDefaultDocumentPath(documentationTree) || documentPaths[0];
+  if (defaultDocumentPath) {
+    addDocument(routePrefix, defaultDocumentPath);
+  }
+
+  const normalizedPrefix = String(routePrefix).replace(/^\/+|\/+$/g, '');
+  const prefixPattern = new RegExp(`^/${normalizedPrefix}/?`);
+  for (const alias of getDirectoryAliasEntries(documentationTree, normalizedPrefix)) {
+    for (const routePath of buildRoutes(alias.routePath.replace(prefixPattern, ''))) {
+      addDocument(routePath, alias.docPath);
+    }
+  }
+}
+
+function addOpenApiRoutes(add, openapiConfig, documentPaths) {
+  if (!openapiConfig?.enabled) {
+    return;
+  }
+
+  const openapiDocumentPath = normalizeDocPath(openapiConfig.pagePath || '');
+  for (const spec of openapiConfig.specs || []) {
+    const specId = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
+
+    // The default spec is served by its own document page when one exists.
+    if (specId === null && documentPaths.includes(openapiDocumentPath)) {
+      continue;
+    }
+
+    add(buildOpenApiRoutePath(openapiConfig, specId), { type: 'openapi', specId: spec.id });
+  }
+}
+
+export function createRouteModel({
   collection,
   documentationTree,
   documentPaths,
@@ -152,88 +203,22 @@ function createRouteModel({
 }) {
   const routeMap = new Map();
   const ambiguousRoutes = new Set();
+  const add = (routePath, target) => addRoute(routeMap, ambiguousRoutes, routePath, target);
   const routeOptions = { versionConfig, i18nConfig };
-  const collectionEntries = routeCollections || [
-    {
-      collection,
-      documentationTree,
-      documentPaths,
-    },
-  ];
+  const collectionEntries = routeCollections || [{ collection, documentationTree, documentPaths }];
 
-  addRoute(routeMap, ambiguousRoutes, '/', { type: 'site' });
+  add('/', { type: 'site' });
 
   for (const entry of collectionEntries) {
-    const entryOptions = entry.collection
-      ? getCollectionRoutingOptions(entry.collection, routeOptions)
-      : routeOptions;
-    const buildRoutes = entry.collection
-      ? (path) => buildCollectionRouteVariants(entry.collection, path, entryOptions)
-      : (path) => buildDocsRouteVariants(path, entryOptions);
-    const routePrefix = entry.collection?.routePrefix || '/docs';
-
-    for (const documentPath of entry.documentPaths) {
-      for (const routePath of buildRoutes(documentPath)) {
-        addRoute(routeMap, ambiguousRoutes, routePath, {
-          type: 'document',
-          collectionId: entry.collection?.id || 'docs',
-          documentPath,
-        });
-      }
-    }
-
-    const defaultDocumentPath =
-      getDefaultDocumentPath(entry.documentationTree) || entry.documentPaths[0];
-    if (defaultDocumentPath) {
-      addRoute(routeMap, ambiguousRoutes, routePrefix, {
-        type: 'document',
-        collectionId: entry.collection?.id || 'docs',
-        documentPath: defaultDocumentPath,
-      });
-    }
-
-    const normalizedPrefix = String(routePrefix).replace(/^\/+|\/+$/g, '');
-    const prefixPattern = new RegExp(`^/${normalizedPrefix}/?`);
-    for (const alias of getDirectoryAliasEntries(entry.documentationTree, normalizedPrefix)) {
-      const aliasPath = alias.routePath.replace(prefixPattern, '');
-      for (const routePath of buildRoutes(aliasPath)) {
-        addRoute(routeMap, ambiguousRoutes, routePath, {
-          type: 'document',
-          collectionId: entry.collection?.id || 'docs',
-          documentPath: alias.docPath,
-        });
-      }
-    }
+    addCollectionRoutes(add, entry, routeOptions);
   }
 
   if (!collection || collection.id === 'docs') {
-    addRoute(routeMap, ambiguousRoutes, '/llms', {
-      type: 'document',
-      collectionId: 'docs',
-      documentPath: 'llms',
-    });
-    addRoute(routeMap, ambiguousRoutes, '/skill', {
-      type: 'document',
-      collectionId: 'docs',
-      documentPath: 'skill',
-    });
+    add('/llms', { type: 'document', collectionId: 'docs', documentPath: 'llms' });
+    add('/skill', { type: 'document', collectionId: 'docs', documentPath: 'skill' });
   }
 
-  if (openapiConfig?.enabled) {
-    const openapiDocumentPath = normalizeDocPath(openapiConfig.pagePath || '');
-    for (const spec of openapiConfig.specs || []) {
-      const specId = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
-
-      if (specId === null && documentPaths.includes(openapiDocumentPath)) {
-        continue;
-      }
-
-      addRoute(routeMap, ambiguousRoutes, buildOpenApiRoutePath(openapiConfig, specId), {
-        type: 'openapi',
-        specId: spec.id,
-      });
-    }
-  }
+  addOpenApiRoutes(add, openapiConfig, documentPaths);
 
   return { routeMap, ambiguousRoutes };
 }
