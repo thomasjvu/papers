@@ -1,14 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
-import {
-  buildCanonicalCollectionPath,
-  parseCollectionRoutePath,
-} from '../../../shared/docsRouting.js';
+import { buildCanonicalCollectionPath } from '../../../shared/docsRouting.js';
 import type { ContentCollection } from '../../../shared/docsRouting.js';
 import { getContentCollection } from '../../data/collections';
 import { DEFAULT_DOCUMENT_PATH } from '../../lib/navigation';
 import { getLocaleLabel, i18nConfig, languageSwitcherShows } from '../../lib/chrome';
+import { useCollectionRouteContext } from '../../hooks/useCollectionRouteContext';
 
 type LanguageSwitcherProps = {
   variant?: 'pills' | 'menu';
@@ -29,14 +27,10 @@ export default function LanguageSwitcher({
 }: LanguageSwitcherProps) {
   const location = useLocation();
   const activeCollection = collection || getContentCollection('docs');
-  const routePrefix =
-    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
-  const docsRouteSlug = location.pathname.startsWith(routePrefix)
-    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
-    : location.pathname.replace(/^\/+|\/+$/g, '');
-  const routeContext = useMemo(
-    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
-    [activeCollection, docsRouteSlug]
+  const routeContext = useCollectionRouteContext(
+    activeCollection,
+    location.pathname,
+    location.pathname.replace(/^\/+|\/+$/g, '')
   );
   const activeI18nConfig = activeCollection.variants?.i18nConfig || i18nConfig;
   const activeLocale = routeContext.activeLocale || activeI18nConfig.defaultLocale;

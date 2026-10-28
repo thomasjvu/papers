@@ -7,6 +7,9 @@ import { setTimeout as delay } from 'node:timers/promises';
 
 import { chromium } from 'playwright';
 
+import { evaluateAssertion } from './lib/lighthouseAssertions.mjs';
+import { captureProcessOutput } from './lib/processRun.mjs';
+
 const cwd = process.cwd();
 const require = createRequire(import.meta.url);
 const config = require(resolve(cwd, 'lighthouserc.cjs'));
@@ -65,14 +68,7 @@ function startPreview() {
     // otherwise the orphaned server keeps the pipes open and the gate never exits.
     detached: process.platform !== 'win32',
   });
-  let logs = '';
-  const capture = (chunk) => {
-    logs = `${logs}${chunk.toString()}`.slice(-4_000);
-  };
-  child.stdout.on('data', capture);
-  child.stderr.on('data', capture);
-  child.on('error', capture);
-  return { child, getLogs: () => logs.trim() };
+  return { child, getLogs: captureProcessOutput(child) };
 }
 
 async function runLighthouseCli(url, base, browserPath) {
@@ -91,18 +87,12 @@ async function runLighthouseCli(url, base, browserPath) {
     env: { ...process.env, CHROME_PATH: browserPath },
     stdio: ['ignore', 'pipe', 'pipe'],
   });
-  let logs = '';
-  const capture = (chunk) => {
-    logs = `${logs}${chunk.toString()}`.slice(-4_000);
-  };
-  child.stdout.on('data', capture);
-  child.stderr.on('data', capture);
-  child.on('error', capture);
+  const getLogs = captureProcessOutput(child);
 
   const [exitCode, signal] = await once(child, 'close');
   if (exitCode !== 0) {
     throw new Error(
-      `Lighthouse failed for ${url} (exit=${exitCode ?? 'null'} signal=${signal ?? 'none'})${logs.trim() ? `:\n${logs.trim()}` : ''}`
+      `Lighthouse failed for ${url} (exit=${exitCode ?? 'null'} signal=${signal ?? 'none'})${getLogs() ? `:\n${getLogs()}` : ''}`
     );
   }
 
@@ -152,31 +142,6 @@ async function waitForPreview(url, preview) {
   throw new Error(
     `Preview did not become ready within ${serverReadyTimeoutMs / 1000}s${preview.getLogs() ? `:\n${preview.getLogs()}` : ''}`
   );
-}
-
-function evaluateAssertion(lhr, id, assertion) {
-  if (!Array.isArray(assertion) || assertion.length < 2) {
-    throw new Error(`Unsupported assertion format for ${id}`);
-  }
-
-  const [level, options] = assertion;
-  if (level !== 'error' && level !== 'warn') {
-    throw new Error(`Unsupported assertion level for ${id}: ${level}`);
-  }
-
-  let actual;
-  let passes;
-  if (id.startsWith('categories:')) {
-    const categoryId = id.slice('categories:'.length);
-    actual = lhr.categories?.[categoryId]?.score;
-    passes = typeof actual === 'number' && actual >= options.minScore;
-  } else {
-    const audit = lhr.audits?.[id];
-    actual = audit?.numericValue;
-    passes = typeof actual === 'number' && actual <= options.maxNumericValue;
-  }
-
-  return { id, level, actual, passes };
 }
 
 function evaluateAssertions(lhr) {

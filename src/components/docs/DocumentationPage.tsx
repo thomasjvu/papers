@@ -28,10 +28,10 @@ import TableOfContents from './TableOfContents';
 import {
   buildCanonicalCollectionPath,
   buildCanonicalDocsPath,
-  parseCollectionRoutePath,
 } from '../../../shared/docsRouting.js';
 import type { ContentCollection } from '../../../shared/docsRouting.js';
 import { useUiStrings } from '../../lib/uiStrings';
+import { useCollectionRouteContext } from '../../hooks/useCollectionRouteContext';
 
 interface DocumentationPageProps {
   initialContent: string;
@@ -82,15 +82,7 @@ const DocumentationPage = React.memo(
       [pendingPath]
     );
     const navigationTree = activeCollection.tree;
-    const routePrefix =
-      String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
-    const docsRouteSlug = location.pathname.startsWith(routePrefix)
-      ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
-      : '';
-    const routeContext = useMemo(
-      () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
-      [activeCollection, docsRouteSlug]
-    );
+    const routeContext = useCollectionRouteContext(activeCollection, location.pathname);
 
     const [isMobile, setIsMobile] = useState(() => {
       if (typeof window === 'undefined') {

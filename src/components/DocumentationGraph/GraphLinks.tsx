@@ -2,28 +2,7 @@ import { line as MotionLine } from 'framer-motion/m';
 import React from 'react';
 
 import { useTheme } from '../../providers/useTheme';
-
-interface GraphNode {
-  id: string;
-  title: string;
-  path: string;
-  type: 'file' | 'directory';
-  x: number;
-  y: number;
-  level: number;
-  connections: string[];
-  visible: boolean;
-  searchRelevance: number;
-  tags?: string[];
-}
-
-interface GraphLink {
-  source: string;
-  target: string;
-  strength: number;
-  visible: boolean;
-  linkType: 'structural' | 'tag';
-}
+import type { GraphLink, GraphNode } from './useGraphLogic';
 
 interface GraphLinksProps {
   links: GraphLink[];

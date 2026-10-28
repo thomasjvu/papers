@@ -55,3 +55,22 @@ export const bounceIn = {
   },
   exit: { scale: 0.9, opacity: 0 },
 };
+
+/** Backdrop fade shared by the command palette and the expanded mindmap. */
+export const modalBackdropVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+};
+
+/** Modal entrance: drop-and-scale, or a plain fade when motion is reduced. */
+export function getModalVariants(prefersReducedMotion: boolean) {
+  return prefersReducedMotion
+    ? {
+        hidden: { opacity: 0, scale: 1 },
+        visible: { opacity: 1, scale: 1 },
+      }
+    : {
+        hidden: { opacity: 0, scale: 0.95, y: -20 },
+        visible: { opacity: 1, scale: 1, y: 0 },
+      };
+}

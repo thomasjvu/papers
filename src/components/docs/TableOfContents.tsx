@@ -1,4 +1,5 @@
 import React from 'react';
+import { createHeadingId } from '../../utils/headingIds';
 
 interface TableOfContentsProps {
   content: string;
@@ -8,19 +9,6 @@ interface HeadingItem {
   level: number;
   text: string;
   id: string;
-}
-
-function createHeadingId(text: string, counts: Map<string, number>): string {
-  const baseId =
-    text
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') || 'section';
-
-  const currentCount = counts.get(baseId) ?? 0;
-  counts.set(baseId, currentCount + 1);
-
-  return currentCount === 0 ? baseId : `${baseId}-${currentCount + 1}`;
 }
 
 function buildHeadingsFromMarkdown(content: string): HeadingItem[] {

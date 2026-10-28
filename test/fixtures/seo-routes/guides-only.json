@@ -1,0 +1,27 @@
+[
+  {
+    "routePath": "/",
+    "canonicalPath": "/",
+    "title": "papers | Static documentation template",
+    "description": "A minimal docs starter with install-ready defaults, generated content, and static-host deployment support.",
+    "type": "website",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/guides/how-to",
+    "canonicalPath": "/guides/how-to",
+    "title": "How to | papers",
+    "description": "Body.",
+    "type": "article",
+    "includeInSitemap": true
+  },
+  {
+    "routePath": "/404.html",
+    "canonicalPath": "/404.html",
+    "title": "Not Found | papers",
+    "description": "The requested page could not be found.",
+    "type": "website",
+    "includeInSitemap": false,
+    "noIndex": true
+  }
+]

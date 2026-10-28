@@ -13,7 +13,7 @@ import { resolveCollectionContentRoot } from './lib/collectionContentRoot.mjs';
 import { buildCollectionContentPath, buildDocsContentPath } from '../shared/docsRouting.js';
 import { assertValidOpenApiConfig, validateOpenApiSpecUrl } from '../shared/openapiSpecUrls.js';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
-import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
+import { createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
 import {
   createContentCollectionManifest,
   createContentCollectionsManifest,
@@ -22,8 +22,8 @@ import { createDocumentReferenceGraph } from './lib/referenceGraph.mjs';
 import { createOpenApiArtifacts } from './lib/openapiArtifacts.mjs';
 import { serializePrettierJson } from './lib/formatArtifact.mjs';
 import {
+  createCollectionDocumentPaths,
   createCollectionGenerationOptions,
-  getCollectionFrameworkDocPaths,
 } from './generate-docs.mjs';
 import {
   GENERATED_DOCS_SOURCE_ENV,
@@ -113,16 +113,7 @@ async function main() {
   );
 
   const collections = validateContentCollections(contentCollections, { rootDir });
-  const routeCollections = collections.map((collection) => ({
-    collection,
-    documentationTree: collection.tree,
-    documentPaths: Array.from(
-      new Set([
-        ...collectDocumentPaths(collection.tree || []),
-        ...getCollectionFrameworkDocPaths(collection),
-      ])
-    ).sort(),
-  }));
+  const routeCollections = collections.map(createCollectionDocumentPaths);
   const artifactsByCollectionId = {};
   const manifests = {};
 

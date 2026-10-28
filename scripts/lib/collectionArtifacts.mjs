@@ -27,12 +27,23 @@ export function readGeneratedDocuments(docsIndex, contentDir, collection) {
   return documents;
 }
 
-export function readCollectionArtifacts(publicDir, collection) {
+/** File-system locations of a collection's generated artifacts under `publicDir`. */
+export function getCollectionArtifactFiles(publicDir, collection) {
   const artifactPaths = getCollectionArtifactPaths(collection);
-  const indexPath = join(publicDir, artifactPaths.index.replace(/^\//, ''));
-  const contentDir = join(publicDir, artifactPaths.content.replace(/^\//, ''));
-  const manifestPath = join(publicDir, artifactPaths.manifest.replace(/^\//, ''));
-  const referencesPath = join(publicDir, artifactPaths.references.replace(/^\//, ''));
+  const toFile = (artifactPath) => join(publicDir, artifactPath.replace(/^\//, ''));
+  return {
+    indexPath: toFile(artifactPaths.index),
+    contentDir: toFile(artifactPaths.content),
+    manifestPath: toFile(artifactPaths.manifest),
+    referencesPath: toFile(artifactPaths.references),
+  };
+}
+
+export function readCollectionArtifacts(publicDir, collection) {
+  const { indexPath, contentDir, manifestPath, referencesPath } = getCollectionArtifactFiles(
+    publicDir,
+    collection
+  );
 
   if (
     !existsSync(indexPath) ||

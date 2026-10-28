@@ -1,0 +1,330 @@
+{
+  "routes": [
+    [
+      "/",
+      {
+        "type": "site"
+      }
+    ],
+    [
+      "/docs",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/1.0/en/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/1.0/en/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/en/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/en/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/1.0/fr/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/1.0/fr/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/fr/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/fr/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/1.0/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/1.0/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/2.0/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/2.0/en/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/2.0/en/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/en/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/en/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/2.0/fr/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/2.0/fr/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/fr/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/fr/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/2.0/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/2.0/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/api-reference/openapi/billing",
+      {
+        "type": "openapi",
+        "specId": "billing"
+      }
+    ],
+    [
+      "/docs/en/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/en/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/en/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/en/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/fr/api-reference/openapi",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "api-reference/openapi"
+      }
+    ],
+    [
+      "/docs/fr/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/fr/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/fr/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/docs/guides",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/guides/intro",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/intro"
+      }
+    ],
+    [
+      "/docs/guides/setup",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "guides/setup"
+      }
+    ],
+    [
+      "/llms",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "llms"
+      }
+    ],
+    [
+      "/skill",
+      {
+        "type": "document",
+        "collectionId": "docs",
+        "documentPath": "skill"
+      }
+    ]
+  ],
+  "ambiguous": []
+}

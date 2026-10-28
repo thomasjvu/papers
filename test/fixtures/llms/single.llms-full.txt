@@ -1,0 +1,116 @@
+# Fixture Documentation - Full Content
+
+> Complete documentation content for AI ingestion. This file contains all documentation in a single, structured format.
+
+
+## Guides
+
+
+### intro
+
+URL: https://docs.example.com/docs/guides/intro
+
+---
+title: Intro
+description: "  Start here.  "
+---
+
+# Intro
+
+Welcome text.
+
+
+---
+
+
+### tables
+
+URL: https://docs.example.com/docs/guides/tables
+
+| a | b |
+| - | - |
+| 1 | 2 |
+
+
+---
+
+
+## Advanced
+
+
+### deep
+
+URL: https://docs.example.com/docs/guides/advanced/deep
+
+---
+title: Deep
+---
+
+# Deep
+
+- a list
+- only
+
+```js
+code();
+```
+
+The first real paragraph explains deep things.
+
+Second paragraph.
+
+---
+
+
+## API Reference
+
+### Pets API
+
+#### GET /pets
+
+URL: https://docs.example.com/api/pets/get-pets
+
+List pets
+
+Returns pets.
+
+Parameters: query.limit
+
+Responses: 200
+
+```bash
+curl https://x/pets
+```
+
+#### POST /pets
+
+URL: https://docs.example.com/api/pets/post-pets
+
+Parameters: none
+
+Responses: none
+
+```bash
+curl -X POST https://x/pets
+```
+
+#### Pet
+
+URL: https://docs.example.com/api/pets/models/pet
+
+```typescript
+type Pet = {}
+```
+
+#### Owner
+
+URL: https://docs.example.com/api/pets/models/owner
+
+```typescript
+type Owner = {}
+```
+
+### Empty API
+
+### No arrays
+

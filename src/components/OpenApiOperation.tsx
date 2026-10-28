@@ -5,9 +5,9 @@ import type {
   OpenApiContent,
   OpenApiOperation,
   OpenApiSchemaArtifact,
-  OpenApiSchemaNode,
   OpenApiSpecArtifact,
 } from '../lib/openapiArtifacts';
+import { schemaLabel, valueLabel } from '../lib/openapiLabels';
 
 type OpenApiOperationProps = {
   artifact: OpenApiSpecArtifact;
@@ -20,30 +20,6 @@ type OpenApiModelProps = {
   model: OpenApiSchemaArtifact;
   overviewPath: string;
 };
-
-function schemaLabel(node: OpenApiSchemaNode | undefined): string {
-  if (!node) return 'unknown';
-  if (node.kind === 'reference') return node.name || node.ref || 'unknown';
-  if (node.kind === 'array') return `Array<${schemaLabel(node.items)}>`;
-  if (node.kind === 'union') {
-    const separator = node.variant === 'allOf' ? ' & ' : ' | ';
-    return node.schemas?.map(schemaLabel).join(separator) || 'unknown';
-  }
-  if (node.kind === 'object') return 'object';
-  if (node.kind === 'primitive' && node.enum?.length) {
-    return node.enum.map((value) => JSON.stringify(value)).join(' | ');
-  }
-  return node.type || 'unknown';
-}
-
-function valueLabel(value: unknown): string {
-  if (typeof value === 'string') return value;
-  try {
-    return JSON.stringify(value, null, 2) || '';
-  } catch {
-    return String(value);
-  }
-}
 
 function ContentSummary({ content }: { content: OpenApiContent[] }) {
   if (content.length === 0) {
@@ -121,23 +97,44 @@ function CodeSample({ label, value }: { label: string; value: string }) {
   );
 }
 
+function OpenApiBreadcrumbs({
+  artifactLabel,
+  overviewPath,
+  separator,
+  current,
+}: {
+  artifactLabel: string;
+  overviewPath: string;
+  separator: string;
+  current: string;
+}) {
+  return (
+    <nav
+      className="mb-5 text-2xs"
+      style={{ color: 'var(--muted-color)' }}
+      aria-label="API breadcrumbs"
+    >
+      <Link to={overviewPath} className="hover:underline">
+        {artifactLabel}
+      </Link>
+      <span aria-hidden="true">{separator}</span>
+      <span>{current}</span>
+    </nav>
+  );
+}
+
 export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiOperationProps) {
   return (
     <article
       className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6"
       aria-labelledby="openapi-operation-title"
     >
-      <nav
-        className="mb-5 text-2xs"
-        style={{ color: 'var(--muted-color)' }}
-        aria-label="API breadcrumbs"
-      >
-        <Link to={overviewPath} className="hover:underline">
-          {artifact.label}
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span>{operation.tags[0] || 'Untagged'}</span>
-      </nav>
+      <OpenApiBreadcrumbs
+        artifactLabel={artifact.label}
+        overviewPath={overviewPath}
+        separator=" / "
+        current={operation.tags[0] || 'Untagged'}
+      />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -334,17 +331,12 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
       className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6"
       aria-labelledby="openapi-model-title"
     >
-      <nav
-        className="mb-5 text-2xs"
-        style={{ color: 'var(--muted-color)' }}
-        aria-label="API breadcrumbs"
-      >
-        <Link to={overviewPath} className="hover:underline">
-          {artifact.label}
-        </Link>
-        <span aria-hidden="true"> / Models / </span>
-        <span>{model.name}</span>
-      </nav>
+      <OpenApiBreadcrumbs
+        artifactLabel={artifact.label}
+        overviewPath={overviewPath}
+        separator=" / Models / "
+        current={model.name}
+      />
       <h1
         id="openapi-model-title"
         className="text-2xl font-semibold"

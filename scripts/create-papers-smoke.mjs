@@ -1,43 +1,15 @@
-import { spawnSync } from 'node:child_process';
 import { cp, mkdir, mkdtemp, readFile, readdir, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 
+import {
+  assertCondition as assert,
+  parseNpmPackJson,
+  runCommand as run,
+} from './lib/processRun.mjs';
+
 const rootDir = process.cwd();
 const fixtureSource = resolve(rootDir, 'test/fixtures/create-papers-template');
-
-function run(command, args, { cwd = rootDir, env = {} } = {}) {
-  const result = spawnSync(command, args, {
-    cwd,
-    env: { ...process.env, ...env },
-    encoding: 'utf8',
-    stdio: 'pipe',
-  });
-
-  if (result.error) {
-    throw result.error;
-  }
-  if (result.status !== 0) {
-    throw new Error(
-      `${command} ${args.join(' ')} failed:\n${result.stdout || ''}\n${result.stderr || ''}`
-    );
-  }
-  return result.stdout;
-}
-
-function parseNpmPackJson(output) {
-  const jsonStart = output.indexOf('[');
-  if (jsonStart < 0) {
-    throw new Error(`npm pack did not return JSON:\n${output}`);
-  }
-  return JSON.parse(output.slice(jsonStart));
-}
-
-function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
 
 const tempRoot = await mkdtemp(join(tmpdir(), 'papers-create-smoke-'));
 try {

@@ -2,9 +2,9 @@ import { mkdir, readFile, writeFile } from 'fs/promises';
 import { join } from 'path';
 
 import { contentCollections } from '../shared/content-collections.js';
-import { getHomeMetadataDefaults } from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { resolveSiteMetadata } from './lib/siteMetadata.mjs';
 import {
   createAllCollectionSeoRouteEntries,
   createDefaultSocialImageManifest,
@@ -28,13 +28,9 @@ async function generateSeoArtifacts() {
     await readFile(join(publicDir, 'openapi-artifacts.json'), 'utf8')
   );
 
-  const mode = resolveEnvMode('production');
-  const viteEnv = loadViteEnv(rootDir, mode);
-  const defaults = getHomeMetadataDefaults();
-  const siteName = viteEnv.VITE_SITE_NAME || defaults.siteName;
-  const siteUrl = viteEnv.VITE_SITE_URL || '';
-  const siteSubtitle = defaults.siteSubtitle;
-  const siteDescription = defaults.siteDescription;
+  const { siteName, siteUrl, siteSubtitle, siteDescription } = resolveSiteMetadata(
+    loadViteEnv(rootDir, resolveEnvMode('production'))
+  );
 
   const routeEntries = createAllCollectionSeoRouteEntries(
     contentCollections,

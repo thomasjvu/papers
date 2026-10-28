@@ -12,12 +12,12 @@ import {
   DEFAULT_TWITTER_IMAGE_PATH,
   getAgentArtifactLinks,
   getFeedLink,
-  getHomeMetadataDefaults,
   serializeJsonLd,
   socialImagePathForRoute,
 } from '../shared/seo.js';
 import { readAllCollectionArtifacts } from './lib/collectionArtifacts.mjs';
 import { loadViteEnv, resolveEnvMode } from './lib/loadViteEnv.mjs';
+import { resolveSiteMetadata } from './lib/siteMetadata.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 import { planHomepagePreloads, planRoutePreloads } from './lib/routePreloads.mjs';
 import { createAllCollectionSeoRouteEntries, createSocialCardSvg } from './lib/seoArtifacts.mjs';
@@ -186,13 +186,9 @@ async function generateRouteHtml() {
   }
   const openapiArtifacts = JSON.parse(readFileSync(openapiArtifactsPath, 'utf8'));
 
-  const mode = resolveEnvMode('production');
-  const viteEnv = loadViteEnv(rootDir, mode);
-  const defaults = getHomeMetadataDefaults();
-  const siteName = viteEnv.VITE_SITE_NAME || defaults.siteName;
-  const siteUrl = viteEnv.VITE_SITE_URL || '';
-  const siteSubtitle = defaults.siteSubtitle;
-  const siteDescription = defaults.siteDescription;
+  const { siteName, siteUrl, siteSubtitle, siteDescription } = resolveSiteMetadata(
+    loadViteEnv(rootDir, resolveEnvMode('production'))
+  );
   const routeEntries = createAllCollectionSeoRouteEntries(
     contentCollections,
     artifactsByCollectionId,

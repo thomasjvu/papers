@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import { button as MotionButton } from 'framer-motion/m';
 import React, { useMemo, useCallback } from 'react';
 
+import { ICON_BUTTON_STYLE, useIconButtonMotion } from '../hooks/useIconButtonMotion';
 import { useTheme } from '../providers/useTheme';
 
 /**
@@ -25,16 +26,7 @@ type MotionToggleProps = {
 const MotionToggle = React.memo(({ className = '' }: MotionToggleProps): React.ReactElement => {
   const { prefersReducedMotion, toggleReducedMotion } = useTheme();
 
-  // Memoized animation settings for button (disabled if motion is reduced)
-  const buttonAnimations = useMemo(() => {
-    if (prefersReducedMotion) {
-      return {};
-    }
-    return {
-      whileHover: { scale: 1.1 },
-      whileTap: { scale: 0.95 },
-    };
-  }, [prefersReducedMotion]);
+  const buttonAnimations = useIconButtonMotion(prefersReducedMotion);
 
   // Memoized ARIA labels based on current state
   const ariaAttrs = useMemo(
@@ -45,13 +37,7 @@ const MotionToggle = React.memo(({ className = '' }: MotionToggleProps): React.R
     [prefersReducedMotion]
   );
 
-  // Memoized style object
-  const buttonStyle = useMemo(
-    () => ({
-      color: 'var(--papers-text-color)',
-    }),
-    []
-  );
+  const buttonStyle = ICON_BUTTON_STYLE;
 
   // Optimized motion toggle handler
   const handleToggleMotion = useCallback(() => {

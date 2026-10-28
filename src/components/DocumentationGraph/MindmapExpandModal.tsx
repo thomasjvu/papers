@@ -4,7 +4,9 @@ import { div as MotionDiv } from 'framer-motion/m';
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 
+import { getModalVariants } from '../../animations/common';
 import { useTheme } from '../../providers/useTheme';
+import ModalBackdrop from '../ModalBackdrop';
 
 import OptimizedDocumentationGraph from './OptimizedDocumentationGraph';
 import { useUiStrings } from '../../lib/uiStrings';
@@ -48,20 +50,7 @@ export default function MindmapExpandModal({
     };
   }, [isOpen, onClose]);
 
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
-  const modalVariants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0, scale: 1 },
-        visible: { opacity: 1, scale: 1 },
-      }
-    : {
-        hidden: { opacity: 0, scale: 0.95, y: -20 },
-        visible: { opacity: 1, scale: 1, y: 0 },
-      };
+  const modalVariants = getModalVariants(prefersReducedMotion);
 
   if (typeof document === 'undefined') {
     return null;
@@ -71,20 +60,7 @@ export default function MindmapExpandModal({
     <AnimatePresence>
       {isOpen && (
         <>
-          <MotionDiv
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            variants={backdropVariants}
-            transition={{ duration: 0.15 }}
-            onClick={onClose}
-            className="fixed inset-0 z-50"
-            style={{
-              backgroundColor: 'var(--overlay-color)',
-              backdropFilter: 'blur(6px)',
-              WebkitBackdropFilter: 'blur(6px)',
-            }}
-          />
+          <ModalBackdrop onClose={onClose} />
 
           <MotionDiv
             initial="hidden"

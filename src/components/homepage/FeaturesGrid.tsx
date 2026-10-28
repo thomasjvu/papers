@@ -1,5 +1,7 @@
 import { Icon } from '@iconify/react';
 
+import { SectionHeading } from './SectionHeading';
+
 interface Feature {
   title: string;
   description: string;
@@ -14,29 +16,11 @@ export function FeaturesGrid({ features }: FeaturesGridProps) {
   return (
     <section className="py-20">
       <div className="papers-container mx-auto px-6">
-        <div className="text-center mb-16">
-          <h2
-            className="font-bold mb-4"
-            style={{
-              fontFamily: 'var(--title-font)',
-              color: 'var(--papers-text-color)',
-              fontSize: 'clamp(var(--papers-text-2xl), 4vw, var(--papers-text-4xl))',
-              letterSpacing: '-0.03em',
-            }}
-          >
-            Everything You Need
-          </h2>
-          <p
-            className="max-w-2xl mx-auto"
-            style={{
-              color: 'var(--muted-color)',
-              fontSize: 'var(--papers-text-lg)',
-              lineHeight: 'var(--papers-leading-loose)',
-            }}
-          >
-            Built with modern tools and best practices for the best developer experience.
-          </p>
-        </div>
+        <SectionHeading
+          title="Everything You Need"
+          subtitle="Built with modern tools and best practices for the best developer experience."
+          subtitleClassName="max-w-2xl mx-auto"
+        />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {features.map((feature) => (

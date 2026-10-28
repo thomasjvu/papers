@@ -1,0 +1,16 @@
+{
+  "pattern": "{src,shared,scripts,test}/**/*.{ts,tsx,js,mjs}",
+  "ignore": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "src/lib/generated/**",
+    "**/*.d.ts",
+    "test/fixtures/**"
+  ],
+  "minTokens": 50,
+  "minLines": 5,
+  "reporters": ["console"],
+  "output": "reports/jscpd",
+  "absolute": false,
+  "gitignore": true
+}

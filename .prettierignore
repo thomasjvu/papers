@@ -50,3 +50,6 @@ public/workbox-*.js
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+# Quality reports
+reports/
+.stryker-tmp/

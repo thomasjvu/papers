@@ -13,18 +13,23 @@ const viewports = [
   ['mobile', { width: 390, height: 844 }],
 ];
 
+/** Open a page in a fixed colour scheme with motion disabled and fonts loaded. */
+async function openThemedPage(page, { viewport, mode, url }) {
+  await page.setViewportSize(viewport);
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: mode });
+  await page.addInitScript((dark) => {
+    localStorage.setItem('darkMode', String(dark));
+    localStorage.setItem('prefersReducedMotion', 'true');
+  }, mode === 'dark');
+  await page.goto(url, { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.fonts.ready);
+}
+
 for (const mode of ['light', 'dark']) {
   for (const [viewportName, viewport] of viewports) {
     for (const [pageName, url] of pages) {
       test(`${theme} ${mode} ${viewportName} ${pageName}`, async ({ page }) => {
-        await page.setViewportSize(viewport);
-        await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: mode });
-        await page.addInitScript((dark) => {
-          localStorage.setItem('darkMode', String(dark));
-          localStorage.setItem('prefersReducedMotion', 'true');
-        }, mode === 'dark');
-        await page.goto(url, { waitUntil: 'networkidle' });
-        await page.evaluate(() => document.fonts.ready);
+        await openThemedPage(page, { viewport, mode, url });
         if (pageName === 'math') {
           await expect(page.locator('.mermaid-block svg')).toHaveCount(2, { timeout: 20_000 });
           await expect(page.locator('.math-display[data-math-rendered="true"]')).toHaveCount(2);
@@ -40,14 +45,11 @@ for (const mode of ['light', 'dark']) {
 
 for (const mode of ['light', 'dark']) {
   test(`${theme} ${mode} diff colors`, async ({ page }) => {
-    await page.setViewportSize({ width: 1280, height: 900 });
-    await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: mode });
-    await page.addInitScript((dark) => {
-      localStorage.setItem('darkMode', String(dark));
-      localStorage.setItem('prefersReducedMotion', 'true');
-    }, mode === 'dark');
-    await page.goto('/docs/developer-guides/callouts-and-code#diffs', { waitUntil: 'networkidle' });
-    await page.evaluate(() => document.fonts.ready);
+    await openThemedPage(page, {
+      viewport: { width: 1280, height: 900 },
+      mode,
+      url: '/docs/developer-guides/callouts-and-code#diffs',
+    });
     const block = page
       .locator('[data-code-title]', { hasText: /^package\.json$/ })
       .first()

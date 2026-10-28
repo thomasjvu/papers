@@ -244,6 +244,56 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   return entries;
 }
 
+function resolveSeoSiteName(options) {
+  return options.siteName || getHomeMetadataDefaults().siteName;
+}
+
+function addUniqueEntry(entries, routeMap, entry) {
+  if (routeMap.has(entry.routePath)) {
+    return;
+  }
+
+  routeMap.set(entry.routePath, true);
+  entries.push(entry);
+}
+
+/** `/llms` and `/skill` are served at the site root from the primary collection. */
+function addHostedDocumentEntries(entries, routeMap, primaryCollection, primaryArtifacts, options) {
+  for (const docPath of ['llms', 'skill']) {
+    const document = primaryArtifacts?.documents?.[docPath];
+
+    if (!document) {
+      continue;
+    }
+
+    addUniqueEntry(entries, routeMap, {
+      routePath: `/${docPath}`,
+      canonicalPath: buildCanonicalCollectionPath(primaryCollection, docPath, {
+        ...getCollectionRoutingOptions(primaryCollection, options),
+      }),
+      title: `${document.title} | ${resolveSeoSiteName(options)}`,
+      description: getDocumentDescription(document),
+      type: 'article',
+      includeInSitemap: false,
+      noIndex: true,
+    });
+  }
+}
+
+function addOpenApiSeoEntries(entries, routeMap, options) {
+  if (!openapiConfig.enabled || openapiConfig.specs.length === 0 || !options.openapiArtifacts) {
+    return;
+  }
+
+  for (const entry of createOpenApiRouteEntries(
+    options.openapiArtifacts,
+    openapiConfig,
+    resolveSeoSiteName(options)
+  )) {
+    addUniqueEntry(entries, routeMap, entry);
+  }
+}
+
 export function createAllCollectionSeoRouteEntries(
   collections,
   artifactsByCollectionId,
@@ -275,49 +325,8 @@ export function createAllCollectionSeoRouteEntries(
   }
 
   const primaryArtifacts = primaryCollection ? artifactsByCollectionId[primaryCollection.id] : null;
-  const hostedDocumentAliases = ['llms', 'skill'];
-
-  for (const docPath of hostedDocumentAliases) {
-    const document = primaryArtifacts?.documents?.[docPath];
-
-    if (!document) {
-      continue;
-    }
-
-    const routePath = `/${docPath}`;
-
-    if (routeMap.has(routePath)) {
-      continue;
-    }
-
-    routeMap.set(routePath, true);
-    entries.push({
-      routePath,
-      canonicalPath: buildCanonicalCollectionPath(primaryCollection, docPath, {
-        ...getCollectionRoutingOptions(primaryCollection, options),
-      }),
-      title: `${document.title} | ${options.siteName || getHomeMetadataDefaults().siteName}`,
-      description: getDocumentDescription(document),
-      type: 'article',
-      includeInSitemap: false,
-      noIndex: true,
-    });
-  }
-
-  if (openapiConfig.enabled && openapiConfig.specs.length > 0 && options.openapiArtifacts) {
-    for (const entry of createOpenApiRouteEntries(
-      options.openapiArtifacts,
-      openapiConfig,
-      options.siteName || getHomeMetadataDefaults().siteName
-    )) {
-      if (routeMap.has(entry.routePath)) {
-        continue;
-      }
-
-      routeMap.set(entry.routePath, true);
-      entries.push(entry);
-    }
-  }
+  addHostedDocumentEntries(entries, routeMap, primaryCollection, primaryArtifacts, options);
+  addOpenApiSeoEntries(entries, routeMap, options);
 
   return entries;
 }

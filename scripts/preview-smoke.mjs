@@ -11,6 +11,7 @@ import {
 import { buildAbsoluteUrl, getDefaultDocumentPath } from '../shared/seo.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
 import { assertBuildManifest } from './lib/buildIdentity.mjs';
+import { getContentType } from './lib/contentTypes.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
 
 const rootDir = process.cwd();
@@ -25,36 +26,6 @@ function assert(condition, message) {
 
 function readText(filePath) {
   return readFileSync(filePath, 'utf8');
-}
-
-function getContentType(filePath) {
-  const extension = extname(filePath).toLowerCase();
-
-  switch (extension) {
-    case '.html':
-      return 'text/html; charset=utf-8';
-    case '.js':
-    case '.mjs':
-      return 'text/javascript; charset=utf-8';
-    case '.css':
-      return 'text/css; charset=utf-8';
-    case '.json':
-    case '.pf_meta':
-      return 'application/json; charset=utf-8';
-    case '.txt':
-      return 'text/plain; charset=utf-8';
-    case '.md':
-      return 'text/markdown; charset=utf-8';
-    case '.xml':
-      return 'application/xml; charset=utf-8';
-    case '.svg':
-      return 'image/svg+xml';
-    case '.wasm':
-    case '.pagefind':
-      return 'application/wasm';
-    default:
-      return 'application/octet-stream';
-  }
 }
 
 function resolveDistFile(pathname) {

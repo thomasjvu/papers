@@ -104,30 +104,7 @@ export default function ColorPalette({ colors }: ColorPaletteProps) {
                 }}
                 title="Copy hex value"
               >
-                {copiedColor === `${color.hex}-hex` ? (
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <polyline points="20,6 9,17 4,12" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                )}
+                <CopyStatusIcon copied={copiedColor === `${color.hex}-hex`} size={14} />
               </button>
             </div>
           </div>
@@ -171,30 +148,7 @@ export default function ColorPalette({ colors }: ColorPaletteProps) {
                 }}
                 title="Copy RGB value"
               >
-                {copiedColor === `${color.rgb}-rgb` ? (
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <polyline points="20,6 9,17 4,12" />
-                  </svg>
-                ) : (
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
-                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
-                  </svg>
-                )}
+                <CopyStatusIcon copied={copiedColor === `${color.rgb}-rgb`} size={12} />
               </button>
             </div>
           </div>
@@ -218,6 +172,28 @@ export default function ColorPalette({ colors }: ColorPaletteProps) {
 }
 
 // Helper function to determine text color based on background
+function CopyStatusIcon({ copied, size }: { copied: boolean; size: number }) {
+  return (
+    <svg
+      width={String(size)}
+      height={String(size)}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      {copied ? (
+        <polyline points="20,6 9,17 4,12" />
+      ) : (
+        <>
+          <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+          <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+        </>
+      )}
+    </svg>
+  );
+}
+
 function getTextColor(hexColor: string): string {
   // Remove # if present
   const hex = hexColor.replace('#', '');

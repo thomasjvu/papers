@@ -11,8 +11,9 @@ import {
 } from '../utils/MarkdownProcessor';
 import { createLogger } from '../utils/logger';
 import { readHtmlCodeBlock } from '../utils/htmlCodeBlocks';
+import { parseDocsRoutePath } from '../../shared/docsRouting.js';
+import { resolveInternalHref } from '../utils/internalHref';
 import { resolveDocumentPath } from '../lib/content';
-import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../shared/docsRouting.js';
 
 import CodeBlock from './CodeBlock';
 import ColorPalette from './ColorPalette';
@@ -50,20 +51,26 @@ function readMermaidChart(element: Element): string | null {
   }
 }
 
+function isElementNode(node: ChildNode): node is Element {
+  return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/** Text nodes render as their text; comments and other non-element nodes render nothing. */
+function renderNonElementNode(node: ChildNode): string | null {
+  return node.nodeType === Node.TEXT_NODE ? node.textContent : null;
+}
+
 /**
  * Convert sanitized MDX HTML to React. Code blocks (at any depth, including inside
  * callouts and tabs), Mermaid placeholders, and `<Tabs>` become components; every
  * other subtree stays static HTML so math hydration can still typeset it.
  */
 function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
-  }
-  if (node.nodeType !== Node.ELEMENT_NODE) {
-    return null;
+  if (!isElementNode(node)) {
+    return renderNonElementNode(node);
   }
 
-  const element = node as Element;
+  const element = node;
   const tagName = element.tagName.toLowerCase();
 
   const codeSnippet = readHtmlCodeBlock(element);
@@ -181,89 +188,8 @@ interface RenderContext {
 }
 
 const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'open', 'readonly', 'selected']);
-const EXTERNAL_PROTOCOL_PATTERN = /^(?:[a-z][a-z0-9+.-]*:|\/\/)/i;
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
 const HEADING_TAG_PATTERN = /^h[1-6]$/;
-
-function stripDocExtension(path: string): string {
-  return path.replace(/\.(md|mdx)$/i, '');
-}
-
-function splitPathSuffix(href: string): { pathname: string; suffix: string } {
-  const hashIndex = href.indexOf('#');
-  const queryIndex = href.indexOf('?');
-  const splitIndex =
-    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
-
-  if (splitIndex === -1) {
-    return { pathname: href, suffix: '' };
-  }
-
-  return {
-    pathname: href.slice(0, splitIndex),
-    suffix: href.slice(splitIndex),
-  };
-}
-
-function buildResolvedDocsHref(
-  docPath: string,
-  suffix: string,
-  context: Pick<RenderContext, 'activeLocale' | 'activeVersion'>
-): string {
-  return (
-    buildCanonicalDocsPath(resolveDocumentPath(stripDocExtension(docPath)), {
-      version: context.activeVersion,
-      locale: context.activeLocale,
-    }) + suffix
-  );
-}
-
-function resolveInternalHref(
-  href: string,
-  context: Pick<RenderContext, 'currentPath' | 'activeLocale' | 'activeVersion'>
-): string | null {
-  if (!href || href === '#' || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href)) {
-    return null;
-  }
-
-  if (href === '/') {
-    return href;
-  }
-
-  if (href === '/llms' || href === '/llms.txt') {
-    return '/llms.txt';
-  }
-
-  if (href === '/skill' || href === '/skill.md') {
-    return '/skill.md';
-  }
-
-  if (href.startsWith('/')) {
-    const parsed = new URL(href, 'https://docs.local');
-    const pathname = parsed.pathname.replace(/\/+$/, '') || '/';
-    const suffix = `${parsed.search}${parsed.hash}`;
-
-    if (
-      pathname === '/docs' ||
-      pathname.startsWith('/docs/') ||
-      pathname === '/dev-docs' ||
-      pathname.startsWith('/dev-docs/')
-    ) {
-      return pathname + suffix;
-    }
-
-    const docPath = pathname.replace(/^\/+/, '');
-    return buildResolvedDocsHref(docPath, suffix, context);
-  }
-
-  const { pathname, suffix } = splitPathSuffix(href);
-  const baseDirectory = context.currentPath.includes('/')
-    ? context.currentPath.slice(0, context.currentPath.lastIndexOf('/') + 1)
-    : '';
-  const resolved = new URL(pathname, `https://docs.local/${baseDirectory}`);
-  const docPath = resolved.pathname.replace(/^\/+/, '');
-  return buildResolvedDocsHref(docPath, suffix, context);
-}
 
 function detectChainFromAddress(address: string): string {
   if (/^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address)) {
@@ -361,15 +287,11 @@ function renderNodes(
 }
 
 function renderNode(node: ChildNode, key: string, context: RenderContext): React.ReactNode | null {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
+  if (!isElementNode(node)) {
+    return renderNonElementNode(node);
   }
 
-  if (node.nodeType !== Node.ELEMENT_NODE) {
-    return null;
-  }
-
-  const element = node as Element;
+  const element = node;
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === 'div' && element.classList.contains('md-tabs')) {
@@ -495,7 +417,7 @@ function renderNode(node: ChildNode, key: string, context: RenderContext): React
     const dataUrl = element.getAttribute('data-url');
     const props = getElementProps(element, key);
     const children = renderNodes(element.childNodes, key, context);
-    const internalHref = resolveInternalHref(href, context);
+    const internalHref = resolveInternalHref(href, { ...context, resolveDocumentPath });
 
     if (dataFile) {
       return (

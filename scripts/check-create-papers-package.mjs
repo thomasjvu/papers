@@ -1,7 +1,13 @@
-import { execFileSync, spawnSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
+
+import {
+  assertCondition as assert,
+  parseNpmPackJson,
+  runCommand as run,
+} from './lib/processRun.mjs';
 
 const rootDir = process.cwd();
 const packageDir = resolve(rootDir, 'packages/create-papers');
@@ -12,39 +18,6 @@ const expectedFiles = new Set([
   'package.json',
   'template-manifest.json',
 ]);
-
-function run(command, args, options = {}) {
-  const result = spawnSync(command, args, {
-    cwd: rootDir,
-    encoding: 'utf8',
-    stdio: 'pipe',
-    ...options,
-  });
-
-  if (result.error) {
-    throw result.error;
-  }
-  if (result.status !== 0) {
-    throw new Error(
-      `${command} ${args.join(' ')} failed:\n${result.stdout || ''}\n${result.stderr || ''}`
-    );
-  }
-  return result.stdout;
-}
-
-function parseNpmPackJson(output) {
-  const jsonStart = output.indexOf('[');
-  if (jsonStart < 0) {
-    throw new Error(`npm pack did not return JSON:\n${output}`);
-  }
-  return JSON.parse(output.slice(jsonStart));
-}
-
-function assert(condition, message) {
-  if (!condition) {
-    throw new Error(message);
-  }
-}
 
 const rootPackage = JSON.parse(await readFile(join(rootDir, 'package.json'), 'utf8'));
 const starterPackage = JSON.parse(await readFile(join(packageDir, 'package.json'), 'utf8'));

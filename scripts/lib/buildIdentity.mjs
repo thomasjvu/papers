@@ -168,11 +168,15 @@ export function readBuildManifest(distDir) {
   }
 }
 
-export function assertBuildManifest(distDir, { expectedBuildMode = 'production' } = {}) {
-  const manifest = readBuildManifest(distDir);
-  const rootDir = resolve(distDir, '..');
-  const current = createBuildIdentity(rootDir, expectedBuildMode);
-
+/**
+ * Throws when a dist manifest does not describe the current checkout: schema,
+ * generator, build mode, revision, input fingerprint and (in CI) a clean tree.
+ */
+export function validateBuildManifest(
+  manifest,
+  current,
+  { expectedBuildMode = 'production', isCi = process.env.CI === 'true' } = {}
+) {
   if (manifest.schemaVersion !== BUILD_MANIFEST_VERSION) {
     throw new Error(
       'Unsupported build manifest schema ' +
@@ -215,9 +219,16 @@ export function assertBuildManifest(distDir, { expectedBuildMode = 'production' 
     );
   }
 
-  if (process.env.CI === 'true' && manifest.worktreeState !== 'clean') {
+  if (isCi && manifest.worktreeState !== 'clean') {
     throw new Error('CI release artifacts must be built from a clean working tree.');
   }
 
   return manifest;
+}
+
+export function assertBuildManifest(distDir, { expectedBuildMode = 'production' } = {}) {
+  const manifest = readBuildManifest(distDir);
+  const current = createBuildIdentity(resolve(distDir, '..'), expectedBuildMode);
+
+  return validateBuildManifest(manifest, current, { expectedBuildMode });
 }

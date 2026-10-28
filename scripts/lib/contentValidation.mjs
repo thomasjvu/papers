@@ -22,6 +22,7 @@ import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { createDocumentToc, extractDocumentLinks, parseFrontmatter } from './docsArtifacts.mjs';
 import { validateMdxComponentsInSource } from './mdxCompile.mjs';
+import { splitTargetSuffix } from './linkTargets.mjs';
 
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx']);
 export const EXCLUDED_SOURCE_DIRECTORIES = new Set(['generated', 'variants']);
@@ -37,22 +38,6 @@ function stripDocumentExtension(value) {
 function normalizeDocPath(value) {
   const normalized = posix.normalize(value.replaceAll('\\', '/')).replace(/^\.\//, '');
   return normalized === '.' ? '' : normalized.replace(/^\/+|\/+$/g, '');
-}
-
-function splitTargetSuffix(target) {
-  const hashIndex = target.indexOf('#');
-  const queryIndex = target.indexOf('?');
-  const splitIndex =
-    hashIndex === -1 ? queryIndex : queryIndex === -1 ? hashIndex : Math.min(hashIndex, queryIndex);
-
-  if (splitIndex === -1) {
-    return { pathname: target, suffix: '' };
-  }
-
-  return {
-    pathname: target.slice(0, splitIndex),
-    suffix: target.slice(splitIndex),
-  };
 }
 
 function safeDecode(value) {
@@ -156,7 +141,58 @@ function addRoute(routeMap, ambiguousRoutes, routePath, target) {
   }
 }
 
-function createRouteModel({
+function addCollectionRoutes(add, entry, routeOptions) {
+  const { collection, documentationTree, documentPaths } = entry;
+  const collectionId = collection?.id || 'docs';
+  const entryOptions = collection
+    ? getCollectionRoutingOptions(collection, routeOptions)
+    : routeOptions;
+  const buildRoutes = collection
+    ? (path) => buildCollectionRouteVariants(collection, path, entryOptions)
+    : (path) => buildDocsRouteVariants(path, entryOptions);
+  const routePrefix = collection?.routePrefix || '/docs';
+  const addDocument = (routePath, documentPath) =>
+    add(routePath, { type: 'document', collectionId, documentPath });
+
+  for (const documentPath of documentPaths) {
+    for (const routePath of buildRoutes(documentPath)) {
+      addDocument(routePath, documentPath);
+    }
+  }
+
+  const defaultDocumentPath = getDefaultDocumentPath(documentationTree) || documentPaths[0];
+  if (defaultDocumentPath) {
+    addDocument(routePrefix, defaultDocumentPath);
+  }
+
+  const normalizedPrefix = String(routePrefix).replace(/^\/+|\/+$/g, '');
+  const prefixPattern = new RegExp(`^/${normalizedPrefix}/?`);
+  for (const alias of getDirectoryAliasEntries(documentationTree, normalizedPrefix)) {
+    for (const routePath of buildRoutes(alias.routePath.replace(prefixPattern, ''))) {
+      addDocument(routePath, alias.docPath);
+    }
+  }
+}
+
+function addOpenApiRoutes(add, openapiConfig, documentPaths) {
+  if (!openapiConfig?.enabled) {
+    return;
+  }
+
+  const openapiDocumentPath = normalizeDocPath(openapiConfig.pagePath || '');
+  for (const spec of openapiConfig.specs || []) {
+    const specId = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
+
+    // The default spec is served by its own document page when one exists.
+    if (specId === null && documentPaths.includes(openapiDocumentPath)) {
+      continue;
+    }
+
+    add(buildOpenApiRoutePath(openapiConfig, specId), { type: 'openapi', specId: spec.id });
+  }
+}
+
+export function createRouteModel({
   collection,
   documentationTree,
   documentPaths,
@@ -167,88 +203,22 @@ function createRouteModel({
 }) {
   const routeMap = new Map();
   const ambiguousRoutes = new Set();
+  const add = (routePath, target) => addRoute(routeMap, ambiguousRoutes, routePath, target);
   const routeOptions = { versionConfig, i18nConfig };
-  const collectionEntries = routeCollections || [
-    {
-      collection,
-      documentationTree,
-      documentPaths,
-    },
-  ];
+  const collectionEntries = routeCollections || [{ collection, documentationTree, documentPaths }];
 
-  addRoute(routeMap, ambiguousRoutes, '/', { type: 'site' });
+  add('/', { type: 'site' });
 
   for (const entry of collectionEntries) {
-    const entryOptions = entry.collection
-      ? getCollectionRoutingOptions(entry.collection, routeOptions)
-      : routeOptions;
-    const buildRoutes = entry.collection
-      ? (path) => buildCollectionRouteVariants(entry.collection, path, entryOptions)
-      : (path) => buildDocsRouteVariants(path, entryOptions);
-    const routePrefix = entry.collection?.routePrefix || '/docs';
-
-    for (const documentPath of entry.documentPaths) {
-      for (const routePath of buildRoutes(documentPath)) {
-        addRoute(routeMap, ambiguousRoutes, routePath, {
-          type: 'document',
-          collectionId: entry.collection?.id || 'docs',
-          documentPath,
-        });
-      }
-    }
-
-    const defaultDocumentPath =
-      getDefaultDocumentPath(entry.documentationTree) || entry.documentPaths[0];
-    if (defaultDocumentPath) {
-      addRoute(routeMap, ambiguousRoutes, routePrefix, {
-        type: 'document',
-        collectionId: entry.collection?.id || 'docs',
-        documentPath: defaultDocumentPath,
-      });
-    }
-
-    const normalizedPrefix = String(routePrefix).replace(/^\/+|\/+$/g, '');
-    const prefixPattern = new RegExp(`^/${normalizedPrefix}/?`);
-    for (const alias of getDirectoryAliasEntries(entry.documentationTree, normalizedPrefix)) {
-      const aliasPath = alias.routePath.replace(prefixPattern, '');
-      for (const routePath of buildRoutes(aliasPath)) {
-        addRoute(routeMap, ambiguousRoutes, routePath, {
-          type: 'document',
-          collectionId: entry.collection?.id || 'docs',
-          documentPath: alias.docPath,
-        });
-      }
-    }
+    addCollectionRoutes(add, entry, routeOptions);
   }
 
   if (!collection || collection.id === 'docs') {
-    addRoute(routeMap, ambiguousRoutes, '/llms', {
-      type: 'document',
-      collectionId: 'docs',
-      documentPath: 'llms',
-    });
-    addRoute(routeMap, ambiguousRoutes, '/skill', {
-      type: 'document',
-      collectionId: 'docs',
-      documentPath: 'skill',
-    });
+    add('/llms', { type: 'document', collectionId: 'docs', documentPath: 'llms' });
+    add('/skill', { type: 'document', collectionId: 'docs', documentPath: 'skill' });
   }
 
-  if (openapiConfig?.enabled) {
-    const openapiDocumentPath = normalizeDocPath(openapiConfig.pagePath || '');
-    for (const spec of openapiConfig.specs || []) {
-      const specId = spec.id === openapiConfig.defaultSpecId ? null : spec.id;
-
-      if (specId === null && documentPaths.includes(openapiDocumentPath)) {
-        continue;
-      }
-
-      addRoute(routeMap, ambiguousRoutes, buildOpenApiRoutePath(openapiConfig, specId), {
-        type: 'openapi',
-        specId: spec.id,
-      });
-    }
-  }
+  addOpenApiRoutes(add, openapiConfig, documentPaths);
 
   return { routeMap, ambiguousRoutes };
 }
@@ -343,102 +313,118 @@ function isLikelyDocumentTarget(pathname) {
   return !pathname || !extname(pathname) || /\.(?:md|mdx)$/i.test(pathname);
 }
 
-function validateLink({
-  reference,
-  sourceRecord,
-  sourceRecords,
-  routeModel,
-  documentPaths,
-  publicDir,
-  contentRoot,
-  sourcePath,
-  issues,
-  frontmatterSchema,
-}) {
-  if (reference.type === 'action') {
+function checkTargetAnchor(documentPath, suffix, link) {
+  if (!suffix.startsWith('#')) {
     return;
   }
 
-  const { target, line } = reference;
-  const { pathname, suffix } = splitTargetSuffix(target);
+  const targetRecord = findSourceRecord(documentPath, link.sourceRecords);
+  if (targetRecord) {
+    checkAnchor(
+      targetRecord,
+      suffix,
+      link.sourceRecords,
+      link.issues,
+      link.sourcePath,
+      link.reference.line,
+      link.frontmatterSchema
+    );
+  }
+}
 
-  if (!pathname && suffix.startsWith('#')) {
-    checkAnchor(sourceRecord, suffix, sourceRecords, issues, sourcePath, line, frontmatterSchema);
-    return;
+function isAmbiguousRoute(routeModel, decodedPathname, pathname) {
+  return (
+    routeModel.ambiguousRoutes.has(decodedPathname.replace(/\/+$/, '') || '/') ||
+    routeModel.ambiguousRoutes.has(pathname.replace(/\/+$/, '') || '/')
+  );
+}
+
+/** Returns true when the absolute pathname resolved to a route (valid or reported). */
+function validateRouteLink(link, pathname, decodedPathname, suffix) {
+  const routeTarget = resolveRouteTarget(decodedPathname, link.routeModel);
+  if (!routeTarget) {
+    return false;
   }
 
-  if (!pathname && suffix.startsWith('?')) {
-    return;
+  if (isAmbiguousRoute(link.routeModel, decodedPathname, pathname)) {
+    link.issues.push(
+      `${link.sourcePath}:${link.reference.line}: ambiguous route target "${link.reference.target}"`
+    );
+  } else if (routeTarget.type === 'document') {
+    checkTargetAnchor(routeTarget.documentPath, suffix, link);
+  }
+  return true;
+}
+
+/** Returns true when the relative pathname names a known document. */
+function validateRelativeDocumentLink(link, decodedPathname, suffix) {
+  const documentPath = resolveRelativeDocumentPath(link.sourceRecord.documentPath, decodedPathname);
+  if (
+    !documentPath ||
+    !link.documentPaths.has(documentPath) ||
+    !isLikelyDocumentTarget(decodedPathname)
+  ) {
+    return false;
   }
 
-  const decodedPathname = safeDecode(pathname || '');
+  checkTargetAnchor(documentPath, suffix, link);
+  return true;
+}
+
+/** Same-page `#anchor` and `?query` links; returns true when the link had no pathname to resolve. */
+function validateInPageLink(link, pathname, suffix) {
+  if (pathname) {
+    return false;
+  }
+
+  if (suffix.startsWith('#')) {
+    const { sourceRecord, sourceRecords, issues, sourcePath, reference } = link;
+    checkAnchor(
+      sourceRecord,
+      suffix,
+      sourceRecords,
+      issues,
+      sourcePath,
+      reference.line,
+      link.frontmatterSchema
+    );
+    return true;
+  }
+
+  return suffix.startsWith('?');
+}
+
+function validatePathLink(link, pathname, suffix) {
+  const { reference, sourceRecord, publicDir, contentRoot, sourcePath, issues } = link;
+  const decodedPathname = safeDecode(pathname);
   if (decodedPathname === null) {
-    issues.push(`${sourcePath}:${line}: invalid encoded link target "${target}"`);
+    issues.push(
+      `${sourcePath}:${reference.line}: invalid encoded link target "${reference.target}"`
+    );
     return;
   }
 
-  if (pathname.startsWith('/')) {
-    const routeTarget = resolveRouteTarget(decodedPathname, routeModel);
-    const normalizedRoute = decodedPathname.replace(/\/+$/, '') || '/';
-
-    if (routeTarget) {
-      if (
-        routeModel.ambiguousRoutes.has(normalizedRoute) ||
-        routeModel.ambiguousRoutes.has(pathname.replace(/\/+$/, '') || '/')
-      ) {
-        issues.push(`${sourcePath}:${line}: ambiguous route target "${target}"`);
-        return;
-      }
-
-      if (suffix.startsWith('#') && routeTarget.type === 'document') {
-        const targetRecord = findSourceRecord(routeTarget.documentPath, sourceRecords);
-        if (targetRecord) {
-          checkAnchor(
-            targetRecord,
-            suffix,
-            sourceRecords,
-            issues,
-            sourcePath,
-            line,
-            frontmatterSchema
-          );
-        }
-      }
-      return;
-    }
-
-    if (checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
-      return;
-    }
-
-    issues.push(`${sourcePath}:${line}: unresolved internal link target "${target}"`);
+  const resolved = pathname.startsWith('/')
+    ? validateRouteLink(link, pathname, decodedPathname, suffix)
+    : validateRelativeDocumentLink(link, decodedPathname, suffix);
+  if (resolved || checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
     return;
   }
 
-  const documentPath = resolveRelativeDocumentPath(sourceRecord.documentPath, decodedPathname);
-  if (documentPath && documentPaths.has(documentPath) && isLikelyDocumentTarget(decodedPathname)) {
-    if (suffix.startsWith('#')) {
-      const targetRecord = findSourceRecord(documentPath, sourceRecords);
-      if (targetRecord) {
-        checkAnchor(
-          targetRecord,
-          suffix,
-          sourceRecords,
-          issues,
-          sourcePath,
-          line,
-          frontmatterSchema
-        );
-      }
-    }
+  issues.push(
+    `${sourcePath}:${reference.line}: unresolved internal link target "${reference.target}"`
+  );
+}
+
+function validateLink(link) {
+  if (link.reference.type === 'action') {
     return;
   }
 
-  if (checkLocalAsset(decodedPathname, sourceRecord, publicDir, contentRoot)) {
-    return;
+  const { pathname, suffix } = splitTargetSuffix(link.reference.target);
+  if (!validateInPageLink(link, pathname, suffix)) {
+    validatePathLink(link, pathname, suffix);
   }
-
-  issues.push(`${sourcePath}:${line}: unresolved internal link target "${target}"`);
 }
 
 function validateSourceLinks({

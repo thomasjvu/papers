@@ -5,7 +5,6 @@ import { useMemo, memo, type ReactNode } from 'react';
 
 import { getContentCollection } from '../data/collections';
 import { findPageTags } from '../lib/navigation';
-import { parseCollectionRoutePath } from '../../shared/docsRouting.js';
 import type { ContentCollection } from '../../shared/docsRouting.js';
 import { useAdjacentPageNavigation } from '../hooks/useAdjacentPageNavigation';
 import { useScrollToHash } from '../hooks/useScrollToHash';
@@ -15,6 +14,7 @@ import DocPageFooter from './DocPageFooter';
 import LastUpdated from './LastUpdated';
 import MarkdownRenderer, { HtmlRenderer } from './MarkdownRenderer';
 import { useUiStrings } from '../lib/uiStrings';
+import { useCollectionRouteContext } from '../hooks/useCollectionRouteContext';
 
 type ContentRendererProps = {
   content: string;
@@ -37,15 +37,7 @@ const ContentRenderer = memo(function ContentRenderer({
   const ui = useUiStrings();
   useScrollToHash(`${path}:${content.length}`);
   const activeCollection = collection || getContentCollection('docs');
-  const routePrefix =
-    String(activeCollection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
-  const docsRouteSlug = location.pathname.startsWith(routePrefix)
-    ? location.pathname.replace(new RegExp(`^${routePrefix}/?`), '')
-    : '';
-  const routeContext = useMemo(
-    () => parseCollectionRoutePath(activeCollection, docsRouteSlug),
-    [activeCollection, docsRouteSlug]
-  );
+  const routeContext = useCollectionRouteContext(activeCollection, location.pathname);
 
   const {
     prev: prevPage,

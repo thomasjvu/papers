@@ -6,7 +6,9 @@ import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 
 import { TIMING_CONSTANTS } from '../../constants/ui';
 import { useDebouncedCallback } from '../../hooks/useDebounce';
+import { getModalVariants } from '../../animations/common';
 import { useTheme } from '../../providers/useTheme';
+import ModalBackdrop from '../ModalBackdrop';
 
 import SearchResult, { type SearchResultType } from './SearchResult';
 import { useSearchLogic } from './useSearchLogic';
@@ -153,40 +155,14 @@ export default function OptimizedCommandPalette({ isOpen, onClose }: OptimizedCo
     }
   }, [selectedIndex, prefersReducedMotion]);
 
-  const backdropVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1 },
-  };
-
-  const modalVariants = prefersReducedMotion
-    ? {
-        hidden: { opacity: 0, scale: 1 },
-        visible: { opacity: 1, scale: 1 },
-      }
-    : {
-        hidden: { opacity: 0, scale: 0.95, y: -20 },
-        visible: { opacity: 1, scale: 1, y: 0 },
-      };
+  const modalVariants = getModalVariants(prefersReducedMotion);
 
   return (
     <LazyMotion features={domAnimation}>
       <AnimatePresence>
         {isOpen && (
           <>
-            <MotionDiv
-              initial="hidden"
-              animate="visible"
-              exit="hidden"
-              variants={backdropVariants}
-              transition={{ duration: 0.15 }}
-              onClick={onClose}
-              className="fixed inset-0 z-50"
-              style={{
-                backgroundColor: 'var(--overlay-color)',
-                backdropFilter: 'blur(6px)',
-                WebkitBackdropFilter: 'blur(6px)',
-              }}
-            />
+            <ModalBackdrop onClose={onClose} />
 
             <MotionDiv
               initial="hidden"
