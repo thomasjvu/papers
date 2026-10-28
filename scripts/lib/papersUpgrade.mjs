@@ -119,10 +119,15 @@ export function fetchUpstream(root, repository) {
     '--quiet',
     '--no-tags',
     '--force',
+    // Shallow site clones (CI checkouts, partial mirrors) must accept new roots.
+    '--update-shallow',
     repository,
     `+refs/heads/main:${UPSTREAM_REF_PREFIX}/main`,
     `+refs/tags/*:${UPSTREAM_REF_PREFIX}/tags/*`,
   ]);
+  if (!tryGit(root, ['rev-parse', '--verify', '--quiet', `${UPSTREAM_REF_PREFIX}/main`])) {
+    throw new Error(`Fetching ${repository} did not produce ${UPSTREAM_REF_PREFIX}/main.`);
+  }
 }
 
 export function listUpstreamTags(root) {
