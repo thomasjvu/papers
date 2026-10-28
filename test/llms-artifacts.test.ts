@@ -267,6 +267,7 @@ export const llmsArtifactTests = [
           fenceEnd: 'Use ```\n\nAfter fence.\n',
           image: '![](a.png)\n\nAfter image.\n',
           headingOnly: '# Only a heading\n',
+          bomMid: '\uFEFFa\uFEFFb text.\n',
         },
         ({ rootDir, tree }) => {
           const result = createLlmsArtifacts({
@@ -287,6 +288,7 @@ export const llmsArtifactTests = [
             fenceEnd: 'Use ```',
             image: 'After image.',
             headingOnly: null,
+            bomMid: 'a b text.',
           });
         }
       ),
@@ -340,8 +342,12 @@ export const llmsArtifactTests = [
     name: 'llms warns once per unreadable doc and skips non-file tree items',
     run: () =>
       withDocs({ ok: 'Fine.\n' }, ({ rootDir, tree, warnings }) => {
+        const [section] = tree as Array<{ children: unknown[] }>;
         const documentationTree = [
-          ...tree,
+          {
+            ...section,
+            children: [...section.children, { type: 'file', name: 'lost.md', path: 'd/lost' }],
+          },
           { type: 'file', name: 'gone.md', path: 'd/gone' },
           { type: 'directory', name: 'Hollow' },
           {
@@ -351,13 +357,18 @@ export const llmsArtifactTests = [
           },
         ];
         const result = createLlmsArtifacts({ rootDir, contentDir: 'content', documentationTree });
-        assert.equal(result.expectedFileCount, 2);
+        assert.equal(result.expectedFileCount, 3);
         assert.equal(result.resolvedFileCount, 1);
         assert.doesNotMatch(result.llmsTxt, /## Parent|## Inner|## Hollow/);
+        assert.match(result.llmsTxt, /- \[lost\]\(\/docs\/d\/lost\)\n/);
         assert.deepEqual(
-          warnings.map((warning) => warning.message),
-          // Top-level files are not listed in llms.txt, so only llms-full.txt reads it.
-          ['Could not read file d/gone:']
+          warnings.map((warning) => warning.message).sort(),
+          // llms.txt lists the section file (one read); llms-full.txt reads both once.
+          [
+            'Could not read file d/gone:',
+            'Could not read file d/lost:',
+            'Could not read file d/lost:',
+          ]
         );
         assert.equal((warnings[0].error as Error).message, 'File not found');
       }),
@@ -432,6 +443,7 @@ export const llmsArtifactTests = [
         );
         assert.match(bare.llmsFullTxt, /\n## a\n\n> Complete[^\n]*\n\n\n## D\n/);
         assert.doesNotMatch(bare.llmsFullTxt, /[ \t]$/m);
+        assert.match(bare.llmsFullTxt, /\n## Collection\n\n> Complete/);
 
         const titled = createAllLlmsArtifacts({
           rootDir,
