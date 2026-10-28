@@ -79,34 +79,44 @@ jobs:
       - name: Install package tooling
         run: npm ci
 
-      - name: Verify tag and publish with provenance
+      - name: Verify tag matches both package versions
         run: |
           VERSION=$(node -p "require('./packages/create-papers/package.json').version")
+          ROOT_VERSION=$(node -p "require('./package.json').version")
           test "$GITHUB_REF_NAME" = "v$VERSION"
-          npm publish --prefix packages/create-papers --provenance --access public
+          test "$ROOT_VERSION" = "$VERSION"
+
+      # npm publishing is optional: without an NPM_TOKEN secret the release is
+      # still a Git tag plus GitHub release, which is what sites upgrade from.
+      - name: Publish create-papers with provenance
+        if: env.NODE_AUTH_TOKEN != ''
+        run: npm publish --prefix packages/create-papers --provenance --access public
 
       - name: Probe exact public package version
         id: package
+        if: env.NODE_AUTH_TOKEN != ''
         run: |
           VERSION=$(node -p "require('./packages/create-papers/package.json').version")
           PUBLISHED_VERSION=$(npm view "create-papers@$VERSION" version)
           test "$PUBLISHED_VERSION" = "$VERSION"
           TARBALL_URL=$(npm view "create-papers@$VERSION" dist.tarball)
           test -n "$TARBALL_URL"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "tarball=$TARBALL_URL" >> "$GITHUB_OUTPUT"
 
-      - name: Record package tarball in the GitHub release
+      - name: Create the GitHub release from the changelog
         env:
           GH_TOKEN: ${{ github.token }}
-          PACKAGE_VERSION: ${{ steps.package.outputs.version }}
           PACKAGE_TARBALL: ${{ steps.package.outputs.tarball }}
         run: |
+          VERSION="${GITHUB_REF_NAME#v}"
           NOTES_FILE=$(mktemp)
-          printf '%s\n\n' "create-papers@$PACKAGE_VERSION was published with npm provenance." > "$NOTES_FILE"
-          printf 'Package tarball: %s\n' "$PACKAGE_TARBALL" >> "$NOTES_FILE"
+          awk -v v="$VERSION" '$0 ~ "^## "v"( |$)" {on=1; next} on && /^## / {exit} on' CHANGELOG.md > "$NOTES_FILE"
+          printf '\nSites upgrade with `node scripts/papers-upgrade.mjs --to %s`.\n' "$GITHUB_REF_NAME" >> "$NOTES_FILE"
+          if [ -n "$PACKAGE_TARBALL" ]; then
+            printf '\ncreate-papers@%s was published with npm provenance: %s\n' "$VERSION" "$PACKAGE_TARBALL" >> "$NOTES_FILE"
+          fi
           if gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1; then
             gh release edit "$GITHUB_REF_NAME" --notes-file "$NOTES_FILE"
           else
-            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$NOTES_FILE"
+            gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes-file "$NOTES_FILE" --verify-tag
           fi
