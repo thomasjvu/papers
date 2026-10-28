@@ -13,6 +13,12 @@ import { createLogger } from '../utils/logger';
 import { readHtmlCodeBlock } from '../utils/htmlCodeBlocks';
 import { parseDocsRoutePath } from '../../shared/docsRouting.js';
 import { resolveInternalHref } from '../utils/internalHref';
+import {
+  classifyMarkdownElement,
+  detectChainFromAddress,
+  getElementProps,
+  type MarkdownElementLookups,
+} from '../utils/markdownElements';
 import { resolveDocumentPath } from '../lib/content';
 
 import CodeBlock from './CodeBlock';
@@ -187,21 +193,7 @@ interface RenderContext {
   navigate: (href: string) => void;
 }
 
-const BOOLEAN_ATTRIBUTES = new Set(['checked', 'disabled', 'open', 'readonly', 'selected']);
 let toastTimeout: ReturnType<typeof setTimeout> | null = null;
-const HEADING_TAG_PATTERN = /^h[1-6]$/;
-
-function detectChainFromAddress(address: string): string {
-  if (/^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address)) {
-    return 'btc';
-  }
-
-  if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
-    return 'solana';
-  }
-
-  return 'eth';
-}
 
 function showCopyToast(message: string): void {
   if (typeof document === 'undefined' || toastTimeout) {
@@ -244,38 +236,6 @@ function showCopyToast(message: string): void {
   }, 1500);
 }
 
-function getElementProps(element: Element, key: string): Record<string, unknown> {
-  const props: Record<string, unknown> = { key };
-
-  for (const attribute of Array.from(element.attributes)) {
-    const { name, value } = attribute;
-
-    if (name === 'class') {
-      props.className = value;
-      continue;
-    }
-
-    if (name === 'for') {
-      props.htmlFor = value;
-      continue;
-    }
-
-    if (name === 'tabindex') {
-      props.tabIndex = Number(value);
-      continue;
-    }
-
-    if (BOOLEAN_ATTRIBUTES.has(name)) {
-      props[name === 'readonly' ? 'readOnly' : name] = value === '' || value === name;
-      continue;
-    }
-
-    props[name] = value;
-  }
-
-  return props;
-}
-
 function renderNodes(
   nodes: NodeListOf<ChildNode> | ChildNode[],
   keyPrefix: string,
@@ -286,194 +246,148 @@ function renderNodes(
     .filter((node): node is React.ReactNode => node !== null);
 }
 
+function renderMermaid(key: string, chart: string) {
+  return (
+    <Suspense
+      key={key}
+      fallback={<div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>}
+    >
+      <MermaidDiagram chart={chart} />
+    </Suspense>
+  );
+}
+
+function renderHeading(
+  element: Element,
+  key: string,
+  context: RenderContext,
+  headingId: string | null,
+  label: string
+) {
+  const tagName = element.tagName.toLowerCase();
+  const props = getElementProps(element, key);
+  const children = renderNodes(element.childNodes, key, context);
+  if (!headingId) {
+    return React.createElement(tagName, props, ...children);
+  }
+  return React.createElement(
+    tagName,
+    props,
+    ...children,
+    <MarkdownHeadingCopyLink key={`${key}-copy-link`} headingId={headingId} label={label} />
+  );
+}
+
+function getElementLookups(context: RenderContext): MarkdownElementLookups {
+  return {
+    hasCodeBlock: (blockId) => Boolean(context.codeBlocks.get(blockId)),
+    hasMermaidBlock: (blockId) => Boolean(context.mermaidBlocks.get(blockId)),
+    resolveInternal: (href) => resolveInternalHref(href, { ...context, resolveDocumentPath }),
+  };
+}
+
 function renderNode(node: ChildNode, key: string, context: RenderContext): React.ReactNode | null {
   if (!isElementNode(node)) {
     return renderNonElementNode(node);
   }
 
   const element = node;
-  const tagName = element.tagName.toLowerCase();
+  const descriptor = classifyMarkdownElement(element, getElementLookups(context));
+  const children = () => renderNodes(element.childNodes, key, context);
 
-  if (tagName === 'div' && element.classList.contains('md-tabs')) {
-    const panels = Array.from(element.children)
-      .filter((child) => child.classList.contains('md-tabs__panel'))
-      .map((panel, index) => ({
-        label: panel.getAttribute('data-tab-label') || `Tab ${index + 1}`,
-        content: renderNodes(panel.childNodes, `${key}-panel-${index}`, context),
-      }));
-    if (panels.length === 0) {
+  switch (descriptor.kind) {
+    case 'skip':
       return null;
-    }
-    return (
-      <ContentTabs key={key} group={element.getAttribute('data-tabs-group')} panels={panels} />
-    );
-  }
-
-  if (tagName === 'div' && element.hasAttribute('data-codeblock-id')) {
-    const blockId = element.getAttribute('data-codeblock-id');
-    const snippets = blockId ? context.codeBlocks.get(blockId) : undefined;
-
-    if (!snippets) {
-      return null;
-    }
-
-    return <CodeBlock key={key} snippets={snippets} showLineNumbers={true} className="my-6" />;
-  }
-
-  if (tagName === 'div' && element.hasAttribute('data-colorpalette-id')) {
-    const paletteData = element.getAttribute('data-palette');
-
-    if (!paletteData) {
-      return null;
-    }
-
-    try {
-      const parsedData = JSON.parse(paletteData);
-      return <ColorPalette key={key} colors={parsedData.colors} />;
-    } catch (error) {
-      componentLogger.error('Error parsing color palette data:', error);
+    case 'tabs':
+      return (
+        <ContentTabs
+          key={key}
+          group={descriptor.group}
+          panels={descriptor.panels.map((panel, index) => ({
+            label: panel.label,
+            content: renderNodes(panel.element.childNodes, `${key}-panel-${index}`, context),
+          }))}
+        />
+      );
+    case 'codeblock':
+      return (
+        <CodeBlock
+          key={key}
+          snippets={context.codeBlocks.get(descriptor.blockId) as CodeBlockData[]}
+          showLineNumbers={true}
+          className="my-6"
+        />
+      );
+    case 'palette':
+      return <ColorPalette key={key} colors={descriptor.colors as never} />;
+    case 'palette-error':
+      componentLogger.error('Error parsing color palette data:', descriptor.error);
       return (
         <div key={key} className="notification notification-error">
           Invalid ColorPalette JSON format
         </div>
       );
-    }
-  }
-
-  if (tagName === 'div' && element.hasAttribute('data-mermaid-id')) {
-    const blockId = element.getAttribute('data-mermaid-id');
-    const block = blockId ? context.mermaidBlocks.get(blockId) : undefined;
-
-    if (!block) {
+    case 'mermaid':
+      return renderMermaid(
+        key,
+        (context.mermaidBlocks.get(descriptor.blockId) as MermaidBlockData).chart
+      );
+    case 'math':
+      return <MathFormula key={key} tex={descriptor.tex} displayMode={descriptor.displayMode} />;
+    case 'live-example':
+      return <LiveExample key={key} code={descriptor.code} language={descriptor.language} />;
+    case 'live-example-error':
+      componentLogger.error('Error processing live example:', descriptor.error);
       return null;
-    }
-
-    return (
-      <Suspense
-        key={key}
-        fallback={<div className="mermaid-block mermaid-block--loading">Rendering diagram...</div>}
-      >
-        <MermaidDiagram chart={block.chart} />
-      </Suspense>
-    );
-  }
-
-  if ((tagName === 'div' || tagName === 'span') && element.hasAttribute('data-math-tex')) {
-    let tex = '';
-    try {
-      tex = decodeURIComponent(element.getAttribute('data-math-tex') || '');
-    } catch {
-      tex = element.textContent || '';
-    }
-    return (
-      <MathFormula
-        key={key}
-        tex={tex}
-        displayMode={element.getAttribute('data-math-display') === 'true'}
-      />
-    );
-  }
-
-  if (tagName === 'div' && element.hasAttribute('data-liveexample-id')) {
-    const language = element.getAttribute('data-language');
-    const encodedCode = element.getAttribute('data-code');
-
-    if (!language || !encodedCode) {
-      return null;
-    }
-
-    try {
-      return <LiveExample key={key} code={decodeURIComponent(encodedCode)} language={language} />;
-    } catch (error) {
-      componentLogger.error('Error processing live example:', error);
-      return null;
-    }
-  }
-
-  if (HEADING_TAG_PATTERN.test(tagName)) {
-    const props = getElementProps(element, key);
-    const children = renderNodes(element.childNodes, key, context);
-    const headingId = element.getAttribute('id');
-
-    if (!headingId) {
-      return React.createElement(tagName, props, ...children);
-    }
-
-    return React.createElement(
-      tagName,
-      props,
-      ...children,
-      <MarkdownHeadingCopyLink
-        key={`${key}-copy-link`}
-        headingId={headingId}
-        label={element.textContent || 'section'}
-      />
-    );
-  }
-
-  if (tagName === 'a') {
-    const href = element.getAttribute('href') || '#';
-    const dataFile = element.getAttribute('data-file');
-    const dataUrl = element.getAttribute('data-url');
-    const props = getElementProps(element, key);
-    const children = renderNodes(element.childNodes, key, context);
-    const internalHref = resolveInternalHref(href, { ...context, resolveDocumentPath });
-
-    if (dataFile) {
+    case 'heading':
+      return renderHeading(element, key, context, descriptor.headingId, descriptor.label);
+    case 'download-link':
       return (
-        <a {...props} href={href} download={dataFile}>
-          {children}
+        <a {...getElementProps(element, key)} href={descriptor.href} download={descriptor.file}>
+          {children()}
         </a>
       );
-    }
-
-    if (dataUrl) {
+    case 'copy-link':
       return (
         <MarkdownCopyLink
           key={key}
-          href={href}
-          url={dataUrl}
-          className={element.getAttribute('class') || ''}
+          href={descriptor.href}
+          url={descriptor.url}
+          className={descriptor.className}
         >
-          {children}
+          {children()}
         </MarkdownCopyLink>
       );
-    }
-
-    if (internalHref) {
+    case 'route-link':
       return (
         <MarkdownRouteLink
           key={key}
-          href={internalHref}
-          className={element.getAttribute('class') || ''}
-          title={element.getAttribute('title') || undefined}
+          href={descriptor.href}
+          className={descriptor.className}
+          title={descriptor.title}
           onNavigate={context.navigate}
         >
-          {children}
+          {children()}
         </MarkdownRouteLink>
       );
-    }
-
-    return React.createElement('a', props, ...children);
+    case 'wallet':
+      return (
+        <MarkdownWalletAddress
+          key={key}
+          address={descriptor.address}
+          chain={descriptor.chain}
+          className={descriptor.className}
+        >
+          {descriptor.text}
+        </MarkdownWalletAddress>
+      );
+    default:
+      return React.createElement(
+        element.tagName.toLowerCase(),
+        getElementProps(element, key),
+        ...children()
+      );
   }
-
-  if (tagName === 'code' && element.classList.contains('wallet-address')) {
-    return (
-      <MarkdownWalletAddress
-        key={key}
-        address={element.getAttribute('data-address') || element.textContent || ''}
-        chain={element.getAttribute('data-chain') || undefined}
-        className={element.getAttribute('class') || ''}
-      >
-        {element.textContent || ''}
-      </MarkdownWalletAddress>
-    );
-  }
-
-  const props = getElementProps(element, key);
-  const children = renderNodes(element.childNodes, key, context);
-
-  return React.createElement(tagName, props, ...children);
 }
 
 function MarkdownHeadingCopyLink({ headingId, label }: { headingId: string; label: string }) {

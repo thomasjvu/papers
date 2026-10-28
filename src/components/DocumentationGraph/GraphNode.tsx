@@ -8,6 +8,13 @@ import React from 'react';
 
 import { useTheme } from '../../providers/useTheme';
 import type { GraphNode as GraphNodeData } from './useGraphLogic';
+import {
+  getGraphNodeFlags,
+  getGraphNodeLayout,
+  getGraphNodeMotion,
+  getGraphSwitchMotion,
+  truncateGraphNodeTitle,
+} from './graphNodeView';
 
 interface GraphNodeProps {
   node: GraphNodeData;
@@ -45,38 +52,24 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
     const nodeColor = getNodeColor(node);
     const nodeRadius = getNodeRadius(node);
-    const activeNodeId = focusedNodeId || currentPath;
-    const labelFontSize = isSidebarView ? '0.75rem' : 'var(--papers-text-2xs)';
-    const switchLabelFontSize = isSidebarView ? 'var(--papers-text-2xs)' : 'var(--papers-text-xs)';
+    const { isActive, showSwitch } = getGraphNodeFlags(node.id, {
+      currentPath,
+      focusedNodeId,
+      pendingSwitchNodeId,
+    });
+    const layout = getGraphNodeLayout({ x: node.x, y: node.y, radius: nodeRadius, isSidebarView });
+    const motion = getGraphNodeMotion(prefersReducedMotion, index);
+    const switchMotion = getGraphSwitchMotion(prefersReducedMotion);
 
     return (
       <MotionG
         className="node-group cursor-pointer"
-        initial={{
-          scale: prefersReducedMotion ? 1 : 0,
-          opacity: prefersReducedMotion ? 1 : 0,
-        }}
-        animate={{
-          scale: 1,
-          opacity: 1,
-        }}
-        exit={{
-          scale: prefersReducedMotion ? 1 : 0,
-          opacity: prefersReducedMotion ? 1 : 0,
-        }}
-        transition={{
-          duration: prefersReducedMotion ? 0.01 : 0.5,
-          delay: prefersReducedMotion ? 0 : index * 0.05,
-        }}
-        whileHover={
-          prefersReducedMotion
-            ? {}
-            : {
-                scale: 1.1,
-                transition: { duration: 0.2 },
-              }
-        }
-        whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+        initial={motion.initial}
+        animate={motion.animate}
+        exit={motion.exit}
+        transition={motion.transition}
+        whileHover={motion.whileHover}
+        whileTap={motion.whileTap}
         onClick={() => onNodeClick(node)}
       >
         <MotionCircle
@@ -94,7 +87,7 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           r={nodeRadius}
           fill={nodeColor}
           stroke={themeColors.background}
-          strokeWidth={node.id === activeNodeId ? 2 : 1}
+          strokeWidth={isActive ? 2 : 1}
         />
 
         <circle
@@ -107,26 +100,20 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
         <MotionText
           x={node.x}
-          y={node.y + nodeRadius + (isSidebarView ? 8 : 12)}
+          y={layout.labelY}
           textAnchor="middle"
           className="pointer-events-none"
           style={{
-            fontSize: labelFontSize,
+            fontSize: layout.labelFontSize,
             fontFamily: 'var(--mono-font)',
             fill: themeColors.muted,
             fontWeight: 500,
           }}
         >
-          {isSidebarView
-            ? node.title.length > 6
-              ? `${node.title.slice(0, 6)}...`
-              : node.title
-            : node.title.length > 12
-              ? `${node.title.slice(0, 12)}...`
-              : node.title}
+          {truncateGraphNodeTitle(node.title, isSidebarView)}
         </MotionText>
 
-        {node.id === activeNodeId && (
+        {isActive && (
           <g transform={`translate(${node.x} ${node.y})`}>
             <circle
               cx={0}
@@ -160,28 +147,25 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
           </g>
         )}
 
-        {node.id === pendingSwitchNodeId && node.id !== currentPath && (
+        {showSwitch && (
           <MotionG
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            transition={{
-              duration: prefersReducedMotion ? 0.01 : 0.3,
-              delay: prefersReducedMotion ? 0 : 0.4,
-            }}
+            transition={switchMotion.transition}
           >
             <MotionRect
-              x={node.x - (isSidebarView ? 18 : 24)}
-              y={node.y - nodeRadius - (isSidebarView ? 20 : 28)}
-              width={isSidebarView ? 36 : 48}
-              height={isSidebarView ? 14 : 18}
-              rx={isSidebarView ? 7 : 9}
+              x={layout.switchRect.x}
+              y={layout.switchRect.y}
+              width={layout.switchRect.width}
+              height={layout.switchRect.height}
+              rx={layout.switchRect.rx}
               fill={themeColors.accent}
               stroke={themeColors.background}
               strokeWidth={1}
               className="cursor-pointer"
-              whileHover={prefersReducedMotion ? {} : { scale: 1.05 }}
-              whileTap={prefersReducedMotion ? {} : { scale: 0.95 }}
+              whileHover={switchMotion.whileHover}
+              whileTap={switchMotion.whileTap}
               onClick={(event) => {
                 event.stopPropagation();
                 onSwitchClick(node);
@@ -190,11 +174,11 @@ const GraphNode: React.FC<GraphNodeProps> = React.memo(
 
             <MotionText
               x={node.x}
-              y={node.y - nodeRadius - (isSidebarView ? 14 : 19)}
+              y={layout.switchLabelY}
               textAnchor="middle"
               className="pointer-events-none"
               style={{
-                fontSize: switchLabelFontSize,
+                fontSize: layout.switchLabelFontSize,
                 fontFamily: 'var(--mono-font)',
                 fill: themeColors.background,
                 fontWeight: 'bold',

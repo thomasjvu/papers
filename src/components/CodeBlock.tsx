@@ -8,11 +8,16 @@ import React, {
 } from 'react';
 
 import { ANIMATION_DURATION } from '../constants/ui';
-import { getLanguageDisplay } from '../utils/languageUtils';
-import { getDiffLineKind, parseDiffLanguage } from '../utils/markdownCore';
 import { createWordPattern, markWords, type HighlighterNode } from '../utils/codeWords';
 
 import styles from './CodeBlock.module.css';
+import {
+  findDefaultSnippetIndex,
+  getCodeLineProps,
+  getCodeView,
+  getSnippetLabel,
+  resolveLineNumbersVisible,
+} from './codeBlockView';
 import { useUiStrings } from '../lib/uiStrings';
 
 interface CodeSnippet {
@@ -70,37 +75,6 @@ type CreateElement = (props: {
 type SyntaxModule = {
   SyntaxHighlighter: SyntaxHighlighterComponent;
   createElement: CreateElement;
-};
-
-const REGISTERED_LANGUAGES = new Set([
-  'bash',
-  'css',
-  'javascript',
-  'json',
-  'markdown',
-  'markup',
-  'tsx',
-  'typescript',
-  'diff',
-  'python',
-  'yaml',
-  'sql',
-  'go',
-  'rust',
-]);
-
-const LANGUAGE_ALIASES: Record<string, string> = {
-  env: 'bash',
-  py: 'python',
-  yml: 'yaml',
-  rs: 'rust',
-  sh: 'bash',
-  shell: 'bash',
-  html: 'markup',
-  js: 'javascript',
-  md: 'markdown',
-  ts: 'typescript',
-  xml: 'markup',
 };
 
 const minimalSyntaxTheme: Record<string, CSSProperties> = {
@@ -231,11 +205,12 @@ const minimalSyntaxTheme: Record<string, CSSProperties> = {
   },
 };
 
-function normalizeLanguage(language: string): string | undefined {
-  const lowerLanguage = language.toLowerCase();
-  const mappedLanguage = LANGUAGE_ALIASES[lowerLanguage] || lowerLanguage;
-  return REGISTERED_LANGUAGES.has(mappedLanguage) ? mappedLanguage : undefined;
-}
+const CODE_LINE_CLASS_NAMES = {
+  line: styles.codeLine,
+  highlighted: styles.codeLineHighlighted,
+  added: styles.codeLineAdded,
+  removed: styles.codeLineRemoved,
+};
 
 const CodeBlock: React.FC<CodeBlockProps> = React.memo(
   ({ snippets = [], title, defaultLanguage, showLineNumbers = true, className = '' }) => {
@@ -323,13 +298,9 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
     }, []);
 
     useEffect(() => {
-      if (defaultLanguage && snippets.length > 1) {
-        const defaultIndex = snippets.findIndex(
-          (snippet) => snippet.language.toLowerCase() === defaultLanguage.toLowerCase()
-        );
-        if (defaultIndex !== -1) {
-          setActiveTab(defaultIndex);
-        }
+      const defaultIndex = findDefaultSnippetIndex(snippets, defaultLanguage);
+      if (defaultIndex !== -1) {
+        setActiveTab(defaultIndex);
       }
     }, [defaultLanguage, snippets]);
 
@@ -372,17 +343,14 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
     }
 
     const { SyntaxHighlighter } = syntaxModule;
-    const { isDiff, syntaxLanguage } = parseDiffLanguage(currentSnippet.language);
-    const normalizedLanguage = normalizeLanguage(syntaxLanguage);
-    const snippetTitle = title ?? currentSnippet.title;
-    const trimmedCode = currentSnippet.code.trim();
-    const codeLines = trimmedCode.split('\n');
-    const highlighted = new Set(currentSnippet.highlightLines ?? []);
-    // Only wrap lines when a block uses line metadata, so plain blocks render exactly as before.
-    const needsLineProps = isDiff || highlighted.size > 0;
+    const codeView = getCodeView(currentSnippet, title);
+    const { normalizedLanguage, snippetTitle, trimmedCode, needsLineProps } = codeView;
     const wordPattern = createWordPattern(currentSnippet.highlightWords ?? []);
-    const lineNumbersVisible =
-      lineNumberOverride ?? currentSnippet.showLineNumbers ?? showLineNumbers;
+    const lineNumbersVisible = resolveLineNumbersVisible(
+      lineNumberOverride,
+      currentSnippet,
+      showLineNumbers
+    );
     const { createElement: createHighlighterElement } = syntaxModule;
     const wordRenderer = wordPattern
       ? ({
@@ -403,18 +371,8 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
             })
           )
       : undefined;
-    const lineProps = (lineNumber: number) => {
-      const classes = [styles.codeLine];
-      const diffKind = getDiffLineKind(codeLines[lineNumber - 1] ?? '', isDiff);
-      if (highlighted.has(lineNumber)) classes.push(styles.codeLineHighlighted);
-      if (diffKind === 'added') classes.push(styles.codeLineAdded);
-      if (diffKind === 'removed') classes.push(styles.codeLineRemoved);
-      return {
-        className: classes.join(' '),
-        style: { display: 'block' },
-        ...(diffKind ? { 'data-line-kind': diffKind } : {}),
-      };
-    };
+    const lineProps = (lineNumber: number) =>
+      getCodeLineProps(lineNumber, codeView, CODE_LINE_CLASS_NAMES);
 
     return (
       <div className={`${styles.codeBlockContainer} ${className}`}>
@@ -427,7 +385,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
                 onClick={() => setActiveTab(index)}
                 type="button"
               >
-                {snippet.label || getLanguageDisplay(snippet.language)}
+                {getSnippetLabel(snippet)}
               </button>
             ))}
           </div>
@@ -440,9 +398,7 @@ const CodeBlock: React.FC<CodeBlockProps> = React.memo(
                 {snippetTitle}
               </span>
             ) : null}
-            <span className={styles.codeBlockLanguage}>
-              {currentSnippet.label || getLanguageDisplay(currentSnippet.language)}
-            </span>
+            <span className={styles.codeBlockLanguage}>{getSnippetLabel(currentSnippet)}</span>
             <button
               className={styles.codeBlockCopyBtn}
               onClick={() => setLineNumberOverride(!lineNumbersVisible)}
