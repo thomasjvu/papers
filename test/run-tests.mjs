@@ -10,6 +10,7 @@ import { seoRouteTests } from './seo-routes.test.ts';
 import { designBookTests } from './design-book.test.ts';
 import { openapiLabelTests } from './openapi-labels.test.ts';
 import { scriptLibTests } from './script-libs.test.ts';
+import { internalHrefTests } from './internal-href.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -24,6 +25,7 @@ const testCases = [
   ...designBookTests,
   ...openapiLabelTests,
   ...scriptLibTests,
+  ...internalHrefTests,
 ];
 
 let failures = 0;
