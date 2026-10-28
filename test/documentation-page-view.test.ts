@@ -76,14 +76,21 @@ export const documentationPageViewTests = [
         exit: { opacity: 1 },
         transition: { duration: 0.05 },
       });
-      assert.deepEqual(getFloatingButtonMotion(false), {
-        whileHover: { scale: 1.06 },
-        whileTap: { scale: 0.96 },
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 20 },
-        transition: { duration: 0.2 },
-      });
+      // Checked field by field (not as one literal) so the test does not clone the source.
+      const full = getFloatingButtonMotion(false) as Record<string, Record<string, number>>;
+      assert.deepEqual(Object.keys(full), [
+        'whileHover',
+        'whileTap',
+        'initial',
+        'animate',
+        'exit',
+        'transition',
+      ]);
+      assert.deepEqual([full.whileHover.scale, full.whileTap.scale], [1.06, 0.96]);
+      assert.deepEqual([full.initial.opacity, full.initial.y], [0, 20]);
+      assert.deepEqual([full.animate.opacity, full.animate.y], [1, 0]);
+      assert.deepEqual([full.exit.opacity, full.exit.y], [0, 20]);
+      assert.deepEqual(full.transition, { duration: 0.2 });
       assert.deepEqual(RIGHT_RAIL_PANEL_VARIANTS, {
         hidden: { opacity: 0 },
         visible: { opacity: 1 },
