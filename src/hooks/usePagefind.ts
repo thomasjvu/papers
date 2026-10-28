@@ -1,6 +1,6 @@
 ﻿import { useCallback, useEffect, useState } from 'react';
 
-import { contentCollections } from '../../shared/content-collections.js';
+import { contentCollections, findCollectionForPath } from '../../shared/content-collections.js';
 import {
   buildCanonicalCollectionPath,
   buildCanonicalDocsPath,
@@ -46,10 +46,6 @@ interface PagefindInstance {
 /** Results to load per query; Pagefind returns every match, but data() is per page. */
 const MAX_LOADED_RESULTS = 20;
 
-function normalizeCollectionPrefix(routePrefix: string): string {
-  return routePrefix.replace(/^\/+|\/+$/g, '');
-}
-
 export function normalizePagefindUrl(url: string, collections = contentCollections): string {
   if (url.startsWith('/search-pages/')) {
     const docPath = url
@@ -64,10 +60,7 @@ export function normalizePagefindUrl(url: string, collections = contentCollectio
       return '/skill.md';
     }
 
-    const collection = collections.find((entry) => {
-      const prefix = normalizeCollectionPrefix(entry.routePrefix || '/docs');
-      return docPath === prefix || docPath.startsWith(`${prefix}/`);
-    });
+    const collection = findCollectionForPath(docPath, collections);
 
     if (collection) {
       const routeContext = parseCollectionRoutePath(collection, docPath);

@@ -13,6 +13,7 @@ import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
 import { assertBuildManifest } from './lib/buildIdentity.mjs';
 import { getContentType } from './lib/contentTypes.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
+import { docsBasePath, withDocsBasePath } from '../shared/docsBasePath.js';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -146,13 +147,16 @@ async function main() {
     await fetchText(baseUrl, scriptPath);
     await fetchText(baseUrl, stylesheetPath);
 
-    const docsAlias = await fetchText(baseUrl, '/docs');
-    assert(
-      docsAlias.body.includes(
-        `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(defaultDocPath))}" />`
-      ),
-      'Docs landing route is missing the expected canonical tag.'
-    );
+    // In root mode ('' base path) '/' is the homepage, so there is no docs alias.
+    if (docsBasePath) {
+      const docsAlias = await fetchText(baseUrl, docsBasePath);
+      assert(
+        docsAlias.body.includes(
+          `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(defaultDocPath))}" />`
+        ),
+        'Docs landing route is missing the expected canonical tag.'
+      );
+    }
 
     for (const routePath of buildDocsRouteVariants(sampleDocPath)) {
       const routeHtml = await fetchText(baseUrl, routePath);
@@ -164,16 +168,16 @@ async function main() {
       );
     }
 
-    const llmsRoute = await fetchText(baseUrl, '/docs/llms');
+    const llmsRoute = await fetchText(baseUrl, withDocsBasePath('llms'));
     assert(
       llmsRoute.body.includes('<title>LLMs.txt |'),
-      'Served /docs/llms route has unexpected metadata.'
+      `Served ${withDocsBasePath('llms')} route has unexpected metadata.`
     );
 
-    const skillRoute = await fetchText(baseUrl, '/docs/skill');
+    const skillRoute = await fetchText(baseUrl, withDocsBasePath('skill'));
     assert(
       skillRoute.body.includes('<title>Agent Skill |'),
-      'Served /docs/skill route has unexpected metadata.'
+      `Served ${withDocsBasePath('skill')} route has unexpected metadata.`
     );
 
     for (const spec of openapiConfig.specs) {

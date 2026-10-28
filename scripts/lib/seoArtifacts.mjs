@@ -24,7 +24,15 @@ import {
   parseCollectionRoutePath,
   parseDocsRoutePath,
 } from '../../shared/docsRouting.js';
+import { docsBasePath, normalizeDocsBasePath } from '../../shared/docsBasePath.js';
 import { createOpenApiRouteEntries } from './openapiArtifacts.mjs';
+
+/** '/docs' style route prefix, '' for root; unset uses the docs base path. */
+function resolveDocsRoutePrefix(routePrefix) {
+  return routePrefix === undefined || routePrefix === null
+    ? docsBasePath
+    : normalizeDocsBasePath(routePrefix);
+}
 
 function escapeXml(value) {
   return value
@@ -63,8 +71,7 @@ function getDocumentDescription(document) {
 }
 
 function getDocsRouteContext(routePath, options) {
-  const routePrefix = String(options.routePrefix || 'docs').replace(/^\/+|\/+$/g, '');
-  const prefixPath = `/${routePrefix}`;
+  const prefixPath = resolveDocsRoutePrefix(options.routePrefix);
 
   if (!routePath.startsWith(prefixPath)) {
     return null;
@@ -167,7 +174,7 @@ export function createSeoRouteEntries(docsIndex, documentsByPath, options = {}) 
   const siteName = options.siteName || defaults.siteName;
   const siteSubtitle = options.siteSubtitle || defaults.siteSubtitle;
   const siteDescription = options.siteDescription || defaults.siteDescription;
-  const routePrefix = String(options.routePrefix || 'docs').replace(/^\/+|\/+$/g, '');
+  const routePrefix = resolveDocsRoutePrefix(options.routePrefix).replace(/^\/+/, '');
   const collectionOptions = options.collection
     ? getCollectionRoutingOptions(options.collection, options)
     : options;

@@ -6,7 +6,11 @@ import { useDebounce } from '../../hooks/useDebounce';
 import { usePagefind } from '../../hooks/usePagefind';
 import { useTheme } from '../../providers/useTheme';
 import type { FileItem } from '../../types/documentation';
-import { contentCollections, getCollectionVariants } from '../../../shared/content-collections.js';
+import {
+  contentCollections,
+  findCollectionForPath,
+  getCollectionVariants,
+} from '../../../shared/content-collections.js';
 import {
   buildCanonicalCollectionPath,
   parseCollectionRoutePath,
@@ -89,11 +93,7 @@ function normalizeRoutePath(pathname: string): string {
 
 function getCollectionRouteContext(pathname: string) {
   const normalizedPath = normalizeRoutePath(pathname);
-  const collection =
-    contentCollections.find((entry) => {
-      const prefix = normalizeRoutePath(entry.routePrefix || 'docs');
-      return normalizedPath === prefix || normalizedPath.startsWith(`${prefix}/`);
-    }) || contentCollections[0];
+  const collection = findCollectionForPath(normalizedPath) || contentCollections[0];
 
   if (!collection) {
     return {

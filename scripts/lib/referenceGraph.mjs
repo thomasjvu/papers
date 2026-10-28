@@ -1,6 +1,8 @@
 import { posix } from 'node:path';
 
 import { buildCanonicalCollectionPath, buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { getCollectionRoutePrefix } from '../../shared/content-collections.js';
+import { stripDocsBasePath } from '../../shared/docsBasePath.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { extractDocumentLinks } from './docsArtifacts.mjs';
 import { splitTargetSuffix } from './linkTargets.mjs';
@@ -22,25 +24,23 @@ function getAnchor(suffix) {
   return rawAnchor ? decodeURIComponent(rawAnchor) : '';
 }
 
-function buildRouteAliases(documentationTree, defaultDocumentPath, routePrefix = 'docs') {
+function buildRouteAliases(documentationTree, defaultDocumentPath, routePrefix) {
   const aliases = new Map([['', defaultDocumentPath]]);
 
   for (const alias of getDirectoryAliasEntries(documentationTree, routePrefix)) {
-    const routePath = alias.routePath
-      .replace(new RegExp(`^/${routePrefix}/?`), '')
-      .replace(/^\/+|\/+$/g, '');
+    const routePath = stripDocsBasePath(alias.routePath, routePrefix) ?? '';
     aliases.set(routePath, alias.docPath);
   }
 
   return aliases;
 }
 
-function resolveReferenceTarget(sourcePath, target, pathSet, aliases) {
+function resolveReferenceTarget(sourcePath, target, pathSet, aliases, routePrefix) {
   const { pathname, suffix } = splitTargetSuffix(target);
   let candidate = null;
+  const routePath = pathname.startsWith('/') ? stripDocsBasePath(pathname, routePrefix) : null;
 
-  if (pathname.startsWith('/docs')) {
-    const routePath = pathname.replace(/^\/docs\/?/, '').replace(/^\/+|\/+$/g, '');
+  if (routePath !== null) {
     candidate = aliases.get(routePath) || normalizeDocumentPath(routePath);
   } else if (pathname.startsWith('/')) {
     return null;
@@ -79,7 +79,7 @@ export function createDocumentReferenceGraph({
   const pathSet = new Set(documentPaths);
   const defaultDocumentPath =
     getDefaultDocumentPath(documentationTree || []) || documentPaths[0] || '';
-  const routePrefix = String(collection?.routePrefix || '/docs').replace(/^\/+|\/+$/g, '');
+  const routePrefix = getCollectionRoutePrefix(collection);
   const aliases = buildRouteAliases(documentationTree || [], defaultDocumentPath, routePrefix);
   const buildCanonicalPath = collection
     ? (path) => buildCanonicalCollectionPath(collection, path, { versionConfig, i18nConfig })
@@ -92,7 +92,7 @@ export function createDocumentReferenceGraph({
     const links = document.links || extractDocumentLinks(document.content || '');
 
     for (const link of links.filter((reference) => reference.type === 'internal')) {
-      const resolved = resolveReferenceTarget(source, link.target, pathSet, aliases);
+      const resolved = resolveReferenceTarget(source, link.target, pathSet, aliases, routePrefix);
       if (!resolved) {
         continue;
       }

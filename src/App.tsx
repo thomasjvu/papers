@@ -6,7 +6,7 @@ import HomePage from './pages/HomePage';
 import HostedAssetRedirectPage from './pages/HostedAssetRedirectPage';
 import NotFoundPage from './pages/NotFoundPage';
 import { designBookConfig, homepageConfig, openapiConfig } from '../shared/documentation-config.js';
-import { contentCollections } from '../shared/content-collections.js';
+import { contentCollections, getCollectionRoutePrefix } from '../shared/content-collections.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
 import { getOpenApiRoutePrefix } from './lib/openapi';
 import { buildCollectionLandingPath, buildDocsLandingPath } from '../shared/docsRouting.js';
@@ -41,8 +41,11 @@ export default function App() {
           )}
           {contentCollections.map((collection) => {
             const defaultPath = collection.tree?.[0]?.path || DEFAULT_DOCUMENT_PATH;
-            const routePrefix =
-              String(collection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+            const routePrefix = getCollectionRoutePrefix(collection);
+            // Root-mode collections share '/' with the homepage route above.
+            if (!routePrefix) {
+              return null;
+            }
 
             return (
               <Route
@@ -82,8 +85,7 @@ export default function App() {
             />
           ) : null}
           {contentCollections.map((collection) => {
-            const routePrefix =
-              String(collection.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+            const routePrefix = getCollectionRoutePrefix(collection);
             return (
               <Route
                 key={`${collection.id}-content`}

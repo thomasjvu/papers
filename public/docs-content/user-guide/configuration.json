@@ -3,7 +3,7 @@
   "title": "Configuration",
   "description": "Most customization happens in a small set of files.",
   "frontmatter": {},
-  "content": "# Configuration\n\nMost customization happens in a small set of files.\n\n## Primary Configuration Files\n\n- `shared/documentation-config.js`: docs tree, homepage hero, quick-start steps, footer links, page tags\n- `src/docs/content/`: page source content\n- `.env.local`: site metadata, canonical URL, GitHub URLs\n- `src/globals.css`: theme tokens, typography, code styling\n- `src/config/ui.ts`: mobile docs-shell behavior\n- `src/constants/social.tsx`: footer links\n\n## Recommended Order\n\n1. define the docs structure in `shared/documentation-config.js`\n2. write or replace the Markdown pages in `src/docs/content/`\n3. set `VITE_*` metadata in `.env.local`\n4. adjust theme and typography tokens in `src/globals.css`\n5. run `npm run generate:docs`, `npm run generate:seo`, then `npm run build`\n\n## What Requires Regeneration\n\nRerun `npm run generate:docs` when you change:\n\n- docs-tree paths or titles\n- Markdown page content\n- page descriptions that feed generated output\n\nRerun `npm run generate:seo` when you change:\n\n- `VITE_SITE_URL`\n- `VITE_SITE_NAME`\n- homepage messaging that should appear in preview cards\n- route descriptions or canonical behavior\n\nRerun `npm run generate:llms` when you want fresh AI exports without a full build.\n\n## What Does Not Need Content Regeneration\n\nUI-only changes in React, CSS, or providers can usually be checked with the dev server alone.\n\n## Notes On Descriptions\n\nUse Markdown frontmatter when a page needs a custom SEO or social summary:\n\n```md\n---\ndescription: One clear sentence about what this page covers.\n---\n```\n\nIf you omit it, the first meaningful paragraph becomes the fallback description.\n\n## Next Steps\n\n- [UI Configuration](/docs/developer-guides/ui-configuration)\n- [Design System](/docs/developer-guides/design-system)\n",
+  "content": "# Configuration\n\nMost customization happens in a small set of files.\n\n## Primary Configuration Files\n\n- `shared/documentation-config.js`: docs tree, homepage hero, quick-start steps, footer links, page tags\n- `src/docs/content/`: page source content\n- `.env.local`: site metadata, canonical URL, GitHub URLs\n- `src/globals.css`: theme tokens, typography, code styling\n- `src/config/ui.ts`: mobile docs-shell behavior\n- `src/constants/social.tsx`: footer links\n\n## Recommended Order\n\n1. define the docs structure in `shared/documentation-config.js`\n2. write or replace the Markdown pages in `src/docs/content/`\n3. set `VITE_*` metadata in `.env.local`\n4. adjust theme and typography tokens in `src/globals.css`\n5. run `npm run generate:docs`, `npm run generate:seo`, then `npm run build`\n\n## Docs URL Base Path\n\nPages are served under `/docs` by default. Change it with `docsRoutingConfig`\nin `shared/documentation-config.js`:\n\n```js\nexport const docsRoutingConfig = {\n  basePath: '/docs', // '/guide' for /guide/<page>, '' or '/' for /<page>\n};\n```\n\nRoot mode (`''` or `'/'`) serves each page at `/<page>` next to the homepage.\nRoutes, sidebar, search, links, sitemap, canonical URLs, social cards, `llms.txt`\nlinks, route HTML and the link checker all follow the base path. Site routes such\nas `/`, `/design`, `/llms` and the OpenAPI pages win over a doc with the same path,\nso avoid doc paths that clash with them. Update hard-coded `/docs/...` links in\nyour content and config when you change the base path, then rebuild.\n\n## What Requires Regeneration\n\nRerun `npm run generate:docs` when you change:\n\n- docs-tree paths or titles\n- Markdown page content\n- page descriptions that feed generated output\n\nRerun `npm run generate:seo` when you change:\n\n- `VITE_SITE_URL`\n- `VITE_SITE_NAME`\n- homepage messaging that should appear in preview cards\n- route descriptions or canonical behavior\n\nRerun `npm run generate:llms` when you want fresh AI exports without a full build.\n\n## What Does Not Need Content Regeneration\n\nUI-only changes in React, CSS, or providers can usually be checked with the dev server alone.\n\n## Notes On Descriptions\n\nUse Markdown frontmatter when a page needs a custom SEO or social summary:\n\n```md\n---\ndescription: One clear sentence about what this page covers.\n---\n```\n\nIf you omit it, the first meaningful paragraph becomes the fallback description.\n\n## Next Steps\n\n- [UI Configuration](/docs/developer-guides/ui-configuration)\n- [Design System](/docs/developer-guides/design-system)\n",
   "contentFormat": "markdown",
   "toc": [
     {
@@ -20,6 +20,11 @@
       "depth": 2,
       "id": "recommended-order",
       "text": "Recommended Order"
+    },
+    {
+      "depth": 2,
+      "id": "docs-url-base-path",
+      "text": "Docs URL Base Path"
     },
     {
       "depth": 2,
@@ -55,22 +60,22 @@
   "references": [
     {
       "target": "/docs/developer-guides/ui-configuration",
-      "line": 57
+      "line": 75
     },
     {
       "target": "/docs/developer-guides/design-system",
-      "line": 58
+      "line": 76
     }
   ],
   "links": [
     {
       "target": "/docs/developer-guides/ui-configuration",
-      "line": 57,
+      "line": 75,
       "type": "internal"
     },
     {
       "target": "/docs/developer-guides/design-system",
-      "line": 58,
+      "line": 76,
       "type": "internal"
     }
   ],

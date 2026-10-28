@@ -18,6 +18,7 @@ import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
 import { assertValidOpenApiConfig, normalizeLocalOpenApiPath } from '../shared/openapiSpecUrls.js';
 import { assertBuildManifest } from './lib/buildIdentity.mjs';
 import { routeHtmlPath } from './lib/routeHtmlPaths.mjs';
+import { docsBasePath, withDocsBasePath } from '../shared/docsBasePath.js';
 
 const rootDir = process.cwd();
 const distDir = join(rootDir, 'dist');
@@ -291,15 +292,18 @@ function main() {
     );
   }
 
-  const defaultDocsHtml = ensureRouteHtml('/docs');
-  assert(
-    defaultDocsHtml.includes(
-      `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(defaultDocPath))}" />`
-    ),
-    'Canonical tag mismatch for /docs.'
-  );
+  // In root mode ('' base path) '/' is the homepage, so there is no docs alias.
+  if (docsBasePath) {
+    const defaultDocsHtml = ensureRouteHtml(docsBasePath);
+    assert(
+      defaultDocsHtml.includes(
+        `<link rel="canonical" href="${canonicalUrl(buildCanonicalDocsPath(defaultDocPath))}" />`
+      ),
+      `Canonical tag mismatch for ${docsBasePath}.`
+    );
+  }
 
-  for (const routePath of ['/docs/llms', '/docs/skill']) {
+  for (const routePath of [withDocsBasePath('llms'), withDocsBasePath('skill')]) {
     ensureRouteHtml(routePath);
   }
 

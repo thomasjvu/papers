@@ -19,6 +19,7 @@ import {
   getDocsVariantContexts,
   getDocumentationFeatureValidationIssues,
 } from '../../shared/docsRouting.js';
+import { getCollectionRoutePrefix } from '../../shared/content-collections.js';
 import { buildOpenApiRoutePath } from '../../shared/openapiRouting.js';
 import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/seo.js';
 import { createDocumentToc, extractDocumentLinks, parseFrontmatter } from './docsArtifacts.mjs';
@@ -151,7 +152,7 @@ function addCollectionRoutes(add, entry, routeOptions) {
   const buildRoutes = collection
     ? (path) => buildCollectionRouteVariants(collection, path, entryOptions)
     : (path) => buildDocsRouteVariants(path, entryOptions);
-  const routePrefix = collection?.routePrefix || '/docs';
+  const routePrefix = getCollectionRoutePrefix(collection);
   const addDocument = (routePath, documentPath) =>
     add(routePath, { type: 'document', collectionId, documentPath });
 
@@ -162,7 +163,8 @@ function addCollectionRoutes(add, entry, routeOptions) {
   }
 
   const defaultDocumentPath = getDefaultDocumentPath(documentationTree) || documentPaths[0];
-  if (defaultDocumentPath) {
+  // In root mode '/' is the site route (homepage or redirect), not a document.
+  if (defaultDocumentPath && routePrefix) {
     addDocument(routePrefix, defaultDocumentPath);
   }
 

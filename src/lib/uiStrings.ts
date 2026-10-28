@@ -2,7 +2,7 @@ import { useContext, useMemo } from 'react';
 import { UNSAFE_LocationContext } from 'react-router-dom';
 
 import { i18nConfig, uiStringsConfig } from '@app-shared/documentation-config.js';
-import { contentCollections } from '../../shared/content-collections.js';
+import { findCollectionForPath } from '../../shared/content-collections.js';
 import { parseCollectionRoutePath } from '../../shared/docsRouting.js';
 import { resolveUiStrings, type UiStrings, type UiStringsConfig } from '../../shared/uiStrings.js';
 
@@ -16,10 +16,7 @@ function trimSlashes(value: string): string {
 export function localeForPath(pathname: string): string {
   const fallback = i18nConfig.defaultLocale || 'en';
   const normalized = trimSlashes(pathname);
-  const collection = contentCollections.find((entry) => {
-    const prefix = trimSlashes(entry.routePrefix || 'docs');
-    return normalized === prefix || normalized.startsWith(`${prefix}/`);
-  });
+  const collection = findCollectionForPath(normalized);
   if (!collection) return fallback;
   return parseCollectionRoutePath(collection, normalized).activeLocale || fallback;
 }

@@ -1,3 +1,5 @@
+import { withDocsBasePath } from './docsBasePath.js';
+
 /**
  * OpenAPI route contract shared by the React app and static artifact builders.
  * `routePrefix` is an explicit full public route override; otherwise the
@@ -24,7 +26,7 @@ export function getOpenApiRoutePrefix(config = {}) {
   }
 
   const pagePath = normalizeRoutePath(config.pagePath || 'api-reference/openapi');
-  return pagePath === '/' ? '/docs' : `/docs${pagePath}`;
+  return withDocsBasePath(pagePath);
 }
 
 /**
