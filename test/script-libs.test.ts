@@ -68,6 +68,27 @@ export const scriptLibTests = [
         evaluateAssertion({}, 'missing', ['error', { maxNumericValue: 1 }]).passes,
         false
       );
+      // Lighthouse reports null for not-applicable scores; null must never pass.
+      const nulls = {
+        categories: { pwa: { score: null } },
+        audits: { 'total-byte-weight': { numericValue: null } },
+      };
+      assert.equal(
+        evaluateAssertion(nulls, 'categories:pwa', ['warn', { minScore: 0 }]).passes,
+        false
+      );
+      assert.equal(
+        evaluateAssertion(nulls, 'total-byte-weight', ['warn', { maxNumericValue: 1 }]).passes,
+        false
+      );
+      assert.equal(
+        evaluateAssertion({}, 'categories:seo', ['warn', { minScore: 0 }]).passes,
+        false
+      );
+      assert.equal(
+        evaluateAssertion(lhr, 'unknown', ['warn', { maxNumericValue: 1 }]).passes,
+        false
+      );
       assert.throws(
         () => evaluateAssertion(lhr, 'x', 'error'),
         /^Error: Unsupported assertion format for x$/

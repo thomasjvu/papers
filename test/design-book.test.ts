@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 
-import { parseDesignBook } from '../scripts/lib/designBook.mjs';
+import { parseDesignBook, resolveDesignBookSource } from '../scripts/lib/designBook.mjs';
 
 const fixture = (name: string) => new URL(`./fixtures/design-book/${name}`, import.meta.url);
 
@@ -29,6 +29,55 @@ export const designBookTests = [
       const crlf = parseDesignBook('---\r\nname: X\r\n---\r\n\r\nBody');
       assert.equal(crlf.name, 'X');
       assert.equal(crlf.body, 'Body');
+    },
+  },
+  {
+    name: 'parseDesignBook parses only strict scalars and skips comments',
+    run: () => {
+      const raw = parseDesignBook(
+        [
+          '---',
+          'name: "Quoted',
+          'version: 1.25',
+          'build: v12',
+          'size: 12px',
+          'neg: -3',
+          'enabled: true',
+          '# comment: ignored',
+          'note: a:b',
+          '---',
+          'Body\uFEFF',
+        ].join('\n')
+      );
+      assert.deepEqual(raw.rawFrontmatter, {
+        name: '"Quoted',
+        version: 1.25,
+        build: 'v12',
+        size: '12px',
+        neg: -3,
+        enabled: true,
+        note: 'a:b',
+      });
+      assert.equal(raw.body, 'Body\uFEFF');
+      assert.equal(parseDesignBook('\uFEFF---\nname: Bom\n---\n').name, 'Bom');
+      assert.equal(parseDesignBook('intro\n---\nname: X\n---\n').name, 'Design System');
+    },
+  },
+  {
+    name: 'resolveDesignBookSource prefers env, then config, then DESIGN.md',
+    run: () => {
+      const saved = process.env.PAPERS_DESIGN_BOOK_SOURCE;
+      try {
+        delete process.env.PAPERS_DESIGN_BOOK_SOURCE;
+        assert.equal(resolveDesignBookSource('/r', undefined), '/r/DESIGN.md');
+        assert.equal(resolveDesignBookSource('/r', { sourcePath: 'x/D.md' }), '/r/x/D.md');
+        assert.equal(resolveDesignBookSource('/r', { sourcePath: '/abs/D.md' }), '/abs/D.md');
+        process.env.PAPERS_DESIGN_BOOK_SOURCE = 'env.md';
+        assert.equal(resolveDesignBookSource('/r', { sourcePath: 'x/D.md' }), '/r/env.md');
+      } finally {
+        if (saved === undefined) delete process.env.PAPERS_DESIGN_BOOK_SOURCE;
+        else process.env.PAPERS_DESIGN_BOOK_SOURCE = saved;
+      }
     },
   },
 ];

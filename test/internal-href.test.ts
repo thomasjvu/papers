@@ -36,6 +36,7 @@ export const internalHrefTests = [
       assert.equal(resolveInternalHref('/skill.md', context), '/skill.md');
       assert.equal(resolveInternalHref('/docs/a/b/?q=1#h', context), '/docs/a/b?q=1#h');
       assert.equal(resolveInternalHref('/docs', context), '/docs');
+      assert.equal(resolveInternalHref('/docs/a//', context), '/docs/a');
       assert.equal(resolveInternalHref('/dev-docs/x', context), '/dev-docs/x');
       assert.equal(resolveInternalHref('/dev-docs', context), '/dev-docs');
       assert.equal(resolveInternalHref('/guides/intro.md#top', context), '/docs/guides/intro#top');
@@ -54,6 +55,9 @@ export const internalHrefTests = [
       assert.equal(resolveInternalHref('../intro.mdx?x=1', context), '/docs/guides/intro?x=1');
       assert.equal(resolveInternalHref('./a#b?c', context), '/docs/guides/setup/a#b?c');
       assert.equal(resolveInternalHref('peer', { ...context, currentPath: 'root' }), '/docs/peer');
+      assert.equal(resolveInternalHref('next.md#h', context), '/docs/guides/setup/next#h');
+      assert.equal(resolveInternalHref('next.md?q#h', context), '/docs/guides/setup/next?q#h');
+      assert.equal(resolveInternalHref('a/b:c', context), '/docs/guides/setup/a/b:c');
     },
   },
 ];
