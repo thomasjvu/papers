@@ -33,7 +33,8 @@ export const DEFAULT_SITE_OWNED = [
   'wrangler.toml',
   'public/docs-content/**',
   'src/docs/content/**',
-  'src/data/**',
+  'release-please-config.json',
+  '.release-please-manifest.json',
   'src/lib/generated/**',
 
   '.jscpd.json',
