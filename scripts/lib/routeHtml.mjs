@@ -78,6 +78,24 @@ function upsertJsonLd(html, data) {
   return html.replace('</head>', `    ${tag}\n  </head>`);
 }
 
+const SOCIAL_IMAGE_TYPES = {
+  png: 'image/png',
+  svg: 'image/svg+xml',
+  jpg: 'image/jpeg',
+  jpeg: 'image/jpeg',
+  webp: 'image/webp',
+};
+
+/** MIME type for og:image:type, from the advertised image's extension. */
+export function socialImageType(imageUrl) {
+  const extension = String(imageUrl || '')
+    .split(/[?#]/)[0]
+    .split('.')
+    .pop()
+    .toLowerCase();
+  return SOCIAL_IMAGE_TYPES[extension] || 'image/png';
+}
+
 export function applyMetadataToHtml(templateHtml, metadata) {
   let html = templateHtml.replace(
     /<title>[^<]*<\/title>/i,
@@ -92,6 +110,7 @@ export function applyMetadataToHtml(templateHtml, metadata) {
   html = upsertMetaTag(html, 'property', 'og:site_name', metadata.siteName);
   html = upsertMetaTag(html, 'property', 'og:url', metadata.url);
   html = upsertMetaTag(html, 'property', 'og:image', metadata.imageUrl);
+  html = upsertMetaTag(html, 'property', 'og:image:type', socialImageType(metadata.imageUrl));
   html = upsertMetaTag(html, 'property', 'og:image:alt', `${metadata.title} documentation preview`);
   html = upsertMetaTag(html, 'name', 'twitter:card', 'summary_large_image');
   html = upsertMetaTag(html, 'name', 'twitter:title', metadata.title);
@@ -169,6 +188,7 @@ export function createHomepageMetadata({
   siteDescription,
   siteUrl,
   agentLinks,
+  defaultImages = {},
 }) {
   const url = absoluteOrPath('/', siteUrl);
   return {
@@ -176,8 +196,8 @@ export function createHomepageMetadata({
     description: siteDescription,
     canonicalUrl: url,
     url,
-    imageUrl: absoluteOrPath(DEFAULT_OG_IMAGE_PATH, siteUrl),
-    twitterImageUrl: absoluteOrPath(DEFAULT_TWITTER_IMAGE_PATH, siteUrl),
+    imageUrl: absoluteOrPath(defaultImages.og || DEFAULT_OG_IMAGE_PATH, siteUrl),
+    twitterImageUrl: absoluteOrPath(defaultImages.twitter || DEFAULT_TWITTER_IMAGE_PATH, siteUrl),
     robots: 'index, follow',
     type: 'website',
     siteName,
@@ -198,15 +218,21 @@ export function socialCardTitle(title, siteName) {
  * Metadata for one route entry. `imagePath` is the advertised social card, or
  * null to use the site-wide default images.
  */
-export function createRouteMetadata(entry, { siteUrl, siteName, agentLinks, imagePath = null }) {
+export function createRouteMetadata(
+  entry,
+  { siteUrl, siteName, agentLinks, imagePath = null, defaultImages = {} }
+) {
   const pageUrl = absoluteOrPath(entry.canonicalPath, siteUrl);
   return {
     title: entry.title,
     description: entry.description,
     canonicalUrl: pageUrl,
     url: pageUrl,
-    imageUrl: absoluteOrPath(imagePath || DEFAULT_OG_IMAGE_PATH, siteUrl),
-    twitterImageUrl: absoluteOrPath(imagePath || DEFAULT_TWITTER_IMAGE_PATH, siteUrl),
+    imageUrl: absoluteOrPath(imagePath || defaultImages.og || DEFAULT_OG_IMAGE_PATH, siteUrl),
+    twitterImageUrl: absoluteOrPath(
+      imagePath || defaultImages.twitter || DEFAULT_TWITTER_IMAGE_PATH,
+      siteUrl
+    ),
     robots: entry.noIndex ? 'noindex, nofollow' : 'index, follow',
     type: entry.type || 'website',
     siteName,

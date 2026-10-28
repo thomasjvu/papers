@@ -10,6 +10,7 @@ import {
   escapeAttribute,
   escapeRegExp,
   socialCardTitle,
+  socialImageType,
   stripNonCriticalPreloads,
 } from '../scripts/lib/routeHtml.mjs';
 
@@ -239,6 +240,36 @@ export const routeHtmlTests = [
       assert.equal(withCard.twitterImageUrl, 'https://ex.com/images/og/a.png');
       assert.equal(withCard.robots, 'noindex, nofollow');
       assert.equal(withCard.type, 'website');
+    },
+  },
+  {
+    name: 'social images advertise PNG with a matching og:image:type',
+    run: () => {
+      // Regression: PNG cards were tagged image/svg+xml, and the home page only had an SVG
+      // card, which X, Facebook, LinkedIn and Slack do not render.
+      const template =
+        '<html><head><title>x</title><meta property="og:image:type" content="image/svg+xml" /></head></html>';
+      const html = applyMetadataToHtml(template, baseMetadata);
+      assert.equal(count(html, 'og:image:type'), 1);
+      assert.match(html, /property="og:image:type" content="image\/png"/);
+      assert.equal(socialImageType('/images/og-image.svg'), 'image/svg+xml');
+      assert.equal(socialImageType('https://ex.com/a.JPG?v=1'), 'image/jpeg');
+      const defaultImages = { og: '/images/og-image.png', twitter: '/images/twitter-card.png' };
+      const home = createHomepageMetadata({
+        siteName: 'S',
+        siteSubtitle: 'Sub',
+        siteDescription: 'D',
+        siteUrl: '',
+        agentLinks: [],
+        defaultImages,
+      });
+      assert.equal(home.imageUrl, '/images/og-image.png');
+      assert.equal(home.twitterImageUrl, '/images/twitter-card.png');
+      const route = createRouteMetadata(
+        { canonicalPath: '/x', routePath: '/x', title: 'X', description: 'D' },
+        { siteUrl: '', siteName: 'S', agentLinks: [], defaultImages }
+      );
+      assert.equal(route.imageUrl, '/images/og-image.png');
     },
   },
   {
