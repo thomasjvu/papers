@@ -1312,6 +1312,20 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'index.html icon and manifest links point at files in public/',
+    async run() {
+      // Regression: the favicon linked a removed /boss-raid-pfp.png and 404ed on every page.
+      const indexHtml = await readFile(join(process.cwd(), 'index.html'), 'utf8');
+      const hrefs = [
+        ...indexHtml.matchAll(/<link rel="(?:icon|apple-touch-icon|manifest)"[^>]*href="([^"]+)"/g),
+      ].map((match) => match[1]);
+      assert.ok(hrefs.length >= 2);
+      for (const href of hrefs) {
+        await readFile(join(process.cwd(), 'public', href));
+      }
+    },
+  },
+  {
     name: 'OpenAPI runtime uses the route-lazy standalone Scalar boundary',
     async run() {
       const openApiReferenceSource = await readFile(
