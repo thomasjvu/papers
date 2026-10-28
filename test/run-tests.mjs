@@ -12,6 +12,7 @@ import { openapiLabelTests } from './openapi-labels.test.ts';
 import { scriptLibTests } from './script-libs.test.ts';
 import { internalHrefTests } from './internal-href.test.ts';
 import { graphNodeViewTests } from './graph-node-view.test.ts';
+import { routeHtmlTests } from './route-html.test.ts';
 import { markdownElementsTests } from './markdown-elements.test.ts';
 import { documentationPageViewTests } from './documentation-page-view.test.ts';
 
@@ -32,6 +33,7 @@ const testCases = [
   ...graphNodeViewTests,
   ...documentationPageViewTests,
   ...markdownElementsTests,
+  ...routeHtmlTests,
 ];
 
 let failures = 0;
