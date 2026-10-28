@@ -77,6 +77,8 @@ export const seoRouteTests = [
   },
   {
     name: 'createAllCollectionSeoRouteEntries pins collection, hosted and openapi entries',
+    // Pins the Papers repo's own sample content and config.
+    requires: 'packages/create-papers',
     run: async () => {
       const collections = [
         { id: 'guides', label: 'Guides', routePrefix: '/guides', tree: [] },

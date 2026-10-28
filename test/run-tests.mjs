@@ -1,3 +1,5 @@
+import { existsSync } from 'node:fs';
+
 import { architectureTests } from './architecture.test.ts';
 import { routePreloadTests } from './route-preloads.test.ts';
 import { authoringFeatureTests } from './authoring-features.test.ts';
@@ -43,6 +45,12 @@ const testCases = [
 let failures = 0;
 
 for (const testCase of testCases) {
+  // Tests for Papers-only parts (such as the create-papers starter) are skipped
+  // in sites, which do not ship those parts.
+  if (testCase.requires && !existsSync(testCase.requires)) {
+    console.log(`SKIP ${testCase.name} (no ${testCase.requires})`);
+    continue;
+  }
   try {
     await testCase.run();
     console.log(`PASS ${testCase.name}`);

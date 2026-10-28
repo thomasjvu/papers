@@ -17,7 +17,6 @@
     "wrangler.toml",
     "public/docs-content/**",
     "src/docs/content/**",
-    "src/data/**",
     "src/lib/generated/**",
     "papers.lock.json",
     ".jscpd.json",
@@ -41,7 +40,9 @@
     "public/openapi-*.yaml",
     "public/images/og-image.svg",
     "public/images/twitter-card.svg",
-    "public/images/docs/**"
+    "public/images/docs/**",
+    "release-please-config.json",
+    ".release-please-manifest.json"
   ],
   "packageJson": {
     "$comment": "package.json is merged key by key. Site identity fields stay the site's, and Papers-only scripts and dependencies are not added to sites.",

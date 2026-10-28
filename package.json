@@ -97,7 +97,7 @@
     "@iconify-json/mingcute": "^1.2.3",
     "@iconify-json/pixelarticons": "^1.2.6",
     "@iconify/react": "^6.0.0",
-    "@scalar/api-reference": "^1.66.1",
+    "@scalar/api-reference": "~1.66.1",
     "dompurify": "^3.4.14",
     "framer-motion": "^12.11.0",
     "katex": "^0.16.47 || ^0.18.10",
