@@ -26,6 +26,18 @@ import { getMobileTogglePositionClasses, uiConfig } from '../../config/ui';
 import { brandingConfig } from '../../lib/chrome';
 import TableOfContents from './TableOfContents';
 import {
+  getBrandInitial,
+  getFloatingButtonMotion,
+  getPendingPathLabel,
+  getRightRailTransition,
+  getRightRailView,
+  getShortcutLabel,
+  getSidebarMotionVariants,
+  getSidebarTransition,
+  isMobileViewport,
+  RIGHT_RAIL_PANEL_VARIANTS,
+} from './documentationPageView';
+import {
   buildCanonicalCollectionPath,
   buildCanonicalDocsPath,
 } from '../../../shared/docsRouting.js';
@@ -75,12 +87,10 @@ const DocumentationPage = React.memo(
     const activeCollection = collection || getContentCollection('docs');
     const path = currentPath;
     const siteName = import.meta.env.VITE_SITE_NAME || 'papers';
-    const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
-    const shortcutLabel = isMac ? 'Cmd + K' : 'Ctrl + K';
-    const nextPathLabel = useMemo(
-      () => pendingPath?.split('/').pop()?.replace(/-/g, ' '),
-      [pendingPath]
+    const shortcutLabel = getShortcutLabel(
+      typeof navigator === 'undefined' ? undefined : navigator.platform
     );
+    const nextPathLabel = useMemo(() => getPendingPathLabel(pendingPath), [pendingPath]);
     const navigationTree = activeCollection.tree;
     const routeContext = useCollectionRouteContext(activeCollection, location.pathname);
 
@@ -89,95 +99,34 @@ const DocumentationPage = React.memo(
         return false;
       }
 
-      return window.innerWidth < 768;
+      return isMobileViewport(window.innerWidth);
     });
     const [sidebarVisible, setSidebarVisible] = useState(() => {
       if (typeof window === 'undefined') {
         return false;
       }
 
-      return window.innerWidth >= 768;
+      return !isMobileViewport(window.innerWidth);
     });
     const [rightSidebarVisible, setRightSidebarVisible] = useState(getInitialRightSidebarState);
 
-    const sidebarAnimationVariants = useMemo(() => {
-      if (prefersReducedMotion) {
-        return {
-          mobile: {
-            initial: { opacity: 0, position: 'fixed' as const },
-            animate: { opacity: 1, position: 'fixed' as const },
-            exit: { opacity: 0, position: 'fixed' as const },
-          },
-          desktop: {
-            initial: { opacity: 1, position: 'relative' as const },
-            animate: { opacity: 1, position: 'relative' as const },
-            exit: { opacity: 1, position: 'relative' as const },
-          },
-        };
-      }
-
-      return {
-        mobile: {
-          initial: { opacity: 0, x: -96, position: 'fixed' as const },
-          animate: { opacity: 1, x: 0, position: 'fixed' as const },
-          exit: { opacity: 0, x: -96, position: 'fixed' as const },
-        },
-        desktop: {
-          initial: { opacity: 1, x: 0, position: 'relative' as const },
-          animate: { opacity: 1, x: 0, position: 'relative' as const },
-          exit: { opacity: 1, x: 0, position: 'relative' as const },
-        },
-      };
-    }, [prefersReducedMotion]);
-
-    const transitionConfig = useMemo(
-      () => ({
-        duration: prefersReducedMotion ? 0.05 : 0.25,
-      }),
+    const sidebarAnimationVariants = useMemo(
+      () => getSidebarMotionVariants(prefersReducedMotion),
       [prefersReducedMotion]
     );
 
-    const buttonAnimationConfig = useMemo(() => {
-      if (prefersReducedMotion) {
-        return {
-          initial: { opacity: 1 },
-          animate: { opacity: 1 },
-          exit: { opacity: 1 },
-          transition: { duration: 0.05 },
-        };
-      }
+    const transitionConfig = useMemo(
+      () => getSidebarTransition(prefersReducedMotion),
+      [prefersReducedMotion]
+    );
 
-      return {
-        whileHover: { scale: 1.06 },
-        whileTap: { scale: 0.96 },
-        initial: { opacity: 0, y: 20 },
-        animate: { opacity: 1, y: 0 },
-        exit: { opacity: 0, y: 20 },
-        transition: { duration: 0.2 },
-      };
-    }, [prefersReducedMotion]);
-
-    const rightRailPanelVariants = useMemo(() => {
-      if (prefersReducedMotion) {
-        return {
-          hidden: { opacity: 0 },
-          visible: { opacity: 1 },
-          exit: { opacity: 0 },
-        };
-      }
-
-      return {
-        hidden: { opacity: 0 },
-        visible: { opacity: 1 },
-        exit: { opacity: 0 },
-      };
-    }, [prefersReducedMotion]);
+    const buttonAnimationConfig = useMemo(
+      () => getFloatingButtonMotion(prefersReducedMotion),
+      [prefersReducedMotion]
+    );
 
     const rightRailPanelTransition = useMemo(
-      () => ({
-        duration: prefersReducedMotion ? 0.05 : 0.12,
-        ease: 'easeOut' as const,
-      }),
+      () => getRightRailTransition(prefersReducedMotion),
       [prefersReducedMotion]
     );
 
@@ -187,7 +136,7 @@ const DocumentationPage = React.memo(
       }
 
       const handleResize = () => {
-        const mobile = window.innerWidth < 768;
+        const mobile = isMobileViewport(window.innerWidth);
         setIsMobile(mobile);
         setSidebarVisible(!mobile);
       };
@@ -272,6 +221,11 @@ const DocumentationPage = React.memo(
       []
     );
 
+    const rightRailView = getRightRailView(rightSidebarVisible, ui);
+    const sidebarMotion = isMobile
+      ? sidebarAnimationVariants.mobile
+      : sidebarAnimationVariants.desktop;
+
     return (
       <main
         className="flex h-screen overflow-hidden"
@@ -296,21 +250,9 @@ const DocumentationPage = React.memo(
         <AnimatePresence initial={false}>
           {sidebarVisible && (
             <MotionAside
-              initial={
-                isMobile
-                  ? sidebarAnimationVariants.mobile.initial
-                  : sidebarAnimationVariants.desktop.initial
-              }
-              animate={
-                isMobile
-                  ? sidebarAnimationVariants.mobile.animate
-                  : sidebarAnimationVariants.desktop.animate
-              }
-              exit={
-                isMobile
-                  ? sidebarAnimationVariants.mobile.exit
-                  : sidebarAnimationVariants.desktop.exit
-              }
+              initial={sidebarMotion.initial}
+              animate={sidebarMotion.animate}
+              exit={sidebarMotion.exit}
               transition={isMobile ? transitionConfig : { duration: 0 }}
               className={`docs-sidebar ${fileTreeStyles.fileTreePanel} z-40 flex h-screen shrink-0 flex-col border-r p-4 ${
                 isMobile ? 'inset-y-0 left-0 w-[min(18rem,calc(100vw-2.5rem))] shadow-2xl' : 'w-72'
@@ -339,7 +281,7 @@ const DocumentationPage = React.memo(
                           fontFamily: 'var(--mono-font)',
                         }}
                       >
-                        {(brandingConfig.productName || siteName).charAt(0).toUpperCase()}
+                        {getBrandInitial(brandingConfig.productName || siteName)}
                       </span>
                     )}
                     <span
@@ -535,24 +477,19 @@ const DocumentationPage = React.memo(
               <h3
                 className="min-w-0 truncate text-sm font-semibold font-mono"
                 style={{
-                  color: rightSidebarVisible
-                    ? 'var(--mindmap-text-color)'
-                    : 'var(--toc-text-color)',
+                  color: rightRailView.titleColor,
                   fontFamily: 'var(--mono-font)',
                 }}
               >
-                {rightSidebarVisible ? ui.interactiveMap : ui.onThisPage}
+                {rightRailView.title}
               </h3>
               <button
                 onClick={toggleRightSidebar}
                 className="right-rail-toggle"
-                aria-label={rightSidebarVisible ? ui.showTableOfContents : ui.showInteractiveMap}
+                aria-label={rightRailView.toggleLabel}
                 type="button"
               >
-                <Icon
-                  icon={rightSidebarVisible ? 'mingcute:sitemap-fill' : 'mingcute:brain-fill'}
-                  className="h-4 w-4"
-                />
+                <Icon icon={rightRailView.toggleIcon} className="h-4 w-4" />
               </button>
             </div>
 
@@ -564,7 +501,7 @@ const DocumentationPage = React.memo(
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    variants={rightRailPanelVariants}
+                    variants={RIGHT_RAIL_PANEL_VARIANTS}
                     transition={rightRailPanelTransition}
                     className="absolute inset-0 flex h-full flex-col will-change-[opacity]"
                   >
@@ -597,7 +534,7 @@ const DocumentationPage = React.memo(
                     initial="hidden"
                     animate="visible"
                     exit="exit"
-                    variants={rightRailPanelVariants}
+                    variants={RIGHT_RAIL_PANEL_VARIANTS}
                     transition={rightRailPanelTransition}
                     className="absolute inset-0 flex h-full flex-col will-change-[opacity]"
                   >
