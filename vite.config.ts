@@ -13,6 +13,17 @@ function readThemeFontSnippet(): string {
   return readFileSync(snippetPath, 'utf8').trim();
 }
 
+function readThemeColorModeAttributes(): string {
+  const manifestPath = resolve(__dirname, 'src/lib/generated/papers-theme.json');
+  if (!existsSync(manifestPath)) {
+    return '';
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  const mode = manifest.defaultColorMode === 'light' ? 'light' : 'dark';
+  const toggle = manifest.features?.lightDarkToggle === false ? 'off' : 'on';
+  return ` data-default-color-mode="${mode}" data-color-mode-toggle="${toggle}"`;
+}
+
 export default defineConfig({
   plugins: [
     tailwindcss(),
@@ -25,6 +36,13 @@ export default defineConfig({
           return html;
         }
         return html.replace('<head>', `<head>\n${fonts}`);
+      },
+    },
+    {
+      // theme-init.js reads these before React loads, so light themes do not flash dark.
+      name: 'papers-theme-color-mode',
+      transformIndexHtml(html) {
+        return html.replace(/<html\b/, `<html${readThemeColorModeAttributes()}`);
       },
     },
   ],

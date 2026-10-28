@@ -1326,6 +1326,31 @@ export const architectureTests: ArchitectureTestCase[] = [
     },
   },
   {
+    name: 'theme-init.js honors the theme color mode stamped on <html>',
+    async run() {
+      // Regression: light-default themes flashed dark before React loaded, and single-mode
+      // themes picked up a stored light/dark preference they offer no way to change.
+      const script = await readFile(join(process.cwd(), 'public/js/theme-init.js'), 'utf8');
+      const run = (attributes: string, stored: string | null) => {
+        const dom = new JSDOM(`<html${attributes}><head></head><body></body></html>`, {
+          runScripts: 'outside-only',
+          url: 'http://localhost/',
+        });
+        if (stored !== null) dom.window.localStorage.setItem('darkMode', stored);
+        dom.window.eval(script);
+        return dom.window.document.documentElement.classList.contains('dark');
+      };
+      assert.equal(run(' data-default-color-mode="light"', null), false);
+      assert.equal(run(' data-default-color-mode="light"', 'true'), true);
+      assert.equal(run(' data-default-color-mode="dark"', 'false'), false);
+      assert.equal(run('', null), true);
+      assert.equal(
+        run(' data-default-color-mode="dark" data-color-mode-toggle="off"', 'false'),
+        true
+      );
+    },
+  },
+  {
     name: 'OpenAPI runtime uses the route-lazy standalone Scalar boundary',
     async run() {
       const openApiReferenceSource = await readFile(
