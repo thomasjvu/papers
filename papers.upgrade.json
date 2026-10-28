@@ -1,0 +1,24 @@
+{
+  "$comment": "Paths a site owns. `scripts/papers-upgrade.mjs` never changes them. Everything else is framework code and is upgraded with a three-way merge.",
+  "siteOwned": [
+    ".github/**",
+    ".forgejo/**",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "README.md",
+    "SECURITY.md",
+    "docs/**",
+    "packages/**",
+    "plans/**",
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "wrangler.toml",
+    "public/docs-content/**",
+    "src/docs/content/**",
+    "src/data/**",
+    "src/lib/generated/**",
+    "papers.lock.json"
+  ]
+}
