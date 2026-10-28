@@ -1,5 +1,5 @@
 {
-  "$comment": "Paths a site owns. `scripts/papers-upgrade.mjs` never changes them. Everything else is framework code and is upgraded with a three-way merge.",
+  "$comment": "Paths the upgrader never touches: site content, branding, generated artifacts, lockfiles, CI, and tooling used only to develop Papers itself. Everything else is framework code and is upgraded with a three-way merge.",
   "siteOwned": [
     ".github/**",
     ".forgejo/**",
@@ -19,6 +19,28 @@
     "src/docs/content/**",
     "src/data/**",
     "src/lib/generated/**",
-    "papers.lock.json"
+    "papers.lock.json",
+    ".jscpd.json",
+    "stryker.config.json",
+    "lighthouserc.cjs",
+    "scripts/quality/**",
+    "scripts/check-create-papers-package.mjs",
+    "scripts/create-papers-smoke.mjs",
+    "public/agents.json",
+    "public/collections.json",
+    "public/docs-collection.json",
+    "public/docs-index.json",
+    "public/docs-references.json",
+    "public/llms.txt",
+    "public/llms-full.txt",
+    "public/skill.md",
+    "public/openapi-artifacts.json",
+    "public/papers-theme-assets.json",
+    "public/sitemap.xml",
+    "public/robots.txt",
+    "public/openapi-*.yaml",
+    "public/images/og-image.svg",
+    "public/images/twitter-card.svg",
+    "public/images/docs/**"
   ]
 }

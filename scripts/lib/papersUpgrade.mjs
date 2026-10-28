@@ -35,8 +35,39 @@ export const DEFAULT_SITE_OWNED = [
   'src/docs/content/**',
   'src/data/**',
   'src/lib/generated/**',
+
+  '.jscpd.json',
+  'stryker.config.json',
+  'lighthouserc.cjs',
+  'scripts/quality/**',
+  'scripts/check-create-papers-package.mjs',
+  'scripts/create-papers-smoke.mjs',
+  'public/agents.json',
+  'public/collections.json',
+  'public/docs-collection.json',
+  'public/docs-index.json',
+  'public/docs-references.json',
+  'public/llms.txt',
+  'public/llms-full.txt',
+  'public/skill.md',
+  'public/openapi-artifacts.json',
+  'public/papers-theme-assets.json',
+  'public/sitemap.xml',
+  'public/robots.txt',
+  'public/openapi-*.yaml',
+  'public/images/og-image.svg',
+  'public/images/twitter-card.svg',
+  'public/images/docs/**',
   LOCK_FILE,
 ];
+
+// The upgrader's own files always take the incoming version.
+const UPGRADER_PATHS = createPathFilter([
+  'scripts/papers-upgrade.mjs',
+  'scripts/lib/papersUpgrade.mjs',
+  'scripts/migrations/**',
+  'scripts/templates/**',
+]);
 
 const SEMVER_TAG = /^v(\d+)\.(\d+)\.(\d+)$/;
 
@@ -151,13 +182,16 @@ export function resolveUpstreamCommit(root, repository, ref) {
     const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', `${candidate}^{commit}`]);
     if (sha) return { ref, commit: sha.trim() };
   }
-  // A bare commit that is not on main or a tag: fetch it directly.
-  if (/^[0-9a-f]{7,40}$/i.test(ref)) {
-    tryGit(root, ['fetch', '--quiet', '--no-tags', repository, ref]);
-    const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
+  // A branch, or a full commit SHA that is not on main or a tag: fetch it.
+  if (
+    tryGit(root, ['fetch', '--quiet', '--no-tags', '--update-shallow', repository, ref]) !== null
+  ) {
+    const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', 'FETCH_HEAD^{commit}']);
     if (sha) return { ref, commit: sha.trim() };
   }
-  throw new Error(`Cannot resolve Papers ref "${ref}" in ${repository}.`);
+  throw new Error(
+    `Cannot resolve Papers ref "${ref}" in ${repository}. Use a release tag, a branch or a full 40-character commit SHA.`
+  );
 }
 
 function readBlob(root, commit, path) {
@@ -270,7 +304,7 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
       report.alreadyCurrent.push(path);
       continue;
     }
-    if (baseBlob && ours.equals(baseBlob)) {
+    if ((baseBlob && ours.equals(baseBlob)) || UPGRADER_PATHS(path)) {
       await writeTheirs();
       report.updated.push(path);
       continue;
