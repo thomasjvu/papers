@@ -8,6 +8,7 @@ import {
   createHostedSkillArtifact,
   createLlmsArtifacts,
 } from '../scripts/lib/llmsArtifacts.mjs';
+import { createContentSchemaAdapter } from '../shared/contentSchema.js';
 
 const fixtureDir = new URL('./fixtures/llms/', import.meta.url);
 const updateGolden = process.env.UPDATE_LLMS_GOLDEN === '1';
@@ -108,6 +109,42 @@ async function assertGolden(name: string, actual: string) {
     await writeFile(url, actual);
   }
   assert.equal(actual, await readFile(url, 'utf8'), `${name} drifted`);
+}
+
+type Warning = { message: string; error: unknown };
+
+/** Writes `docs` under `<root>/content/d/<name>.md` and builds a one-directory tree for them. */
+async function withDocs(
+  docs: Record<string, string>,
+  run: (args: { rootDir: string; tree: unknown[]; warnings: Warning[] }) => Promise<void> | void
+) {
+  const rootDir = await mkdtemp(join(tmpdir(), 'papers-llms-docs-'));
+  const warnings: Warning[] = [];
+  const warn = console.warn;
+  console.warn = (message: string, error: unknown) => warnings.push({ message, error });
+  try {
+    await mkdir(join(rootDir, 'content/d'), { recursive: true });
+    for (const [name, content] of Object.entries(docs)) {
+      await writeFile(join(rootDir, `content/d/${name}.md`), content);
+    }
+    const children = Object.keys(docs).map((name) => ({
+      type: 'file',
+      name: `${name}.md`,
+      path: `d/${name}`,
+    }));
+    await run({ rootDir, tree: [{ type: 'directory', name: 'D', path: 'd', children }], warnings });
+  } finally {
+    console.warn = warn;
+    await rm(rootDir, { recursive: true, force: true });
+  }
+}
+
+function descriptionLines(llmsTxt: string): Record<string, string | null> {
+  const lines: Record<string, string | null> = {};
+  for (const match of llmsTxt.matchAll(/^- \[([^\]]+)\]\([^)]+\)(?:: (.*))?$/gm)) {
+    lines[match[1]] = match[2] ?? null;
+  }
+  return lines;
 }
 
 export const llmsArtifactTests = [
@@ -212,5 +249,208 @@ export const llmsArtifactTests = [
         '---\nname: n\ndescription: d\n---\n\nB\n'
       );
     },
+  },
+  {
+    name: 'llms descriptions skip list-only paragraphs but keep everything else',
+    run: () =>
+      withDocs(
+        {
+          ws: '---\ndescription: "   "\n---\n\nBody wins.\n',
+          midDash: 'Use a---b and c---d.\n\nSecond.\n',
+          spacedBlank: '- a\n- b\n \nReal after spaced blank.\n',
+          mixed: '- item\nplain line\n\nNext.\n',
+          ten: '10. ten\n11. eleven\n\nAfter ten.\n',
+          one: '1. a\n2. b\n\nAfter one.\n',
+          indented: '  - a\n  - b\n\nAfter indented.\n',
+          midList: 'Pros - fast\nCons - none\n\nAfter mid.\n',
+          hashEnd: 'Ref #\n\nAfter hash.\n',
+          fenceEnd: 'Use ```\n\nAfter fence.\n',
+          image: '![](a.png)\n\nAfter image.\n',
+          headingOnly: '# Only a heading\n',
+        },
+        ({ rootDir, tree }) => {
+          const result = createLlmsArtifacts({
+            rootDir,
+            contentDir: 'content',
+            documentationTree: tree,
+          });
+          assert.deepEqual(descriptionLines(result.llmsTxt), {
+            ws: 'Body wins.',
+            midDash: 'Use a---b and c---d.',
+            spacedBlank: 'Real after spaced blank.',
+            mixed: 'item plain line',
+            ten: 'After ten.',
+            one: 'After one.',
+            indented: 'After indented.',
+            midList: 'Pros - fast Cons - none',
+            hashEnd: 'Ref #',
+            fenceEnd: 'Use ```',
+            image: 'After image.',
+            headingOnly: null,
+          });
+        }
+      ),
+  },
+  {
+    name: 'llms descriptions honour the collection frontmatter schema and warn on bad files',
+    run: () =>
+      withDocs(
+        {
+          custom: '---\nsummary: S\ndescription: Custom.\n---\n\nBody.\n',
+          broken: '---\ntitle: never closed\n\nBroken body.\n',
+        },
+        ({ rootDir, tree, warnings }) => {
+          const fields = { summary: { type: 'string' }, description: { type: 'string' } };
+          const base = { rootDir, contentDir: 'content', documentationTree: tree };
+
+          assert.deepEqual(descriptionLines(createLlmsArtifacts(base).llmsTxt), {
+            custom: null,
+            broken: null,
+          });
+          assert.deepEqual(
+            warnings.map((warning) => warning.message),
+            ['Could not read file d/custom:', 'Could not read file d/broken:']
+          );
+          assert.match(String(warnings[0].error), /unsupported key "summary"/);
+
+          for (const options of [
+            { frontmatterSchema: fields },
+            { schemaAdapter: createContentSchemaAdapter({ fields }) },
+          ]) {
+            const lines = descriptionLines(createLlmsArtifacts({ ...base, ...options }).llmsTxt);
+            assert.equal(lines.custom, 'Custom.');
+          }
+
+          const viaCollection = createAllLlmsArtifacts({
+            rootDir,
+            collections: [
+              {
+                id: 'docs',
+                tree,
+                contentDir: 'content',
+                schema: createContentSchemaAdapter({ fields }),
+              },
+            ],
+          });
+          assert.equal(descriptionLines(viaCollection.llmsTxt).custom, 'Custom.');
+        }
+      ),
+  },
+  {
+    name: 'llms warns once per unreadable doc and skips non-file tree items',
+    run: () =>
+      withDocs({ ok: 'Fine.\n' }, ({ rootDir, tree, warnings }) => {
+        const documentationTree = [
+          ...tree,
+          { type: 'file', name: 'gone.md', path: 'd/gone' },
+          { type: 'directory', name: 'Hollow' },
+          {
+            type: 'directory',
+            name: 'Parent',
+            children: [{ type: 'directory', name: 'Inner', children: [] }],
+          },
+        ];
+        const result = createLlmsArtifacts({ rootDir, contentDir: 'content', documentationTree });
+        assert.equal(result.expectedFileCount, 2);
+        assert.equal(result.resolvedFileCount, 1);
+        assert.doesNotMatch(result.llmsTxt, /## Parent|## Inner|## Hollow/);
+        assert.deepEqual(
+          warnings.map((warning) => warning.message),
+          // Top-level files are not listed in llms.txt, so only llms-full.txt reads it.
+          ['Could not read file d/gone:']
+        );
+        assert.equal((warnings[0].error as Error).message, 'File not found');
+      }),
+  },
+  {
+    name: 'llms output strips trailing whitespace and lists every parameter and response',
+    run: () =>
+      withDocs({ ws: 'Line with spaces.  \t\nNext line.\n' }, ({ rootDir, tree }) => {
+        const result = createLlmsArtifacts({
+          rootDir,
+          contentDir: 'content',
+          documentationTree: tree,
+          homepageConfig: { hero: { subtitle: 'Sub  ' } },
+          openapiArtifacts: {
+            specs: [
+              {
+                label: 'Models only',
+                schemas: [
+                  { name: 'Thing', routePath: '/api/thing', typescript: 'type Thing = {}' },
+                ],
+              },
+              {
+                label: 'Ops',
+                operations: [
+                  {
+                    method: 'GET',
+                    path: '/x',
+                    routePath: '/api/x',
+                    parameters: [
+                      { in: 'query', name: 'a' },
+                      { in: 'header', name: 'b' },
+                    ],
+                    responses: [{ status: '200' }, { status: '404' }],
+                    codeSamples: { curl: 'curl x' },
+                  },
+                ],
+              },
+            ],
+          },
+        });
+        assert.doesNotMatch(result.llmsTxt, /[ \t]$/m);
+        assert.doesNotMatch(result.llmsFullTxt, /[ \t]$/m);
+        assert.match(result.llmsFullTxt, /\nLine with spaces\.\nNext line\.\n/);
+        assert.match(
+          result.llmsTxt,
+          /### Models only\n\n- \[Thing\]\(\/api\/thing\): OpenAPI schema model\.\n/
+        );
+        assert.match(result.llmsFullTxt, /Parameters: query\.a, header\.b\n/);
+        assert.match(result.llmsFullTxt, /Responses: 200, 404\n/);
+      }),
+  },
+  {
+    name: 'createAllLlmsArtifacts labels collections and pins the hero-less header strip',
+    run: () =>
+      withDocs({ x: 'Text.  \n' }, async ({ rootDir, tree }) => {
+        await mkdir(join(rootDir, 'other/d'), { recursive: true });
+        await writeFile(join(rootDir, 'other/d/x.md'), 'Other.\n');
+        const collections = [
+          { id: 'a', tree, contentDir: 'content' },
+          { tree, contentDir: 'other', routePrefix: '/b' },
+        ];
+        const bare = createAllLlmsArtifacts({ rootDir, collections });
+        // Without a hero description the per-collection strip regex also eats the
+        // first "## D" section heading. Pinned as current behaviour, not endorsed.
+        assert.equal(
+          bare.llmsTxt,
+          '# Documentation Documentation\n\n## a\n\n- [x](/docs/d/x): Text.\n\n## Collection\n\n- [x](/b/d/x): Other.\n'
+        );
+        assert.match(
+          bare.llmsFullTxt,
+          /^# Documentation Documentation - Full Content\n\n> Complete/
+        );
+        assert.match(bare.llmsFullTxt, /\n## a\n\n> Complete[^\n]*\n\n\n## D\n/);
+        assert.doesNotMatch(bare.llmsFullTxt, /[ \t]$/m);
+
+        const titled = createAllLlmsArtifacts({
+          rootDir,
+          collections,
+          homepageConfig: { hero: { title: 'T', subtitle: 'S  ' } },
+        });
+        assert.match(titled.llmsTxt, /^# T Documentation\n\n> S\n\n## a\n\n- \[x\]/);
+        assert.equal(
+          createAllLlmsArtifacts({ rootDir, collections, homepageConfig: {} }).llmsTxt,
+          bare.llmsTxt
+        );
+
+        const single = createAllLlmsArtifacts({
+          rootDir,
+          collections: [
+            { id: 'api', label: 'API', tree, contentDir: 'content', routePrefix: '/api' },
+          ],
+        });
+        assert.match(single.llmsTxt, /^# API Documentation\n\n## D\n\n- \[x\]\(\/api\/d\/x\)/);
+      }),
   },
 ];
