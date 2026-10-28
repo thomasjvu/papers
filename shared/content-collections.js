@@ -1,6 +1,7 @@
 /**
  * Content collections — multi-tree docs support.
- * Default install uses a single `docs` collection mapped to /docs routes.
+ * Default install uses a single `docs` collection mapped to the docs base path
+ * (`docsRoutingConfig.basePath`, '/docs' by default).
  */
 
 import {
@@ -15,19 +16,12 @@ import {
   documentFrontmatterSchema,
   DOCUMENT_FRONTMATTER_SCHEMA_VERSION,
 } from './contentSchema.js';
+import { docsBasePath, normalizeDocsBasePath } from './docsBasePath.js';
 import { normalizeMdxComponentNames, SUPPORTED_MDX_COMPONENT_NAMES } from './mdxComponents.js';
 
 export const CONTENT_COLLECTION_CONTRACT_VERSION = 1;
 
 const COLLECTION_ID_PATTERN = /^[a-z][a-z0-9-]*$/;
-
-function normalizeRoutePrefix(value) {
-  const raw = String(value || '').trim();
-  const withLeadingSlash = raw.startsWith('/') ? raw : `/${raw}`;
-  const normalized = withLeadingSlash.replace(/\/+/g, '/').replace(/\/+$|^\/+/g, '');
-
-  return normalized ? `/${normalized}` : '';
-}
 
 function normalizeRelativePath(value) {
   return String(value || '')
@@ -81,8 +75,10 @@ export function getCollectionArtifactPaths(collection) {
   });
 }
 
+/** '/docs' style prefix, or '' when the collection is served at the site root. */
 export function getCollectionRoutePrefix(collection) {
-  return normalizeRoutePrefix(collection?.routePrefix || '/docs');
+  const value = collection?.routePrefix;
+  return value === undefined || value === null ? docsBasePath : normalizeDocsBasePath(value);
 }
 
 function validateSchemaAdapter(collection, issues) {
@@ -123,8 +119,8 @@ export function validateContentCollection(collection, { rootDir } = {}) {
   if (!label) {
     issues.push('label must be a non-empty string.');
   }
-  if (!routePrefix || routePrefix.includes('?') || routePrefix.includes('#')) {
-    issues.push('routePrefix must be a clean non-empty URL path.');
+  if (routePrefix.includes('?') || routePrefix.includes('#')) {
+    issues.push("routePrefix must be a clean URL path ('/' for the site root).");
   }
   if (!isSafeRelativePath(contentDir)) {
     issues.push('contentDir must be a repository-relative path that cannot escape the root.');
@@ -235,7 +231,7 @@ export const contentCollections = [
   {
     id: 'docs',
     label: 'Documentation',
-    routePrefix: '/docs',
+    routePrefix: docsBasePath || '/',
     contentDir: 'src/docs/content',
     tree: documentationTree,
     description: 'Primary documentation tree',
@@ -259,4 +255,27 @@ export function getContentCollection(id) {
     throw new Error(`Unknown content collection: ${id}`);
   }
   return collection;
+}
+
+/**
+ * The collection whose route prefix contains `pathname` ('/docs/a' or 'docs/a').
+ * The longest prefix wins, and a root-mode collection ('') matches any path.
+ * @param {string} pathname
+ * @param {import('./docsRouting.js').ContentCollection[]} [collections]
+ */
+export function findCollectionForPath(pathname, collections = contentCollections) {
+  const normalized = String(pathname || '').replace(/^\/+|\/+$/g, '');
+  let match = null;
+  let matchLength = -1;
+  for (const entry of collections) {
+    const prefix = getCollectionRoutePrefix(entry).replace(/^\/+/, '');
+    if (prefix && normalized !== prefix && !normalized.startsWith(`${prefix}/`)) {
+      continue;
+    }
+    if (prefix.length > matchLength) {
+      match = entry;
+      matchLength = prefix.length;
+    }
+  }
+  return match;
 }

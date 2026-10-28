@@ -6,6 +6,7 @@ import {
 } from '../../shared/contentSchema.js';
 import {
   getCollectionArtifactPaths,
+  getCollectionRoutePrefix,
   getCollectionVariants,
 } from '../../shared/content-collections.js';
 
@@ -36,7 +37,7 @@ export function createContentCollectionManifest({ collection, index, documents }
       DOCUMENT_FRONTMATTER_SCHEMA_VERSION,
     collection: collection?.id || 'docs',
     label: collection?.label || 'Documentation',
-    routePrefix: collection?.routePrefix || '/docs',
+    routePrefix: getCollectionRoutePrefix(collection) || '/',
     artifactNamespace: collection?.artifactNamespace || collection?.id || 'docs',
     artifacts: getCollectionArtifactPaths(collection),
     generated: index?.generated || null,

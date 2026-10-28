@@ -1,5 +1,6 @@
 import { documentationTree, i18nConfig, versionConfig } from './documentation-config.js';
 import { getDefaultDocumentPath } from './seo.js';
+import { docsBasePath, getDocsBaseSegments, normalizeDocsBasePath } from './docsBasePath.js';
 
 function normalizeUniqueSegments(values) {
   if (!Array.isArray(values)) {
@@ -221,7 +222,7 @@ export function parseDocsRoutePath(slug = '', options = {}) {
 export function buildDocsPath(path = '', options = {}) {
   const normalizedPath = normalizeDocPath(path);
   const segments = [
-    'docs',
+    ...getDocsBaseSegments(),
     ...resolvePrefixSegments(options),
     ...splitRouteSegments(normalizedPath),
   ];
@@ -324,9 +325,11 @@ export function buildDocsLandingPath(path = getDefaultDocumentPath(), options = 
   return buildCanonicalDocsPath(path || '', options);
 }
 
-function normalizeCollectionRoutePrefix(routePrefix = '/docs') {
-  const trimmed = String(routePrefix || '/docs').replace(/\/+$/, '');
-  return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+/** A collection's route prefix: '/docs' style, or '' for root. Unset uses the docs base path. */
+function normalizeCollectionRoutePrefix(routePrefix) {
+  return routePrefix === undefined || routePrefix === null
+    ? docsBasePath
+    : normalizeDocsBasePath(routePrefix);
 }
 
 export function buildCollectionRoutePath(collection, path = '', options = {}) {
@@ -426,7 +429,10 @@ export function buildCollectionLandingPath(collection, path = '', options = {}) 
  * @returns {string | null}
  */
 export function getCollectionRouteSlug(collection, pathname) {
-  const routePrefix = String(collection?.routePrefix || '/docs').replace(/\/+$/, '') || '/docs';
+  const routePrefix = normalizeCollectionRoutePrefix(collection?.routePrefix);
+  if (!routePrefix) {
+    return String(pathname || '').replace(/^\/+/, '');
+  }
   return pathname.startsWith(routePrefix)
     ? pathname.replace(new RegExp(`^${routePrefix}/?`), '')
     : null;

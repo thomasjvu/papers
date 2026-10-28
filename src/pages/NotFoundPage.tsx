@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
 import { buildCanonicalDocsPath, buildDocsLandingPath } from '../../shared/docsRouting.js';
+import { docsBasePath } from '../../shared/docsBasePath.js';
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
 import { applySeoMetadata } from '../utils/seo';
 
@@ -32,7 +33,9 @@ export default function NotFoundPage() {
   }, [location.hash, location.pathname, location.search]);
 
   const missingPath = `${location.pathname}${location.search}${location.hash}`;
-  const showRefreshHint = location.pathname.startsWith('/docs/');
+  const showRefreshHint = docsBasePath
+    ? location.pathname.startsWith(`${docsBasePath}/`)
+    : location.pathname !== '/';
 
   return (
     <div className="min-h-screen px-4 py-20" style={{ backgroundColor: 'var(--background-color)' }}>
@@ -99,7 +102,7 @@ export default function NotFoundPage() {
             </button>
 
             <Link
-              to="/docs"
+              to={docsBasePath || buildDocsLandingPath(DEFAULT_DOCUMENT_PATH)}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border transition-colors"
               style={{
                 borderColor: 'var(--border-unified)',

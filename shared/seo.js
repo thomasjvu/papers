@@ -1,4 +1,10 @@
 import { documentationTree, homepageConfig } from './documentation-config.js';
+import {
+  docsBasePath,
+  getDocsBaseSegments,
+  normalizeDocsBasePath,
+  withDocsBasePath,
+} from './docsBasePath.js';
 
 export const DEFAULT_OG_IMAGE_PATH = '/images/og-image.svg';
 export const DEFAULT_TWITTER_IMAGE_PATH = '/images/twitter-card.svg';
@@ -193,7 +199,7 @@ function collectDocumentPaths(items, paths) {
   return paths;
 }
 
-function collectDirectoryAliases(items, aliases, routePrefix = 'docs') {
+function collectDirectoryAliases(items, aliases, routePrefix = docsBasePath) {
   for (const item of items) {
     if (item.type !== 'directory' || !Array.isArray(item.children)) {
       continue;
@@ -202,7 +208,7 @@ function collectDirectoryAliases(items, aliases, routePrefix = 'docs') {
     const defaultPath = findFirstDocumentPath(item.children);
     if (defaultPath) {
       aliases.push({
-        routePath: `/${routePrefix}/${item.path}`,
+        routePath: withDocsBasePath(item.path, normalizeDocsBasePath(routePrefix)),
         docPath: defaultPath,
       });
     }
@@ -221,7 +227,7 @@ export function getDocumentPaths(items = documentationTree) {
   return collectDocumentPaths(items, []);
 }
 
-export function getDirectoryAliasEntries(items = documentationTree, routePrefix = 'docs') {
+export function getDirectoryAliasEntries(items = documentationTree, routePrefix = docsBasePath) {
   return collectDirectoryAliases(items, [], routePrefix);
 }
 
@@ -298,8 +304,10 @@ function createBreadcrumbItems(routePath, title, siteName, siteUrl) {
   }
 
   const segments = normalizedPath.split('/').filter(Boolean);
-  const docsIndex = segments.indexOf('docs');
-  const visibleSegments = docsIndex >= 0 ? segments.slice(docsIndex + 1) : segments;
+  const baseSegments = getDocsBaseSegments();
+  const inDocsBase =
+    baseSegments.length > 0 && baseSegments.every((segment, index) => segments[index] === segment);
+  const visibleSegments = inDocsBase ? segments.slice(baseSegments.length) : segments;
   const rootUrl = buildAbsoluteUrl('/', siteUrl);
   const items = [
     {
@@ -312,10 +320,9 @@ function createBreadcrumbItems(routePath, title, siteName, siteUrl) {
 
   visibleSegments.forEach((segment, index) => {
     const isLast = index === visibleSegments.length - 1;
-    const itemPath =
-      docsIndex >= 0
-        ? `/docs/${visibleSegments.slice(0, index + 1).join('/')}`
-        : `/${segments.slice(0, index + 1).join('/')}`;
+    const itemPath = inDocsBase
+      ? withDocsBasePath(visibleSegments.slice(0, index + 1).join('/'))
+      : `/${segments.slice(0, index + 1).join('/')}`;
     items.push({
       '@type': 'ListItem',
       position: index + 2,

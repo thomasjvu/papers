@@ -197,8 +197,8 @@ export const scriptHelperTests: TestCase[] = [
         getCollectionRouteSlug({ id: 'api', routePrefix: '/api///' }, '/api/v1/start'),
         'v1/start'
       );
-      // A bare '/' prefix falls back to '/docs' (existing behaviour, pinned here).
-      assert.equal(getCollectionRouteSlug({ id: 'root', routePrefix: '/' }, '/a/b'), null);
+      // A bare '/' prefix is root mode: every path is inside the collection.
+      assert.equal(getCollectionRouteSlug({ id: 'root', routePrefix: '/' }, '/a/b'), 'a/b');
       assert.equal(getCollectionRouteSlug(undefined, '/docs/x'), 'x');
     },
   },

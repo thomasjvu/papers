@@ -117,13 +117,13 @@ npm run release:check:papers
 
 ## Customize a site
 
-| Path                             | Purpose                                                   |
-| -------------------------------- | --------------------------------------------------------- |
-| `shared/documentation-config.js` | Sidebar, homepage, collections, and OpenAPI configuration |
-| `src/docs/content/`              | Markdown and MDX pages                                    |
-| `.env.local`                     | Site name, URL, GitHub metadata, and build identity       |
-| `src/globals.css`                | Theme tokens and application styles                       |
-| `themes/`                        | Registered theme packages and assets                      |
+| Path                             | Purpose                                                                   |
+| -------------------------------- | ------------------------------------------------------------------------- |
+| `shared/documentation-config.js` | Sidebar, homepage, collections, docs base path, and OpenAPI configuration |
+| `src/docs/content/`              | Markdown and MDX pages                                                    |
+| `.env.local`                     | Site name, URL, GitHub metadata, and build identity                       |
+| `src/globals.css`                | Theme tokens and application styles                                       |
+| `themes/`                        | Registered theme packages and assets                                      |
 
 Generated artifacts include `public/docs-content/`, `public/docs-index.json`,
 `public/llms*.txt`, SEO files, route HTML, Pagefind data, and resolved theme

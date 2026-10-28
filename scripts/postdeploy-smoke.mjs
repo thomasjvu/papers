@@ -2,6 +2,7 @@ import { openapiConfig } from '../shared/documentation-config.js';
 import { buildDocsRouteVariants } from '../shared/docsRouting.js';
 import { buildOpenApiRoutePath } from '../shared/openapiRouting.js';
 import { normalizeSiteUrl } from '../shared/seo.js';
+import { docsBasePath } from '../shared/docsBasePath.js';
 
 const host = String(process.env.PAPERS_DEPLOY_HOST || '').replace(/\/+$/, '');
 const expectedRevision = process.env.GITHUB_SHA || process.env.SOURCE_COMMIT || '';
@@ -149,7 +150,7 @@ async function main() {
     'Deployed docs index does not contain the build default document path.'
   );
 
-  const docsLanding = await fetchWithRetry('/docs');
+  const docsLanding = await fetchWithRetry(docsBasePath || '/');
   const deepDocs = await fetchWithRetry(buildDocsRouteVariants(manifest.defaultDocumentPath)[0]);
   assert(
     docsLanding.headers.get('content-type')?.includes('text/html'),

@@ -126,6 +126,7 @@ declare module '@app-shared/documentation-config.js' {
   export const documentationTree: FileItem[];
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
+  export const docsRoutingConfig: { basePath?: string } | undefined;
   export const chromeConfig: ChromeConfig;
   export const uiStringsConfig: Record<string, Record<string, string>>;
   export const brandingConfig: BrandingConfig;
@@ -263,6 +264,7 @@ declare module '*/shared/documentation-config.js' {
   export const documentationTree: FileItem[];
   export const versionConfig: VersionConfig;
   export const i18nConfig: I18nConfig;
+  export const docsRoutingConfig: { basePath?: string } | undefined;
   export const chromeConfig: ChromeConfig;
   export const uiStringsConfig: Record<string, Record<string, string>>;
   export const brandingConfig: BrandingConfig;

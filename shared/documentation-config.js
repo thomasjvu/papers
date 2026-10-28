@@ -38,6 +38,15 @@ export const frameworkDocPaths = [];
  * @property {Object} [quickStart]
  */
 
+/**
+ * Docs URL base path. '/docs' (default) serves pages at /docs/<page>;
+ * '' or '/' serves them at the site root (/<page>), next to the homepage.
+ * @type {{ basePath: string }}
+ */
+export const docsRoutingConfig = {
+  basePath: '/docs',
+};
+
 /** @type {{ current: string, versions: string[], labels: Record<string, string>, enabled: boolean }} */
 export const versionConfig = {
   current: '1.0',

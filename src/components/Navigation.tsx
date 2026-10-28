@@ -12,6 +12,7 @@ import { useTheme } from '../providers/useTheme';
 
 import DocsLogoMark from './DocsLogoMark';
 import SettingsMenu from './SettingsMenu';
+import { withDocsBasePath } from '../../shared/docsBasePath.js';
 
 type NavigationProps = {
   docsPath?: string;
@@ -24,9 +25,9 @@ type NavItem = {
 };
 
 const navItems: NavItem[] = [
-  { label: 'Design System', href: '/docs/developer-guides/design-system' },
-  { label: 'Deployment', href: '/docs/deployment/overview' },
-  { label: 'LLMs.txt', href: '/docs/llms' },
+  { label: 'Design System', href: withDocsBasePath('developer-guides/design-system') },
+  { label: 'Deployment', href: withDocsBasePath('deployment/overview') },
+  { label: 'LLMs.txt', href: withDocsBasePath('llms') },
 ];
 
 export default function Navigation({

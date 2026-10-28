@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 import type { FileItem } from '../../types/documentation';
 import { buildCanonicalDocsPath, parseDocsRoutePath } from '../../../shared/docsRouting.js';
+import { stripDocsBasePath } from '../../../shared/docsBasePath.js';
 import safeLocalStorage from '../../utils/storage';
 
 import styles from './GroupsSidebar.module.css';
@@ -56,9 +57,8 @@ export default function GroupsSidebar({
 }: GroupsSidebarProps) {
   const ui = useUiStrings();
   const location = useLocation();
-  const docsRouteSlug = location.pathname.startsWith('/docs')
-    ? location.pathname.replace(/^\/docs\/?/, '')
-    : location.pathname.replace(/^\/+|\/+$/g, '');
+  const docsRouteSlug =
+    stripDocsBasePath(location.pathname) ?? location.pathname.replace(/^\/+|\/+$/g, '');
   const routeContext = useMemo(() => parseDocsRoutePath(docsRouteSlug), [docsRouteSlug]);
 
   const rootFiles = useMemo(() => items.filter((item) => item.type === 'file'), [items]);

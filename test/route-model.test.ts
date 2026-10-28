@@ -2,6 +2,12 @@ import assert from 'node:assert/strict';
 import { readFile, writeFile } from 'node:fs/promises';
 
 import { createRouteModel } from '../scripts/lib/contentValidation.mjs';
+import {
+  normalizeDocsBasePath,
+  stripDocsBasePath,
+  withDocsBasePath,
+} from '../shared/docsBasePath.js';
+import { buildCollectionRoutePath, getCollectionRouteSlug } from '../shared/docsRouting.js';
 
 const updateGolden = process.env.UPDATE_ROUTE_MODEL_GOLDEN === '1';
 
@@ -101,6 +107,37 @@ export const routeModelTests = [
         designBookConfig: { enabled: true, route: '/design' },
       });
       assert.equal(withDesignBook.routeMap.has('/design'), true);
+    },
+  },
+  {
+    name: 'docs base path: /docs by default, root mode serves docs at /',
+    run: () => {
+      assert.equal(normalizeDocsBasePath(undefined), '/docs');
+      assert.equal(normalizeDocsBasePath('/guide/'), '/guide');
+      assert.equal(normalizeDocsBasePath(''), '');
+      assert.equal(normalizeDocsBasePath('/'), '');
+      assert.equal(withDocsBasePath('a/b'), '/docs/a/b');
+      assert.equal(withDocsBasePath('a/b', ''), '/a/b');
+      assert.equal(stripDocsBasePath('/docs/a', '/docs'), 'a');
+      assert.equal(stripDocsBasePath('/design', '/docs'), null);
+      assert.equal(stripDocsBasePath('/a/b/', ''), 'a/b');
+
+      const root = { id: 'docs', routePrefix: '/' };
+      assert.equal(buildCollectionRoutePath(root, 'guides/intro'), '/guides/intro');
+      assert.equal(getCollectionRouteSlug(root, '/guides/intro'), 'guides/intro');
+
+      const model = createRouteModel({
+        collection: root,
+        documentationTree: tree,
+        documentPaths,
+        openapiConfig: { ...openapiConfig, enabled: false },
+        routeCollections: [{ collection: root, documentationTree: tree, documentPaths }],
+      });
+      assert.deepEqual(model.routeMap.get('/'), { type: 'site' });
+      assert.equal(model.routeMap.get('/guides/intro')?.documentPath, 'guides/intro');
+      assert.equal(model.routeMap.get('/guides')?.documentPath, 'guides/intro');
+      assert.equal(model.routeMap.has('/docs/guides/intro'), false);
+      assert.deepEqual([...model.ambiguousRoutes], []);
     },
   },
 ];

@@ -29,6 +29,10 @@ declare module '*/shared/content-collections.js' {
   };
 
   export function getCollectionRoutePrefix(collection?: ContentCollection): string;
+  export function findCollectionForPath(
+    pathname: string,
+    collections?: ContentCollection[]
+  ): ContentCollection | null;
 
   export function validateContentCollection(
     collection: ContentCollection,

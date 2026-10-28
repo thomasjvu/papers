@@ -1,4 +1,5 @@
 import { buildCanonicalDocsPath } from '../../shared/docsRouting.js';
+import { docsBasePath } from '../../shared/docsBasePath.js';
 
 export type InternalHrefContext = {
   currentPath: string;
@@ -50,7 +51,7 @@ const HOSTED_FILE_ROUTES = new Map([
   ['/skill.md', '/skill.md'],
 ]);
 
-const PASSTHROUGH_ROUTE_PREFIXES = ['/docs', '/dev-docs'];
+const PASSTHROUGH_ROUTE_PREFIXES = [docsBasePath, '/dev-docs'].filter(Boolean);
 
 function isBrowserHandledHref(href: string): boolean {
   return !href || href.startsWith('#') || EXTERNAL_PROTOCOL_PATTERN.test(href);

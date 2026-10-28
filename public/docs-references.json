@@ -381,13 +381,13 @@
       "source": "user-guide/configuration",
       "target": "developer-guides/design-system",
       "href": "/docs/developer-guides/design-system",
-      "line": 58
+      "line": 76
     },
     {
       "source": "user-guide/configuration",
       "target": "developer-guides/ui-configuration",
       "href": "/docs/developer-guides/ui-configuration",
-      "line": 57
+      "line": 75
     },
     {
       "source": "user-guide/interactive-map",
@@ -490,7 +490,7 @@
       {
         "source": "user-guide/configuration",
         "href": "/docs/user-guide/configuration",
-        "line": 58
+        "line": 76
       }
     ],
     "developer-guides/icon-customization": [],
@@ -516,7 +516,7 @@
       {
         "source": "user-guide/configuration",
         "href": "/docs/user-guide/configuration",
-        "line": 57
+        "line": 75
       }
     ],
     "getting-started/installation": [
