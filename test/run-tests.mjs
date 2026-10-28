@@ -4,6 +4,7 @@ import { authoringFeatureTests } from './authoring-features.test.ts';
 import { docsParityTests } from './docs-parity.test.ts';
 import { scriptHelperTests } from './script-helpers.test.ts';
 import { llmsArtifactTests } from './llms-artifacts.test.ts';
+import { buildIdentityTests } from './build-identity.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -12,6 +13,7 @@ const testCases = [
   ...docsParityTests,
   ...scriptHelperTests,
   ...llmsArtifactTests,
+  ...buildIdentityTests,
 ];
 
 let failures = 0;
