@@ -1,8 +1,9 @@
 import { Icon } from '@iconify/react';
 import { button as MotionButton } from 'framer-motion/m';
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 
 import { useCommandPalette } from '../providers/CommandPaletteProvider';
+import { ICON_BUTTON_STYLE, useIconButtonMotion } from '../hooks/useIconButtonMotion';
 import { useTheme } from '../providers/useTheme';
 
 type SettingsMenuProps = {
@@ -15,23 +16,9 @@ const SettingsMenu = React.memo(({ className = '' }: SettingsMenuProps) => {
   const { openCommandPalette } = useCommandPalette();
   const { prefersReducedMotion } = useTheme();
 
-  const buttonAnimations = useMemo(() => {
-    if (prefersReducedMotion) {
-      return {};
-    }
+  const buttonAnimations = useIconButtonMotion(prefersReducedMotion);
 
-    return {
-      whileHover: { scale: 1.1 },
-      whileTap: { scale: 0.95 },
-    };
-  }, [prefersReducedMotion]);
-
-  const buttonStyle = useMemo(
-    () => ({
-      color: 'var(--papers-text-color)',
-    }),
-    []
-  );
+  const buttonStyle = ICON_BUTTON_STYLE;
 
   const handleOpenPreferences = useCallback(() => {
     openCommandPalette();

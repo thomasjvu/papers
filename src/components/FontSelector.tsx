@@ -2,6 +2,7 @@ import { Icon } from '@iconify/react';
 import { button as MotionButton } from 'framer-motion/m';
 import React, { useCallback, useMemo } from 'react';
 
+import { ICON_BUTTON_STYLE, useIconButtonMotion } from '../hooks/useIconButtonMotion';
 import { useTheme } from '../providers/useTheme';
 
 type FontSelectorProps = {
@@ -19,23 +20,9 @@ const FONT_OPTIONS: { value: FontFamily; label: string; icon: string }[] = [
 const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.ReactElement => {
   const { fontFamily, setFontFamily, prefersReducedMotion } = useTheme();
 
-  const buttonAnimations = useMemo(() => {
-    if (prefersReducedMotion) {
-      return {};
-    }
+  const buttonAnimations = useIconButtonMotion(prefersReducedMotion);
 
-    return {
-      whileHover: { scale: 1.1 },
-      whileTap: { scale: 0.95 },
-    };
-  }, [prefersReducedMotion]);
-
-  const buttonStyle = useMemo(
-    () => ({
-      color: 'var(--papers-text-color)',
-    }),
-    []
-  );
+  const buttonStyle = ICON_BUTTON_STYLE;
 
   const currentIndex = FONT_OPTIONS.findIndex((option) => option.value === fontFamily);
   const safeIndex = currentIndex === -1 ? 0 : currentIndex;
@@ -61,39 +48,25 @@ const FontSelector = React.memo(({ className = '' }: FontSelectorProps): React.R
   const buttonLabel = currentFont.label.toLowerCase();
   const ariaLabel = `Current font: ${currentFont.label}. Click to switch to ${nextFont.label}`;
   const title = `Switch font to ${nextFont.label}`;
+  const ButtonComponent = prefersReducedMotion ? 'button' : MotionButton;
+  const buttonProps = prefersReducedMotion ? {} : buttonAnimations;
 
   return (
     <div className={className}>
-      {prefersReducedMotion ? (
-        <button
-          onClick={handleFontCycle}
-          className="flex items-center gap-2 rounded-full p-2"
-          style={buttonStyle}
-          aria-label={ariaLabel}
-          title={title}
-          type="button"
-        >
-          <Icon icon={currentFont.icon} className="h-5 w-5" aria-hidden="true" />
-          <span className="text-2xs" style={{ fontFamily: currentFontStyle }}>
-            {buttonLabel}
-          </span>
-        </button>
-      ) : (
-        <MotionButton
-          onClick={handleFontCycle}
-          className="flex items-center gap-2 rounded-full p-2"
-          style={buttonStyle}
-          {...buttonAnimations}
-          aria-label={ariaLabel}
-          title={title}
-          type="button"
-        >
-          <Icon icon={currentFont.icon} className="h-5 w-5" aria-hidden="true" />
-          <span className="text-2xs" style={{ fontFamily: currentFontStyle }}>
-            {buttonLabel}
-          </span>
-        </MotionButton>
-      )}
+      <ButtonComponent
+        onClick={handleFontCycle}
+        className="flex items-center gap-2 rounded-full p-2"
+        style={buttonStyle}
+        {...buttonProps}
+        aria-label={ariaLabel}
+        title={title}
+        type="button"
+      >
+        <Icon icon={currentFont.icon} className="h-5 w-5" aria-hidden="true" />
+        <span className="text-2xs" style={{ fontFamily: currentFontStyle }}>
+          {buttonLabel}
+        </span>
+      </ButtonComponent>
     </div>
   );
 });
