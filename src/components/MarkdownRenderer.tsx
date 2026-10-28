@@ -50,20 +50,26 @@ function readMermaidChart(element: Element): string | null {
   }
 }
 
+function isElementNode(node: ChildNode): node is Element {
+  return node.nodeType === Node.ELEMENT_NODE;
+}
+
+/** Text nodes render as their text; comments and other non-element nodes render nothing. */
+function renderNonElementNode(node: ChildNode): string | null {
+  return node.nodeType === Node.TEXT_NODE ? node.textContent : null;
+}
+
 /**
  * Convert sanitized MDX HTML to React. Code blocks (at any depth, including inside
  * callouts and tabs), Mermaid placeholders, and `<Tabs>` become components; every
  * other subtree stays static HTML so math hydration can still typeset it.
  */
 function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
-  }
-  if (node.nodeType !== Node.ELEMENT_NODE) {
-    return null;
+  if (!isElementNode(node)) {
+    return renderNonElementNode(node);
   }
 
-  const element = node as Element;
+  const element = node;
   const tagName = element.tagName.toLowerCase();
 
   const codeSnippet = readHtmlCodeBlock(element);
@@ -361,15 +367,11 @@ function renderNodes(
 }
 
 function renderNode(node: ChildNode, key: string, context: RenderContext): React.ReactNode | null {
-  if (node.nodeType === Node.TEXT_NODE) {
-    return node.textContent;
+  if (!isElementNode(node)) {
+    return renderNonElementNode(node);
   }
 
-  if (node.nodeType !== Node.ELEMENT_NODE) {
-    return null;
-  }
-
-  const element = node as Element;
+  const element = node;
   const tagName = element.tagName.toLowerCase();
 
   if (tagName === 'div' && element.classList.contains('md-tabs')) {

@@ -121,23 +121,44 @@ function CodeSample({ label, value }: { label: string; value: string }) {
   );
 }
 
+function OpenApiBreadcrumbs({
+  artifactLabel,
+  overviewPath,
+  separator,
+  current,
+}: {
+  artifactLabel: string;
+  overviewPath: string;
+  separator: string;
+  current: string;
+}) {
+  return (
+    <nav
+      className="mb-5 text-2xs"
+      style={{ color: 'var(--muted-color)' }}
+      aria-label="API breadcrumbs"
+    >
+      <Link to={overviewPath} className="hover:underline">
+        {artifactLabel}
+      </Link>
+      <span aria-hidden="true">{separator}</span>
+      <span>{current}</span>
+    </nav>
+  );
+}
+
 export function OpenApiOperation({ artifact, operation, overviewPath }: OpenApiOperationProps) {
   return (
     <article
       className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6"
       aria-labelledby="openapi-operation-title"
     >
-      <nav
-        className="mb-5 text-2xs"
-        style={{ color: 'var(--muted-color)' }}
-        aria-label="API breadcrumbs"
-      >
-        <Link to={overviewPath} className="hover:underline">
-          {artifact.label}
-        </Link>
-        <span aria-hidden="true"> / </span>
-        <span>{operation.tags[0] || 'Untagged'}</span>
-      </nav>
+      <OpenApiBreadcrumbs
+        artifactLabel={artifact.label}
+        overviewPath={overviewPath}
+        separator=" / "
+        current={operation.tags[0] || 'Untagged'}
+      />
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -334,17 +355,12 @@ export function OpenApiModel({ artifact, model, overviewPath }: OpenApiModelProp
       className="mx-auto w-full max-w-5xl px-4 py-8 md:px-6"
       aria-labelledby="openapi-model-title"
     >
-      <nav
-        className="mb-5 text-2xs"
-        style={{ color: 'var(--muted-color)' }}
-        aria-label="API breadcrumbs"
-      >
-        <Link to={overviewPath} className="hover:underline">
-          {artifact.label}
-        </Link>
-        <span aria-hidden="true"> / Models / </span>
-        <span>{model.name}</span>
-      </nav>
+      <OpenApiBreadcrumbs
+        artifactLabel={artifact.label}
+        overviewPath={overviewPath}
+        separator=" / Models / "
+        current={model.name}
+      />
       <h1
         id="openapi-model-title"
         className="text-2xl font-semibold"
