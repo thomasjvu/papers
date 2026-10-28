@@ -7,6 +7,7 @@ import { llmsArtifactTests } from './llms-artifacts.test.ts';
 import { buildIdentityTests } from './build-identity.test.ts';
 import { routeModelTests } from './route-model.test.ts';
 import { seoRouteTests } from './seo-routes.test.ts';
+import { designBookTests } from './design-book.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -18,6 +19,7 @@ const testCases = [
   ...buildIdentityTests,
   ...routeModelTests,
   ...seoRouteTests,
+  ...designBookTests,
 ];
 
 let failures = 0;

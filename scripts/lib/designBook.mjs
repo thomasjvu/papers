@@ -17,85 +17,87 @@ function splitFrontmatter(content) {
   };
 }
 
+function isQuoted(value) {
+  return ['"', "'"].some((quote) => value.startsWith(quote) && value.endsWith(quote));
+}
+
+const BOOLEAN_SCALARS = { true: true, false: false };
+
 function parseScalar(value) {
   const trimmed = value.trim();
   if (!trimmed) {
     return '';
   }
-  if (
-    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
-    (trimmed.startsWith("'") && trimmed.endsWith("'"))
-  ) {
+  if (isQuoted(trimmed)) {
     return trimmed.slice(1, -1);
   }
   if (/^-?\d+(\.\d+)?$/.test(trimmed)) {
     return Number(trimmed);
   }
-  if (trimmed === 'true') {
-    return true;
-  }
-  if (trimmed === 'false') {
-    return false;
-  }
-  return trimmed;
+  return Object.hasOwn(BOOLEAN_SCALARS, trimmed) ? BOOLEAN_SCALARS[trimmed] : trimmed;
 }
 
+function splitKeyValue(text) {
+  const colon = text.indexOf(':');
+  if (colon === -1) {
+    return null;
+  }
+  return { key: text.slice(0, colon).trim(), rawValue: text.slice(colon + 1).trim() };
+}
+
+function parseListItem(itemValue) {
+  const pair = itemValue.includes(':') ? splitKeyValue(itemValue) : null;
+  return pair ? { [pair.key]: parseScalar(pair.rawValue) } : parseScalar(itemValue);
+}
+
+/**
+ * Appends a `- item` line. Note: items land on `frame.value[frame.key]`, i.e.
+ * nested one level under their own key (`a: {a: [...]}`); pinned by tests.
+ */
+function appendListItem(frame, itemValue) {
+  const { key, value: parent } = frame;
+  if (!key) {
+    return;
+  }
+  if (!Array.isArray(parent[key])) {
+    parent[key] = [];
+  }
+  parent[key].push(parseListItem(itemValue));
+}
+
+/** Minimal YAML subset: nested maps by indentation, scalars, and `- ` lists. */
 function parseYamlBlock(raw) {
   const root = {};
   const stack = [{ indent: -1, value: root }];
-  const lines = raw.split(/\r?\n/);
 
-  for (const line of lines) {
-    if (!line.trim() || line.trim().startsWith('#')) {
+  for (const line of raw.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith('#')) {
       continue;
     }
 
     const indent = line.search(/\S/);
-    const trimmed = line.trim();
-
     while (stack.length > 1 && indent <= stack[stack.length - 1].indent) {
       stack.pop();
     }
 
-    const parent = stack[stack.length - 1].value;
-
+    const frame = stack[stack.length - 1];
     if (trimmed.startsWith('- ')) {
-      const itemValue = trimmed.slice(2).trim();
-      const key = stack[stack.length - 1].key;
-      if (!key) {
-        continue;
-      }
-      if (!Array.isArray(parent[key])) {
-        parent[key] = [];
-      }
-      if (itemValue.includes(':')) {
-        const obj = {};
-        const colon = itemValue.indexOf(':');
-        const itemKey = itemValue.slice(0, colon).trim();
-        const itemRaw = itemValue.slice(colon + 1).trim();
-        obj[itemKey] = parseScalar(itemRaw);
-        parent[key].push(obj);
-      } else {
-        parent[key].push(parseScalar(itemValue));
-      }
+      appendListItem(frame, trimmed.slice(2).trim());
       continue;
     }
 
-    const colon = trimmed.indexOf(':');
-    if (colon === -1) {
+    const pair = splitKeyValue(trimmed);
+    if (!pair) {
       continue;
     }
 
-    const key = trimmed.slice(0, colon).trim();
-    const rawValue = trimmed.slice(colon + 1).trim();
-
-    if (!rawValue) {
-      parent[key] = {};
-      stack.push({ indent, key, value: parent[key] });
-      continue;
+    if (pair.rawValue) {
+      frame.value[pair.key] = parseScalar(pair.rawValue);
+    } else {
+      frame.value[pair.key] = {};
+      stack.push({ indent, key: pair.key, value: frame.value[pair.key] });
     }
-
-    parent[key] = parseScalar(rawValue);
   }
 
   return root;
