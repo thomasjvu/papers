@@ -9,6 +9,7 @@ import { routeModelTests } from './route-model.test.ts';
 import { seoRouteTests } from './seo-routes.test.ts';
 import { designBookTests } from './design-book.test.ts';
 import { openapiLabelTests } from './openapi-labels.test.ts';
+import { scriptLibTests } from './script-libs.test.ts';
 
 const testCases = [
   ...architectureTests,
@@ -22,6 +23,7 @@ const testCases = [
   ...seoRouteTests,
   ...designBookTests,
   ...openapiLabelTests,
+  ...scriptLibTests,
 ];
 
 let failures = 0;
