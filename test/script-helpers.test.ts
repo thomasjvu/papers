@@ -17,6 +17,8 @@ import { resolveSiteMetadata } from '../scripts/lib/siteMetadata.mjs';
 import { createCollectionDocumentPaths } from '../scripts/generate-docs.mjs';
 import { validateDocumentationContent } from '../scripts/lib/contentValidation.mjs';
 import { disabledFeatureConfigs } from './helpers/validationFixtures.ts';
+import { getCollectionRouteSlug } from '../shared/docsRouting.js';
+import { createHeadingId } from '../src/utils/headingIds.ts';
 
 type TestCase = { name: string; run: () => void | Promise<void> };
 
@@ -181,6 +183,32 @@ export const scriptHelperTests: TestCase[] = [
       assert.equal(getLogs(), 'out err Error: spawn failed');
       child.stdout.emit('data', 'x'.repeat(5000));
       assert.equal(getLogs(), 'x'.repeat(4000));
+    },
+  },
+  {
+    name: 'getCollectionRouteSlug strips the collection prefix and returns null outside it',
+    run: () => {
+      assert.equal(getCollectionRouteSlug({ id: 'docs' }, '/docs/guide/intro'), 'guide/intro');
+      assert.equal(getCollectionRouteSlug({ id: 'docs' }, '/docs'), '');
+      assert.equal(getCollectionRouteSlug({ id: 'docs' }, '/'), null);
+      assert.equal(
+        getCollectionRouteSlug({ id: 'api', routePrefix: '/api///' }, '/api/v1/start'),
+        'v1/start'
+      );
+      // A bare '/' prefix falls back to '/docs' (existing behaviour, pinned here).
+      assert.equal(getCollectionRouteSlug({ id: 'root', routePrefix: '/' }, '/a/b'), null);
+      assert.equal(getCollectionRouteSlug(undefined, '/docs/x'), 'x');
+    },
+  },
+  {
+    name: 'createHeadingId slugifies text and numbers repeated headings',
+    run: () => {
+      const counts = new Map<string, number>();
+      assert.equal(createHeadingId('Hello, World!', counts), 'hello-world');
+      assert.equal(createHeadingId('hello world', counts), 'hello-world-2');
+      assert.equal(createHeadingId('Hello World', counts), 'hello-world-3');
+      assert.equal(createHeadingId('!!!', counts), 'section');
+      assert.equal(createHeadingId('', counts), 'section-2');
     },
   },
 ];
