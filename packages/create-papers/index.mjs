@@ -384,6 +384,7 @@ async function main() {
         ? manifest.template.archive
         : `https://codeload.github.com/${options.repo}/tar.gz/${revision}`;
     await scaffoldFromGitHub(targetDir, options.repo, revision, archiveUrl);
+    await writeUpgradeLock(targetDir, `https://github.com/${options.repo}.git`, revision);
   }
 
   console.log(`\nCreated papers site at ${targetDir}`);
@@ -400,6 +401,25 @@ async function main() {
   }
   console.log('  npm run dev');
   console.log('\nCustomize shared/documentation-config.js and src/docs/content/ first.');
+}
+
+// Records the Papers commit the new site was created from, so
+// `node scripts/papers-upgrade.mjs` can apply later releases with a 3-way merge.
+async function writeUpgradeLock(targetDir, repository, revision) {
+  let version = null;
+  try {
+    version = JSON.parse(await readFile(join(targetDir, 'package.json'), 'utf8')).version || null;
+  } catch {
+    version = null;
+  }
+  const lock = {
+    repository,
+    version,
+    ref: version ? `v${version}` : revision,
+    commit: revision,
+    exclude: [],
+  };
+  await writeFile(join(targetDir, 'papers.lock.json'), `${JSON.stringify(lock, null, 2)}\n`);
 }
 
 const invokedScript = process.argv[1] ? realpathSync(process.argv[1]) : '';
