@@ -1,3 +1,4 @@
+import { detectChainFromAddress } from './markdownElements';
 import logger from './logger';
 
 const processorLogger = logger;
@@ -25,18 +26,6 @@ export const processLinks = (element: HTMLElement): void => {
 
     linkElement.addEventListener('keydown', handleKeydown);
   });
-};
-
-const detectChainFromAddress = (address: string): string => {
-  if (/^(1|3|bc1)[a-zA-Z0-9]{25,62}$/.test(address)) {
-    return 'btc';
-  }
-
-  if (/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address)) {
-    return 'solana';
-  }
-
-  return 'eth';
 };
 
 function createInlineIcon(icon: 'copy' | 'check', width: string = '14', height: string = '14') {
