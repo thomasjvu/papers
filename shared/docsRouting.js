@@ -354,6 +354,22 @@ export function buildCanonicalCollectionPath(collection, path = '', options = {}
   });
 }
 
+/**
+ * Short hosted-asset routes (e.g. `/llms`) that redirect to their canonical docs page.
+ * A route whose canonical page already lives at the same path (root mode without
+ * version/locale prefixes) is skipped: redirecting to itself would loop and render nothing.
+ * @returns {{ docPath: string, from: string, to: string }[]}
+ */
+export function getHostedAssetRedirects(collection, docPaths = ['llms'], options = {}) {
+  return docPaths
+    .map((docPath) => ({
+      docPath,
+      from: `/${normalizeDocPath(docPath)}`,
+      to: buildCanonicalCollectionPath(collection, docPath, options),
+    }))
+    .filter(({ from, to }) => from !== to);
+}
+
 export function buildCollectionRouteVariants(collection, path = '', options = {}) {
   const normalizedPath = normalizeDocPath(path);
   const routeOptions = getCollectionRoutingOptions(collection, options);
