@@ -208,6 +208,17 @@ declare module '*/shared/docsRouting.js' {
     }
   ): string;
 
+  export function getHostedAssetRedirects<DocPath extends string = 'llms'>(
+    collection?: ContentCollection,
+    docPaths?: DocPath[],
+    options?: {
+      version?: string | null;
+      locale?: string | null;
+      versionConfig?: unknown;
+      i18nConfig?: unknown;
+    }
+  ): { docPath: DocPath; from: string; to: string }[];
+
   export function buildCollectionRouteVariants(
     collection: ContentCollection,
     path?: string,

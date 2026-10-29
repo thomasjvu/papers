@@ -7,7 +7,11 @@ import {
   stripDocsBasePath,
   withDocsBasePath,
 } from '../shared/docsBasePath.js';
-import { buildCollectionRoutePath, getCollectionRouteSlug } from '../shared/docsRouting.js';
+import {
+  buildCollectionRoutePath,
+  getCollectionRouteSlug,
+  getHostedAssetRedirects,
+} from '../shared/docsRouting.js';
 
 const updateGolden = process.env.UPDATE_ROUTE_MODEL_GOLDEN === '1';
 
@@ -107,6 +111,32 @@ export const routeModelTests = [
         designBookConfig: { enabled: true, route: '/design' },
       });
       assert.equal(withDesignBook.routeMap.has('/design'), true);
+    },
+  },
+  {
+    name: 'hosted-asset redirects skip /llms in root mode instead of looping',
+    run: () => {
+      const plain = {
+        versionConfig: { enabled: false, versions: [] },
+        i18nConfig: { enabled: false, locales: [] },
+      };
+      assert.deepEqual(
+        getHostedAssetRedirects({ id: 'docs', routePrefix: '/docs' }, ['llms'], plain),
+        [{ docPath: 'llms', from: '/llms', to: '/docs/llms' }]
+      );
+      // Root mode: the canonical page is /llms itself, so a redirect would navigate to itself.
+      assert.deepEqual(
+        getHostedAssetRedirects({ id: 'docs', routePrefix: '/' }, ['llms'], plain),
+        []
+      );
+      // Root mode with a version prefix still needs the short /llms redirect.
+      assert.deepEqual(
+        getHostedAssetRedirects({ id: 'docs', routePrefix: '/' }, ['llms'], {
+          ...plain,
+          versionConfig,
+        }),
+        [{ docPath: 'llms', from: '/llms', to: '/2.0/llms' }]
+      );
     },
   },
   {

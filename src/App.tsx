@@ -9,9 +9,17 @@ import { designBookConfig, homepageConfig, openapiConfig } from '../shared/docum
 import { contentCollections, getCollectionRoutePrefix } from '../shared/content-collections.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
 import { getOpenApiRoutePrefix } from './lib/openapi';
-import { buildCollectionLandingPath, buildDocsLandingPath } from '../shared/docsRouting.js';
+import {
+  buildCollectionLandingPath,
+  buildDocsLandingPath,
+  getHostedAssetRedirects,
+} from '../shared/docsRouting.js';
 
 const DocsPage = lazy(() => import('./pages/DocsPage'));
+// In root mode /llms is the LLMs.txt page itself, so it gets no redirect route.
+const hostedAssetRedirects = getHostedAssetRedirects(
+  contentCollections.find((collection) => collection.id === 'docs')
+);
 const OpenApiPage = lazy(() => import('./pages/OpenApiPage'));
 const DesignBookPage = lazy(() => import('./pages/DesignBookPage'));
 
@@ -98,7 +106,13 @@ export default function App() {
               />
             );
           })}
-          <Route path="/llms" element={<HostedAssetRedirectPage docPath="llms" />} />
+          {hostedAssetRedirects.map(({ docPath, from }) => (
+            <Route
+              key={`hosted-asset-${docPath}`}
+              path={from}
+              element={<HostedAssetRedirectPage docPath={docPath} />}
+            />
+          ))}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </CommandPaletteProvider>
