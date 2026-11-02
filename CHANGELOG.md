@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## [0.3.0](https://github.com/thomasjvu/papers/compare/v0.2.0...v0.3.0) (2026-11-02)
 
 ### Changed (breaking for custom tooling)
 
@@ -24,32 +24,28 @@
 - Demo hosting is optional: validation still runs without a configured host,
   while deployment skips until an owned host and valid credentials are supplied.
 
-## [0.3.0](https://github.com/thomasjvu/papers/compare/v0.2.0...v0.3.0) (2026-11-02)
-
-
 ### ⚠ BREAKING CHANGES
 
-* custom lint plugins must support ESLint 10 and KaTeX uses the maintained 0.19 line. The 0.3.0 migration aligns obsolete KaTeX overrides with the direct dependency.
+- custom lint plugins must support ESLint 10 and KaTeX uses the maintained 0.19 line. The 0.3.0 migration aligns obsolete KaTeX overrides with the direct dependency.
 
 ### Features
 
-* configurable docs base path ([50d9747](https://github.com/thomasjvu/papers/commit/50d974755c5f2772e4bbd56b54e8e37baea8dbf5))
-* configurable docs base path (docsRoutingConfig.basePath) ([9849a75](https://github.com/thomasjvu/papers/commit/9849a7505e427ba75a3b4b7fdf98cf7ec407c601))
-* harden Papers rendering, navigation and release tooling ([33444e2](https://github.com/thomasjvu/papers/commit/33444e2ce163ec2af2683c59a35990a834b08693))
-
+- configurable docs base path ([50d9747](https://github.com/thomasjvu/papers/commit/50d974755c5f2772e4bbd56b54e8e37baea8dbf5))
+- configurable docs base path (docsRoutingConfig.basePath) ([9849a75](https://github.com/thomasjvu/papers/commit/9849a7505e427ba75a3b4b7fdf98cf7ec407c601))
+- harden Papers rendering, navigation and release tooling ([33444e2](https://github.com/thomasjvu/papers/commit/33444e2ce163ec2af2683c59a35990a834b08693))
 
 ### Bug Fixes
 
-* **build:** find Scalar in hoisted workspaces; pin it to ~1.66 ([c1a8f40](https://github.com/thomasjvu/papers/commit/c1a8f40434da2ea32cba1d7fc12ed927de16e895))
-* **content:** allow links to the design book route ([55c167d](https://github.com/thomasjvu/papers/commit/55c167d91222d698b2150a387631f5fb2568e5c2))
-* **content:** allow links to the design book route ([4a321ae](https://github.com/thomasjvu/papers/commit/4a321aef9c66336e6a1698b9a0d62e9202e91b77))
-* skip the /llms redirect when it would loop in root mode ([e8d4ea3](https://github.com/thomasjvu/papers/commit/e8d4ea3a9bc979155e47faa37c70cce0f00cb44e))
-* skip the /llms redirect when it would loop in root mode ([6137907](https://github.com/thomasjvu/papers/commit/6137907af36c72720253404f58b7775525232e4f))
-* **upgrade:** always key-merge package.json ([a065146](https://github.com/thomasjvu/papers/commit/a065146f764729f0b8f14a2604b54675637ed4f5))
-* **upgrade:** never downgrade a site; gate npm publish ([c36ba24](https://github.com/thomasjvu/papers/commit/c36ba2488ce23a6378ef0ec382f2e14845126934))
-* **upgrade:** no downgrades, keep site package.json, gate npm publish ([f4366a4](https://github.com/thomasjvu/papers/commit/f4366a4df1c8a269082c9c2899dd9e401d5a0ea9))
-* **upgrade:** src/data, release-please files and site-safe tests ([f5de2f1](https://github.com/thomasjvu/papers/commit/f5de2f1d9a71d8f8ea70e1d4b34b99fe63d897dc))
-* **upgrade:** upgrade src/data and skip release-please files ([6e30239](https://github.com/thomasjvu/papers/commit/6e302393e8f72720dce5d99ca80e2dad3e66a361))
+- **build:** find Scalar in hoisted workspaces; pin it to ~1.66 ([c1a8f40](https://github.com/thomasjvu/papers/commit/c1a8f40434da2ea32cba1d7fc12ed927de16e895))
+- **content:** allow links to the design book route ([55c167d](https://github.com/thomasjvu/papers/commit/55c167d91222d698b2150a387631f5fb2568e5c2))
+- **content:** allow links to the design book route ([4a321ae](https://github.com/thomasjvu/papers/commit/4a321aef9c66336e6a1698b9a0d62e9202e91b77))
+- skip the /llms redirect when it would loop in root mode ([e8d4ea3](https://github.com/thomasjvu/papers/commit/e8d4ea3a9bc979155e47faa37c70cce0f00cb44e))
+- skip the /llms redirect when it would loop in root mode ([6137907](https://github.com/thomasjvu/papers/commit/6137907af36c72720253404f58b7775525232e4f))
+- **upgrade:** always key-merge package.json ([a065146](https://github.com/thomasjvu/papers/commit/a065146f764729f0b8f14a2604b54675637ed4f5))
+- **upgrade:** never downgrade a site; gate npm publish ([c36ba24](https://github.com/thomasjvu/papers/commit/c36ba2488ce23a6378ef0ec382f2e14845126934))
+- **upgrade:** no downgrades, keep site package.json, gate npm publish ([f4366a4](https://github.com/thomasjvu/papers/commit/f4366a4df1c8a269082c9c2899dd9e401d5a0ea9))
+- **upgrade:** src/data, release-please files and site-safe tests ([f5de2f1](https://github.com/thomasjvu/papers/commit/f5de2f1d9a71d8f8ea70e1d4b34b99fe63d897dc))
+- **upgrade:** upgrade src/data and skip release-please files ([6e30239](https://github.com/thomasjvu/papers/commit/6e302393e8f72720dce5d99ca80e2dad3e66a361))
 
 ## 0.2.0 - 2026-10-28
 
