@@ -82,6 +82,11 @@ Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSO
 
 Enforced by `src/framework/lazyFeatureBoundaries.ts` and architecture tests.
 
+## Runtime state
+
+See [runtime state transitions](docs/runtime-state.md) for component lifecycles,
+request cancellation, and document cache invalidation.
+
 ## Instance vs framework
 
 - **Framework (this repo):** routing, chrome, OpenAPI viewer, generators, sample template docs.

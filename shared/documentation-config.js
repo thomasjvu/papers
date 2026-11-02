@@ -76,10 +76,11 @@ export const i18nConfig = {
 export const uiStringsConfig = {};
 
 /**
- * Site chrome — language switcher placement + sidebar skin.
+ * Site chrome — language switcher placement, sidebar skin, and menu typography.
  * @type {{
  *   languageSwitcher: { enabled: 'auto' | boolean, placement: Array<'sidebar' | 'command-palette'> },
  *   sidebarVariant: 'tree' | 'groups',
+ *   navigationFont?: 'mono' | 'body',
  * }}
  */
 export const chromeConfig = {
@@ -89,6 +90,8 @@ export const chromeConfig = {
   },
   /** groups = section headers + page list; tree = classic file tree */
   sidebarVariant: 'tree',
+  /** Optional site-owned menu font; omit to keep each sidebar's original typography. */
+  // navigationFont: 'mono',
 };
 
 /**

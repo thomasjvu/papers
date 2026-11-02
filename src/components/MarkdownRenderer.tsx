@@ -565,10 +565,14 @@ function MarkdownWalletAddress({
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [processedData, setProcessedData] = useState<ProcessedMarkdownData | null>(null);
+  const [state, setState] = useState<{
+    status: 'empty' | 'processing' | 'ready' | 'failed';
+    data: ProcessedMarkdownData | null;
+  }>({ status: 'processing', data: null });
+  const processedData = state.data;
+  const isProcessing = state.status === 'processing';
   const currentDocsSlug = location.pathname.replace(/^\/+|\/+$/g, '');
   const routeContext = useMemo(() => parseDocsRoutePath(currentDocsSlug), [currentDocsSlug]);
-  const [isProcessing, setIsProcessing] = useState(true);
   const hasRenderedContentRef = useRef(false);
 
   useEffect(() => {
@@ -576,8 +580,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
 
     if (!content) {
       hasRenderedContentRef.current = false;
-      setProcessedData(null);
-      setIsProcessing(false);
+      setState({ status: 'empty', data: null });
       return () => {
         isMounted = false;
       };
@@ -585,26 +588,27 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
 
     const processContent = async () => {
       try {
-        setIsProcessing(true);
+        setState((previous) => ({ status: 'processing', data: previous.data }));
         componentLogger.debug('Processing markdown content');
 
         const result = await processMarkdown(content);
 
         if (isMounted) {
           hasRenderedContentRef.current = true;
-          setProcessedData(result);
-          setIsProcessing(false);
+          setState({ status: 'ready', data: result });
         }
       } catch (error) {
         componentLogger.error('Error processing markdown:', error);
         if (isMounted) {
           hasRenderedContentRef.current = true;
-          setProcessedData({
-            html: '<p>Error loading content. Please try again.</p>',
-            codeBlocks: new Map(),
-            mermaidBlocks: new Map(),
+          setState({
+            status: 'failed',
+            data: {
+              html: '<p>Error loading content. Please try again.</p>',
+              codeBlocks: new Map(),
+              mermaidBlocks: new Map(),
+            },
           });
-          setIsProcessing(false);
         }
       }
     };
@@ -645,7 +649,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ content, path }) =>
 
   if (!processedData && isProcessing) {
     return (
-      <MotionDiv initial={{ opacity: 0.9 }} animate={{ opacity: 1 }} className="w-full">
+      <MotionDiv
+        initial={{ opacity: 0.9 }}
+        animate={{ opacity: 1 }}
+        className="doc-render-loading w-full"
+        aria-busy="true"
+      >
         <div className="animate-pulse space-y-4">
           <div className="ui-skeleton-strong h-8 w-3/4 rounded-sm"></div>
           <div className="ui-skeleton h-4 w-full rounded-sm"></div>

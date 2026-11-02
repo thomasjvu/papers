@@ -63,3 +63,37 @@ for docs changes. Keep unrelated refactors out of a focused pull request.
 
 Please do not include exploit details in a public issue. Follow
 [SECURITY.md](SECURITY.md) for private reports.
+
+## Verification tooling
+
+Use Node 24 or newer. `npm test` transpiles test imports with the existing
+TypeScript dependency and Node synchronous module hooks. The historical
+`test/register-ts-node.mjs` command path remains compatible; ts-node is no longer
+required. Type checking is still a separate required gate.
+
+With npm install-script policy enabled, `npm ci` uses the committed,
+version-pinned approvals for esbuild
+and vue-demi. Optional fsevents native build scripts are denied; its shipped
+binary or the file watcher's fallback is used. Review changed scripts before
+updating these approvals. Do not approve every dependency's install scripts.
+
+The dependency overrides keep KaTeX on the supported direct version and select
+patched minimatch/glob releases for tooling that has not updated its ranges.
+Verify lint, coverage, the mutation runner's dry run, and the browser suite when
+changing those overrides. `npm run release:check:papers` requires a clean full
+dependency audit; consumer release checks retain their runtime audit.
+
+The Vite build step has a 4 GiB heap ceiling for the optional API viewer's module
+graph. This avoids repeated garbage collection near Node's default heap limit;
+it does not reserve that memory or change the browser bundle budget. The build
+helper resolves Vite normally so workspace-hoisted installations also work.
+
+Production JavaScript chunks have a hard 600 kB budget. The single generated
+Mermaid parser module has an explicit 700 kB budget because it cannot be split at
+module boundaries. Violations fail the build. `dist/bundle-budget.json` records
+each emitted chunk's measured bytes and limit. Keep the API viewer and its CSS
+behind the interactive-viewer action; do not make them initial-shell imports.
+
+The adjacent-page footer stays hidden while the initial Markdown skeleton is
+present. Keep it in normal flow once content is ready; showing it at the
+skeleton's temporary height creates a large layout shift when the article grows.

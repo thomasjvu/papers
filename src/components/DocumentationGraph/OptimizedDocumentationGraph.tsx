@@ -48,13 +48,18 @@ export default function OptimizedDocumentationGraph({
   // Zoom and pan state
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const [drag, setDrag] = useState<
+    | { status: 'idle' }
+    | { status: 'dragging'; start: { x: number; y: number }; offset: { x: number; y: number } }
+  >({ status: 'idle' });
 
   // Interaction state
-  const [isNavigating, setIsNavigating] = useState(false);
-  const [pendingSwitchNodeId, setPendingSwitchNodeId] = useState<string | undefined>(undefined);
+  const [interaction, setInteraction] = useState<
+    { status: 'idle' | 'navigating' } | { status: 'selected'; nodeId: string }
+  >({ status: 'idle' });
+  const isNavigating = interaction.status === 'navigating';
+  const pendingSwitchNodeId = interaction.status === 'selected' ? interaction.nodeId : undefined;
+  const navigationTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const MIN_SCALE = 0.5;
   const MAX_SCALE = 2;
   const PAN_LIMIT = 200;
@@ -212,9 +217,7 @@ export default function OptimizedDocumentationGraph({
     (e: React.MouseEvent<SVGSVGElement>) => {
       if ((e.target as SVGElement).tagName !== 'svg') return;
 
-      setIsDragging(true);
-      setDragStart({ x: e.clientX, y: e.clientY });
-      setDragOffset({ x: translate.x, y: translate.y });
+      setDrag({ status: 'dragging', start: { x: e.clientX, y: e.clientY }, offset: translate });
       e.currentTarget.style.cursor = 'grabbing';
     },
     [translate]
@@ -222,13 +225,13 @@ export default function OptimizedDocumentationGraph({
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<SVGSVGElement>) => {
-      if (!isDragging) return;
+      if (drag.status !== 'dragging') return;
 
-      const deltaX = e.clientX - dragStart.x;
-      const deltaY = e.clientY - dragStart.y;
+      const deltaX = e.clientX - drag.start.x;
+      const deltaY = e.clientY - drag.start.y;
 
-      let newX = dragOffset.x + deltaX;
-      let newY = dragOffset.y + deltaY;
+      let newX = drag.offset.x + deltaX;
+      let newY = drag.offset.y + deltaY;
 
       const maxPan = PAN_LIMIT * scale;
       newX = Math.max(-maxPan, Math.min(maxPan, newX));
@@ -236,11 +239,11 @@ export default function OptimizedDocumentationGraph({
 
       setTranslate({ x: newX, y: newY });
     },
-    [isDragging, dragStart, dragOffset, scale]
+    [drag, scale]
   );
 
   const handleMouseUp = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
-    setIsDragging(false);
+    setDrag({ status: 'idle' });
     e.currentTarget.style.cursor = 'grab';
   }, []);
 
@@ -250,7 +253,7 @@ export default function OptimizedDocumentationGraph({
       if (isNavigating) return;
 
       setFocusedNodeId(node.id);
-      setPendingSwitchNodeId(node.id);
+      setInteraction({ status: 'selected', nodeId: node.id });
     },
     [isNavigating]
   );
@@ -259,12 +262,11 @@ export default function OptimizedDocumentationGraph({
     (node: GraphNodeType) => {
       if (isNavigating) return;
 
-      setIsNavigating(true);
-      setPendingSwitchNodeId(undefined);
+      setInteraction({ status: 'navigating' });
 
-      setTimeout(() => {
+      navigationTimer.current = setTimeout(() => {
         onNodeClick?.(node.path);
-        setIsNavigating(false);
+        setInteraction({ status: 'idle' });
       }, 100);
     },
     [onNodeClick, isNavigating]
@@ -320,9 +322,9 @@ export default function OptimizedDocumentationGraph({
     setSearchTerm('');
     setScale(1);
     setTranslate({ x: 0, y: 0 });
-    setIsDragging(false);
-    setIsNavigating(false);
-    setPendingSwitchNodeId(undefined);
+    setDrag({ status: 'idle' });
+    setInteraction({ status: 'idle' });
+    return () => clearTimeout(navigationTimer.current);
   }, [currentPath]);
 
   const isSidebarView = layoutMode === 'sidebar';
@@ -403,7 +405,7 @@ export default function OptimizedDocumentationGraph({
           viewBox={`${-translate.x / scale} ${-translate.y / scale} ${dimensions.width / scale} ${dimensions.height / scale}`}
           style={{
             backgroundColor: 'var(--card-color)',
-            cursor: isDragging ? 'grabbing' : 'grab',
+            cursor: drag.status === 'dragging' ? 'grabbing' : 'grab',
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}

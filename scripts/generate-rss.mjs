@@ -55,6 +55,6 @@ const xml = createRssFeedXml({
 });
 await writeFile(join(distDir, RSS_FEED_FILENAME), xml);
 if (!siteUrl) {
-  console.warn('VITE_SITE_URL is not set, so rss.xml uses relative links.');
+  console.log('RSS links are relative because this build has no configured site URL.');
 }
 console.log(`Wrote ${RSS_FEED_FILENAME} with ${items.length} item(s).`);

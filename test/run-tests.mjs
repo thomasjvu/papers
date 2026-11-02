@@ -1,3 +1,4 @@
+import { asyncCacheTests } from './async-cache.test.ts';
 import { existsSync } from 'node:fs';
 
 import { architectureTests } from './architecture.test.ts';
@@ -21,6 +22,7 @@ import { documentationPageViewTests } from './documentation-page-view.test.ts';
 import { papersUpgradeTests } from './papers-upgrade.test.ts';
 
 const testCases = [
+  ...asyncCacheTests,
   ...architectureTests,
   ...routePreloadTests,
   ...authoringFeatureTests,

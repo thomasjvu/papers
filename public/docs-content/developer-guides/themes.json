@@ -3,7 +3,7 @@
   "title": "Themes",
   "description": "papers ships with installable themes under themes/. Themes override color, typography, radius, and optional icon sets without forking the docs shell.",
   "frontmatter": {},
-  "content": "# Themes\n\npapers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.\n\n## Built-in themes\n\n| ID        | Name     | Notes                                         |\n| --------- | -------- | --------------------------------------------- |\n| `default` | Default  | Light/dark toggle enabled                     |\n| `gba`     | Game Boy | 1-bit green palette, square UI, pixelarticons |\n\n## Switch themes locally\n\n```sh\nnpm run papers:theme list\nnpm run papers:theme use gba\nnpm run resolve:theme\nnpm run dev\n```\n\nSet `VITE_PAPERS_THEME` in `.env.local` or your host build environment.\n\n## Create a theme\n\n1. Add `themes/<id>/theme.json` and `themes/<id>/tokens.css`.\n2. Register the theme in `themes/registry.json`.\n3. Run `npm run papers:theme use <id>` and verify `npm run build`.\n\nSee [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md) for the full contract.\n\n## Related files\n\n- `scripts/resolve-theme.mjs` — writes `src/theme-active.css` and generated manifest\n- `src/lib/papersTheme.ts` — runtime theme features (toggle visibility, default mode)\n- `src/globals.css` — structural tokens; themes override palette vars in `tokens.css`\n",
+  "content": "# Themes\n\npapers ships with installable themes under `themes/`. Themes override color, typography, radius, and optional icon sets without forking the docs shell.\n\n## Built-in themes\n\n| ID        | Name     | Notes                                         |\n| --------- | -------- | --------------------------------------------- |\n| `default` | Default  | Light/dark toggle enabled                     |\n| `gba`     | Game Boy | 1-bit green palette, square UI, pixelarticons |\n\n## Switch themes locally\n\n```sh\nnpm run papers:theme list\nnpm run papers:theme use gba\nnpm run resolve:theme\nnpm run dev\n```\n\nSet `VITE_PAPERS_THEME` in `.env.local` or your host build environment.\n\n## Create a theme\n\n1. Add `themes/<id>/theme.json` and `themes/<id>/tokens.css`.\n2. Register the theme in `themes/registry.json`.\n3. Run `npm run papers:theme use <id>` and verify `npm run build`.\n\nSee [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md) for the full contract.\n\n## Navigation typography\n\nUse `chromeConfig.navigationFont` to select `'mono'` or `'body'` for sidebar\nlinks and headings. The shell resolves `--navigation-font` from your theme's\n`--mono-font` or `--body-font`; reader content-font preferences do not change it.\nLeave the option unset to keep the original typography of each sidebar variant.\nSee [Navigation Font](../user-guide/configuration.md#navigation-font) for an example.\n\n## Sidebar surfaces\n\nSet sidebar tokens on `.docs-sidebar` to give navigation its own palette. The\npanel reads `--sidebar-bg-color` in both light and dark modes. Tree and grouped\nnavigation read the text, hover, and active tokens below. Icons follow the item\ntext color. Active items keep their selection colors while hovered.\n\n```css\n.docs-sidebar {\n  --sidebar-bg-color: #e8eef5;\n  --sidebar-text-color: #182330;\n  --sidebar-hover-bg-color: #d3deeb;\n  --sidebar-hover-text-color: #182330;\n  --sidebar-active-bg-color: #182330;\n  --sidebar-active-text-color: #ffffff;\n}\n\n.dark .docs-sidebar {\n  --sidebar-bg-color: #182330;\n  --sidebar-text-color: #e8eef5;\n  --sidebar-hover-bg-color: #293d52;\n  --sidebar-hover-text-color: #ffffff;\n  --sidebar-active-bg-color: #e8eef5;\n  --sidebar-active-text-color: #182330;\n}\n```\n\nThese tokens are optional. Without them the panel uses `--card-color`, and\nnavigation keeps its built-in colors. Put the rules in your theme's `tokens.css`;\nno component fork or `!important` override is needed.\n\nExisting sites receive the fix through `npx @thomasjvu/papers@latest upgrade`\nafter the release is published. The upgrader preserves site-owned theme rules\nand merges framework changes. Resolve any reported local component conflicts\nbefore building the site.\n\n## Code and table frames\n\nCode blocks draw one outer frame. The nested syntax-highlighter `pre` has no\nborder, radius, or shadow, so theme code-block corners apply once. MDX fallback\ncode fences follow the same rule. Untitled code blocks keep the line-number and\ncopy controls together at the right of the toolbar.\n\nTables keep the theme's default `--papers-radius-md` corners. To choose square\ntable scroll wrappers without changing other surfaces, set this in `tokens.css`:\n\n```css\n.doc-content {\n  --table-wrap-radius: 0;\n}\n```\n\nThe wrapper still scrolls horizontally on narrow screens. This token changes\nonly its corners; it adds no extra border or product-specific colors.\n\n## Related files\n\n- `scripts/resolve-theme.mjs` — writes `src/theme-active.css` and generated manifest\n- `src/lib/papersTheme.ts` — runtime theme features (toggle visibility, default mode)\n- `src/globals.css` — structural tokens; themes override palette vars in `tokens.css`\n",
   "contentFormat": "markdown",
   "toc": [
     {
@@ -28,6 +28,21 @@
     },
     {
       "depth": 2,
+      "id": "navigation-typography",
+      "text": "Navigation typography"
+    },
+    {
+      "depth": 2,
+      "id": "sidebar-surfaces",
+      "text": "Sidebar surfaces"
+    },
+    {
+      "depth": 2,
+      "id": "code-and-table-frames",
+      "text": "Code and table frames"
+    },
+    {
+      "depth": 2,
       "id": "related-files",
       "text": "Related files"
     }
@@ -42,12 +57,22 @@
     "routePrefix": "/docs",
     "schemaVersion": 1
   },
-  "references": [],
+  "references": [
+    {
+      "target": "../user-guide/configuration.md#navigation-font",
+      "line": 37
+    }
+  ],
   "links": [
     {
       "target": "https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md",
       "line": 29,
       "type": "external"
+    },
+    {
+      "target": "../user-guide/configuration.md#navigation-font",
+      "line": 37,
+      "type": "internal"
     }
   ],
   "sourcePath": "src/docs/content/developer-guides/themes.md"

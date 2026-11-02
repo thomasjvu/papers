@@ -414,6 +414,32 @@ as `/`, `/design`, `/llms` and the OpenAPI pages win over a doc with the same pa
 so avoid doc paths that clash with them. Update hard-coded `/docs/...` links in
 your content and config when you change the base path, then rebuild.
 
+## Navigation Font
+
+Site owners choose menu typography in `shared/documentation-config.js`:
+
+```js
+export const chromeConfig = {
+  languageSwitcher: { enabled: 'auto', placement: ['sidebar', 'command-palette'] },
+  sidebarVariant: 'groups',
+  navigationFont: 'mono', // 'body' uses the theme's regular site font
+};
+```
+
+`navigationFont` applies to links and section headings in both the tree and
+grouped sidebars. It resolves the sidebar's `--navigation-font` token to the
+theme's `--mono-font` or `--body-font`. For example, a theme that sets
+`--mono-font` to Maple Mono uses Maple Mono when `navigationFont` is `'mono'`.
+The theme must also supply the font files as described in the [theme guide](../developer-guides/themes.md).
+
+This is a site configuration option, not a reader setting. The reader's font
+preference changes document content and leaves navigation unchanged, including
+after reload. Rebuild the site after changing the configuration.
+
+Omit `navigationFont` to preserve the existing appearance: tree navigation uses
+monospace; grouped links use the body font and grouped headings use monospace.
+No migration or new menu toggle is required.
+
 ## What Requires Regeneration
 
 Rerun `npm run generate:docs` when you change:
@@ -1846,7 +1872,7 @@ flowchart LR
 
 ## Compatibility
 
-Papers depends on `katex` `^0.16.47 || ^0.18.10`. Mermaid 11 also bundles KaTeX for diagram
+Papers depends on `katex` `^0.19.1`. Mermaid 11 also bundles KaTeX for diagram
 labels, so a project that pins KaTeX with npm `overrides` (for example `"katex": "0.18.10"`)
 gets the same version for both. TeX is rendered with `trust: false`, so commands such as
 `\href` and `\includegraphics` are disabled.
@@ -1989,7 +2015,7 @@ Declare the layer order before any import so both stylesheets agree on it. Point
 ## Math And KaTeX
 
 KaTeX CSS is imported into the `components` layer, so Papers' math styles apply on top.
-If your site pins KaTeX with npm `overrides`, Papers accepts `^0.16.47 || ^0.18.10`.
+If your site pins KaTeX with npm `overrides`, Papers accepts `^0.19.1`.
 
 
 ---
@@ -2355,6 +2381,69 @@ Set `VITE_PAPERS_THEME` in `.env.local` or your host build environment.
 3. Run `npm run papers:theme use <id>` and verify `npm run build`.
 
 See [CONTRIBUTING_THEMES.md](https://github.com/thomasjvu/papers/blob/main/CONTRIBUTING_THEMES.md) for the full contract.
+
+## Navigation typography
+
+Use `chromeConfig.navigationFont` to select `'mono'` or `'body'` for sidebar
+links and headings. The shell resolves `--navigation-font` from your theme's
+`--mono-font` or `--body-font`; reader content-font preferences do not change it.
+Leave the option unset to keep the original typography of each sidebar variant.
+See [Navigation Font](../user-guide/configuration.md#navigation-font) for an example.
+
+## Sidebar surfaces
+
+Set sidebar tokens on `.docs-sidebar` to give navigation its own palette. The
+panel reads `--sidebar-bg-color` in both light and dark modes. Tree and grouped
+navigation read the text, hover, and active tokens below. Icons follow the item
+text color. Active items keep their selection colors while hovered.
+
+```css
+.docs-sidebar {
+  --sidebar-bg-color: #e8eef5;
+  --sidebar-text-color: #182330;
+  --sidebar-hover-bg-color: #d3deeb;
+  --sidebar-hover-text-color: #182330;
+  --sidebar-active-bg-color: #182330;
+  --sidebar-active-text-color: #ffffff;
+}
+
+.dark .docs-sidebar {
+  --sidebar-bg-color: #182330;
+  --sidebar-text-color: #e8eef5;
+  --sidebar-hover-bg-color: #293d52;
+  --sidebar-hover-text-color: #ffffff;
+  --sidebar-active-bg-color: #e8eef5;
+  --sidebar-active-text-color: #182330;
+}
+```
+
+These tokens are optional. Without them the panel uses `--card-color`, and
+navigation keeps its built-in colors. Put the rules in your theme's `tokens.css`;
+no component fork or `!important` override is needed.
+
+Existing sites receive the fix through `npx @thomasjvu/papers@latest upgrade`
+after the release is published. The upgrader preserves site-owned theme rules
+and merges framework changes. Resolve any reported local component conflicts
+before building the site.
+
+## Code and table frames
+
+Code blocks draw one outer frame. The nested syntax-highlighter `pre` has no
+border, radius, or shadow, so theme code-block corners apply once. MDX fallback
+code fences follow the same rule. Untitled code blocks keep the line-number and
+copy controls together at the right of the toolbar.
+
+Tables keep the theme's default `--papers-radius-md` corners. To choose square
+table scroll wrappers without changing other surfaces, set this in `tokens.css`:
+
+```css
+.doc-content {
+  --table-wrap-radius: 0;
+}
+```
+
+The wrapper still scrolls horizontally on narrow screens. This token changes
+only its corners; it adds no extra border or product-specific colors.
 
 ## Related files
 

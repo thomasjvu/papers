@@ -1254,6 +1254,12 @@
     min-height: 100%;
   }
 
+  /* Do not paint the footer at the skeleton's temporary height. Its final
+     position stays in normal document flow once the article has rendered. */
+  .doc-content-shell:has(.doc-render-loading) .doc-page-bottom {
+    visibility: hidden;
+  }
+
   .doc-page-bottom--anchored {
     flex-shrink: 0;
     display: flex;
@@ -2189,6 +2195,10 @@
   }
 
   .doc-content .papers-code pre {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    letter-spacing: normal;
     margin: 0;
     padding: 1.25rem 0;
     background: transparent;
@@ -2415,7 +2425,7 @@
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     border: var(--table-wrap-border, none);
-    border-radius: var(--papers-radius-md);
+    border-radius: var(--table-wrap-radius, var(--papers-radius-md));
   }
 
   .doc-content table {

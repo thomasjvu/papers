@@ -94,3 +94,12 @@ repository documentation. Detailed release procedure lives in
   failure is a test failure.
 - Write docs plainly: short sentences, simple words, a working example.
 - Full rules: the `docs-as-code` skill (`~/.agents/skills/docs-as-code/SKILL.md`).
+
+## 9. Testing policy
+
+- Never write unit tests after you write code.
+- Highly prefer E2E tests as the sole testing mechanism. Use them to verify
+  complex features work. At the end of E2E tests, produce a verifiable and
+  repeatable artifact.
+- If you must test a system in isolation, first write down all the ways it
+  could fail, then write the code.

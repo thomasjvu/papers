@@ -37,6 +37,32 @@ as `/`, `/design`, `/llms` and the OpenAPI pages win over a doc with the same pa
 so avoid doc paths that clash with them. Update hard-coded `/docs/...` links in
 your content and config when you change the base path, then rebuild.
 
+## Navigation Font
+
+Site owners choose menu typography in `shared/documentation-config.js`:
+
+```js
+export const chromeConfig = {
+  languageSwitcher: { enabled: 'auto', placement: ['sidebar', 'command-palette'] },
+  sidebarVariant: 'groups',
+  navigationFont: 'mono', // 'body' uses the theme's regular site font
+};
+```
+
+`navigationFont` applies to links and section headings in both the tree and
+grouped sidebars. It resolves the sidebar's `--navigation-font` token to the
+theme's `--mono-font` or `--body-font`. For example, a theme that sets
+`--mono-font` to Maple Mono uses Maple Mono when `navigationFont` is `'mono'`.
+The theme must also supply the font files as described in the [theme guide](../developer-guides/themes.md).
+
+This is a site configuration option, not a reader setting. The reader's font
+preference changes document content and leaves navigation unchanged, including
+after reload. Rebuild the site after changing the configuration.
+
+Omit `navigationFont` to preserve the existing appearance: tree navigation uses
+monospace; grouped links use the body font and grouped headings use monospace.
+No migration or new menu toggle is required.
+
 ## What Requires Regeneration
 
 Rerun `npm run generate:docs` when you change:

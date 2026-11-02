@@ -4,10 +4,11 @@
   .fileTree {
     padding: 0.25rem 0.25rem 0.25rem 0.5rem;
     transition: all 0.3s ease;
-    font-family: var(--mono-font);
+    font-family: var(--navigation-font, var(--mono-font));
     letter-spacing: -0.02em;
     font-size: calc(var(--papers-text-sm) + 2px);
     line-height: var(--papers-leading-relaxed);
+    color: var(--sidebar-text-color, inherit);
   }
 
   /* File Tree Items */
@@ -19,42 +20,42 @@
   }
 
   .fileTreeItem:hover {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--primary-color);
+    background: var(--sidebar-hover-bg-color, rgba(0, 0, 0, 0.05));
+    color: var(--sidebar-hover-text-color, var(--primary-color));
   }
 
   .fileTreeItem:focus {
     outline: 2px solid var(--primary-color);
     outline-offset: -2px;
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--primary-color);
+    background: var(--sidebar-hover-bg-color, rgba(0, 0, 0, 0.05));
+    color: var(--sidebar-hover-text-color, var(--primary-color));
   }
 
-  .dark .fileTreeItem:hover {
-    background: rgba(255, 255, 255, 0.05);
+  :global(.dark) .fileTreeItem:hover {
+    background: var(--sidebar-hover-bg-color, rgba(255, 255, 255, 0.05));
   }
 
-  .dark .fileTreeItem:focus {
+  :global(.dark) .fileTreeItem:focus {
     outline: 2px solid var(--primary-color);
     outline-offset: -2px;
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--primary-color);
+    background: var(--sidebar-hover-bg-color, rgba(255, 255, 255, 0.05));
+    color: var(--sidebar-hover-text-color, var(--primary-color));
   }
 
-  .fileTreeItem.active {
-    background: rgba(0, 0, 0, 0.05);
-    color: var(--primary-color);
+  .fileTreeItem:global(.active) {
+    background: var(--sidebar-active-bg-color, rgba(0, 0, 0, 0.05));
+    color: var(--sidebar-active-text-color, var(--primary-color));
     font-weight: 700;
   }
 
-  .dark .fileTreeItem.active {
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--primary-color);
+  :global(.dark) .fileTreeItem:global(.active) {
+    background: var(--sidebar-active-bg-color, rgba(255, 255, 255, 0.05));
+    color: var(--sidebar-active-text-color, var(--primary-color));
   }
 
   /* File Tree Panel Container */
   .fileTreePanel {
-    background-color: var(--card-color);
+    background-color: var(--sidebar-bg-color, var(--card-color));
     border-right: 1px solid var(--border-unified);
     border-top: none !important;
     border-bottom: none !important;
@@ -63,46 +64,19 @@
     box-shadow: none;
   }
 
-  .dark .fileTreePanel {
-    background-color: var(--card-color);
-  }
-
   /* Custom SVG icon handling for dark mode */
-  .dark img[src*='pixel-folder'],
-  .dark img[src*='pixel-file'],
-  .dark img[src*='pixel-info-circle'],
-  .dark img[src*='pixel-exclamation'],
-  .dark img[src*='pixel-times-circle'],
-  .dark img[src*='pixel-check-circle'] {
+  :global(.dark) img[src*='pixel-folder'],
+  :global(.dark) img[src*='pixel-file'],
+  :global(.dark) img[src*='pixel-info-circle'],
+  :global(.dark) img[src*='pixel-exclamation'],
+  :global(.dark) img[src*='pixel-times-circle'],
+  :global(.dark) img[src*='pixel-check-circle'] {
     filter: invert(1);
   }
 
   /* File tree icon default colors */
   .fileTreeItem svg {
     color: currentColor;
-  }
-
-  .dark .fileTreeItem svg {
-    color: white;
-  }
-
-  /* File tree icon hover and focus effects - for Iconify icons */
-  .fileTreeItem:hover svg,
-  .fileTreeItem:focus svg {
-    color: var(--primary-color);
-  }
-
-  .dark .fileTreeItem:hover svg,
-  .dark .fileTreeItem:focus svg {
-    color: var(--primary-color);
-  }
-
-  .fileTreeItem.active svg {
-    color: var(--primary-color);
-  }
-
-  .dark .fileTreeItem.active svg {
-    color: var(--primary-color);
   }
 
   /* Reduced motion styles for file tree */

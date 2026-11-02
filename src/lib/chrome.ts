@@ -23,6 +23,13 @@ export function getSidebarVariant(): 'tree' | 'groups' {
   return chromeConfig.sidebarVariant === 'groups' ? 'groups' : 'tree';
 }
 
+/** Resolve the site's menu font independently from reader preferences. */
+export function getNavigationFontFamily(): string | undefined {
+  if (chromeConfig.navigationFont === 'mono') return 'var(--mono-font)';
+  if (chromeConfig.navigationFont === 'body') return 'var(--body-font)';
+  return undefined;
+}
+
 export function getCopyrightLine(): string {
   const year = brandingConfig.copyright?.year ?? new Date().getFullYear();
   const holder = brandingConfig.copyright?.holder || brandingConfig.productName || 'Docs';

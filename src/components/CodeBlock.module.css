@@ -87,8 +87,16 @@
     overflow-wrap: anywhere;
   }
 
+  .codeBlockLanguage + .codeBlockCopyBtn {
+    margin-left: auto;
+  }
+
   .codeBlockCopyBtn + .codeBlockCopyBtn {
     margin-left: 0.25rem;
+  }
+
+  .codeBlockFilename + .codeBlockLanguage + .codeBlockCopyBtn {
+    margin-left: 0;
   }
 
   .codeBlockFilename + .codeBlockLanguage {
@@ -179,6 +187,13 @@
     color: var(--code-text-color);
     border: none;
     box-shadow: none;
+  }
+
+  .codeBlockContainer .codeBlockContent pre {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    letter-spacing: normal;
   }
 
   .codeBlockContent pre,
