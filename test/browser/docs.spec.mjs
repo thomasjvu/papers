@@ -1,5 +1,7 @@
 import { expect, test } from '@playwright/test';
 
+import { chromeConfig } from '../../shared/documentation-config.js';
+
 function collectRuntimeErrors(page) {
   const pageErrors = [];
   const consoleErrors = [];
@@ -176,6 +178,8 @@ test('OpenAPI default and alternate specs use distinct routes', async ({ page })
       .locator('.openapi-overview')
       .getByRole('heading', { name: 'Trigger docs build', exact: true })
   ).toBeVisible();
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.locator('style[data-papers-scalar-styles]')).toHaveCount(0);
   await assertNoRuntimeErrors(errors);
 });
 
@@ -654,4 +658,221 @@ test('the RSS feed lists recently updated pages and is linked from every page', 
     await expect(page.locator('head link[type="application/rss+xml"]')).toHaveCount(1);
   }
   await assertNoRuntimeErrors(errors);
+});
+
+for (const dark of [false, true]) {
+  test(`sidebar surface and navigation tokens survive the cascade in ${dark ? 'dark' : 'light'} mode`, async ({
+    page,
+  }, testInfo) => {
+    await page.addInitScript((darkMode) => {
+      localStorage.setItem('darkMode', String(darkMode));
+      localStorage.setItem('prefersReducedMotion', 'true');
+    }, dark);
+    await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+    await expect(page.locator('html')).toHaveClass(dark ? /dark/ : /^(?!.*\bdark\b)/);
+    // Place the theme rule before the module styles, matching resolve:theme's import order.
+    await page.evaluate(() => {
+      const theme = document.createElement('style');
+      theme.textContent = `@layer theme, base, components, papers-base, utilities, papers;
+      @layer papers { .docs-sidebar {
+        --sidebar-bg-color: rgb(217, 239, 91);
+        --sidebar-text-color: rgb(31, 39, 45);
+        --sidebar-hover-bg-color: rgb(201, 216, 99);
+        --sidebar-hover-text-color: rgb(41, 49, 55);
+        --sidebar-active-bg-color: rgb(31, 39, 45);
+        --sidebar-active-text-color: rgb(217, 239, 91);
+      } }`;
+      document.head.prepend(theme);
+    });
+    const sidebar = page.locator('.docs-sidebar');
+    await expect(sidebar).toHaveCSS('background-color', 'rgb(217, 239, 91)');
+    const active = sidebar.locator(
+      '[role="link"].active, nav[aria-label="Documentation"] a[aria-current="page"]'
+    );
+    await expect(active).toHaveCSS('background-color', 'rgb(31, 39, 45)');
+    await expect(active).toHaveCSS('color', 'rgb(217, 239, 91)');
+    if (await active.locator('svg').count()) {
+      await expect(active.locator('svg')).toHaveCSS('color', 'rgb(217, 239, 91)');
+    }
+    await active.hover();
+    await expect(active).toHaveCSS('background-color', 'rgb(31, 39, 45)');
+    const other = sidebar.getByRole('link', { name: /quick[- ]start(?:\.md)?/i });
+    await other.hover();
+    await expect(other).toHaveCSS('background-color', 'rgb(201, 216, 99)');
+    await expect(other).toHaveCSS('color', 'rgb(41, 49, 55)');
+    await page.keyboard.press('Tab');
+    await other.focus();
+    await expect(other).toHaveCSS('outline-style', 'solid');
+    if (await other.locator('svg').count()) {
+      await expect(other.locator('svg')).toHaveCSS('color', 'rgb(41, 49, 55)');
+    }
+    await testInfo.attach('sidebar-state', {
+      body: await sidebar.screenshot(),
+      contentType: 'image/png',
+    });
+  });
+}
+
+test('site navigation typography stays independent of reader font preferences', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    if (!localStorage.getItem('fontFamily')) {
+      localStorage.setItem('fontFamily', 'sans-serif');
+    }
+    localStorage.setItem('prefersReducedMotion', 'true');
+  });
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  const sidebar = page.locator('.docs-sidebar');
+  const link = sidebar.locator('[role="link"].active, a[aria-current="page"]');
+  const heading = sidebar.getByRole('button', { name: 'Getting Started', exact: true });
+  const expectedMode = chromeConfig.navigationFont;
+  const fonts = await sidebar.evaluate((element) => {
+    const style = getComputedStyle(element);
+    const normalize = (token) => {
+      const probe = document.createElement('span');
+      probe.style.fontFamily = `var(${token})`;
+      element.append(probe);
+      const family = getComputedStyle(probe).fontFamily;
+      probe.remove();
+      return family;
+    };
+    return {
+      mono: normalize('--mono-font'),
+      body: normalize('--body-font'),
+      token: style.getPropertyValue('--navigation-font').trim(),
+    };
+  });
+  const groups = await sidebar.locator('nav[aria-label="Documentation"]').count();
+  const expectedLink =
+    expectedMode === 'mono'
+      ? fonts.mono
+      : expectedMode === 'body'
+        ? fonts.body
+        : groups
+          ? fonts.body
+          : fonts.mono;
+  const expectedHeading = expectedMode === 'body' ? fonts.body : fonts.mono;
+  await expect(link).toHaveCSS('font-family', expectedLink);
+  await expect(heading).toHaveCSS('font-family', expectedHeading);
+  if (expectedMode) expect(fonts.token).not.toBe('');
+  const content = page.locator('.doc-content p').first();
+  const initialContentFont = await content.evaluate(
+    (element) => getComputedStyle(element).fontFamily
+  );
+  await page.getByRole('button', { name: 'Open preferences' }).click();
+  await page.getByRole('button', { name: /^Font: Monospace/ }).click();
+  await expect(page.locator('html')).toHaveClass(/font-mono/);
+  await expect(content).toHaveCSS('font-family', fonts.mono);
+  expect(initialContentFont).not.toBe(fonts.mono);
+  await expect(link).toHaveCSS('font-family', expectedLink);
+  await expect(heading).toHaveCSS('font-family', expectedHeading);
+  await page.reload({ waitUntil: 'networkidle' });
+  await expect(page.locator('html')).toHaveClass(/font-mono/);
+  await expect(link).toHaveCSS('font-family', expectedLink);
+  await expect(heading).toHaveCSS('font-family', expectedHeading);
+  await testInfo.attach('navigation-fonts', {
+    body: JSON.stringify(
+      {
+        configured: expectedMode ?? 'legacy',
+        groups: Boolean(groups),
+        link: expectedLink,
+        heading: expectedHeading,
+        content: fonts.mono,
+      },
+      null,
+      2
+    ),
+    contentType: 'application/json',
+  });
+  await testInfo.attach('navigation-font-screenshot', {
+    body: await sidebar.screenshot(),
+    contentType: 'image/png',
+  });
+});
+
+for (const dark of [false, true]) {
+  test(`code frames, toolbar grouping and table corners in ${dark ? 'dark' : 'light'} mode`, async ({
+    page,
+  }, testInfo) => {
+    await page.addInitScript((value) => {
+      localStorage.setItem('darkMode', String(value));
+      localStorage.setItem('prefersReducedMotion', 'true');
+    }, dark);
+    for (const path of ['callouts-and-code', 'callouts-in-mdx']) {
+      await page.goto(`/docs/developer-guides/${path}`, { waitUntil: 'networkidle' });
+      await expect(page.getByRole('button', { name: 'Copy to clipboard' }).first()).toBeVisible();
+      const pres = page.locator('.doc-content pre');
+      expect(await pres.count()).toBeGreaterThan(0);
+      for (const pre of await pres.all()) {
+        await expect(pre).toHaveCSS('border-top-width', '0px');
+        await expect(pre).toHaveCSS('border-radius', '0px');
+        await expect(pre).toHaveCSS('box-shadow', 'none');
+        await expect(pre).toHaveCSS('letter-spacing', 'normal');
+      }
+      const untitledHeader = page
+        .locator('[class*="codeBlockHeader"]')
+        .filter({ hasNot: page.locator('[data-code-title]') })
+        .first();
+      const buttons = untitledHeader.getByRole('button');
+      await expect(buttons).toHaveCount(2);
+      {
+        const first = await buttons.nth(0).boundingBox();
+        const second = await buttons.nth(1).boundingBox();
+        expect(second.x - (first.x + first.width)).toBeLessThanOrEqual(8);
+      }
+      await testInfo.attach(`${path}-code-frame`, {
+        body: await page.locator('[class*="codeBlockContainer"]').first().screenshot(),
+        contentType: 'image/png',
+      });
+    }
+    await page.goto('/docs/developer-guides/themes', { waitUntil: 'networkidle' });
+    const table = page.locator('.table-scroll').first();
+    await expect(table).toBeVisible();
+    const defaultRadius = await table.evaluate((element) => getComputedStyle(element).borderRadius);
+    expect(defaultRadius).not.toBe('0px');
+    await testInfo.attach('default-table-corners', {
+      body: await table.screenshot(),
+      contentType: 'image/png',
+    });
+    await page.addStyleTag({ content: '.doc-content { --table-wrap-radius: 0px; }' });
+    await expect(table).toHaveCSS('border-radius', '0px');
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await table.evaluate((element) => element.scrollWidth > element.clientWidth)).toBe(true);
+    await table.evaluate((element) => {
+      element.scrollLeft = element.scrollWidth;
+    });
+    expect(await table.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+    await testInfo.attach('square-scrolling-table', {
+      body: await table.screenshot(),
+      contentType: 'image/png',
+    });
+  });
+}
+
+test('initial Markdown rendering does not expose a moving document footer', async ({
+  page,
+}, testInfo) => {
+  await page.addInitScript(() => {
+    window.footerReadiness = { checks: 0, visibleWhilePending: false };
+    new MutationObserver(() => {
+      const pending = document.querySelector('.doc-render-loading');
+      const footer = document.querySelector('.doc-page-bottom');
+      if (pending && footer) {
+        window.footerReadiness.checks++;
+        if (getComputedStyle(footer).visibility !== 'hidden')
+          window.footerReadiness.visibleWhilePending = true;
+      }
+    }).observe(document, { childList: true, subtree: true });
+  });
+  await page.goto('/docs/getting-started/introduction', { waitUntil: 'networkidle' });
+  await expect(page.locator('.doc-render-loading')).toHaveCount(0);
+  await expect(page.locator('.doc-page-bottom')).toBeVisible();
+  const readiness = await page.evaluate(() => window.footerReadiness);
+  expect(readiness.checks).toBeGreaterThan(0);
+  expect(readiness.visibleWhilePending).toBe(false);
+  await testInfo.attach('footer-readiness', {
+    body: JSON.stringify(readiness),
+    contentType: 'application/json',
+  });
 });

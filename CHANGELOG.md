@@ -1,5 +1,29 @@
 # Changelog
 
+## Unreleased
+
+### Changed (breaking for custom tooling)
+
+- ESLint 10 and its compatible React plugins replace ESLint 9. The bundled config
+  keeps the existing React hooks checks. Sites with custom ESLint plugins must
+  use versions compatible with ESLint 10.
+- KaTeX now uses the maintained 0.19 line, including Mermaid and Markdown math.
+  Remove older KaTeX overrides when upgrading. Normal math rendering and the
+  sanitizer remain covered by the browser suite.
+
+### Fixed
+
+- Code blocks no longer inherit a second frame from nested `pre` elements; untitled
+  toolbar controls stay together. `--table-wrap-radius` customizes table corners
+  while preserving each theme's default radius.
+
+- Updated vulnerable dependencies and pinned compatible transitive glob/math
+  dependencies; the Papers release gate now audits the complete dependency tree.
+- The Node 24+ test loader uses synchronous module hooks and TypeScript instead
+  of deprecated ts-node loader APIs. Existing test commands still work.
+- Demo hosting is optional: validation still runs without a configured host,
+  while deployment skips until an owned host and valid credentials are supplied.
+
 ## 0.2.0 - 2026-10-28
 
 Upgrade an existing site with `node scripts/papers-upgrade.mjs --to v0.2.0`

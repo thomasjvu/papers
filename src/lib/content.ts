@@ -1,3 +1,4 @@
+import { AsyncCache } from './asyncCache';
 import { buildCollectionContentPath, buildDocsContentPath } from '../../shared/docsRouting.js';
 import { getCollectionArtifactPaths } from '../../shared/content-collections.js';
 import { getContentCollection } from '../data/collections';
@@ -59,8 +60,7 @@ interface DocumentReferenceGraphResponse {
 
 const cachedContent = new Map<string, DocsIndexResponse>();
 const cachedReferenceGraphs = new Map<string, DocumentReferenceGraphResponse>();
-const cachedDocuments = new Map<string, Document | null>();
-const pendingDocuments = new Map<string, Promise<Document | null>>();
+const documentCache = new AsyncCache<Document | null>();
 
 export async function loadCollectionContent(collectionId = 'docs'): Promise<DocsIndexResponse> {
   const collection = getContentCollection(collectionId);
@@ -231,36 +231,18 @@ export async function getDocument(
 ): Promise<Document | null> {
   const cacheKey = `${collectionId}:${getDocumentAssetKey(path, options, collectionId)}`;
 
-  if (cachedDocuments.has(cacheKey)) {
-    return cachedDocuments.get(cacheKey) ?? null;
-  }
-
-  const existingRequest = pendingDocuments.get(cacheKey);
-  if (existingRequest) {
-    return existingRequest;
-  }
-
-  const request = fetchDocument(path, options, collectionId)
-    .then((document) => {
-      cachedDocuments.set(cacheKey, document);
-      pendingDocuments.delete(cacheKey);
-      return document;
-    })
-    .catch((error) => {
-      pendingDocuments.delete(cacheKey);
+  return documentCache.get(cacheKey, () =>
+    fetchDocument(path, options, collectionId).catch((error) => {
       logger.error(`Error loading documentation content for ${cacheKey}:`, error);
       throw error;
-    });
-
-  pendingDocuments.set(cacheKey, request);
-  return request;
+    })
+  );
 }
 
 export function clearContentCache(): void {
   cachedContent.clear();
   cachedReferenceGraphs.clear();
-  cachedDocuments.clear();
-  pendingDocuments.clear();
+  documentCache.clear();
 }
 
 export function resolveDocumentPath(slug: string | undefined, items = documentationTree): string {

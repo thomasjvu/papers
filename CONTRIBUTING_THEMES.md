@@ -68,6 +68,12 @@ Example (`themes/gba/theme.json`):
 - Register the theme in `themes/registry.json`.
 - If you introduce a new icon set, add the `@iconify-json/<set>` dependency and set `iconSet` in `theme.json`.
 
+## Sidebar palette
+
+The optional `--sidebar-*` tokens separate navigation surfaces and item states
+from the document palette. See the [sidebar surface guide](src/docs/content/developer-guides/themes.md#sidebar-surfaces)
+for the token names, fallback behavior, and a light/dark example.
+
 ## Upstreaming
 
 1. Fork [thomasjvu/papers](https://github.com/thomasjvu/papers).

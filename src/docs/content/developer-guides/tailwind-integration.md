@@ -85,4 +85,4 @@ Declare the layer order before any import so both stylesheets agree on it. Point
 ## Math And KaTeX
 
 KaTeX CSS is imported into the `components` layer, so Papers' math styles apply on top.
-If your site pins KaTeX with npm `overrides`, Papers accepts `^0.16.47 || ^0.18.10`.
+If your site pins KaTeX with npm `overrides`, Papers accepts `^0.19.1`.

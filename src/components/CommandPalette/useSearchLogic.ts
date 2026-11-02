@@ -133,7 +133,11 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
   const debouncedQuery = useDebounce(query, 150);
   const ui = useUiStrings();
   const { search: pagefindSearch, isAvailable: pagefindAvailable } = usePagefind();
-  const [pagefindResults, setPagefindResults] = useState<SearchResultType[]>([]);
+  const [searchState, setSearchState] = useState<{
+    status: 'idle' | 'searching' | 'ready' | 'failed';
+    results: SearchResultType[];
+  }>({ status: 'idle', results: [] });
+  const pagefindResults = searchState.results;
   const latestQueryRef = useRef('');
   const { pathname } = useLocation();
   const searchVariant = useMemo(() => getCollectionRouteContext(pathname), [pathname]);
@@ -145,10 +149,11 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
     const section = resolveSearchSection(scope.section, scopeFilter);
 
     if (!pagefindAvailable || !scope.query) {
-      setPagefindResults([]);
+      setSearchState({ status: 'idle', results: [] });
       return;
     }
 
+    setSearchState({ status: 'searching', results: [] });
     let cancelled = false;
     const filters = buildSearchFilters({
       section,
@@ -180,11 +185,11 @@ export const useSearchLogic = (query: string, scopeFilter: SearchScopeFilter = '
             }),
           };
         });
-        setPagefindResults(formattedResults);
+        setSearchState({ status: 'ready', results: formattedResults });
       })
       .catch(() => {
         if (!cancelled && latestQueryRef.current === trimmedQuery) {
-          setPagefindResults([]);
+          setSearchState({ status: 'failed', results: [] });
         }
       });
 

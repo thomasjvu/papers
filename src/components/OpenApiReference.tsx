@@ -26,8 +26,11 @@ export default function OpenApiReference({ specUrl = '/openapi-v1.yaml' }: OpenA
   const { isDarkMode } = useTheme();
   const safeSpecUrl = getOpenApiSpecUrl({ url: specUrl }, openapiConfig);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [state, setState] = useState<
+    { status: 'loading' | 'mounted' } | { status: 'failed'; error: string }
+  >({ status: 'loading' });
+  const isLoading = state.status === 'loading';
+  const error = state.status === 'failed' ? state.error : null;
   const configuration = useMemo(
     () => ({
       spec: {
@@ -52,27 +55,33 @@ export default function OpenApiReference({ specUrl = '/openapi-v1.yaml' }: OpenA
   useEffect(() => {
     let cancelled = false;
     let scalarInstance: { destroy: () => void } | undefined;
+    let scalarStyles: HTMLStyleElement | undefined;
 
-    setIsLoading(true);
-    setError(null);
+    setState({ status: 'loading' });
 
     const container = containerRef.current;
     if (!container) {
-      setIsLoading(false);
-      setError('API reference mount point is unavailable.');
+      setState({ status: 'failed', error: 'API reference mount point is unavailable.' });
       return () => {
         cancelled = true;
       };
     }
 
-    void import('@scalar/api-reference')
-      .then(({ createApiReference }) => {
+    void Promise.all([
+      import('@scalar/api-reference'),
+      import('@scalar/api-reference/style.css?inline'),
+    ])
+      .then(([{ createApiReference }, { default: css }]) => {
         if (cancelled) {
           return;
         }
 
+        scalarStyles = document.createElement('style');
+        scalarStyles.dataset.papersScalarStyles = '';
+        scalarStyles.textContent = css;
+        document.head.append(scalarStyles);
         scalarInstance = createApiReference(container, configuration);
-        setIsLoading(false);
+        setState({ status: 'mounted' });
       })
       .catch(() => {
         if (cancelled) {
@@ -80,13 +89,14 @@ export default function OpenApiReference({ specUrl = '/openapi-v1.yaml' }: OpenA
         }
 
         scalarInstance?.destroy();
-        setIsLoading(false);
-        setError('Unable to load the API reference.');
+        scalarStyles?.remove();
+        setState({ status: 'failed', error: 'Unable to load the API reference.' });
       });
 
     return () => {
       cancelled = true;
       scalarInstance?.destroy();
+      scalarStyles?.remove();
     };
   }, [configuration]);
 

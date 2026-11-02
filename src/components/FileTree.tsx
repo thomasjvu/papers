@@ -75,7 +75,7 @@ const FileTreeItem: React.FC<FileTreeItemProps> = React.memo(
           aria-expanded={isDirectory ? item.expanded : undefined}
           style={{
             cursor: 'pointer',
-            fontFamily: 'var(--mono-font)',
+            fontFamily: 'var(--navigation-font, var(--mono-font))',
             letterSpacing: '-0.5px',
             fontSize: 'calc(0.8rem + 2px)',
             paddingLeft: `${indent}px`,

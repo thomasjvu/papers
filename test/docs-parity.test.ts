@@ -1,4 +1,8 @@
 import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 
 import {
   createLastUpdatedManifest,
@@ -74,9 +78,38 @@ export const docsParityTests: TestCase[] = [
   {
     name: 'gitLastCommitDate reads tracked files and returns null for unknown paths',
     run: () => {
-      const tracked = gitLastCommitDate(process.cwd(), 'package.json');
-      assert.ok(tracked && !Number.isNaN(Date.parse(tracked)), String(tracked));
-      assert.equal(gitLastCommitDate(process.cwd(), 'does/not/exist.md'), null);
+      // Failure modes: lost commit timestamps, untracked files treated as tracked,
+      // and incorrect ISO parsing. A fixture repository also works in Stryker sandboxes.
+      const root = mkdtempSync(join(tmpdir(), 'papers-git-date-'));
+      const date = '2026-03-04T05:06:07.000Z';
+      try {
+        const git = (args: string[]) =>
+          execFileSync('git', args, {
+            cwd: root,
+            stdio: 'ignore',
+            env: { ...process.env, GIT_AUTHOR_DATE: date, GIT_COMMITTER_DATE: date },
+          });
+        git(['init', '--quiet']);
+        writeFileSync(join(root, 'tracked.md'), 'Tracked content');
+        git(['add', 'tracked.md']);
+        git([
+          '-c',
+          'user.name=Papers Test',
+          '-c',
+          'user.email=test@example.invalid',
+          '-c',
+          `core.hooksPath=${join(root, 'no-hooks')}`,
+          'commit',
+          '--no-gpg-sign',
+          '--quiet',
+          '-m',
+          'fixture',
+        ]);
+        assert.equal(gitLastCommitDate(root, 'tracked.md'), date);
+        assert.equal(gitLastCommitDate(root, 'does-not-exist.md'), null);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
     },
   },
   {

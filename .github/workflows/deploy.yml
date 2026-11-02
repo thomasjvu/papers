@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VITE_SITE_URL: ${{ vars.PAPERS_DEPLOY_HOST }}
-      REQUIRE_SITE_URL: ${{ github.event_name == 'push' && 'true' || 'false' }}
+      REQUIRE_SITE_URL: ${{ github.event_name == 'push' && vars.PAPERS_DEPLOY_HOST != '' && 'true' || 'false' }}
 
     steps:
       - name: Checkout code
@@ -59,7 +59,7 @@ jobs:
           if-no-files-found: error
 
   deploy:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.PAPERS_DEPLOY_HOST != ''
     needs: validate
     runs-on: ubuntu-latest
     permissions:

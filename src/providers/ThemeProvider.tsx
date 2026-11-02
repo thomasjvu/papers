@@ -39,10 +39,13 @@ function getInitialDarkModePreference(): boolean {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDarkMode, setIsDarkMode] = useState(getInitialDarkModePreference);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const [motion, setMotion] = useState<{ source: 'system' | 'user'; reduced: boolean }>({
+    source: 'system',
+    reduced: false,
+  });
+  const prefersReducedMotion = motion.reduced;
   const [fontFamily, setFontFamilyState] = useState<FontFamily>('sans-serif');
   const hasExplicitThemePreference = useRef(false);
-  const hasExplicitMotionPreference = useRef(false);
 
   const applyTheme = useCallback((darkMode: boolean, persist = false) => {
     const html = document.documentElement;
@@ -94,13 +97,15 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     const storedMotionPreference = safeLocalStorage.getItem('prefersReducedMotion');
     const hasStoredMotionPreference =
       storedMotionPreference === 'true' || storedMotionPreference === 'false';
-    hasExplicitMotionPreference.current = hasStoredMotionPreference;
 
     const reducedMotionEnabled = hasStoredMotionPreference
       ? storedMotionPreference === 'true'
       : motionMediaQuery.matches;
 
-    setPrefersReducedMotion(reducedMotionEnabled);
+    setMotion({
+      source: hasStoredMotionPreference ? 'user' : 'system',
+      reduced: reducedMotionEnabled,
+    });
     applyMotionPreference(reducedMotionEnabled, hasStoredMotionPreference);
 
     const storedFontPreference = safeLocalStorage.getItem('fontFamily') as FontFamily | null;
@@ -110,9 +115,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     applyFontFamily(selectedFont);
 
     const handleMotionChange = (event: MediaQueryListEvent) => {
-      if (!hasExplicitMotionPreference.current) {
-        setPrefersReducedMotion(event.matches);
-      }
+      setMotion((previous) =>
+        previous.source === 'system' ? { source: 'system', reduced: event.matches } : previous
+      );
     };
 
     motionMediaQuery.addEventListener('change', handleMotionChange);
@@ -131,8 +136,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
-    applyMotionPreference(prefersReducedMotion, hasExplicitMotionPreference.current);
-  }, [prefersReducedMotion, applyMotionPreference]);
+    applyMotionPreference(motion.reduced, motion.source === 'user');
+  }, [motion, applyMotionPreference]);
 
   const toggleTheme = useCallback(() => {
     if (!ALLOWS_TOGGLE) return;
@@ -141,8 +146,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const toggleReducedMotion = useCallback(() => {
-    hasExplicitMotionPreference.current = true;
-    setPrefersReducedMotion((prev) => !prev);
+    setMotion((previous) => ({ source: 'user', reduced: !previous.reduced }));
   }, []);
 
   useEffect(() => {

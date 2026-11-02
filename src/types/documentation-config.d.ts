@@ -79,6 +79,7 @@ declare module '@app-shared/documentation-config.js' {
       placement: Array<'sidebar' | 'command-palette'>;
     };
     sidebarVariant: 'tree' | 'groups';
+    navigationFont?: 'mono' | 'body';
   }
 
   export interface BrandingConfig {
@@ -217,6 +218,7 @@ declare module '*/shared/documentation-config.js' {
       placement: Array<'sidebar' | 'command-palette'>;
     };
     sidebarVariant: 'tree' | 'groups';
+    navigationFont?: 'mono' | 'body';
   }
 
   export interface BrandingConfig {

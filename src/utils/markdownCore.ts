@@ -1,5 +1,4 @@
 import { Marked, Renderer, type Tokens } from 'marked';
-import { markedHighlight } from 'marked-highlight';
 
 import { stripMarkdownBom } from './markdown.ts';
 import {
@@ -509,17 +508,12 @@ export async function buildMarkdownRenderState(
   const codeBlocksData = new Map<string, CodeBlockData[]>();
   const mermaidBlocksData = new Map<string, MermaidBlockData>();
   const createId = options.createId ?? defaultCreateId;
-  const markdownProcessor = new Marked(
-    markedHighlight({
-      highlight: (code: string) => code,
-    }),
-    {
-      gfm: true,
-      breaks: false,
-      pedantic: false,
-      renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
-    }
-  );
+  const markdownProcessor = new Marked({
+    gfm: true,
+    breaks: false,
+    pedantic: false,
+    renderer: createRenderer(codeBlocksData, mermaidBlocksData, createId),
+  });
   markdownProcessor.use({
     extensions: [
       tabsExtension,

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 import { contentCollections, findCollectionForPath } from '../../shared/content-collections.js';
 import {
@@ -140,9 +140,12 @@ async function getInitializedPagefind(): Promise<PagefindInstance | null> {
 }
 
 export function usePagefind(): UsePagefindResult {
-  const [pagefindInstance, setPagefindInstance] = useState<PagefindInstance | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isAvailable, setIsAvailable] = useState(false);
+  const [state, setState] = useState<
+    { status: 'loading' | 'unavailable' } | { status: 'available'; instance: PagefindInstance }
+  >({ status: 'loading' });
+  const pagefindInstance = state.status === 'available' ? state.instance : null;
+  const isLoading = state.status === 'loading';
+  const isAvailable = state.status === 'available';
 
   useEffect(() => {
     let isMounted = true;
@@ -153,13 +156,11 @@ export function usePagefind(): UsePagefindResult {
       }
 
       if (instance) {
-        setPagefindInstance(instance);
-        setIsAvailable(true);
+        setState({ status: 'available', instance });
       } else {
         console.warn('Pagefind not available - search will use fallback');
+        setState({ status: 'unavailable' });
       }
-
-      setIsLoading(false);
     });
 
     return () => {

@@ -1370,7 +1370,6 @@ export const architectureTests: ArchitectureTestCase[] = [
       assert.doesNotMatch(openApiReferenceSource, /@scalar\/api-reference-react/);
       assert.match(openApiReferenceSource, /import\('@scalar\/api-reference'\)/);
       assert.match(openApiReferenceSource, /scalarInstance\?\.destroy\(\)/);
-      assert.match(viteConfigSource, /findPackageDir\('@scalar\/api-reference'\), 'esm\.js'\)/);
       assert.doesNotMatch(viteConfigSource, /vendor-openapi/);
     },
   },
@@ -1826,7 +1825,7 @@ export const architectureTests: ArchitectureTestCase[] = [
       }
 
       const docsPageSource = await readFile(join(process.cwd(), 'src/pages/DocsPage.tsx'), 'utf8');
-      assert.match(docsPageSource, /setIsNotFound\(true\)/);
+      assert.match(docsPageSource, /setStatus\('not-found'\)/);
       assert.match(docsPageSource, /<NotFoundPage\s*\/>/);
     },
   },

@@ -24,14 +24,17 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
   const location = useLocation();
   const navigate = useNavigate();
   const [content, setContent] = useState<string>('');
-  const [loading, setLoading] = useState(true);
-  const [hasLoadedOnce, setHasLoadedOnce] = useState(false);
+  const [status, setStatus] = useState<
+    'initial-loading' | 'refreshing' | 'ready' | 'not-found' | 'error'
+  >('initial-loading');
+  const loading = status === 'initial-loading' || status === 'refreshing';
+  const hasLoadedOnce = status !== 'initial-loading';
+  const isNotFound = status === 'not-found';
   const [currentDocPath, setCurrentDocPath] = useState<string>('');
   const [docTitle, setDocTitle] = useState<string>('Documentation');
   const [docDescription, setDocDescription] = useState<string>('');
   const [docSourcePath, setDocSourcePath] = useState<string | undefined>(undefined);
   const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>('markdown');
-  const [isNotFound, setIsNotFound] = useState(false);
   const [backlinks, setBacklinks] = useState<Awaited<ReturnType<typeof getDocumentBacklinks>>>([]);
 
   const slug = params['*'] || '';
@@ -64,8 +67,7 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
   useEffect(() => {
     let active = true;
 
-    setLoading(true);
-    setIsNotFound(false);
+    setStatus((previous) => (previous === 'initial-loading' ? 'initial-loading' : 'refreshing'));
     setBacklinks([]);
 
     void Promise.all([
@@ -92,11 +94,11 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
           setDocSourcePath(doc.sourcePath);
           setDocContentFormat(doc.contentFormat || 'markdown');
           setBacklinks(nextBacklinks);
-          setIsNotFound(false);
+          setStatus('ready');
           return;
         }
 
-        setIsNotFound(true);
+        setStatus('not-found');
       })
       .catch((error) => {
         if (!active) {
@@ -111,14 +113,7 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
         setDocDescription(extractDescriptionFromMarkdown(errorContent));
         setDocSourcePath(undefined);
         setDocContentFormat('markdown');
-      })
-      .finally(() => {
-        if (!active) {
-          return;
-        }
-
-        setLoading(false);
-        setHasLoadedOnce(true);
+        setStatus('error');
       });
 
     return () => {

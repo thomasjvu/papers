@@ -45,7 +45,7 @@ flowchart LR
 
 ## Compatibility
 
-Papers depends on `katex` `^0.16.47 || ^0.18.10`. Mermaid 11 also bundles KaTeX for diagram
+Papers depends on `katex` `^0.19.1`. Mermaid 11 also bundles KaTeX for diagram
 labels, so a project that pins KaTeX with npm `overrides` (for example `"katex": "0.18.10"`)
 gets the same version for both. TeX is rendered with `trust: false`, so commands such as
 `\href` and `\includegraphics` are disabled.

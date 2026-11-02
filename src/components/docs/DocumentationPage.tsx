@@ -23,7 +23,7 @@ import fileTreeStyles from '../FileTree.module.css';
 import SidebarNav from '../sidebar/SidebarNav';
 import SettingsMenu from '../SettingsMenu';
 import { getMobileTogglePositionClasses, uiConfig } from '../../config/ui';
-import { brandingConfig } from '../../lib/chrome';
+import { brandingConfig, getNavigationFontFamily } from '../../lib/chrome';
 import TableOfContents from './TableOfContents';
 import {
   getBrandInitial,
@@ -179,7 +179,8 @@ const DocumentationPage = React.memo(
     }, [rightSidebarVisible, setRightSidebarVisibility]);
 
     const sidebarStyle = useMemo(
-      () => ({
+      (): React.CSSProperties & { '--navigation-font'?: string } => ({
+        '--navigation-font': getNavigationFontFamily(),
         borderBottomLeftRadius: 0,
         borderBottomRightRadius: 0,
         borderTopRightRadius: 0,

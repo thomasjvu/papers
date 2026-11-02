@@ -93,10 +93,18 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   const inlineCanvasRef = useRef<HTMLDivElement>(null);
   const lightboxCanvasRef = useRef<HTMLDivElement>(null);
 
-  const [inlineSvg, setInlineSvg] = useState('');
-  const [lightboxSvg, setLightboxSvg] = useState('');
-  const [lightboxLoading, setLightboxLoading] = useState(false);
-  const [isOpen, setIsOpen] = useState(false);
+  const [inline, setInline] = useState<{ status: 'loading' | 'ready' | 'failed'; svg: string }>({
+    status: 'loading',
+    svg: '',
+  });
+  const inlineSvg = inline.svg;
+  const [lightbox, setLightbox] = useState<{
+    status: 'closed' | 'loading' | 'ready' | 'failed';
+    svg: string;
+  }>({ status: 'closed', svg: '' });
+  const lightboxSvg = lightbox.svg;
+  const lightboxLoading = lightbox.status === 'loading';
+  const isOpen = lightbox.status !== 'closed';
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -105,17 +113,18 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     async function renderInline() {
       try {
         setError(null);
+        setInline({ status: 'loading', svg: '' });
         const renderedSvg = await renderMermaidChart(chart, `mermaid-inline-${id}`, 'inline');
 
         if (!cancelled) {
-          setInlineSvg(renderedSvg);
+          setInline({ status: 'ready', svg: renderedSvg });
         }
       } catch (renderError) {
         logger.error('Failed to render inline Mermaid diagram:', renderError);
 
         if (!cancelled) {
           setError(renderError instanceof Error ? renderError.message : 'Mermaid render failed.');
-          setInlineSvg('');
+          setInline({ status: 'failed', svg: '' });
         }
       }
     }
@@ -133,24 +142,20 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
     }
 
     let cancelled = false;
-    setLightboxLoading(true);
 
     async function renderLightbox() {
       try {
         const renderedSvg = await renderMermaidChart(chart, `mermaid-lightbox-${id}`, 'lightbox');
 
         if (!cancelled) {
-          setLightboxSvg(renderedSvg);
+          setLightbox({ status: 'ready', svg: renderedSvg });
         }
       } catch (renderError) {
         logger.error('Failed to render lightbox Mermaid diagram:', renderError);
 
         if (!cancelled) {
+          setLightbox({ status: 'failed', svg: '' });
           setError(renderError instanceof Error ? renderError.message : 'Mermaid render failed.');
-        }
-      } finally {
-        if (!cancelled) {
-          setLightboxLoading(false);
         }
       }
     }
@@ -164,7 +169,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
 
   const closeLightbox = useCallback(() => {
     dialogRef.current?.close();
-    setIsOpen(false);
+    setLightbox((previous) => ({ status: 'closed', svg: previous.svg }));
   }, []);
 
   const openLightbox = useCallback(() => {
@@ -173,7 +178,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
       return;
     }
 
-    setIsOpen(true);
+    setLightbox((previous) => ({ status: previous.svg ? 'ready' : 'loading', svg: previous.svg }));
 
     if (typeof dialog.showModal === 'function') {
       dialog.showModal();
@@ -198,9 +203,8 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
   }, [closeLightbox, isOpen]);
 
   useEffect(() => {
-    setLightboxSvg('');
-    setLightboxLoading(false);
-    setIsOpen(false);
+    dialogRef.current?.close();
+    setLightbox({ status: 'closed', svg: '' });
   }, [chart]);
 
   useLayoutEffect(() => {
@@ -251,6 +255,7 @@ export default function MermaidDiagram({ chart }: MermaidDiagramProps) {
       <dialog
         ref={dialogRef}
         className="mermaid-lightbox"
+        onClose={() => setLightbox((previous) => ({ status: 'closed', svg: previous.svg }))}
         onCancel={(event) => {
           event.preventDefault();
           closeLightbox();

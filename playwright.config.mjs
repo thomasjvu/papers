@@ -1,5 +1,9 @@
 import { defineConfig, devices } from '@playwright/test';
 
+// Playwright forces colored output in child processes; do not inherit a conflicting
+// NO_COLOR from terminal/agent environments into those children.
+if (process.env.NO_COLOR !== undefined) delete process.env.NO_COLOR;
+
 export default defineConfig({
   testDir: './test/browser',
   fullyParallel: true,

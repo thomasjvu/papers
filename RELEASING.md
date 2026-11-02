@@ -1,7 +1,8 @@
 # Releasing
 
-This repo can ship from `main` once the local validation commands and the
-owned-host deployment proof pass. Read [AGENTS.md](AGENTS.md) for the concise
+Framework packages can ship from `main` after the local validation commands
+pass. Hosting the demo site is optional and additionally requires an owned host
+and a successful deployment smoke check. Read [AGENTS.md](AGENTS.md) for the concise
 operating contract.
 
 ## Release Checklist
@@ -15,8 +16,11 @@ VITE_GITHUB_URL="https://github.com/your-org/your-repo"
 VITE_GITHUB_BRANCH="main"
 ```
 
-The trusted deploy workflow also requires `PAPERS_DEPLOY_HOST` as a repository
-or environment variable. It must be the HTTPS host that owns this application;
+To enable the optional demo deployment, set `PAPERS_DEPLOY_HOST` as a repository
+or environment variable. Without it, the workflow validates the build but skips
+deployment. With it, the trusted deployment preflight also requires valid
+`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets. The configured host
+must be the HTTPS host that owns this application;
 the workflow will not infer it from a stale preview URL. `wrangler.toml` is the
 authoritative Cloudflare Pages project configuration.
 
@@ -31,7 +35,7 @@ npm run build
 npm run release:check:papers   # release:check plus the starter package check
 npx playwright test
 npm run lighthouse:check
-npm audit --audit-level=high
+npm audit --include=dev --audit-level=low
 ```
 
 3. Sanity-check the build output.
@@ -48,10 +52,12 @@ npm audit --audit-level=high
   fingerprint, build mode/tool versions, site identity, and default document
   path
 
-4. Push to `main` only after the required Cloudflare credentials and owned host
-   variable are configured.
+4. Merge validated framework changes to `main`. The optional Cloudflare demo
+   deployment runs only when the owned host variable is configured; its
+   credentials and smoke checks remain mandatory when enabled.
 
-The GitHub workflows now validate the build, run the release smoke checks, and deploy `dist/` to Cloudflare Pages.
+The GitHub workflows validate the build and run release smoke checks. When demo
+hosting is enabled, the trusted main workflow also deploys `dist/` to Cloudflare Pages.
 
 ### Static route contract
 
@@ -149,8 +155,8 @@ host-specific smoke proof exists.
   and preserves the existing error and warning assertions. CI uploads that
   directory only as a private seven-day GitHub artifact; it does not publish
   reports to public Lighthouse storage.
-- Both `npm run check:runtime-audit` and `npm audit --audit-level=high` must
-  report zero high or critical findings before release. Keep development
+- Both `npm run check:runtime-audit` and `npm audit --include=dev --audit-level=low` must
+  report zero findings before release. Keep development
   tooling on maintained releases and investigate the complete dependency tree
   rather than suppressing an advisory or lowering the audit level.
 - Markdown/MDX and Mermaid output must stay behind the repository sanitizers;

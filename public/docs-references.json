@@ -282,6 +282,13 @@
       "line": 60
     },
     {
+      "source": "developer-guides/themes",
+      "target": "user-guide/configuration",
+      "href": "/docs/user-guide/configuration",
+      "line": 37,
+      "anchor": "navigation-font"
+    },
+    {
       "source": "developer-guides/ui-configuration",
       "target": "developer-guides/themes",
       "href": "/docs/developer-guides/themes",
@@ -381,13 +388,19 @@
       "source": "user-guide/configuration",
       "target": "developer-guides/design-system",
       "href": "/docs/developer-guides/design-system",
-      "line": 76
+      "line": 102
+    },
+    {
+      "source": "user-guide/configuration",
+      "target": "developer-guides/themes",
+      "href": "/docs/developer-guides/themes",
+      "line": 56
     },
     {
       "source": "user-guide/configuration",
       "target": "developer-guides/ui-configuration",
       "href": "/docs/developer-guides/ui-configuration",
-      "line": 75
+      "line": 101
     },
     {
       "source": "user-guide/interactive-map",
@@ -490,7 +503,7 @@
       {
         "source": "user-guide/configuration",
         "href": "/docs/user-guide/configuration",
-        "line": 76
+        "line": 102
       }
     ],
     "developer-guides/icon-customization": [],
@@ -509,6 +522,11 @@
         "source": "developer-guides/ui-configuration",
         "href": "/docs/developer-guides/ui-configuration",
         "line": 30
+      },
+      {
+        "source": "user-guide/configuration",
+        "href": "/docs/user-guide/configuration",
+        "line": 56
       }
     ],
     "developer-guides/translating-the-interface": [],
@@ -516,7 +534,7 @@
       {
         "source": "user-guide/configuration",
         "href": "/docs/user-guide/configuration",
-        "line": 75
+        "line": 101
       }
     ],
     "getting-started/installation": [
@@ -584,6 +602,12 @@
       }
     ],
     "user-guide/configuration": [
+      {
+        "source": "developer-guides/themes",
+        "href": "/docs/developer-guides/themes",
+        "line": 37,
+        "anchor": "navigation-font"
+      },
       {
         "source": "getting-started/quick-start",
         "href": "/docs/getting-started/quick-start",
