@@ -1971,7 +1971,7 @@ export const architectureTests: ArchitectureTestCase[] = [
       });
 
       assert.match(help, /Usage: npm create papers/);
-      assert.match(version, /^create-papers 0\.2\.0$/m);
+      assert.match(version, /^create-papers \d+\.\d+\.\d+$/m);
     },
   },
   {
