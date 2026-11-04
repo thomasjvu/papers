@@ -32,7 +32,6 @@ jobs:
         working-directory: __SITE_DIR__
     env:
       TO: ${{ inputs.to }}
-      TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -69,6 +68,7 @@ jobs:
           VERSION: ${{ steps.upgrade.outputs.version }}
           CONFLICTS: ${{ steps.upgrade.outputs.conflicts }}
           GH_TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN || github.token }}
+          TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN }}
         run: |
           branch="papers/upgrade-$VERSION"
           title="chore(papers): upgrade to $VERSION"

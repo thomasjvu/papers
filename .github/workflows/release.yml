@@ -122,12 +122,15 @@ jobs:
           node-version: '24'
           registry-url: https://registry.npmjs.org
 
-      # Trusted publishing needs npm 11.5.1 or newer.
+      # Trusted publishing needs npm 11.5.1 or newer. Pin it so the job that
+      # holds the publish credential never pulls an unreviewed npm release.
       - name: Update npm
-        run: npm install -g npm@latest
+        run: npm install -g npm@11.6.2
 
+      # This job holds the npm publish credential, so dependency install
+      # scripts must not run here. It only packs source; nothing is built.
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Verify tag matches both package versions
         run: |

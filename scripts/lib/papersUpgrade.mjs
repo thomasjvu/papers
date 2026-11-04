@@ -178,6 +178,9 @@ export function resolveUpstreamCommit(root, repository, ref) {
     if (!tag) throw new Error('No vX.Y.Z release tag found upstream. Pass --to <ref>.');
     ref = tag;
   }
+  if (ref.startsWith('-')) {
+    throw new Error(`Invalid Papers ref "${ref}": refs must not start with "-".`);
+  }
   candidates.push(`${UPSTREAM_REF_PREFIX}/tags/${ref}`, `${UPSTREAM_REF_PREFIX}/${ref}`, ref);
   for (const candidate of candidates) {
     const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', `${candidate}^{commit}`]);
@@ -185,7 +188,8 @@ export function resolveUpstreamCommit(root, repository, ref) {
   }
   // A branch, or a full commit SHA that is not on main or a tag: fetch it.
   if (
-    tryGit(root, ['fetch', '--quiet', '--no-tags', '--update-shallow', repository, ref]) !== null
+    tryGit(root, ['fetch', '--quiet', '--no-tags', '--update-shallow', '--', repository, ref]) !==
+    null
   ) {
     const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', 'FETCH_HEAD^{commit}']);
     if (sha) return { ref, commit: sha.trim() };

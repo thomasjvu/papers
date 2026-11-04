@@ -254,6 +254,19 @@ async function scaffoldFromLocalTemplate(targetDir, sourceRoot) {
   await copyTemplateDirectory(sourceRoot, targetDir);
 }
 
+export function assertNoArchiveLinks(verboseListing) {
+  for (const line of verboseListing.split('\n')) {
+    if (!line.trim()) continue;
+    // GNU and BSD tar both start each verbose line with the entry type.
+    // BSD tar shows hard links as regular entries ending in "link to ...".
+    if (/^[lh]/.test(line) || / link to /.test(line)) {
+      throw new Error(
+        'The template archive contains a symbolic or hard link, which is not allowed.'
+      );
+    }
+  }
+}
+
 function validateArchiveListing(listing, repository, revision) {
   const entries = listing
     .split('\n')
@@ -325,6 +338,11 @@ async function scaffoldFromGitHub(targetDir, repository, revision, archiveUrl) {
       maxBuffer: 16 * 1024 * 1024,
     });
     validateArchiveListing(listing, repository, revision);
+    const verboseListing = execFileSync('tar', ['-tvzf', archivePath], {
+      encoding: 'utf8',
+      maxBuffer: 64 * 1024 * 1024,
+    });
+    assertNoArchiveLinks(verboseListing);
     run('tar', ['-xzf', archivePath, '-C', extractRoot]);
 
     const sourceRoot = await findExtractedTemplateRoot(extractRoot);
