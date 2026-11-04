@@ -75,7 +75,9 @@ job (GitHub or Forgejo) that opens a pull request when a new Papers release is
 tagged. Clean upgrades are set to merge once the site's checks pass; upgrades
 with conflicts open as drafts. The job needs a `PAPERS_UPGRADE_TOKEN` secret
 that can push branches and open pull requests (the built-in GitHub token
-cannot start CI on the pull requests it opens).
+cannot start CI on the pull requests it opens). Only the step that pushes the
+branch and opens the pull request sees that token. `create-papers` refuses
+template archives that contain symbolic or hard links.
 
 **Sites made before the upgrader existed** adopt it once:
 

@@ -89,7 +89,9 @@ the changelog by hand:
 3. Merging it tags `vX.Y.Z`, creates the GitHub release, runs the full
    framework gate on the tag and publishes both packages to npm with
    provenance. Publishing uses npm trusted publishing (GitHub OIDC), so no npm
-   token is stored anywhere.
+   token is stored anywhere. Because that job can publish, it installs a
+   pinned npm version and runs `npm ci --ignore-scripts`, so no dependency
+   install script runs while the publish credential is available.
 4. Sites pick the release up from their weekly upgrade job, or by running
    `npx @thomasjvu/papers@latest upgrade` (see the README).
 

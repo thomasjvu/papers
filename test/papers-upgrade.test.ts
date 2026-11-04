@@ -6,7 +6,12 @@ import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createPathFilter, latestSemverTag } from '../scripts/lib/papersUpgrade.mjs';
+import {
+  createPathFilter,
+  latestSemverTag,
+  resolveUpstreamCommit,
+} from '../scripts/lib/papersUpgrade.mjs';
+import { assertNoArchiveLinks } from '../packages/create-papers/index.mjs';
 
 const cli = join(dirname(fileURLToPath(import.meta.url)), '..', 'scripts', 'papers-upgrade.mjs');
 
@@ -187,5 +192,45 @@ papersUpgradeTests.push({
       devDependencies: { vite: '^6' },
     });
     assert.deepEqual(conflicts, ['scripts.test']);
+  },
+});
+
+papersUpgradeTests.push({
+  name: 'papers upgrade rejects refs that git would read as options',
+  run: () => {
+    assert.throws(
+      () =>
+        resolveUpstreamCommit(
+          process.cwd(),
+          'https://example.invalid/papers.git',
+          '--upload-pack=touch /tmp/x'
+        ),
+      /must not start with "-"/
+    );
+  },
+});
+
+papersUpgradeTests.push({
+  name: 'create-papers rejects template archives that contain links',
+  run: async () => {
+    const temp = await mkdtemp(join(tmpdir(), 'papers-archive-'));
+    try {
+      const root = join(temp, 'papers-abc');
+      await mkdir(root);
+      await writeFile(join(root, 'README.md'), 'hi');
+      const clean = join(temp, 'clean.tgz');
+      execFileSync('tar', ['-czf', clean, '-C', temp, 'papers-abc']);
+      assertNoArchiveLinks(execFileSync('tar', ['-tvzf', clean], { encoding: 'utf8' }));
+
+      execFileSync('ln', ['-s', '/etc/passwd', join(root, 'escape')]);
+      const linked = join(temp, 'linked.tgz');
+      execFileSync('tar', ['-czf', linked, '-C', temp, 'papers-abc']);
+      assert.throws(
+        () => assertNoArchiveLinks(execFileSync('tar', ['-tvzf', linked], { encoding: 'utf8' })),
+        /symbolic or hard link/
+      );
+    } finally {
+      await rm(temp, { recursive: true, force: true });
+    }
   },
 });
