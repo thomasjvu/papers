@@ -131,3 +131,80 @@ export const contentSecurityTests = [
       }),
   })),
 ];
+
+// Stale-collection cleanup (audit F-3). public/collections.json from the last
+// build decides which old artifacts are deleted. Ways it could delete outside
+// public/, written before the fix:
+// - an artifactNamespace with "../" segments;
+// - an id with "../" segments and no artifactNamespace;
+// - an absolute namespace;
+// - a valid-looking namespace whose paths still resolve outside public/.
+// The control proves a real retired collection is still cleaned up.
+async function withStaleManifest(
+  previous: unknown[],
+  run: (paths: { rootDir: string; publicDir: string; victim: string }) => Promise<void>
+) {
+  await withSite('regular', async (rootDir) => {
+    const publicDir = join(rootDir, 'public');
+    const victim = join(rootDir, '..', 'victim');
+    await mkdir(join(victim, 'data-content', 'nested'), { recursive: true });
+    await writeFile(join(victim, 'data-content', 'nested', 'keep.txt'), 'keep\n');
+    for (const name of ['data-index.json', 'data-collection.json', 'data-references.json']) {
+      await writeFile(join(victim, name), '{}\n');
+    }
+    await mkdir(join(publicDir, 'old-content'), { recursive: true });
+    await writeFile(join(publicDir, 'old-content', 'page.json'), '{}\n');
+    await writeFile(join(publicDir, 'old-index.json'), '{}\n');
+    await writeFile(
+      join(publicDir, 'collections.json'),
+      JSON.stringify({ collections: previous }) + '\n'
+    );
+    await run({ rootDir, publicDir, victim });
+  });
+}
+
+function assertVictimIntact(victim: string) {
+  assert.ok(existsSync(join(victim, 'data-content', 'nested', 'keep.txt')));
+  for (const name of ['data-index.json', 'data-collection.json', 'data-references.json']) {
+    assert.ok(existsSync(join(victim, name)), `${name} was deleted`);
+  }
+}
+
+export const staleCleanupSecurityTests = [
+  {
+    name: 'stale cleanup still removes a retired collection inside public/ (control)',
+    run: () =>
+      withStaleManifest([{ id: 'old' }], async ({ rootDir, publicDir, victim }) => {
+        await generateDocsContent({ rootDir, publicDir, collections: [alphaCollection()] });
+        assert.equal(existsSync(join(publicDir, 'old-content')), false);
+        assert.equal(existsSync(join(publicDir, 'old-index.json')), false);
+        assertVictimIntact(victim);
+      }),
+  },
+  ...[
+    {
+      label: 'a ../ artifactNamespace',
+      entry: { id: 'old', artifactNamespace: '../../victim/data' },
+    },
+    { label: 'a ../ id', entry: { id: '../../victim/data' } },
+    { label: 'an absolute namespace', entry: { id: 'old', artifactNamespace: '/ABS/data' } },
+  ].map(({ label, entry }) => ({
+    name: `stale cleanup ignores ${label} from public/collections.json`,
+    run: () =>
+      withStaleManifest([], async ({ rootDir, publicDir, victim }) => {
+        const resolved = JSON.parse(
+          JSON.stringify(entry).replace(
+            '/ABS',
+            join(victim, '..').replaceAll('\\', '/') + '/victim'
+          )
+        );
+        await writeFile(
+          join(publicDir, 'collections.json'),
+          JSON.stringify({ collections: [resolved] }) + '\n'
+        );
+        await generateDocsContent({ rootDir, publicDir, collections: [alphaCollection()] });
+        assertVictimIntact(victim);
+        assert.ok(existsSync(join(publicDir, 'alpha-index.json')));
+      }),
+  })),
+];

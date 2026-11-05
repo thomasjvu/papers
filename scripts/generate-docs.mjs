@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 import {
@@ -18,6 +18,7 @@ import {
 } from '../shared/documentation-config.js';
 import { validateUiStringsConfig } from '../shared/uiStrings.js';
 import { getCollectionArtifactFiles } from './lib/collectionArtifacts.mjs';
+import { isPathInside } from './lib/contentSourceGuard.mjs';
 import { serializeArtifactJson } from './lib/docsArtifacts.mjs';
 import { collectDocumentPaths, createGeneratedDocsArtifacts } from './lib/docsGeneration.mjs';
 import {
@@ -126,11 +127,32 @@ export function createCollectionGenerationOptions({
   };
 }
 
+// Same rule validateContentCollections applies to active namespaces.
+const SAFE_PREVIOUS_NAMESPACE = /^[a-z][a-z0-9-]*$/;
+
+/**
+ * Delete a retired collection's artifacts. The namespace comes from the
+ * previous public/collections.json, which is build output and must not be
+ * trusted to name paths: refuse anything that is not a plain namespace or
+ * that resolves outside publicDir.
+ */
 async function removeCollectionArtifacts(publicDir, collection) {
-  const { indexPath, contentDir, manifestPath, referencesPath } = getCollectionArtifactFiles(
-    publicDir,
-    collection
-  );
+  const namespace = collection.artifactNamespace;
+  if (typeof namespace !== 'string' || !SAFE_PREVIOUS_NAMESPACE.test(namespace)) {
+    console.warn(
+      `Skipping cleanup of previous collection with invalid artifact namespace ${JSON.stringify(namespace)}.`
+    );
+    return;
+  }
+  const files = getCollectionArtifactFiles(publicDir, collection);
+  const resolvedPublicDir = resolve(publicDir);
+  for (const filePath of Object.values(files)) {
+    const resolvedPath = resolve(filePath);
+    if (resolvedPath === resolvedPublicDir || !isPathInside(resolvedPublicDir, resolvedPath)) {
+      throw new Error(`Refusing to delete ${resolvedPath}: it is outside ${resolvedPublicDir}.`);
+    }
+  }
+  const { indexPath, contentDir, manifestPath, referencesPath } = files;
   await rm(indexPath, { force: true });
   await rm(contentDir, { recursive: true, force: true });
   await rm(manifestPath, { force: true });
