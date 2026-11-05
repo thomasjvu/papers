@@ -20,6 +20,7 @@ import { routeHtmlTests } from './route-html.test.ts';
 import { markdownElementsTests } from './markdown-elements.test.ts';
 import { documentationPageViewTests } from './documentation-page-view.test.ts';
 import { papersUpgradeTests } from './papers-upgrade.test.ts';
+import { contentSecurityTests } from './content-security.test.ts';
 
 const testCases = [
   ...asyncCacheTests,
@@ -42,6 +43,7 @@ const testCases = [
   ...routeHtmlTests,
   ...codeBlockViewTests,
   ...papersUpgradeTests,
+  ...contentSecurityTests,
 ];
 
 let failures = 0;

@@ -19,7 +19,9 @@ verification ladder.
 
 ## Source boundaries
 
-- Author content in `src/docs/content/`.
+- Author content in `src/docs/content/` as regular files. The build fails on
+  symlinks in a content folder and on a content folder that resolves outside
+  the repository, so a link cannot publish a file from the build machine.
 - Change navigation and instance configuration in `shared/`.
 - Change framework behavior in `src/` and `scripts/`.
 - Regenerate `public/` and other derived files with the documented commands.
