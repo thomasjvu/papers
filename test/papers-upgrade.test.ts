@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  applyUpgrade,
   createPathFilter,
   latestSemverTag,
   resolveUpstreamCommit,
@@ -341,6 +342,73 @@ papersUpgradeTests.push({
       assert.equal(lock.ref, 'v1.1.0');
       assert.equal(lock.commit, goodTarget);
       assert.notEqual(lock.commit, evilCommit);
+    } finally {
+      await rm(temp, { recursive: true, force: true });
+    }
+  },
+});
+
+// Hardening (not an audit finding). Ways an upgrade could write outside the
+// site through a link, written before the fix:
+// - updating a file whose parent directory is a symlink out of the site;
+// - adding a new file under that symlinked directory;
+// - updating a file that is itself a symlink to an outside file;
+// - deleting through a symlinked file.
+// A regular framework file must still update (control).
+papersUpgradeTests.push({
+  name: 'papers upgrade refuses to write through symlinks in the site',
+  run: async () => {
+    const temp = await mkdtemp(join(tmpdir(), 'papers-upgrade-links-'));
+    try {
+      const upstream = join(temp, 'upstream');
+      await mkdir(upstream);
+      git(upstream, 'init', '-q', '-b', 'main');
+      await writeFiles(upstream, {
+        'scripts/linked/shared.mjs': 'base\n',
+        'scripts/file-link.mjs': 'base\n',
+        'scripts/delete-link.mjs': 'base\n',
+        'scripts/regular.mjs': 'base\n',
+      });
+      git(upstream, 'add', '-A');
+      git(upstream, 'commit', '-q', '-m', 'base');
+      const base = git(upstream, 'rev-parse', 'HEAD');
+      await writeFiles(upstream, {
+        'scripts/linked/shared.mjs': 'TARGET\n',
+        'scripts/linked/new.mjs': 'TARGET\n',
+        'scripts/file-link.mjs': 'TARGET\n',
+        'scripts/delete-link.mjs': null,
+        'scripts/regular.mjs': 'TARGET\n',
+      });
+      git(upstream, 'add', '-A');
+      git(upstream, 'commit', '-q', '-m', 'target');
+      const target = git(upstream, 'rev-parse', 'HEAD');
+
+      const outside = join(temp, 'outside');
+      await writeFiles(outside, {
+        'dir/shared.mjs': 'base\n',
+        'file.mjs': 'base\n',
+        'delete.mjs': 'base\n',
+      });
+      const site = join(temp, 'site');
+      await writeFiles(site, { 'scripts/regular.mjs': 'base\n' });
+      await symlink(join(outside, 'dir'), join(site, 'scripts', 'linked'));
+      await symlink(join(outside, 'file.mjs'), join(site, 'scripts', 'file-link.mjs'));
+      await symlink(join(outside, 'delete.mjs'), join(site, 'scripts', 'delete-link.mjs'));
+
+      const report = await applyUpgrade({ root: upstream, site, base, target, siteOwned: [] });
+
+      assert.equal(await readFile(join(outside, 'dir', 'shared.mjs'), 'utf8'), 'base\n');
+      assert.equal(existsSync(join(outside, 'dir', 'new.mjs')), false);
+      assert.equal(await readFile(join(outside, 'file.mjs'), 'utf8'), 'base\n');
+      assert.equal(await readFile(join(outside, 'delete.mjs'), 'utf8'), 'base\n');
+      assert.deepEqual(report.conflicts.map((entry: { path: string }) => entry.path).sort(), [
+        'scripts/delete-link.mjs',
+        'scripts/file-link.mjs',
+        'scripts/linked/new.mjs',
+        'scripts/linked/shared.mjs',
+      ]);
+      assert.deepEqual(report.updated, ['scripts/regular.mjs']);
+      assert.equal(await readFile(join(site, 'scripts', 'regular.mjs'), 'utf8'), 'TARGET\n');
     } finally {
       await rm(temp, { recursive: true, force: true });
     }

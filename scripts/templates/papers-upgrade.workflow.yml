@@ -5,6 +5,10 @@
 # pull requests) so the pull request runs CI. Clean upgrades are set to merge
 # automatically once required checks pass; upgrades with conflicts open as
 # drafts for a person to resolve.
+#
+# The token is only given to the "Open pull request" step. The check and
+# upgrade steps run code from the new Papers release, so they get neither the
+# token nor persisted checkout credentials.
 name: Papers upgrade
 
 on:
@@ -36,7 +40,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.PAPERS_UPGRADE_TOKEN || github.token }}
+          persist-credentials: false
 
       - uses: actions/setup-node@v4
         with:
@@ -70,10 +74,16 @@ jobs:
           GH_TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN || github.token }}
           TOKEN: ${{ secrets.PAPERS_UPGRADE_TOKEN }}
         run: |
+          # Checkout did not store credentials; hand the token to git per
+          # command from this step's environment instead of writing it to disk.
+          git_auth() {
+            git -c credential.helper= \
+              -c 'credential.helper=!f() { test "$1" = get || exit 0; echo username=x-access-token; echo "password=${GH_TOKEN}"; }; f' "$@"
+          }
           branch="papers/upgrade-$VERSION"
           title="chore(papers): upgrade to $VERSION"
           base_branch="${GITHUB_BASE_REF:-${GITHUB_REF_NAME}}"
-          if git ls-remote --exit-code --heads origin "$branch" >/dev/null; then
+          if git_auth ls-remote --exit-code --heads origin "$branch" >/dev/null; then
             echo "Branch $branch already exists; nothing to do."; exit 0
           fi
           git config user.name "papers-upgrade[bot]"
@@ -81,7 +91,7 @@ jobs:
           git switch -c "$branch"
           git add -A .
           git commit -m "$title"
-          git push origin "$branch"
+          git_auth push origin "$branch"
           body="$RUNNER_TEMP/papers-upgrade.md"
           draft=false
           if [ "${CONFLICTS:-0}" != "0" ]; then draft=true; fi

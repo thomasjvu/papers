@@ -80,7 +80,10 @@ tagged. Clean upgrades are set to merge once the site's checks pass; upgrades
 with conflicts open as drafts. The job needs a `PAPERS_UPGRADE_TOKEN` secret
 that can push branches and open pull requests (the built-in GitHub token
 cannot start CI on the pull requests it opens). Only the step that pushes the
-branch and opens the pull request sees that token. `create-papers` refuses
+branch and opens the pull request receives the token; the steps that run the
+new release's upgrade code do not, and checkout does not store credentials.
+The upgrader also never writes through a symlink in the site; such paths are
+reported as conflicts. `create-papers` refuses
 template archives that contain symbolic or hard links.
 
 **Sites made before the upgrader existed** adopt it once:

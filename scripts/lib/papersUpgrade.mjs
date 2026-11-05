@@ -5,10 +5,18 @@
 // commit and the target release, merging it with the site's own edits the same
 // way `git merge` would. Site content and site-owned paths are never touched.
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 export const LOCK_FILE = 'papers.lock.json';
 export const UPGRADE_CONFIG_FILE = 'papers.upgrade.json';
@@ -389,6 +397,32 @@ export function listChangedPaths(root, base, target) {
 }
 
 /**
+ * Return why the upgrader must not touch `path` inside `site`, or null.
+ * Upgrades never write, merge, chmod or delete through a symlink, whether the
+ * file itself or one of its parent folders is the link, so an upgrade cannot
+ * change files outside the site.
+ */
+function unsafeDestinationReason(site, path) {
+  const siteRoot = resolve(site);
+  const destination = resolve(siteRoot, path);
+  const rel = relative(siteRoot, destination);
+  if (rel === '' || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    return 'Not updated: the path is outside the site.';
+  }
+  let current = siteRoot;
+  for (const part of rel.split(sep)) {
+    current = join(current, part);
+    const stats = lstatSync(current, { throwIfNoEntry: false });
+    if (!stats) return null;
+    if (stats.isSymbolicLink()) {
+      const link = relative(siteRoot, current).split(sep).join('/');
+      return `Not updated: ${link} is a symlink; the upgrader does not write through links.`;
+    }
+  }
+  return null;
+}
+
+/**
  * Apply upstream changes base..target to the site directory.
  * Returns a report with one entry per upstream-changed path.
  */
@@ -410,6 +444,11 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
   for (const path of listChangedPaths(root, base, target)) {
     if (isSiteOwned(path)) {
       report.skippedSiteOwned.push(path);
+      continue;
+    }
+    const unsafe = unsafeDestinationReason(site, path);
+    if (unsafe) {
+      report.conflicts.push({ path, reason: unsafe });
       continue;
     }
     const destination = join(site, path);
