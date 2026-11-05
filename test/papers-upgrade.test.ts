@@ -234,3 +234,115 @@ papersUpgradeTests.push({
     }
   },
 });
+
+// Security regression (audit F-1). A fetch-only look at another repository
+// (`--check --repository <fork>`) must not make that repository's tags or
+// commits eligible for a later upgrade from the locked repository.
+// Ways this could fail, written before the fix:
+// - stale fork tags stay in refs/papers-upstream/tags and win "latest";
+// - a stale fork commit is accepted for an explicit --to <sha>;
+// - the fork's migration runs with the operator's privileges;
+// - the lock records the trusted URL next to a fork commit;
+// - a repository whose fetch fails leaves the previous repository's refs usable.
+papersUpgradeTests.push({
+  name: 'papers upgrade ignores refs left behind by a different repository',
+  run: async () => {
+    const temp = await mkdtemp(join(tmpdir(), 'papers-upgrade-refs-'));
+    try {
+      const good = join(temp, 'good');
+      await mkdir(good);
+      git(good, 'init', '-q', '-b', 'main');
+      await writeFiles(good, {
+        'package.json': '{ "name": "papers", "version": "1.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.0.0";\n',
+      });
+      git(good, 'add', '-A');
+      git(good, 'commit', '-q', '-m', 'v1.0.0');
+      git(good, 'tag', 'v1.0.0');
+      const goodBase = git(good, 'rev-parse', 'HEAD');
+
+      const evil = join(temp, 'evil');
+      git(temp, 'clone', '-q', good, evil);
+      await writeFiles(evil, {
+        'package.json': '{ "name": "papers", "version": "9.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "evil 9.0.0";\n',
+        'scripts/migrations/9.0.0-marker.mjs':
+          "import { writeFileSync } from 'node:fs';\n" +
+          "import { join } from 'node:path';\n" +
+          "export const description = 'dummy marker';\n" +
+          "export function run({ site }) { writeFileSync(join(site, 'MIGRATION_MARKER'), 'x'); return []; }\n",
+      });
+      git(evil, 'add', '-A');
+      git(evil, 'commit', '-q', '-m', 'v9.0.0');
+      git(evil, 'tag', 'v9.0.0');
+      const evilCommit = git(evil, 'rev-parse', 'HEAD');
+
+      await writeFiles(good, {
+        'package.json': '{ "name": "papers", "version": "1.1.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.1.0";\n',
+      });
+      git(good, 'add', '-A');
+      git(good, 'commit', '-q', '-m', 'v1.1.0');
+      git(good, 'tag', 'v1.1.0');
+      const goodTarget = git(good, 'rev-parse', 'HEAD');
+
+      const site = join(temp, 'site');
+      await mkdir(site);
+      git(site, 'init', '-q', '-b', 'main');
+      await writeFiles(site, {
+        'package.json': '{ "name": "site", "version": "1.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.0.0";\n',
+        'papers.lock.json': JSON.stringify({
+          repository: good,
+          version: '1.0.0',
+          ref: 'v1.0.0',
+          commit: goodBase,
+        }),
+      });
+      git(site, 'add', '-A');
+      git(site, 'commit', '-q', '-m', 'site');
+
+      const run = (...args: string[]) =>
+        spawnSync(process.execPath, [cli, '--site', site, ...args], { encoding: 'utf8' });
+
+      // 1. Fetch-only inspection of the fork.
+      const peek = run('--check', '--repository', evil);
+      assert.equal(peek.status, 10, peek.stderr + peek.stdout);
+      assert.match(peek.stdout, /v9\.0\.0 is available/);
+
+      // 2. A later check against the locked repository sees only its releases.
+      const check = run('--check');
+      assert.equal(check.status, 10, check.stderr + check.stdout);
+      assert.match(check.stdout, /Papers v1\.1\.0 is available/);
+
+      // 3. An explicit fork commit is not resolvable from the locked repository.
+      const pinned = run('--check', '--to', evilCommit);
+      assert.notEqual(pinned.status, 10, pinned.stderr + pinned.stdout);
+      assert.doesNotMatch(pinned.stdout, /is available/);
+
+      // 4. A failed fetch must not leave the fork's refs usable.
+      const missing = run('--check', '--repository', join(temp, 'does-not-exist'));
+      assert.notEqual(missing.status, 0);
+      assert.notEqual(missing.status, 10);
+      const leftover = git(site, 'for-each-ref', '--format=%(refname)', 'refs/papers-upstream/');
+      assert.doesNotMatch(leftover, /v9\.0\.0/);
+
+      // 5. The real upgrade installs the trusted release and runs no fork code.
+      run('--check', '--repository', evil);
+      const upgrade = run();
+      assert.equal(upgrade.status, 0, upgrade.stderr + upgrade.stdout);
+      assert.equal(existsSync(join(site, 'MIGRATION_MARKER')), false);
+      assert.equal(
+        await readFile(join(site, 'scripts/framework.mjs'), 'utf8'),
+        'export const source = "good 1.1.0";\n'
+      );
+      const lock = JSON.parse(await readFile(join(site, 'papers.lock.json'), 'utf8'));
+      assert.equal(lock.repository, good);
+      assert.equal(lock.ref, 'v1.1.0');
+      assert.equal(lock.commit, goodTarget);
+      assert.notEqual(lock.commit, evilCommit);
+    } finally {
+      await rm(temp, { recursive: true, force: true });
+    }
+  },
+});

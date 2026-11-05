@@ -145,12 +145,31 @@ export function writeLock(site, lock) {
   writeFileSync(join(site, LOCK_FILE), `${JSON.stringify(lock, null, 2)}\n`);
 }
 
+/**
+ * Delete every ref under refs/papers-upstream/. The namespace is shared by
+ * all repositories this clone has ever fetched, so refs left by an earlier
+ * run (for example `--check --repository <fork>`) must never be eligible
+ * upgrade targets for the next run.
+ */
+export function clearUpstreamRefs(root) {
+  const refs = git(root, ['for-each-ref', '--format=%(refname)', `${UPSTREAM_REF_PREFIX}/`])
+    .split('\n')
+    .filter(Boolean);
+  if (refs.length === 0) return;
+  git(root, ['update-ref', '--stdin'], {
+    input: refs.map((ref) => `delete ${ref}\n`).join(''),
+  });
+}
+
 export function fetchUpstream(root, repository) {
+  // Clear first, so a failed fetch leaves nothing behind either.
+  clearUpstreamRefs(root);
   git(root, [
     'fetch',
     '--quiet',
     '--no-tags',
     '--force',
+    '--prune',
     // Shallow site clones (CI checkouts, partial mirrors) must accept new roots.
     '--update-shallow',
     repository,
@@ -160,6 +179,19 @@ export function fetchUpstream(root, repository) {
   if (!tryGit(root, ['rev-parse', '--verify', '--quiet', `${UPSTREAM_REF_PREFIX}/main`])) {
     throw new Error(`Fetching ${repository} did not produce ${UPSTREAM_REF_PREFIX}/main.`);
   }
+}
+
+/** True when `commit` is reachable from a ref the current run fetched. */
+function isFetchedUpstreamCommit(root, commit) {
+  const out = tryGit(root, [
+    'for-each-ref',
+    '--count=1',
+    '--format=%(refname)',
+    '--contains',
+    commit,
+    `${UPSTREAM_REF_PREFIX}/`,
+  ]);
+  return Boolean(out && out.trim());
 }
 
 export function listUpstreamTags(root) {
@@ -181,10 +213,25 @@ export function resolveUpstreamCommit(root, repository, ref) {
   if (ref.startsWith('-')) {
     throw new Error(`Invalid Papers ref "${ref}": refs must not start with "-".`);
   }
-  candidates.push(`${UPSTREAM_REF_PREFIX}/tags/${ref}`, `${UPSTREAM_REF_PREFIX}/${ref}`, ref);
+  candidates.push(`${UPSTREAM_REF_PREFIX}/tags/${ref}`, `${UPSTREAM_REF_PREFIX}/${ref}`);
   for (const candidate of candidates) {
     const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', `${candidate}^{commit}`]);
     if (sha) return { ref, commit: sha.trim() };
+  }
+  // A commit SHA already in the local object store is used only if the
+  // repository fetched in this run contains it; objects or local refs from
+  // any other source are not trusted.
+  const local = tryGit(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
+  if (local && isFetchedUpstreamCommit(root, local.trim())) {
+    return { ref, commit: local.trim() };
+  }
+  // `git fetch <repository> <sha>` succeeds without asking the remote when the
+  // object is already present locally, so FETCH_HEAD would not prove origin.
+  if (/^[0-9a-f]{40}$/i.test(ref) && local) {
+    throw new Error(
+      `Papers commit ${ref} is not reachable from main or a release tag of ${repository}. ` +
+        'Pass a branch or tag of that repository with --to.'
+    );
   }
   // A branch, or a full commit SHA that is not on main or a tag: fetch it.
   if (

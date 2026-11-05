@@ -65,6 +65,10 @@ The upgrader works like `git merge` for the framework:
 - add your own never-upgrade paths to `exclude` in `papers.lock.json`;
 - breaking changes ship a codemod in `scripts/migrations/<version>.mjs`, run
   automatically when an upgrade crosses that version.
+- it installs only what it fetched from the repository of this run (the
+  `--repository` option, else `papers.lock.json`). Refs left by an earlier run
+  against another repository are cleared first, and a `--to <commit>` must be
+  on that repository's `main` or a release tag.
 
 It refuses to run with uncommitted changes, so every upgrade is one reviewable
 diff. Read [CHANGELOG.md](CHANGELOG.md) for what changed.
