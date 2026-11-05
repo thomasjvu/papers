@@ -5,10 +5,18 @@
 // commit and the target release, merging it with the site's own edits the same
 // way `git merge` would. Site content and site-owned paths are never touched.
 import { execFileSync } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import {
+  existsSync,
+  lstatSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs';
 import { chmod, mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { dirname, join, relative, resolve } from 'node:path';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 
 export const LOCK_FILE = 'papers.lock.json';
 export const UPGRADE_CONFIG_FILE = 'papers.upgrade.json';
@@ -145,12 +153,31 @@ export function writeLock(site, lock) {
   writeFileSync(join(site, LOCK_FILE), `${JSON.stringify(lock, null, 2)}\n`);
 }
 
+/**
+ * Delete every ref under refs/papers-upstream/. The namespace is shared by
+ * all repositories this clone has ever fetched, so refs left by an earlier
+ * run (for example `--check --repository <fork>`) must never be eligible
+ * upgrade targets for the next run.
+ */
+export function clearUpstreamRefs(root) {
+  const refs = git(root, ['for-each-ref', '--format=%(refname)', `${UPSTREAM_REF_PREFIX}/`])
+    .split('\n')
+    .filter(Boolean);
+  if (refs.length === 0) return;
+  git(root, ['update-ref', '--stdin'], {
+    input: refs.map((ref) => `delete ${ref}\n`).join(''),
+  });
+}
+
 export function fetchUpstream(root, repository) {
+  // Clear first, so a failed fetch leaves nothing behind either.
+  clearUpstreamRefs(root);
   git(root, [
     'fetch',
     '--quiet',
     '--no-tags',
     '--force',
+    '--prune',
     // Shallow site clones (CI checkouts, partial mirrors) must accept new roots.
     '--update-shallow',
     repository,
@@ -160,6 +187,19 @@ export function fetchUpstream(root, repository) {
   if (!tryGit(root, ['rev-parse', '--verify', '--quiet', `${UPSTREAM_REF_PREFIX}/main`])) {
     throw new Error(`Fetching ${repository} did not produce ${UPSTREAM_REF_PREFIX}/main.`);
   }
+}
+
+/** True when `commit` is reachable from a ref the current run fetched. */
+function isFetchedUpstreamCommit(root, commit) {
+  const out = tryGit(root, [
+    'for-each-ref',
+    '--count=1',
+    '--format=%(refname)',
+    '--contains',
+    commit,
+    `${UPSTREAM_REF_PREFIX}/`,
+  ]);
+  return Boolean(out && out.trim());
 }
 
 export function listUpstreamTags(root) {
@@ -181,10 +221,25 @@ export function resolveUpstreamCommit(root, repository, ref) {
   if (ref.startsWith('-')) {
     throw new Error(`Invalid Papers ref "${ref}": refs must not start with "-".`);
   }
-  candidates.push(`${UPSTREAM_REF_PREFIX}/tags/${ref}`, `${UPSTREAM_REF_PREFIX}/${ref}`, ref);
+  candidates.push(`${UPSTREAM_REF_PREFIX}/tags/${ref}`, `${UPSTREAM_REF_PREFIX}/${ref}`);
   for (const candidate of candidates) {
     const sha = tryGit(root, ['rev-parse', '--verify', '--quiet', `${candidate}^{commit}`]);
     if (sha) return { ref, commit: sha.trim() };
+  }
+  // A commit SHA already in the local object store is used only if the
+  // repository fetched in this run contains it; objects or local refs from
+  // any other source are not trusted.
+  const local = tryGit(root, ['rev-parse', '--verify', '--quiet', `${ref}^{commit}`]);
+  if (local && isFetchedUpstreamCommit(root, local.trim())) {
+    return { ref, commit: local.trim() };
+  }
+  // `git fetch <repository> <sha>` succeeds without asking the remote when the
+  // object is already present locally, so FETCH_HEAD would not prove origin.
+  if (/^[0-9a-f]{40}$/i.test(ref) && local) {
+    throw new Error(
+      `Papers commit ${ref} is not reachable from main or a release tag of ${repository}. ` +
+        'Pass a branch or tag of that repository with --to.'
+    );
   }
   // A branch, or a full commit SHA that is not on main or a tag: fetch it.
   if (
@@ -342,6 +397,32 @@ export function listChangedPaths(root, base, target) {
 }
 
 /**
+ * Return why the upgrader must not touch `path` inside `site`, or null.
+ * Upgrades never write, merge, chmod or delete through a symlink, whether the
+ * file itself or one of its parent folders is the link, so an upgrade cannot
+ * change files outside the site.
+ */
+function unsafeDestinationReason(site, path) {
+  const siteRoot = resolve(site);
+  const destination = resolve(siteRoot, path);
+  const rel = relative(siteRoot, destination);
+  if (rel === '' || rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
+    return 'Not updated: the path is outside the site.';
+  }
+  let current = siteRoot;
+  for (const part of rel.split(sep)) {
+    current = join(current, part);
+    const stats = lstatSync(current, { throwIfNoEntry: false });
+    if (!stats) return null;
+    if (stats.isSymbolicLink()) {
+      const link = relative(siteRoot, current).split(sep).join('/');
+      return `Not updated: ${link} is a symlink; the upgrader does not write through links.`;
+    }
+  }
+  return null;
+}
+
+/**
  * Apply upstream changes base..target to the site directory.
  * Returns a report with one entry per upstream-changed path.
  */
@@ -363,6 +444,11 @@ export async function applyUpgrade({ root, site, base, target, siteOwned, exclud
   for (const path of listChangedPaths(root, base, target)) {
     if (isSiteOwned(path)) {
       report.skippedSiteOwned.push(path);
+      continue;
+    }
+    const unsafe = unsafeDestinationReason(site, path);
+    if (unsafe) {
+      report.conflicts.push({ path, reason: unsafe });
       continue;
     }
     const destination = join(site, path);

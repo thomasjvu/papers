@@ -1,5 +1,7 @@
-import { existsSync } from 'node:fs';
+import { existsSync, realpathSync } from 'node:fs';
 import { isAbsolute, join, relative, resolve, sep } from 'node:path';
+
+import { isPathInside } from './contentSourceGuard.mjs';
 
 export function resolveMonorepoRoot(startDir = process.cwd()) {
   let current = resolve(startDir);
@@ -32,6 +34,17 @@ export function resolveCollectionContentRoot(collection, rootDir = process.cwd()
   ) {
     throw new Error(
       `Content collection root "${contentDir}" escapes the repository root "${resolvedRoot}".`
+    );
+  }
+
+  // The lexical check above does not see symlinks: a linked content folder
+  // must not point outside the repository either.
+  if (
+    existsSync(resolvedContentRoot) &&
+    !isPathInside(realpathSync(resolvedRoot), realpathSync(resolvedContentRoot))
+  ) {
+    throw new Error(
+      `Content collection root "${contentDir}" resolves outside the repository root "${resolvedRoot}".`
     );
   }
 

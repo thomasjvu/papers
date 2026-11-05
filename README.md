@@ -65,6 +65,10 @@ The upgrader works like `git merge` for the framework:
 - add your own never-upgrade paths to `exclude` in `papers.lock.json`;
 - breaking changes ship a codemod in `scripts/migrations/<version>.mjs`, run
   automatically when an upgrade crosses that version.
+- it installs only what it fetched from the repository of this run (the
+  `--repository` option, else `papers.lock.json`). Refs left by an earlier run
+  against another repository are cleared first, and a `--to <commit>` must be
+  on that repository's `main` or a release tag.
 
 It refuses to run with uncommitted changes, so every upgrade is one reviewable
 diff. Read [CHANGELOG.md](CHANGELOG.md) for what changed.
@@ -76,7 +80,10 @@ tagged. Clean upgrades are set to merge once the site's checks pass; upgrades
 with conflicts open as drafts. The job needs a `PAPERS_UPGRADE_TOKEN` secret
 that can push branches and open pull requests (the built-in GitHub token
 cannot start CI on the pull requests it opens). Only the step that pushes the
-branch and opens the pull request sees that token. `create-papers` refuses
+branch and opens the pull request receives the token; the steps that run the
+new release's upgrade code do not, and checkout does not store credentials.
+The upgrader also never writes through a symlink in the site; such paths are
+reported as conflicts. `create-papers` refuses
 template archives that contain symbolic or hard links.
 
 **Sites made before the upgrader existed** adopt it once:

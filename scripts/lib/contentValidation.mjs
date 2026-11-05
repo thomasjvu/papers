@@ -25,6 +25,7 @@ import { getDefaultDocumentPath, getDirectoryAliasEntries } from '../../shared/s
 import { createDocumentToc, extractDocumentLinks, parseFrontmatter } from './docsArtifacts.mjs';
 import { validateMdxComponentsInSource } from './mdxCompile.mjs';
 import { splitTargetSuffix } from './linkTargets.mjs';
+import { assertContainedRegularFile } from './contentSourceGuard.mjs';
 
 const DOCUMENT_EXTENSIONS = new Set(['.md', '.mdx']);
 export const EXCLUDED_SOURCE_DIRECTORIES = new Set(['generated', 'variants']);
@@ -81,6 +82,11 @@ async function collectMarkdownFiles(directory, rootDirectory = directory, option
   for (const entry of entries) {
     const absolutePath = join(directory, entry.name);
 
+    // A linked file or directory could publish files from outside the root.
+    if (entry.isSymbolicLink()) {
+      throw new Error(`Content sources must be regular files, not symlinks: ${absolutePath}`);
+    }
+
     if (entry.isDirectory()) {
       if (excludedDirectories.has(entry.name)) {
         continue;
@@ -90,7 +96,7 @@ async function collectMarkdownFiles(directory, rootDirectory = directory, option
       continue;
     }
 
-    if (!DOCUMENT_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
+    if (!entry.isFile() || !DOCUMENT_EXTENSIONS.has(extname(entry.name).toLowerCase())) {
       continue;
     }
 
@@ -495,6 +501,7 @@ async function readSourceRecords(
     };
 
     try {
+      assertContainedRegularFile(file.absolutePath, contentRoot, rootDir);
       record.content = await readFile(file.absolutePath, 'utf8');
       parseFrontmatter(record.content, frontmatterSchema);
       if (file.absolutePath.toLowerCase().endsWith('.mdx')) {

@@ -1,12 +1,13 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
+  applyUpgrade,
   createPathFilter,
   latestSemverTag,
   resolveUpstreamCommit,
@@ -229,6 +230,185 @@ papersUpgradeTests.push({
         () => assertNoArchiveLinks(execFileSync('tar', ['-tvzf', linked], { encoding: 'utf8' })),
         /symbolic or hard link/
       );
+    } finally {
+      await rm(temp, { recursive: true, force: true });
+    }
+  },
+});
+
+// Security regression (audit F-1). A fetch-only look at another repository
+// (`--check --repository <fork>`) must not make that repository's tags or
+// commits eligible for a later upgrade from the locked repository.
+// Ways this could fail, written before the fix:
+// - stale fork tags stay in refs/papers-upstream/tags and win "latest";
+// - a stale fork commit is accepted for an explicit --to <sha>;
+// - the fork's migration runs with the operator's privileges;
+// - the lock records the trusted URL next to a fork commit;
+// - a repository whose fetch fails leaves the previous repository's refs usable.
+papersUpgradeTests.push({
+  name: 'papers upgrade ignores refs left behind by a different repository',
+  run: async () => {
+    const temp = await mkdtemp(join(tmpdir(), 'papers-upgrade-refs-'));
+    try {
+      const good = join(temp, 'good');
+      await mkdir(good);
+      git(good, 'init', '-q', '-b', 'main');
+      await writeFiles(good, {
+        'package.json': '{ "name": "papers", "version": "1.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.0.0";\n',
+      });
+      git(good, 'add', '-A');
+      git(good, 'commit', '-q', '-m', 'v1.0.0');
+      git(good, 'tag', 'v1.0.0');
+      const goodBase = git(good, 'rev-parse', 'HEAD');
+
+      const evil = join(temp, 'evil');
+      git(temp, 'clone', '-q', good, evil);
+      await writeFiles(evil, {
+        'package.json': '{ "name": "papers", "version": "9.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "evil 9.0.0";\n',
+        'scripts/migrations/9.0.0-marker.mjs':
+          "import { writeFileSync } from 'node:fs';\n" +
+          "import { join } from 'node:path';\n" +
+          "export const description = 'dummy marker';\n" +
+          "export function run({ site }) { writeFileSync(join(site, 'MIGRATION_MARKER'), 'x'); return []; }\n",
+      });
+      git(evil, 'add', '-A');
+      git(evil, 'commit', '-q', '-m', 'v9.0.0');
+      git(evil, 'tag', 'v9.0.0');
+      const evilCommit = git(evil, 'rev-parse', 'HEAD');
+
+      await writeFiles(good, {
+        'package.json': '{ "name": "papers", "version": "1.1.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.1.0";\n',
+      });
+      git(good, 'add', '-A');
+      git(good, 'commit', '-q', '-m', 'v1.1.0');
+      git(good, 'tag', 'v1.1.0');
+      const goodTarget = git(good, 'rev-parse', 'HEAD');
+
+      const site = join(temp, 'site');
+      await mkdir(site);
+      git(site, 'init', '-q', '-b', 'main');
+      await writeFiles(site, {
+        'package.json': '{ "name": "site", "version": "1.0.0" }\n',
+        'scripts/framework.mjs': 'export const source = "good 1.0.0";\n',
+        'papers.lock.json': JSON.stringify({
+          repository: good,
+          version: '1.0.0',
+          ref: 'v1.0.0',
+          commit: goodBase,
+        }),
+      });
+      git(site, 'add', '-A');
+      git(site, 'commit', '-q', '-m', 'site');
+
+      const run = (...args: string[]) =>
+        spawnSync(process.execPath, [cli, '--site', site, ...args], { encoding: 'utf8' });
+
+      // 1. Fetch-only inspection of the fork.
+      const peek = run('--check', '--repository', evil);
+      assert.equal(peek.status, 10, peek.stderr + peek.stdout);
+      assert.match(peek.stdout, /v9\.0\.0 is available/);
+
+      // 2. A later check against the locked repository sees only its releases.
+      const check = run('--check');
+      assert.equal(check.status, 10, check.stderr + check.stdout);
+      assert.match(check.stdout, /Papers v1\.1\.0 is available/);
+
+      // 3. An explicit fork commit is not resolvable from the locked repository.
+      const pinned = run('--check', '--to', evilCommit);
+      assert.notEqual(pinned.status, 10, pinned.stderr + pinned.stdout);
+      assert.doesNotMatch(pinned.stdout, /is available/);
+
+      // 4. A failed fetch must not leave the fork's refs usable.
+      const missing = run('--check', '--repository', join(temp, 'does-not-exist'));
+      assert.notEqual(missing.status, 0);
+      assert.notEqual(missing.status, 10);
+      const leftover = git(site, 'for-each-ref', '--format=%(refname)', 'refs/papers-upstream/');
+      assert.doesNotMatch(leftover, /v9\.0\.0/);
+
+      // 5. The real upgrade installs the trusted release and runs no fork code.
+      run('--check', '--repository', evil);
+      const upgrade = run();
+      assert.equal(upgrade.status, 0, upgrade.stderr + upgrade.stdout);
+      assert.equal(existsSync(join(site, 'MIGRATION_MARKER')), false);
+      assert.equal(
+        await readFile(join(site, 'scripts/framework.mjs'), 'utf8'),
+        'export const source = "good 1.1.0";\n'
+      );
+      const lock = JSON.parse(await readFile(join(site, 'papers.lock.json'), 'utf8'));
+      assert.equal(lock.repository, good);
+      assert.equal(lock.ref, 'v1.1.0');
+      assert.equal(lock.commit, goodTarget);
+      assert.notEqual(lock.commit, evilCommit);
+    } finally {
+      await rm(temp, { recursive: true, force: true });
+    }
+  },
+});
+
+// Hardening (not an audit finding). Ways an upgrade could write outside the
+// site through a link, written before the fix:
+// - updating a file whose parent directory is a symlink out of the site;
+// - adding a new file under that symlinked directory;
+// - updating a file that is itself a symlink to an outside file;
+// - deleting through a symlinked file.
+// A regular framework file must still update (control).
+papersUpgradeTests.push({
+  name: 'papers upgrade refuses to write through symlinks in the site',
+  run: async () => {
+    const temp = await mkdtemp(join(tmpdir(), 'papers-upgrade-links-'));
+    try {
+      const upstream = join(temp, 'upstream');
+      await mkdir(upstream);
+      git(upstream, 'init', '-q', '-b', 'main');
+      await writeFiles(upstream, {
+        'scripts/linked/shared.mjs': 'base\n',
+        'scripts/file-link.mjs': 'base\n',
+        'scripts/delete-link.mjs': 'base\n',
+        'scripts/regular.mjs': 'base\n',
+      });
+      git(upstream, 'add', '-A');
+      git(upstream, 'commit', '-q', '-m', 'base');
+      const base = git(upstream, 'rev-parse', 'HEAD');
+      await writeFiles(upstream, {
+        'scripts/linked/shared.mjs': 'TARGET\n',
+        'scripts/linked/new.mjs': 'TARGET\n',
+        'scripts/file-link.mjs': 'TARGET\n',
+        'scripts/delete-link.mjs': null,
+        'scripts/regular.mjs': 'TARGET\n',
+      });
+      git(upstream, 'add', '-A');
+      git(upstream, 'commit', '-q', '-m', 'target');
+      const target = git(upstream, 'rev-parse', 'HEAD');
+
+      const outside = join(temp, 'outside');
+      await writeFiles(outside, {
+        'dir/shared.mjs': 'base\n',
+        'file.mjs': 'base\n',
+        'delete.mjs': 'base\n',
+      });
+      const site = join(temp, 'site');
+      await writeFiles(site, { 'scripts/regular.mjs': 'base\n' });
+      await symlink(join(outside, 'dir'), join(site, 'scripts', 'linked'));
+      await symlink(join(outside, 'file.mjs'), join(site, 'scripts', 'file-link.mjs'));
+      await symlink(join(outside, 'delete.mjs'), join(site, 'scripts', 'delete-link.mjs'));
+
+      const report = await applyUpgrade({ root: upstream, site, base, target, siteOwned: [] });
+
+      assert.equal(await readFile(join(outside, 'dir', 'shared.mjs'), 'utf8'), 'base\n');
+      assert.equal(existsSync(join(outside, 'dir', 'new.mjs')), false);
+      assert.equal(await readFile(join(outside, 'file.mjs'), 'utf8'), 'base\n');
+      assert.equal(await readFile(join(outside, 'delete.mjs'), 'utf8'), 'base\n');
+      assert.deepEqual(report.conflicts.map((entry: { path: string }) => entry.path).sort(), [
+        'scripts/delete-link.mjs',
+        'scripts/file-link.mjs',
+        'scripts/linked/new.mjs',
+        'scripts/linked/shared.mjs',
+      ]);
+      assert.deepEqual(report.updated, ['scripts/regular.mjs']);
+      assert.equal(await readFile(join(site, 'scripts', 'regular.mjs'), 'utf8'), 'TARGET\n');
     } finally {
       await rm(temp, { recursive: true, force: true });
     }

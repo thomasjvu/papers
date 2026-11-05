@@ -1,7 +1,8 @@
-import { existsSync } from 'fs';
+import { lstatSync } from 'fs';
 import { join, relative, resolve, sep } from 'path';
 
 import { buildDocsContentPath, getDocsVariantContexts } from '../../shared/docsRouting.js';
+import { assertContainedRegularFile } from './contentSourceGuard.mjs';
 
 const DOC_FILE_EXTENSIONS = ['.md', '.mdx'];
 
@@ -57,8 +58,15 @@ export function createVariantSourceCandidates(docPath, options = {}) {
 }
 
 export function resolveDocFileInfo(docPath, options = {}) {
+  const rootDir = options.rootDir || process.cwd();
+  const contentRoot = resolve(
+    rootDir,
+    String(options.contentDir || join('src', 'docs', 'content')).replaceAll('\\', '/')
+  );
   for (const candidate of createVariantSourceCandidates(docPath, options)) {
-    if (existsSync(candidate.filePath)) {
+    // lstat, not exists: a dangling or outside symlink must fail, not be skipped.
+    if (lstatSync(candidate.filePath, { throwIfNoEntry: false })) {
+      assertContainedRegularFile(candidate.filePath, contentRoot, rootDir);
       return candidate;
     }
   }
