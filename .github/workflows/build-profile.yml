@@ -63,7 +63,7 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          git commit -m 'profile: configure ${{ matrix.viewer }} / ${{ matrix.minifier }}'
+          HUSKY=0 git commit --no-verify -m 'chore: configure ${{ matrix.viewer }} / ${{ matrix.minifier }}'
       - name: Build and capture per-phase timings, elapsed time, and peak memory
         run: |
           export PROFILE_DIR="${{ runner.temp }}/build-profile"
