@@ -213,7 +213,7 @@ export function planRoutePreloads({
     return '';
   }
 
-  if (isOpenApiRoute({ routePath, canonicalPath, routeKind })) {
+  if (openapiConfig.enabled && isOpenApiRoute({ routePath, canonicalPath, routeKind })) {
     const openApiChunk = resolveRouteChunk(
       assetFiles,
       OPENAPI_CHUNK_PATTERN,

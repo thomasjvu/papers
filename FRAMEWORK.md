@@ -73,7 +73,13 @@ Add locale overlays under `src/docs/content/variants/locales/{locale}/…` (same
 
 ## OpenAPI
 
-Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). The build generates stable operation and model reference pages plus machine-readable artifacts for configured specs. The interactive Scalar explorer remains lazy at `/docs/{pagePath}`. Richer playground behavior and broader schema/code-sample coverage remain bounded future work.
+Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). The build generates stable operation and model reference pages plus machine-readable artifacts for configured specs. The interactive Scalar explorer remains lazy at `/docs/{pagePath}`. When `openapiConfig.enabled` is `false`, `vite.config.ts` excludes the OpenAPI page and Scalar module graph from the build so disabled sites avoid bundling it. Richer playground behavior and broader schema/code-sample coverage remain bounded future work.
+
+## Build performance
+
+- **Compile-time feature exclusion:** `vite.config.ts` stubs disabled `openapiConfig` and `designBookConfig` route modules at build time so unused optional viewers are excluded from the module graph while enabled sites keep full route behavior.
+- **Minification:** production builds use Vite's `esbuild` minifier while enforcing `papers-javascript-budgets` (600 kB per application chunk, 700 kB for the generated Mermaid parser).
+- **Content-only bundle cache:** `scripts/build-vite.mjs` caches Vite's emitted app-shell outputs (`index.html`, `assets/*`, `bundle-budget.json`) under `node_modules/.cache/papers-vite-bundle/`, keyed by app-shell inputs (excluding Markdown content directories) and verified with per-file SHA-256 checksums before restore. `public/`, route HTML, Pagefind, RSS, and `build-manifest.json` always regenerate fresh. Set `PAPERS_VITE_CACHE=0` to force a cold Vite build.
 
 ## Lazy feature invariants
 
