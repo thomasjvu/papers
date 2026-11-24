@@ -68,6 +68,10 @@ function ensureRouteHtml(routePath) {
 function getOpenApiRouteHtmlPaths(openapiArtifacts) {
   const routeHtmlPaths = new Set();
 
+  if (!openapiConfig.enabled) {
+    return routeHtmlPaths;
+  }
+
   for (const spec of openapiConfig.specs) {
     const overviewRoutePath = buildOpenApiRoutePath(
       openapiConfig,
@@ -314,44 +318,46 @@ function main() {
     ensureRouteHtml(routePath);
   }
 
-  for (const spec of openapiConfig.specs) {
-    const routePath = buildOpenApiRoutePath(
-      openapiConfig,
-      spec.id === openapiConfig.defaultSpecId ? null : spec.id
-    );
-    const html = ensureRouteHtml(routePath);
-    assert(
-      html.includes(`<link rel="canonical" href="${canonicalUrl(routePath)}" />`),
-      `Canonical tag mismatch for OpenAPI route ${routePath}.`
-    );
-    assert(
-      html.includes('<script type="application/ld+json">'),
-      `Structured data missing for ${routePath}.`
-    );
-
-    if (spec.url.startsWith('/')) {
-      assert(
-        existsSync(join(distDir, normalizeLocalOpenApiPath(spec.url).replace(/^\/+/, ''))),
-        `Missing OpenAPI asset: ${spec.url}`
+  if (openapiConfig.enabled) {
+    for (const spec of openapiConfig.specs) {
+      const routePath = buildOpenApiRoutePath(
+        openapiConfig,
+        spec.id === openapiConfig.defaultSpecId ? null : spec.id
       );
-    }
-
-    const artifact = openapiArtifacts.specs.find((candidate) => candidate.id === spec.id);
-    assert(artifact, `Missing OpenAPI artifact for spec ${spec.id}.`);
-    for (const route of [
-      ...(artifact.operations || []).map((operation) => operation.routePath),
-      ...(artifact.schemas || []).map((model) => model.routePath),
-    ]) {
-      const routeHtml = ensureRouteHtml(route);
+      const html = ensureRouteHtml(routePath);
       assert(
-        routeHtml.includes(`<link rel="canonical" href="${canonicalUrl(route)}" />`),
-        `Canonical tag mismatch for generated OpenAPI route ${route}.`
+        html.includes(`<link rel="canonical" href="${canonicalUrl(routePath)}" />`),
+        `Canonical tag mismatch for OpenAPI route ${routePath}.`
       );
-      if (manifest.siteUrl) {
+      assert(
+        html.includes('<script type="application/ld+json">'),
+        `Structured data missing for ${routePath}.`
+      );
+
+      if (spec.url.startsWith('/')) {
         assert(
-          readText(join(distDir, 'sitemap.xml')).includes(canonicalUrl(route)),
-          `Generated OpenAPI route is missing from the sitemap: ${route}`
+          existsSync(join(distDir, normalizeLocalOpenApiPath(spec.url).replace(/^\/+/, ''))),
+          `Missing OpenAPI asset: ${spec.url}`
         );
+      }
+
+      const artifact = openapiArtifacts.specs.find((candidate) => candidate.id === spec.id);
+      assert(artifact, `Missing OpenAPI artifact for spec ${spec.id}.`);
+      for (const route of [
+        ...(artifact.operations || []).map((operation) => operation.routePath),
+        ...(artifact.schemas || []).map((model) => model.routePath),
+      ]) {
+        const routeHtml = ensureRouteHtml(route);
+        assert(
+          routeHtml.includes(`<link rel="canonical" href="${canonicalUrl(route)}" />`),
+          `Canonical tag mismatch for generated OpenAPI route ${route}.`
+        );
+        if (manifest.siteUrl) {
+          assert(
+            readText(join(distDir, 'sitemap.xml')).includes(canonicalUrl(route)),
+            `Generated OpenAPI route is missing from the sitemap: ${route}`
+          );
+        }
       }
     }
   }

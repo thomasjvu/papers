@@ -4,7 +4,9 @@ on:
   pull_request:
     paths:
       - 'vite.config.ts'
+      - 'scripts/build-vite.mjs'
       - 'scripts/release-smoke.mjs'
+      - 'scripts/preview-smoke.mjs'
       - 'scripts/lib/routePreloads.mjs'
       - '.github/workflows/build-profile.yml'
 
@@ -18,6 +20,7 @@ jobs:
       fail-fast: false
       matrix:
         viewer: [enabled, disabled]
+        minifier: [terser-baseline, terser-fast, esbuild]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -25,32 +28,117 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Disable viewer for comparison
-        if: matrix.viewer == 'disabled'
+      - name: Configure profile variant
+        if: matrix.viewer == 'disabled' || matrix.minifier != 'terser-baseline'
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync, writeFileSync } from 'node:fs';
-          const file = 'shared/documentation-config.js';
-          const text = readFileSync(file, 'utf8');
-          const updated = text.replace(/(export const openapiConfig = \{\s*enabled:) true/, '$1 false');
-          if (updated === text) throw new Error('Could not disable OpenAPI');
-          writeFileSync(file, updated);
+
+          if ('${{ matrix.viewer }}' === 'disabled') {
+            const configFile = 'shared/documentation-config.js';
+            const text = readFileSync(configFile, 'utf8');
+            const updated = text.replace(/(export const openapiConfig = \{\s*enabled:) true/, '$1 false');
+            if (updated === text) throw new Error('Could not disable OpenAPI');
+            writeFileSync(configFile, updated);
+          }
+
+          if ('${{ matrix.minifier }}' !== 'terser-baseline') {
+            const viteFile = 'vite.config.ts';
+            const text = readFileSync(viteFile, 'utf8');
+            const target = "    minify: 'terser',\n    terserOptions: { maxWorkers: 1, compress: { passes: 2 } },";
+            if (!text.includes(target)) throw new Error('Could not locate terser config in vite.config.ts');
+            const replacement =
+              '${{ matrix.minifier }}' === 'esbuild'
+                ? "    minify: 'esbuild',"
+                : "    minify: 'terser',\n    terserOptions: { compress: { passes: 1 } },";
+            writeFileSync(viteFile, text.replace(target, replacement));
+          }
           NODE
-      - name: Build and capture elapsed time and peak memory
+          if [ '${{ matrix.viewer }}' = 'disabled' ]; then
+            npm run generate:openapi
+            npm run generate:llms
+            npm run generate:docs
+            npm run generate:seo -- --mode production
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m 'profile: configure ${{ matrix.viewer }} / ${{ matrix.minifier }}'
+      - name: Build and capture per-phase timings, elapsed time, and peak memory
         run: |
-          mkdir -p build-profile
-          /usr/bin/time -v -o build-profile/time.txt sh -c 'npm run build > build-profile/build.log 2>&1' || { cat build-profile/build.log; exit 1; }
-          grep -E 'modules transformed|built in' build-profile/build.log || true
-          du -sk dist > build-profile/dist-size.txt
-          find dist -type f | wc -l > build-profile/file-count.txt
+          export PROFILE_DIR="${{ runner.temp }}/build-profile"
+          mkdir -p "$PROFILE_DIR"
+          node --input-type=module <<'NODE'
+          import { execFileSync } from 'node:child_process';
+          import { writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+
+          const profileDir = process.env.PROFILE_DIR;
+          const phases = [
+            ['resolve:theme', ['npm', 'run', 'resolve:theme']],
+            ['generate:icons', ['npm', 'run', 'generate:icons']],
+            ['generate:design-book', ['npm', 'run', 'generate:design-book']],
+            ['generate:openapi', ['npm', 'run', 'generate:openapi']],
+            ['generate:llms', ['npm', 'run', 'generate:llms']],
+            ['generate:docs', ['npm', 'run', 'generate:docs']],
+            ['generate:seo', ['npm', 'run', 'generate:seo', '--', '--mode', 'production']],
+            ['tsc', ['npx', 'tsc', '-b']],
+            ['vite', ['node', '--max-old-space-size=4096', 'scripts/build-vite.mjs']],
+            ['generate:route-html', ['npm', 'run', 'generate:route-html', '--', '--mode', 'production']],
+            ['generate:pagefind', ['npm', 'run', 'generate:pagefind']],
+            ['generate:last-updated', ['npm', 'run', 'generate:last-updated']],
+            ['generate:rss', ['npm', 'run', 'generate:rss']],
+            ['write:build-manifest', ['npm', 'run', 'write:build-manifest']],
+          ];
+
+          const results = [];
+          const logs = [];
+          let failed = null;
+          const totalStart = process.hrtime.bigint();
+
+          for (const [name, [cmd, ...args]] of phases) {
+            const timeFile = join(profileDir, `phase-${name.replace(/[^a-z0-9-]/gi, '_')}.time`);
+            const start = process.hrtime.bigint();
+            try {
+              const out = execFileSync('/usr/bin/time', ['-v', '-o', timeFile, cmd, ...args], {
+                encoding: 'utf8',
+                stdio: ['ignore', 'pipe', 'pipe'],
+              });
+              const ms = Number(process.hrtime.bigint() - start) / 1e6;
+              results.push({ name, ms: Math.round(ms), status: 'ok' });
+              logs.push(`=== ${name} (${Math.round(ms)}ms) ===\n${out}`);
+            } catch (error) {
+              const ms = Number(process.hrtime.bigint() - start) / 1e6;
+              const stdout = error.stdout ? String(error.stdout) : '';
+              const stderr = error.stderr ? String(error.stderr) : '';
+              results.push({ name, ms: Math.round(ms), status: 'failed' });
+              logs.push(`=== ${name} FAILED (${Math.round(ms)}ms) ===\n${stdout}\n${stderr}`);
+              failed = { name, stdout, stderr };
+              break;
+            }
+          }
+
+          const totalMs = Math.round(Number(process.hrtime.bigint() - totalStart) / 1e6);
+          writeFileSync(join(profileDir, 'phases.json'), JSON.stringify({ totalMs, results }, null, 2) + '\n');
+          writeFileSync(join(profileDir, 'build.log'), logs.join('\n'));
+          console.log(JSON.stringify({ totalMs, results }, null, 2));
+
+          if (failed) {
+            console.error(`Phase ${failed.name} failed:\n${failed.stdout}\n${failed.stderr}`);
+            process.exit(1);
+          }
+          NODE
+          du -sk dist > "$PROFILE_DIR/dist-size.txt"
+          find dist -type f | wc -l > "$PROFILE_DIR/file-count.txt"
+          cp dist/bundle-budget.json "$PROFILE_DIR/bundle-budget.json" 2>/dev/null || true
+          grep -E 'modules transformed|built in' "$PROFILE_DIR/build.log" || true
+          grep -E 'Maximum resident set size|Elapsed|User time' "$PROFILE_DIR/phase-vite.time" || true
       - name: Validate generated artifact and routes
         run: npm run release:check:papers
       - name: Upload measurement evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-profile-${{ matrix.viewer }}
-          path: |
-            build-profile/
-            dist/bundle-budget.json
+          name: build-profile-${{ matrix.viewer }}-${{ matrix.minifier }}
+          path: ${{ runner.temp }}/build-profile/
           if-no-files-found: warn

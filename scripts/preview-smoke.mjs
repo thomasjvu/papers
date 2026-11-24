@@ -180,19 +180,21 @@ async function main() {
       `Served ${withDocsBasePath('skill')} route has unexpected metadata.`
     );
 
-    for (const spec of openapiConfig.specs) {
-      const routePath = buildOpenApiRoutePath(
-        openapiConfig,
-        spec.id === openapiConfig.defaultSpecId ? null : spec.id
-      );
-      const openApiRoute = await fetchText(baseUrl, routePath);
-      assert(
-        openApiRoute.body.includes(`<link rel="canonical" href="${canonicalUrl(routePath)}" />`),
-        `Served ${routePath} is missing its canonical tag.`
-      );
+    if (openapiConfig.enabled) {
+      for (const spec of openapiConfig.specs) {
+        const routePath = buildOpenApiRoutePath(
+          openapiConfig,
+          spec.id === openapiConfig.defaultSpecId ? null : spec.id
+        );
+        const openApiRoute = await fetchText(baseUrl, routePath);
+        assert(
+          openApiRoute.body.includes(`<link rel="canonical" href="${canonicalUrl(routePath)}" />`),
+          `Served ${routePath} is missing its canonical tag.`
+        );
 
-      if (spec.url.startsWith('/')) {
-        await fetchText(baseUrl, spec.url);
+        if (spec.url.startsWith('/')) {
+          await fetchText(baseUrl, spec.url);
+        }
       }
     }
 
