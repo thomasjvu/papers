@@ -124,31 +124,38 @@ function main() {
   );
   const scalarAsset = assetFiles.find((fileName) => /^esm-[^/]+\.js$/.test(fileName));
   assert(
-    openApiPageAsset && openApiReferenceAsset && scalarAsset,
-    'Missing the route-lazy OpenAPI, OpenAPI reference, or standalone Scalar chunk.'
-  );
-  assert(
     statSync(join(distDir, 'openapi-artifacts.json')).size <= 1_000_000,
     'Generated OpenAPI artifact exceeds the 1 MB release budget.'
-  );
-  assert(
-    statSync(join(distDir, 'assets', scalarAsset)).size <= 3_000_000,
-    'Standalone Scalar route asset exceeds the 3 MB release budget.'
   );
   const openapiArtifacts = JSON.parse(readText(distOpenApiArtifactsPath));
   const openApiRouteHtmlPaths = getOpenApiRouteHtmlPaths(openapiArtifacts);
   const canonicalUrl = (path) => buildAbsoluteUrl(path, manifest.siteUrl || '');
   const agentDiscoveryHref = canonicalUrl(AGENT_DISCOVERY_PATH);
-  const openApiPageSource = readText(join(distDir, 'assets', openApiPageAsset));
-  const openApiReferenceSource = readText(join(distDir, 'assets', openApiReferenceAsset));
-  assert(
-    openApiPageSource.includes(openApiReferenceAsset),
-    'OpenAPI route does not reference its route-lazy reference chunk.'
-  );
-  assert(
-    openApiReferenceSource.includes(scalarAsset),
-    'Route-lazy OpenAPI reference does not reference the standalone Scalar chunk.'
-  );
+  if (openapiConfig.enabled) {
+    assert(
+      openApiPageAsset && openApiReferenceAsset && scalarAsset,
+      'Missing the route-lazy OpenAPI, OpenAPI reference, or standalone Scalar chunk.'
+    );
+    assert(
+      statSync(join(distDir, 'assets', scalarAsset)).size <= 3_000_000,
+      'Standalone Scalar route asset exceeds the 3 MB release budget.'
+    );
+    const openApiPageSource = readText(join(distDir, 'assets', openApiPageAsset));
+    const openApiReferenceSource = readText(join(distDir, 'assets', openApiReferenceAsset));
+    assert(
+      openApiPageSource.includes(openApiReferenceAsset),
+      'OpenAPI route does not reference its route-lazy reference chunk.'
+    );
+    assert(
+      openApiReferenceSource.includes(scalarAsset),
+      'Route-lazy OpenAPI reference does not reference the standalone Scalar chunk.'
+    );
+  } else {
+    assert(
+      !openApiPageAsset && !openApiReferenceAsset && !scalarAsset,
+      'Disabled OpenAPI must not include viewer chunks.'
+    );
+  }
 
   const indexHtml = ensureRouteHtml('/');
   assert(
@@ -164,7 +171,7 @@ function main() {
     'index.html eagerly references the OpenAPI vendor chunk.'
   );
   assert(
-    !indexHtml.includes(scalarAsset),
+    !scalarAsset || !indexHtml.includes(scalarAsset),
     'index.html eagerly references the standalone Scalar chunk.'
   );
   assert(
@@ -179,16 +186,16 @@ function main() {
   for (const htmlPath of collectHtmlFiles(distDir)) {
     const html = readText(htmlPath);
     assert(
-      !html.includes(openApiReferenceAsset),
+      !openApiReferenceAsset || !html.includes(openApiReferenceAsset),
       `${htmlPath} eagerly references the route-lazy OpenAPI reference asset ${openApiReferenceAsset}.`
     );
     assert(
-      !html.includes(scalarAsset),
+      !scalarAsset || !html.includes(scalarAsset),
       `${htmlPath} eagerly references the standalone Scalar asset ${scalarAsset}.`
     );
     if (!openApiRouteHtmlPaths.has(htmlPath)) {
       assert(
-        !html.includes(openApiPageAsset),
+        !openApiPageAsset || !html.includes(openApiPageAsset),
         `${htmlPath} eagerly references the OpenAPI page asset ${openApiPageAsset}.`
       );
     }

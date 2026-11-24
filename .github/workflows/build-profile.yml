@@ -1,0 +1,55 @@
+name: Optional viewer build profile
+
+on:
+  pull_request:
+    paths:
+      - 'vite.config.ts'
+      - 'scripts/release-smoke.mjs'
+      - '.github/workflows/build-profile.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  profile:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        viewer: [enabled, disabled]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Disable viewer for comparison
+        if: matrix.viewer == 'disabled'
+        run: |
+          node --input-type=module <<'NODE'
+          import { readFileSync, writeFileSync } from 'node:fs';
+          const file = 'shared/documentation-config.js';
+          const text = readFileSync(file, 'utf8');
+          const updated = text.replace(/(export const openapiConfig = \{\s*enabled:) true/, '$1 false');
+          if (updated === text) throw new Error('Could not disable OpenAPI');
+          writeFileSync(file, updated);
+          NODE
+      - name: Build and capture elapsed time and peak memory
+        run: |
+          mkdir -p build-profile
+          /usr/bin/time -v -o build-profile/time.txt sh -c 'npm run build > build-profile/build.log 2>&1' || { cat build-profile/build.log; exit 1; }
+          grep -E 'modules transformed|built in' build-profile/build.log || true
+          du -sk dist > build-profile/dist-size.txt
+          find dist -type f | wc -l > build-profile/file-count.txt
+      - name: Validate generated artifact and routes
+        run: npm run release:check:papers
+      - name: Upload measurement evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-profile-${{ matrix.viewer }}
+          path: |
+            build-profile/
+            dist/bundle-budget.json
+          if-no-files-found: warn

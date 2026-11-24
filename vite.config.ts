@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
+import { openapiConfig } from './shared/documentation-config.js';
 
 function readThemeFontSnippet(): string {
   const snippetPath = resolve(__dirname, 'src/lib/generated/papers-theme-fonts.html');
@@ -26,6 +27,24 @@ function readThemeColorModeAttributes(): string {
 
 export default defineConfig({
   plugins: [
+    {
+      name: 'papers-disabled-openapi',
+      enforce: 'pre',
+      resolveId(source, importer) {
+        if (
+          !openapiConfig.enabled &&
+          source === './pages/OpenApiPage' &&
+          importer?.replace(/\\/g, '/').endsWith('/src/App.tsx')
+        ) {
+          return '\0papers-disabled-openapi';
+        }
+      },
+      load(id) {
+        if (id === '\0papers-disabled-openapi') {
+          return 'export default function OpenApiPage() { return null; }';
+        }
+      },
+    },
     {
       name: 'papers-javascript-budgets',
       generateBundle(_options, bundle) {
