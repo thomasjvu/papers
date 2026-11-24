@@ -2,19 +2,16 @@
 
 ## [0.3.1](https://github.com/thomasjvu/papers/compare/v0.3.0...v0.3.1) (2026-11-24)
 
-
 ### Bug Fixes
 
-* **content:** refuse symlinked content sources (audit F-2) ([e4b143a](https://github.com/thomasjvu/papers/commit/e4b143a31640550ef93a5578a8814e72b6709547))
-* **docs:** keep stale-collection cleanup inside public/ (audit F-3) ([5f59bce](https://github.com/thomasjvu/papers/commit/5f59bcecfadf18f3e38a83eced7b2ca7a2fac013))
-* **security:** harden release, CI, upgrade and starter supply chain ([c72791f](https://github.com/thomasjvu/papers/commit/c72791faf9d9430d225c0db0567867baab891f53))
-* **security:** harden release, CI, upgrade and starter supply chain ([6adce7e](https://github.com/thomasjvu/papers/commit/6adce7ebd0c4b6195c59f2556c40c281e81c9399))
-* **upgrade:** ignore refs left by another repository (audit F-1) ([abc11a4](https://github.com/thomasjvu/papers/commit/abc11a49ec6cdce9dca661fa137ce19b2231758d))
-
+- **content:** refuse symlinked content sources (audit F-2) ([e4b143a](https://github.com/thomasjvu/papers/commit/e4b143a31640550ef93a5578a8814e72b6709547))
+- **docs:** keep stale-collection cleanup inside public/ (audit F-3) ([5f59bce](https://github.com/thomasjvu/papers/commit/5f59bcecfadf18f3e38a83eced7b2ca7a2fac013))
+- **security:** harden release, CI, upgrade and starter supply chain ([c72791f](https://github.com/thomasjvu/papers/commit/c72791faf9d9430d225c0db0567867baab891f53))
+- **upgrade:** ignore refs left by another repository (audit F-1) ([abc11a4](https://github.com/thomasjvu/papers/commit/abc11a49ec6cdce9dca661fa137ce19b2231758d))
 
 ### Performance Improvements
 
-* exclude disabled viewers, switch to esbuild, and cache content-only Vite bundles ([#25](https://github.com/thomasjvu/papers/issues/25)) ([7b27bc9](https://github.com/thomasjvu/papers/commit/7b27bc9efd8ba7c7908970942f7deb8a31e793b7))
+- exclude disabled viewers, switch to esbuild, and cache content-only Vite bundles ([#25](https://github.com/thomasjvu/papers/issues/25)) ([7b27bc9](https://github.com/thomasjvu/papers/commit/7b27bc9efd8ba7c7908970942f7deb8a31e793b7))
 
 ## [0.3.0](https://github.com/thomasjvu/papers/compare/v0.2.0...v0.3.0) (2026-11-02)
 
