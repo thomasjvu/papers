@@ -5,6 +5,7 @@ on:
     paths:
       - 'vite.config.ts'
       - 'scripts/release-smoke.mjs'
+      - 'scripts/lib/routePreloads.mjs'
       - '.github/workflows/build-profile.yml'
 
 permissions:
