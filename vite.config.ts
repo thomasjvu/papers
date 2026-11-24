@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
-import { openapiConfig } from './shared/documentation-config.js';
+import { designBookConfig, openapiConfig } from './shared/documentation-config.js';
 
 function readThemeFontSnippet(): string {
   const snippetPath = resolve(__dirname, 'src/lib/generated/papers-theme-fonts.html');
@@ -28,20 +28,25 @@ function readThemeColorModeAttributes(): string {
 export default defineConfig({
   plugins: [
     {
-      name: 'papers-disabled-openapi',
+      name: 'papers-optional-features',
       enforce: 'pre',
       resolveId(source, importer) {
-        if (
-          !openapiConfig.enabled &&
-          source === './pages/OpenApiPage' &&
-          importer?.replace(/\\/g, '/').endsWith('/src/App.tsx')
-        ) {
+        if (!importer?.replace(/\\/g, '/').endsWith('/src/App.tsx')) {
+          return;
+        }
+        if (!openapiConfig.enabled && source === './pages/OpenApiPage') {
           return '\0papers-disabled-openapi';
+        }
+        if (!designBookConfig.enabled && source === './pages/DesignBookPage') {
+          return '\0papers-disabled-design-book';
         }
       },
       load(id) {
         if (id === '\0papers-disabled-openapi') {
           return 'export default function OpenApiPage() { return null; }';
+        }
+        if (id === '\0papers-disabled-design-book') {
+          return 'export default function DesignBookPage() { return null; }';
         }
       },
     },
@@ -116,8 +121,7 @@ export default defineConfig({
     outDir: 'dist',
     sourcemap: false,
     cssMinify: true,
-    minify: 'terser',
-    terserOptions: { maxWorkers: 1, compress: { passes: 2 } },
+    minify: 'esbuild',
     // The budget plugin enforces 600 kB except the generated Mermaid parser (700 kB).
     chunkSizeWarningLimit: 700,
     // Never inline fonts: the shipped CSP font-src blocks data: URLs (KaTeX math fonts).

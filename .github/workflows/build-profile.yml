@@ -5,6 +5,7 @@ on:
     paths:
       - 'vite.config.ts'
       - 'scripts/build-vite.mjs'
+      - 'scripts/lib/viteBundleCache.mjs'
       - 'scripts/release-smoke.mjs'
       - 'scripts/preview-smoke.mjs'
       - 'scripts/lib/routePreloads.mjs'
@@ -20,7 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         viewer: [enabled, disabled]
-        minifier: [terser-baseline, terser-fast, esbuild]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -28,43 +28,26 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
-      - name: Configure profile variant
-        if: matrix.viewer == 'disabled' || matrix.minifier != 'terser-baseline'
+      - name: Configure disabled OpenAPI fixture
+        if: matrix.viewer == 'disabled'
         run: |
           node --input-type=module <<'NODE'
           import { readFileSync, writeFileSync } from 'node:fs';
-
-          if ('${{ matrix.viewer }}' === 'disabled') {
-            const configFile = 'shared/documentation-config.js';
-            const text = readFileSync(configFile, 'utf8');
-            const updated = text.replace(/(export const openapiConfig = \{\s*enabled:) true/, '$1 false');
-            if (updated === text) throw new Error('Could not disable OpenAPI');
-            writeFileSync(configFile, updated);
-          }
-
-          if ('${{ matrix.minifier }}' !== 'terser-baseline') {
-            const viteFile = 'vite.config.ts';
-            const text = readFileSync(viteFile, 'utf8');
-            const target = "    minify: 'terser',\n    terserOptions: { maxWorkers: 1, compress: { passes: 2 } },";
-            if (!text.includes(target)) throw new Error('Could not locate terser config in vite.config.ts');
-            const replacement =
-              '${{ matrix.minifier }}' === 'esbuild'
-                ? "    minify: 'esbuild',"
-                : "    minify: 'terser',\n    terserOptions: { compress: { passes: 1 } },";
-            writeFileSync(viteFile, text.replace(target, replacement));
-          }
+          const configFile = 'shared/documentation-config.js';
+          const text = readFileSync(configFile, 'utf8');
+          const updated = text.replace(/(export const openapiConfig = \{\s*enabled:) true/, '$1 false');
+          if (updated === text) throw new Error('Could not disable OpenAPI');
+          writeFileSync(configFile, updated);
           NODE
-          if [ '${{ matrix.viewer }}' = 'disabled' ]; then
-            npm run generate:openapi
-            npm run generate:llms
-            npm run generate:docs
-            npm run generate:seo -- --mode production
-          fi
+          npm run generate:openapi
+          npm run generate:llms
+          npm run generate:docs
+          npm run generate:seo -- --mode production
           git config user.name 'github-actions[bot]'
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add -A
-          HUSKY=0 git commit --no-verify -m 'chore: configure ${{ matrix.viewer }} / ${{ matrix.minifier }}'
-      - name: Build and capture per-phase timings, elapsed time, and peak memory
+          HUSKY=0 git commit --no-verify -m 'chore: disable OpenAPI for profile fixture'
+      - name: Cold build and capture per-phase timings and peak memory
         run: |
           export PROFILE_DIR="${{ runner.temp }}/build-profile"
           mkdir -p "$PROFILE_DIR"
@@ -93,52 +76,112 @@ jobs:
 
           const results = [];
           const logs = [];
-          let failed = null;
           const totalStart = process.hrtime.bigint();
 
           for (const [name, [cmd, ...args]] of phases) {
-            const timeFile = join(profileDir, `phase-${name.replace(/[^a-z0-9-]/gi, '_')}.time`);
+            const timeFile = join(profileDir, `cold-${name.replace(/[^a-z0-9-]/gi, '_')}.time`);
             const start = process.hrtime.bigint();
-            try {
-              const out = execFileSync('/usr/bin/time', ['-v', '-o', timeFile, cmd, ...args], {
-                encoding: 'utf8',
-                stdio: ['ignore', 'pipe', 'pipe'],
-              });
-              const ms = Number(process.hrtime.bigint() - start) / 1e6;
-              results.push({ name, ms: Math.round(ms), status: 'ok' });
-              logs.push(`=== ${name} (${Math.round(ms)}ms) ===\n${out}`);
-            } catch (error) {
-              const ms = Number(process.hrtime.bigint() - start) / 1e6;
-              const stdout = error.stdout ? String(error.stdout) : '';
-              const stderr = error.stderr ? String(error.stderr) : '';
-              results.push({ name, ms: Math.round(ms), status: 'failed' });
-              logs.push(`=== ${name} FAILED (${Math.round(ms)}ms) ===\n${stdout}\n${stderr}`);
-              failed = { name, stdout, stderr };
-              break;
-            }
+            const out = execFileSync('/usr/bin/time', ['-v', '-o', timeFile, cmd, ...args], {
+              encoding: 'utf8',
+              stdio: ['ignore', 'pipe', 'pipe'],
+            });
+            const ms = Math.round(Number(process.hrtime.bigint() - start) / 1e6);
+            results.push({ name, ms, status: 'ok' });
+            logs.push(`=== ${name} (${ms}ms) ===\n${out}`);
           }
 
           const totalMs = Math.round(Number(process.hrtime.bigint() - totalStart) / 1e6);
-          writeFileSync(join(profileDir, 'phases.json'), JSON.stringify({ totalMs, results }, null, 2) + '\n');
-          writeFileSync(join(profileDir, 'build.log'), logs.join('\n'));
+          writeFileSync(join(profileDir, 'cold-phases.json'), JSON.stringify({ totalMs, results }, null, 2) + '\n');
+          writeFileSync(join(profileDir, 'cold-build.log'), logs.join('\n'));
           console.log(JSON.stringify({ totalMs, results }, null, 2));
-
-          if (failed) {
-            console.error(`Phase ${failed.name} failed:\n${failed.stdout}\n${failed.stderr}`);
-            process.exit(1);
-          }
           NODE
           du -sk dist > "$PROFILE_DIR/dist-size.txt"
           find dist -type f | wc -l > "$PROFILE_DIR/file-count.txt"
-          cp dist/bundle-budget.json "$PROFILE_DIR/bundle-budget.json" 2>/dev/null || true
-          grep -E 'modules transformed|built in' "$PROFILE_DIR/build.log" || true
-          grep -E 'Maximum resident set size|Elapsed|User time' "$PROFILE_DIR/phase-vite.time" || true
-      - name: Validate generated artifact and routes
+          cp dist/bundle-budget.json "$PROFILE_DIR/bundle-budget.json"
+          grep -E 'modules transformed|built in' "$PROFILE_DIR/cold-build.log" || true
+          grep -E 'Maximum resident set size|Elapsed|User time' "$PROFILE_DIR/cold-vite.time" || true
+      - name: Validate cold build artifacts and routes
         run: npm run release:check:papers
+      - name: Verify content-only warm rebuild cache hit and output parity
+        run: |
+          export PROFILE_DIR="${{ runner.temp }}/build-profile"
+          node --input-type=module <<'NODE'
+          import assert from 'node:assert/strict';
+          import { createHash } from 'node:crypto';
+          import { execFileSync } from 'node:child_process';
+          import { appendFileSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
+          import { join } from 'node:path';
+
+          const profileDir = process.env.PROFILE_DIR;
+
+          function hashViteOutputs() {
+            const map = {};
+            const assetsDir = join('dist', 'assets');
+            for (const name of readdirSync(assetsDir).sort()) {
+              const p = join(assetsDir, name);
+              map[`assets/${name}`] = createHash('sha256').update(readFileSync(p)).digest('hex');
+            }
+            map['bundle-budget.json'] = createHash('sha256')
+              .update(readFileSync(join('dist', 'bundle-budget.json')))
+              .digest('hex');
+            return map;
+          }
+
+          const coldHashes = hashViteOutputs();
+
+          appendFileSync(
+            'src/docs/content/getting-started/introduction.md',
+            '\nContent-only rebuild parity check.\n'
+          );
+
+          const start = process.hrtime.bigint();
+          const out = execFileSync(
+            '/usr/bin/time',
+            ['-v', '-o', join(profileDir, 'warm-build.time'), 'npm', 'run', 'build'],
+            { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
+          );
+          const warmTotalMs = Math.round(Number(process.hrtime.bigint() - start) / 1e6);
+          writeFileSync(join(profileDir, 'warm-build.log'), out);
+
+          assert.match(
+            out,
+            /Reused cached Vite app bundle/,
+            'Expected content-only rebuild to reuse the cached Vite app bundle.'
+          );
+
+          const updatedDoc = readFileSync('dist/docs-content/getting-started/introduction.json', 'utf8');
+          assert.match(
+            updatedDoc,
+            /Content-only rebuild parity check\./,
+            'Expected updated markdown content to propagate into dist/.'
+          );
+
+          const warmHashes = hashViteOutputs();
+          assert.deepEqual(
+            warmHashes,
+            coldHashes,
+            'Cached Vite bundle outputs drifted from the cold build.'
+          );
+
+          const summary = {
+            warmTotalMs,
+            verifiedViteFiles: Object.keys(warmHashes).length,
+            cacheHit: true,
+          };
+          writeFileSync(join(profileDir, 'warm-summary.json'), JSON.stringify(summary, null, 2) + '\n');
+          console.log(JSON.stringify(summary, null, 2));
+          NODE
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          HUSKY=0 git commit --no-verify -m 'chore: commit content-only warm rebuild fixture'
+          npm run write:build-manifest
+          npm run release:artifact-check
+          npm run release:preview-check
       - name: Upload measurement evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: build-profile-${{ matrix.viewer }}-${{ matrix.minifier }}
+          name: build-profile-${{ matrix.viewer }}
           path: ${{ runner.temp }}/build-profile/
           if-no-files-found: warn
