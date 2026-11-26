@@ -57,15 +57,6 @@ interface DocumentationPageProps {
   collection?: ContentCollection;
 }
 
-function getInitialRightSidebarState(): boolean {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  const saved = safeLocalStorage.getItem('rightSidebarVisible');
-  return saved === 'true';
-}
-
 const DocumentationPage = React.memo(
   ({
     initialContent,
@@ -87,28 +78,15 @@ const DocumentationPage = React.memo(
     const activeCollection = collection || getContentCollection('docs');
     const path = currentPath;
     const siteName = import.meta.env.VITE_SITE_NAME || 'papers';
-    const shortcutLabel = getShortcutLabel(
-      typeof navigator === 'undefined' ? undefined : navigator.platform
-    );
+    const [platform, setPlatform] = useState<string | undefined>(undefined);
+    const shortcutLabel = getShortcutLabel(platform);
     const nextPathLabel = useMemo(() => getPendingPathLabel(pendingPath), [pendingPath]);
     const navigationTree = activeCollection.tree;
     const routeContext = useCollectionRouteContext(activeCollection, location.pathname);
 
-    const [isMobile, setIsMobile] = useState(() => {
-      if (typeof window === 'undefined') {
-        return false;
-      }
-
-      return isMobileViewport(window.innerWidth);
-    });
-    const [sidebarVisible, setSidebarVisible] = useState(() => {
-      if (typeof window === 'undefined') {
-        return false;
-      }
-
-      return !isMobileViewport(window.innerWidth);
-    });
-    const [rightSidebarVisible, setRightSidebarVisible] = useState(getInitialRightSidebarState);
+    const [isMobile, setIsMobile] = useState(false);
+    const [sidebarVisible, setSidebarVisible] = useState(true);
+    const [rightSidebarVisible, setRightSidebarVisible] = useState(false);
 
     const sidebarAnimationVariants = useMemo(
       () => getSidebarMotionVariants(prefersReducedMotion),
@@ -141,6 +119,9 @@ const DocumentationPage = React.memo(
         setSidebarVisible(!mobile);
       };
 
+      setPlatform(navigator.platform);
+      setRightSidebarVisible(safeLocalStorage.getItem('rightSidebarVisible') === 'true');
+      handleResize();
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }, []);

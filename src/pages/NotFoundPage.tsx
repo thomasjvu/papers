@@ -1,5 +1,5 @@
 import { Icon } from '@iconify/react';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 
 import { DEFAULT_DOCUMENT_PATH } from '../lib/navigation';
@@ -14,9 +14,10 @@ export default function NotFoundPage() {
   const location = useLocation();
   const { openCommandPalette } = useCommandPalette();
 
-  const shortcutLabel = useMemo(() => {
-    const isMac = typeof navigator !== 'undefined' && /mac/i.test(navigator.platform);
-    return isMac ? 'Cmd + K' : 'Ctrl + K';
+  const [shortcutLabel, setShortcutLabel] = useState('Ctrl + K');
+
+  useEffect(() => {
+    setShortcutLabel(/mac/i.test(navigator.platform) ? 'Cmd + K' : 'Ctrl + K');
   }, []);
 
   useEffect(() => {

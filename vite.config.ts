@@ -53,7 +53,14 @@ export default defineConfig({
     {
       name: 'papers-javascript-budgets',
       generateBundle(_options, bundle) {
+        // Per-chunk limits are not enough on their own: 134 chunks at 600 kB
+        // each still let 9 MB of JS through the gate. The totals below bound
+        // the whole output and the JS a first paint has to load, so a new
+        // heavy dependency fails the build instead of quietly shipping.
+        const TOTAL_JS_BUDGET_BYTES = 10_000_000;
+        const INITIAL_JS_BUDGET_BYTES = 400_000;
         const records = [];
+        const chunksByFile = new Map<string, { bytes: number; imports: string[] }>();
         for (const chunk of Object.values(bundle)) {
           if (chunk.type !== 'chunk') continue;
           const parser = chunk.moduleIds.some((id) => id.includes('/@mermaid-js/parser/'));
@@ -65,15 +72,62 @@ export default defineConfig({
             limit,
             category: parser ? 'mermaid-parser' : 'application',
           });
+          chunksByFile.set(chunk.fileName, { bytes, imports: [...chunk.imports] });
           if (bytes > limit)
             this.error(
               `${chunk.fileName}: ${bytes} bytes exceeds the ${limit}-byte ${parser ? 'Mermaid parser' : 'application'} budget`
             );
         }
+        const totalJsBytes = records.reduce((sum, record) => sum + record.bytes, 0);
+        if (totalJsBytes > TOTAL_JS_BUDGET_BYTES) {
+          this.error(
+            `Total JS output is ${totalJsBytes} bytes, exceeding the ${TOTAL_JS_BUDGET_BYTES}-byte total budget. ` +
+              `Split a lazy feature, drop a dependency, or raise the budget deliberately in vite.config.ts.`
+          );
+        }
+        // Initial JS = the entry chunk(s) plus every chunk they statically
+        // import. Dynamic imports (DocsPage, Scalar, Mermaid, …) are excluded
+        // on purpose: they load on demand, not on first paint.
+        const initialJsBytes = (() => {
+          const seen = new Set<string>();
+          const visit = (fileName: string): number => {
+            if (seen.has(fileName)) return 0;
+            const chunk = chunksByFile.get(fileName);
+            if (!chunk) return 0;
+            seen.add(fileName);
+            return chunk.bytes + chunk.imports.reduce((sum, file) => sum + visit(file), 0);
+          };
+          return Object.values(bundle)
+            .filter((chunk) => chunk.type === 'chunk' && chunk.isEntry)
+            .reduce((sum, chunk) => sum + visit(chunk.fileName), 0);
+        })();
+        if (initialJsBytes > INITIAL_JS_BUDGET_BYTES) {
+          this.error(
+            `Initial JS is ${initialJsBytes} bytes, exceeding the ${INITIAL_JS_BUDGET_BYTES}-byte first-paint budget. ` +
+              `Move work out of the entry graph (lazy-route it) or raise the budget deliberately in vite.config.ts.`
+          );
+        }
         this.emitFile({
           type: 'asset',
           fileName: 'bundle-budget.json',
-          source: JSON.stringify({ version: 1, chunks: records }, null, 2) + '\n',
+          source:
+            JSON.stringify(
+              {
+                version: 1,
+                budgets: {
+                  totalJsBytes: TOTAL_JS_BUDGET_BYTES,
+                  initialJsBytes: INITIAL_JS_BUDGET_BYTES,
+                },
+                totals: {
+                  jsBytes: totalJsBytes,
+                  initialJsBytes,
+                  chunkCount: records.length,
+                },
+                chunks: records,
+              },
+              null,
+              2
+            ) + '\n',
         });
       },
     },

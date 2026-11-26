@@ -34,12 +34,9 @@ const publicFontsDir = path.join(appDir, 'public', 'fonts');
 const themeAssetManifestPath = path.join(appDir, 'public', 'papers-theme-assets.json');
 const themeFontAssetsDir = path.join(themeDir, 'assets', 'fonts');
 const BASE_FONT_FILES = [
-  'DMSerifDisplay-Regular.ttf',
-  'DMSerifDisplay-Regular.woff',
-  'Hubot-Sans.ttf',
-  'Hubot-Sans.woff',
-  'Mona-Sans.ttf',
-  'Mona-Sans.woff',
+  'DMSerifDisplay-Regular.woff2',
+  'Hubot-Sans.woff2',
+  'Mona-Sans.woff2',
 ];
 
 function readPreviousThemeAssetManifest() {

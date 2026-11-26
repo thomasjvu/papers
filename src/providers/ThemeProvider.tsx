@@ -23,22 +23,8 @@ function isEditableTarget(target: EventTarget | null): boolean {
   );
 }
 
-function getInitialDarkModePreference(): boolean {
-  const storedThemePreference = readStoredThemePreference();
-
-  if (storedThemePreference === 'true') {
-    return true;
-  }
-
-  if (storedThemePreference === 'false') {
-    return false;
-  }
-
-  return DEFAULT_DARK_MODE;
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [isDarkMode, setIsDarkMode] = useState(getInitialDarkModePreference);
+  const [isDarkMode, setIsDarkMode] = useState(DEFAULT_DARK_MODE);
   const [motion, setMotion] = useState<{ source: 'system' | 'user'; reduced: boolean }>({
     source: 'system',
     reduced: false,

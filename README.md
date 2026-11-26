@@ -1,9 +1,10 @@
 # papers
 
 `papers` is a Markdown-first, static/CDN-first documentation framework built
-with React, Vite, and TypeScript. It emits clean route HTML, Pagefind search,
-themes, Scalar/OpenAPI pages, SEO metadata, and structured artifacts for LLM
-and agent consumers.
+with React, Vite, and TypeScript. It emits prerendered route HTML (docs
+articles ship their content in the HTML, so first paint does not wait on
+JavaScript), Pagefind search, themes, Scalar/OpenAPI pages, SEO metadata,
+and structured artifacts for LLM and agent consumers.
 
 ## Prerequisites
 
@@ -159,7 +160,10 @@ control and keep it in `PAPERS_DEPLOY_HOST`.
 
 ## Known limitations
 
-- The framework is static-first and does not provide SSR streaming.
+- The framework is static-first and does not provide SSR streaming. Docs
+  article pages are prerendered into their route HTML at build time and the
+  React app takes over on mount (no hydration); articles using tabs, steps,
+  cards, or ColorPalette fences are not prerendered and keep the SPA shell.
 - Versioning and i18n have route/content scaffolding but are disabled by
   default and need an instance fixture before being treated as a complete
   product contract.

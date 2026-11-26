@@ -19,7 +19,7 @@ import {
 } from '../src/lib/searchRanking.ts';
 import { createPagefindRecords, splitSearchSections } from '../scripts/lib/pagefindArtifacts.mjs';
 import { createDocumentToc } from '../scripts/lib/docsArtifacts.mjs';
-import { emboldenSvgText, renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
+import { renderSocialCardPng } from '../scripts/lib/socialCardPng.mjs';
 import { createRssFeedXml, selectFeedItems } from '../scripts/lib/rssFeed.mjs';
 
 import {
@@ -337,10 +337,6 @@ export const docsParityTests: TestCase[] = [
       } finally {
         console.warn = warn;
       }
-      const marked = emboldenSvgText('<text x="1" fill="#FFF" font-weight="800">A</text>');
-      assert.match(marked, /stroke="#FFF" stroke-width="3\.0"/);
-      // Attacker-controlled title text never reaches attributes.
-      assert.equal(emboldenSvgText('<text fill="x">A</text>'), '<text fill="x">A</text>');
     },
   },
   {

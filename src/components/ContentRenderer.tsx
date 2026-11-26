@@ -92,6 +92,13 @@ const ContentRenderer = memo(function ContentRenderer({
               </div>
             )}
 
+            {/*
+              Markdown sources render through the marked pipeline
+              (MarkdownRenderer); MDX sources arrive as sanitized HTML and
+              render directly (HtmlRenderer), which then enhances code
+              blocks, Mermaid placeholders, tabs and math in place. Routing
+              markdown through HtmlRenderer would show the raw source text.
+            */}
             {contentFormat === 'html' ? (
               <HtmlRenderer html={content} />
             ) : (

@@ -1,10 +1,16 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { domAnimation, LazyMotion } from 'framer-motion';
 
 import DocumentationPage from '../components/docs/DocumentationPage';
 import NotFoundPage from './NotFoundPage';
-import { getDocument, getDocumentBacklinks, resolveDocumentPath } from '../lib/content';
+import {
+  getDocument,
+  getDocumentBacklinks,
+  resolveDocumentPath,
+  type DocumentBacklink,
+  type InitialDocsData,
+} from '../lib/content';
 import { getContentCollection } from '../data/collections';
 import { createLogger } from '../utils/logger';
 import { applySeoMetadata } from '../utils/seo';
@@ -18,24 +24,17 @@ import DocumentBacklinks from '../components/docs/DocumentBacklinks';
 const logger = createLogger('DocsPage');
 const SITE_NAME = import.meta.env.VITE_SITE_NAME || 'papers';
 
-export default function DocsPage({ collectionId = 'docs' }: { collectionId?: string }) {
+export default function DocsPage({
+  collectionId = 'docs',
+  initialDocs,
+}: {
+  collectionId?: string;
+  initialDocs?: InitialDocsData;
+}) {
   const collection = useMemo(() => getContentCollection(collectionId), [collectionId]);
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const [content, setContent] = useState<string>('');
-  const [status, setStatus] = useState<
-    'initial-loading' | 'refreshing' | 'ready' | 'not-found' | 'error'
-  >('initial-loading');
-  const loading = status === 'initial-loading' || status === 'refreshing';
-  const hasLoadedOnce = status !== 'initial-loading';
-  const isNotFound = status === 'not-found';
-  const [currentDocPath, setCurrentDocPath] = useState<string>('');
-  const [docTitle, setDocTitle] = useState<string>('Documentation');
-  const [docDescription, setDocDescription] = useState<string>('');
-  const [docSourcePath, setDocSourcePath] = useState<string | undefined>(undefined);
-  const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>('markdown');
-  const [backlinks, setBacklinks] = useState<Awaited<ReturnType<typeof getDocumentBacklinks>>>([]);
 
   const slug = params['*'] || '';
   const routeContext = useMemo(
@@ -55,6 +54,41 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
     [collection, docPath, routeContext.activeLocale, routeContext.activeVersion]
   );
 
+  const matchedInitial =
+    initialDocs &&
+    initialDocs.collectionId === collection.id &&
+    initialDocs.docPath === docPath &&
+    (initialDocs.version ?? null) === (routeContext.activeVersion ?? null) &&
+    (initialDocs.locale ?? null) === (routeContext.activeLocale ?? null)
+      ? initialDocs
+      : null;
+  const requestKey = `${collection.id}:${docPath}:${routeContext.activeVersion ?? ''}:${
+    routeContext.activeLocale ?? ''
+  }`;
+  const loadedKeyRef = useRef<string | null>(matchedInitial ? requestKey : null);
+
+  const [content, setContent] = useState<string>(matchedInitial?.document.content ?? '');
+  const [status, setStatus] = useState<
+    'initial-loading' | 'refreshing' | 'ready' | 'not-found' | 'error'
+  >(matchedInitial ? 'ready' : 'initial-loading');
+  const loading = status === 'initial-loading' || status === 'refreshing';
+  const hasLoadedOnce = status !== 'initial-loading';
+  const isNotFound = status === 'not-found';
+  const [currentDocPath, setCurrentDocPath] = useState<string>(matchedInitial ? docPath : '');
+  const [docTitle, setDocTitle] = useState<string>(
+    matchedInitial?.document.title ?? 'Documentation'
+  );
+  const [docDescription, setDocDescription] = useState<string>(
+    matchedInitial?.document.description ?? ''
+  );
+  const [docSourcePath, setDocSourcePath] = useState<string | undefined>(
+    matchedInitial?.document.sourcePath
+  );
+  const [docContentFormat, setDocContentFormat] = useState<'markdown' | 'html'>(
+    matchedInitial?.document.contentFormat || 'markdown'
+  );
+  const [backlinks, setBacklinks] = useState<DocumentBacklink[]>(matchedInitial?.backlinks ?? []);
+
   useEffect(() => {
     const normalizedCurrentPath = location.pathname.replace(/\/+$/, '') || '/';
     const normalizedCanonicalPath = canonicalPath.replace(/\/+$/, '') || '/';
@@ -65,6 +99,11 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
   }, [canonicalPath, location.pathname, navigate]);
 
   useEffect(() => {
+    if (loadedKeyRef.current === requestKey) {
+      return undefined;
+    }
+    loadedKeyRef.current = requestKey;
+
     let active = true;
 
     setStatus((previous) => (previous === 'initial-loading' ? 'initial-loading' : 'refreshing'));
@@ -119,7 +158,7 @@ export default function DocsPage({ collectionId = 'docs' }: { collectionId?: str
     return () => {
       active = false;
     };
-  }, [collection.id, docPath, routeContext.activeLocale, routeContext.activeVersion]);
+  }, [collection.id, docPath, requestKey, routeContext.activeLocale, routeContext.activeVersion]);
 
   useEffect(() => {
     if (!docTitle) {

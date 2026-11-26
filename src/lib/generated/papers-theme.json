@@ -12,13 +12,13 @@
   },
   "fonts": [
     {
-      "preload": "/fonts/Mona-Sans.woff",
-      "type": "font/woff",
+      "preload": "/fonts/Mona-Sans.woff2",
+      "type": "font/woff2",
       "crossOrigin": true
     },
     {
-      "preload": "/fonts/Hubot-Sans.woff",
-      "type": "font/woff",
+      "preload": "/fonts/Hubot-Sans.woff2",
+      "type": "font/woff2",
       "crossOrigin": true
     }
   ]
