@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/thomasjvu/papers/compare/v0.3.1...v0.3.2) (2026-11-26)
+
+
+### Features
+
+* prerender supported docs routes at build time ([#26](https://github.com/thomasjvu/papers/issues/26)) ([9a9ddb4](https://github.com/thomasjvu/papers/commit/9a9ddb4d17a4773145d421bd3f34df397bb9ba0a))
+
 ## [0.3.1](https://github.com/thomasjvu/papers/compare/v0.3.0...v0.3.1) (2026-11-24)
 
 ### Bug Fixes
