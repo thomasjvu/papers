@@ -21,6 +21,8 @@ import { markdownElementsTests } from './markdown-elements.test.ts';
 import { documentationPageViewTests } from './documentation-page-view.test.ts';
 import { papersUpgradeTests } from './papers-upgrade.test.ts';
 import { contentSecurityTests, staleCleanupSecurityTests } from './content-security.test.ts';
+import { prerenderHtmlTests } from './prerender-html.test.ts';
+import { socialCardCacheTests } from './social-card-cache.test.ts';
 
 const testCases = [
   ...asyncCacheTests,
@@ -45,6 +47,8 @@ const testCases = [
   ...papersUpgradeTests,
   ...contentSecurityTests,
   ...staleCleanupSecurityTests,
+  ...prerenderHtmlTests,
+  ...socialCardCacheTests,
 ];
 
 let failures = 0;

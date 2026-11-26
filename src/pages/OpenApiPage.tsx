@@ -72,9 +72,13 @@ function findSpecForPath(pathname: string) {
   });
 }
 
-export default function OpenApiPage() {
+export default function OpenApiPage({
+  initialArtifacts,
+}: {
+  initialArtifacts?: OpenApiArtifacts | null;
+}) {
   const location = useLocation();
-  const [artifacts, setArtifacts] = useState<OpenApiArtifacts | null>(null);
+  const [artifacts, setArtifacts] = useState<OpenApiArtifacts | null>(initialArtifacts ?? null);
   const [isInteractiveViewerRequested, setIsInteractiveViewerRequested] = useState(false);
   const routePrefix = getOpenApiRoutePrefix(openapiConfig);
   const view = useMemo(
@@ -90,6 +94,10 @@ export default function OpenApiPage() {
     null;
 
   useEffect(() => {
+    if (initialArtifacts) {
+      return undefined;
+    }
+
     let active = true;
     void loadOpenApiArtifacts().then((nextArtifacts) => {
       if (active) setArtifacts(nextArtifacts);
@@ -97,7 +105,7 @@ export default function OpenApiPage() {
     return () => {
       active = false;
     };
-  }, []);
+  }, [initialArtifacts]);
 
   useEffect(() => {
     if (!activeSpec) return;

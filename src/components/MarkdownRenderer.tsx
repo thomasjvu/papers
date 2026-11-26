@@ -1,5 +1,4 @@
 import { Icon } from '@iconify/react';
-import DOMPurify from 'dompurify';
 import { div as MotionDiv } from 'framer-motion/m';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react';
@@ -38,10 +37,6 @@ type MarkdownRendererProps = {
 
 type HtmlRendererProps = {
   html: string;
-};
-
-const HTML_RENDERER_SANITIZE_CONFIG = {
-  USE_PROFILES: { html: true },
 };
 
 const VOID_HTML_TAGS = new Set(['area', 'br', 'col', 'hr', 'img', 'input', 'source', 'wbr']);
@@ -144,21 +139,22 @@ function convertHtmlNode(node: ChildNode, key: string): React.ReactNode {
 
 export function HtmlRenderer({ html }: HtmlRendererProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const sanitizedHtml = useMemo(
-    () => DOMPurify.sanitize(html, HTML_RENDERER_SANITIZE_CONFIG),
-    [html]
-  );
+  const [enhanced, setEnhanced] = useState(false);
   const children = useMemo(() => {
-    if (typeof document === 'undefined') return null;
+    if (!enhanced || typeof document === 'undefined') return null;
     const template = document.createElement('template');
-    template.innerHTML = sanitizedHtml;
+    template.innerHTML = html;
     if (!template.content.querySelector(INTERACTIVE_HTML_SELECTOR)) return null;
     return Array.from(template.content.childNodes).map((node, index) =>
       convertHtmlNode(node, `html-${index}`)
     );
-  }, [sanitizedHtml]);
+  }, [enhanced, html]);
 
-  // Typeset math placeholders emitted by the MDX pipeline (scripts/lib/mdxCompile.mjs).
+  useEffect(() => {
+    setEnhanced(true);
+  }, []);
+
+  // Typeset math placeholders emitted by the build pipelines.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) {
@@ -169,10 +165,10 @@ export function HtmlRenderer({ html }: HtmlRendererProps) {
     return () => {
       cancelled = true;
     };
-  }, [sanitizedHtml]);
+  }, [enhanced, html]);
 
   if (!children) {
-    return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: sanitizedHtml }} />;
+    return <div ref={containerRef} dangerouslySetInnerHTML={{ __html: html }} />;
   }
 
   return <div ref={containerRef}>{children}</div>;

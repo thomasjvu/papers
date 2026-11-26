@@ -54,6 +54,26 @@ CLAUDE.md
 /src/theme-active.css
 /src/lib/generated/papers-theme-fonts.html
 
+# generated content artifacts (rebuilt by CI)
+/public/agents.json
+/public/collections.json
+/public/docs-collection.json
+/public/docs-content/
+/public/docs-index.json
+/public/docs-references.json
+/public/images/og-image.svg
+/public/images/twitter-card.svg
+/public/llms-full.txt
+/public/llms.txt
+/public/openapi-artifacts.json
+/public/papers-theme-assets.json
+/public/robots.txt
+/public/sitemap.xml
+/public/skill.md
+
+# server-render build output
+/.ssr
+
 # local visual baselines (platform-specific)
 /test/visual/__screenshots__
 

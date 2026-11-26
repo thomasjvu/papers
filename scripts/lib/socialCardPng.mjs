@@ -1,7 +1,15 @@
 import { existsSync } from 'fs';
 import { join } from 'path';
 
-const CARD_FONT_FILES = ['Mona-Sans.ttf', 'Hubot-Sans.ttf'];
+// Static instances of the card fonts at the weights the card template uses:
+// Hubot Sans 800 for the title, Mona Sans 400 for the body text, and Mona
+// Sans 800 as the title fallback. They are subsetted to Latin, Latin-1
+// Supplement, General Punctuation and Currency Symbols, and keep the
+// original family names. The upstream files are variable fonts whose default
+// instance is ExtraLight (wght 200); resvg renders only the default
+// instance, so this file used to fake weight with a same-colour stroke
+// (emboldenSvgText). Static instances make that unnecessary.
+const CARD_FONT_FILES = ['Mona-Sans-400.ttf', 'Mona-Sans-800.ttf', 'Hubot-Sans-800.ttf'];
 
 let resvgModulePromise = null;
 
@@ -15,27 +23,8 @@ async function loadResvg() {
   return resvgModulePromise;
 }
 
-export function socialCardFontFiles(publicDir) {
-  return CARD_FONT_FILES.map((file) => join(publicDir, 'fonts', file)).filter((file) =>
-    existsSync(file)
-  );
-}
-
-/**
- * The bundled Mona/Hubot Sans files are variable fonts whose default instance is
- * ExtraLight (wght 200), and resvg renders only the default instance. The OFL
- * Reserved Font Name forbids shipping renamed static instances, so emulate the
- * requested weight with a same-colour stroke painted behind the glyph fill.
- */
-export function emboldenSvgText(svg) {
-  return String(svg).replace(/<text\b([^>]*)>/g, (tag, attributes) => {
-    if (/\sstroke=/.test(attributes)) return tag;
-    const fill = attributes.match(/\sfill="(#[0-9A-Fa-f]{3,8})"/)?.[1];
-    if (!fill) return tag;
-    const weight = Number(attributes.match(/\sfont-weight="(\d{3})"/)?.[1] || 400);
-    const strokeWidth = Math.max(0.6, Math.min(3.2, (weight - 200) / 200)).toFixed(1);
-    return `<text${attributes} stroke="${fill}" stroke-width="${strokeWidth}" stroke-linejoin="round" paint-order="stroke">`;
-  });
+export function socialCardFontFiles(fontDir) {
+  return CARD_FONT_FILES.map((file) => join(fontDir, file)).filter((file) => existsSync(file));
 }
 
 /**
@@ -48,7 +37,7 @@ export async function renderSocialCardPng(svg, { fontFiles = [], width = 1200 } 
   if (process.env.PAPERS_SOCIAL_CARD_FORMAT === 'svg') return null;
   try {
     const { Resvg } = await loadResvg();
-    const resvg = new Resvg(emboldenSvgText(svg), {
+    const resvg = new Resvg(svg, {
       fitTo: { mode: 'width', value: width },
       background: '#090909',
       font: {

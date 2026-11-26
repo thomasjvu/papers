@@ -9,6 +9,33 @@ Static documentation framework for teams that want full visual control without a
 - **Fast sites** — Static deploy, prefetch, lazy-loaded heavy viewers
 - **Competitive surface** — OpenAPI explorer, llms.txt, search, version/i18n scaffolding
 
+## Architecture
+
+### Components
+
+- **Build pipeline.** `npm run build` (see `package.json`) runs the generators in `scripts/` (`resolve-theme`, `generate-icons`, `generate-design-book`, `generate-openapi-artifacts`, `generate-llms`, `generate-docs`, `generate-seo`), the Vite build (`scripts/build-vite.mjs`), then `generate-route-html`, `generate-pagefind`, `generate-last-updated`, `generate-rss`, and `write-build-manifest`. Shared helpers live in `scripts/lib/` (for example `docsGeneration.mjs`, `docsArtifacts.mjs`, `mdxCompile.mjs`, `contentValidation.mjs`).
+- **Configuration.** `shared/` holds config and logic used by both the build and the browser: `documentation-config.js`, `content-collections.js`, `docsRouting.js`, `mdxComponents.js`, and `openapiSpecUrls.js`.
+- **Browser app.** `src/main.tsx` mounts the React app with `BrowserRouter`. `src/lib/content.ts` fetches the generated JSON index, references, and per-page content files.
+- **Article first paint.** `scripts/generate-route-html.mjs` writes sanitized article HTML and the matching document data into each supported article route. The browser app reads that data on startup, displays the static article immediately, then takes over through React without hydration. Large pages and pages that need unsupported interactive MDX components keep the SPA shell. Social card PNGs are cached outside `dist/` so repeat builds can reuse them.
+- **Starter.** `packages/create-papers/index.mjs` scaffolds a new site into a target directory from the commit recorded in its package manifest, or from a local checkout with `PAPERS_TEMPLATE_ROOT=local`.
+- **Upgrader.** `scripts/papers-upgrade.mjs` and `scripts/lib/papersUpgrade.mjs` fetch an upstream Papers ref, three-way merge framework files, skip the site-owned paths in `papers.upgrade.json`, and run codemods from `scripts/migrations/`.
+
+### Data flow
+
+1. Authors write Markdown/MDX in `src/docs/content/` (or a configured collection root).
+2. `generate-docs` validates the content and writes JSON under `public/` (`docs-index.json`, `docs-content/`, `docs-references.json`, and per-collection files). MDX is compiled to HTML at build time and sanitized with `rehype-sanitize`; MDX components must be listed in `shared/mdxComponents.js`.
+3. Other generators derive LLM text (`llms*.txt`), SEO files, route HTML, Pagefind data, and RSS from the same content and metadata.
+4. In the browser, the app fetches that JSON. HTML is sanitized with DOMPurify before it is inserted. Code blocks, live examples, color palettes, math, and Mermaid diagrams are hydrated from `data-*` attributes. Mermaid runs with `securityLevel: 'strict'` and its SVG output is sanitized; KaTeX runs with `trust: false` and expansion limits.
+5. OpenAPI spec URLs are checked by `shared/openapiSpecUrls.js`: root-relative local paths, or HTTPS URLs whose exact origin is in `openapiConfig.allowedOrigins`. The build reads only local specs to generate reference pages. The Scalar viewer loads the configured URL in the browser.
+
+### Trust boundaries
+
+- **Maintainers** own executable code, config, themes, dependencies, and releases.
+- **Content authors** supply Markdown/MDX, diagrams, TeX, and spec text. That input passes through the validators and sanitizers above.
+- **Readers** receive static files only. There is no server-side account, session, or database. Browser storage holds UI preferences such as theme and sidebar state.
+- **Site operators** use the starter and upgrader to take framework code from a chosen upstream release; paths in `papers.upgrade.json` stay site-owned.
+- **Hosting and CI.** `public/_headers` (Cloudflare Pages) and `vercel.json` set the same Content-Security-Policy and security headers. Pull request validation runs without Cloudflare secrets. Deployment runs only on a push to `main` and deploys the build artifact produced by the validation job. Releases validate the tag against both package versions before npm publishing through a GitHub OIDC job in the `npm` environment.
+
 ## Homepage toggle
 
 Set `homepageConfig.enabled` in `shared/documentation-config.js`. When `false`, `/` redirects to the first docs page.
@@ -73,7 +100,7 @@ Add locale overlays under `src/docs/content/variants/locales/{locale}/…` (same
 
 ## OpenAPI
 
-Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/` (or remote). The build generates stable operation and model reference pages plus machine-readable artifacts for configured specs. The interactive Scalar explorer remains lazy at `/docs/{pagePath}`. When `openapiConfig.enabled` is `false`, `vite.config.ts` excludes the OpenAPI page and Scalar module graph from the build so disabled sites avoid bundling it. Richer playground behavior and broader schema/code-sample coverage remain bounded future work.
+Already shipped: set `openapiConfig.enabled` and point `specs[].url` at YAML/JSON under `public/`, or at an HTTPS URL whose origin is listed in `openapiConfig.allowedOrigins`. The build generates stable operation and model reference pages plus machine-readable artifacts for local specs; remote specs are shown only in the Scalar viewer. The interactive Scalar explorer remains lazy at `/docs/{pagePath}`. When `openapiConfig.enabled` is `false`, `vite.config.ts` excludes the OpenAPI page and Scalar module graph from the build so disabled sites avoid bundling it. Richer playground behavior and broader schema/code-sample coverage remain bounded future work.
 
 ## Build performance
 
@@ -103,12 +130,14 @@ For the content-engine direction and parity scorecard, see
 
 ## Near-term improvements
 
-1. SSR prerender for first paint
-2. Typed collection metadata and a bounded content adapter seam
-3. Publish `create-papers` to npm
-4. Interactive MDX `<Tabs>` hydration
-5. Content lint in CI (broken links, frontmatter)
-6. Broader generated OpenAPI schema/code-sample coverage and richer playground behavior
+1. Typed collection metadata and a bounded content adapter seam
+2. Interactive MDX `<Tabs>` hydration
+3. Content lint in CI (broken links, frontmatter)
+4. Broader generated OpenAPI schema/code-sample coverage and richer playground behavior
+
+Supported article routes already use static build-time prerendering for first
+paint. This does not add a server runtime or streaming SSR. See the README for
+the current list of article features that remain on the SPA path.
 
 ## Positioning
 

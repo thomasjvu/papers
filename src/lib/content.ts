@@ -36,6 +36,15 @@ export interface DocumentVariantOptions {
   locale?: string | null;
 }
 
+export interface InitialDocsData {
+  collectionId: string;
+  docPath: string;
+  version?: string | null;
+  locale?: string | null;
+  document: Document;
+  backlinks: DocumentBacklink[];
+}
+
 interface DocsIndexResponse {
   generated: string;
   paths: string[];

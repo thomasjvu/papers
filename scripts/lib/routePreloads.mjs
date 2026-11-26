@@ -187,7 +187,38 @@ function findDocumentRoute({ routePath, canonicalPath, collections, documentKey 
       locale: routeContext.activeLocale,
     });
 
-  return { collection, documentKey: generatedDocumentKey };
+  return { collection, documentKey: generatedDocumentKey, routeContext };
+}
+
+/**
+ * Resolve the generated document behind a route entry, for prerendering.
+ * Returns null for non-document routes (homepage, 404, hosted agent docs);
+ * throws when the route matches several collections or has no document path,
+ * so callers can warn and keep the plain shell.
+ */
+export function resolveRouteDocument({ routeEntry, collections = [] } = {}) {
+  const routePath = normalizeRoutePath(routeEntry?.routePath);
+  const canonicalPath = normalizeRoutePath(routeEntry?.canonicalPath || routePath);
+
+  if (!routePath || !canonicalPath) {
+    return null;
+  }
+
+  const documentRoute = findDocumentRoute({ routePath, canonicalPath, collections });
+  if (!documentRoute) {
+    return null;
+  }
+
+  const { collection, documentKey, routeContext } = documentRoute;
+
+  return {
+    collection,
+    documentKey,
+    docPath: routeContext.docPath,
+    version: routeContext.activeVersion ?? null,
+    locale: routeContext.activeLocale ?? null,
+    documentHref: getDocumentHref(collection, documentKey, routePath),
+  };
 }
 
 /**

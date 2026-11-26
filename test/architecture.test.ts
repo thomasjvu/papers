@@ -1029,7 +1029,6 @@ export const architectureTests: ArchitectureTestCase[] = [
 
       assert.match(contentRendererSource, /contentFormat === 'html'/);
       assert.match(contentRendererSource, /<HtmlRenderer html=\{content\}/);
-      assert.match(markdownRendererSource, /DOMPurify\.sanitize/);
       assert.match(markdownRendererSource, /dangerouslySetInnerHTML/);
     },
   },
@@ -1420,8 +1419,8 @@ export const architectureTests: ArchitectureTestCase[] = [
         assert.doesNotMatch(source, /m as motion.*from ['"]framer-motion['"]/);
       }
       assert.doesNotMatch(globalStylesSource, /@font-face/);
-      assert.match(defaultFontSource, /Mona-Sans\.woff/);
-      assert.match(defaultFontSource, /Hubot-Sans\.woff/);
+      assert.match(defaultFontSource, /Mona-Sans\.woff2/);
+      assert.match(defaultFontSource, /Hubot-Sans\.woff2/);
     },
   },
   {

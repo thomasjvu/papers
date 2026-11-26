@@ -8,6 +8,8 @@ import NotFoundPage from './pages/NotFoundPage';
 import { designBookConfig, homepageConfig, openapiConfig } from '../shared/documentation-config.js';
 import { contentCollections, getCollectionRoutePrefix } from '../shared/content-collections.js';
 import { DEFAULT_DOCUMENT_PATH } from './lib/navigation';
+import type { InitialDocsData } from './lib/content';
+import type { OpenApiArtifacts } from './lib/openapiArtifacts';
 import { getOpenApiRoutePrefix } from './lib/openapi';
 import {
   buildCollectionLandingPath,
@@ -34,7 +36,13 @@ function RouteLoadingState() {
   );
 }
 
-export default function App() {
+export default function App({
+  initialDocs,
+  initialOpenApiArtifacts,
+}: {
+  initialDocs?: InitialDocsData;
+  initialOpenApiArtifacts?: OpenApiArtifacts | null;
+}) {
   return (
     <ThemeProvider>
       <CommandPaletteProvider>
@@ -77,7 +85,7 @@ export default function App() {
               path={`${getOpenApiRoutePrefix(openapiConfig)}/*`}
               element={
                 <Suspense fallback={<RouteLoadingState />}>
-                  <OpenApiPage />
+                  <OpenApiPage initialArtifacts={initialOpenApiArtifacts} />
                 </Suspense>
               }
             />
@@ -100,7 +108,7 @@ export default function App() {
                 path={`${routePrefix}/*`}
                 element={
                   <Suspense fallback={<RouteLoadingState />}>
-                    <DocsPage collectionId={collection.id} />
+                    <DocsPage collectionId={collection.id} initialDocs={initialDocs} />
                   </Suspense>
                 }
               />
